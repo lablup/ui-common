@@ -65,11 +65,18 @@ theme:
 
 ```ts
 // The token contract the components resolve against. Required.
+// It also carries the default palette, so this alone is a working theme.
 import "@lablup/ui-common/styles/base.css";
 
-// One theme family. Import only the ones you ship.
-import "@lablup/ui-common/styles/themes/bliss-light.css";
+// Optional, and only if you switch themes at runtime through [data-theme].
+import "@lablup/ui-common/styles/themes/orange-dark.css";
 ```
+
+The package ships the theming mechanism and one default palette, the Lablup
+brand orange. A product with its own visual identity defines its own
+`[data-theme]` blocks over the same 113 token names and ships them itself,
+rather than the package accumulating everyone's palettes. The source product
+does exactly that with its five families.
 
 Component CSS travels with the component: importing `Button` brings
 `Button.css` with it, so a subpath import pulls that component's styles and no

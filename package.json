@@ -1,6 +1,6 @@
 {
   "name": "@lablup/ui-common",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Shared, product-neutral UI components and design tokens for Lablup products",
   "license": "Apache-2.0",
   "author": "Lablup Inc.",

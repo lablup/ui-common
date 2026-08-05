@@ -5,6 +5,25 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2]
+
+### Changed
+
+- The package ships the theming mechanism and one default palette rather than
+  a catalogue of one product's palettes. `styles/themes/` keeps `orange-light`
+  and `orange-dark`, the Lablup brand default; the eight `bliss`, `glass`,
+  `reverie` and `stained` stylesheets are removed. They were byte-identical
+  copies of files the source product already owns, so nothing is lost: a
+  product with its own visual identity defines its own `[data-theme]` blocks
+  over the same 113 token names and ships them itself.
+- `styles/base.css` now carries the orange-light values for the 55 tokens a
+  theme defines, so the default palette and the one shipped theme agree. The
+  113 token names, the structural values, and every component are unchanged.
+
+Removing a stylesheet path is a breaking change under the versioning policy,
+which is why it lands while the package is still an alpha with one consumer
+mid-migration.
+
 ## [0.1.0-alpha.1]
 
 ### Fixed
@@ -31,6 +50,7 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.1...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.2...HEAD
+[0.1.0-alpha.2]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.1...v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.0...v0.1.0-alpha.1
 [0.1.0-alpha.0]: https://github.com/lablup/ui-common/releases/tag/v0.1.0-alpha.0

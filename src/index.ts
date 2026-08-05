@@ -6,9 +6,11 @@
  * `@lablup/ui-common/components/<Name>` when you want the smallest
  * possible graph (see the component subpath exports in package.json).
  *
- * Styling is opt-in and lives in a separate entry point:
- * `@lablup/ui-common/styles/base.css` (required) plus at most one
- * `@lablup/ui-common/styles/themes/<theme>.css` (optional).
+ * Component CSS travels with the component. What stays opt-in is the palette:
+ * `@lablup/ui-common/styles/base.css` (required, and the default theme on its
+ * own) plus `styles/themes/orange-dark.css` if you switch through
+ * `[data-theme]`. A product with its own identity ships its own themes over
+ * the same token names.
  */
 
 export * from "./components/BaseCard";
