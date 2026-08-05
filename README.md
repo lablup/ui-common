@@ -71,8 +71,11 @@ import "@lablup/ui-common/styles/base.css";
 import "@lablup/ui-common/styles/themes/bliss-light.css";
 ```
 
-Component CSS travels with the component, so a subpath import pulls only that
-component's styles.
+Component CSS travels with the component: importing `Button` brings
+`Button.css` with it, so a subpath import pulls that component's styles and no
+others. The two entry points above are the only stylesheets you import by hand,
+and `base.css` is the one you must not skip, since it carries the tokens every
+component resolves against.
 
 ## Text is yours, not ours
 

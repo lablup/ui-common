@@ -86,3 +86,9 @@ jobs:
         run: |
           npx tsc --noEmit
           npx vite build
+
+      # Building is not the same as being styled. 0.1.0-alpha.0 built here
+      # green while shipping every component's CSS as an asset nothing could
+      # reach, so this asserts the rules actually land in the consumer bundle.
+      - name: Confirm component styles reached the consumer
+        run: node scripts/check-fixture-styles.mjs
