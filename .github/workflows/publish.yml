@@ -65,7 +65,7 @@ jobs:
 
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: pnpm publish --no-git-checks --access public
+        run: pnpm publish --no-git-checks --access public --registry https://npm.pkg.github.com
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
@@ -116,17 +116,22 @@ jobs:
             exit 1
           fi
 
+      - name: Confirm the credential is valid for npmjs
+        run: npm whoami --registry https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       # npm rather than pnpm here: provenance is an npm CLI feature and this
       # is the one step that needs it. The tarball is identical either way,
       # since both pack from the same files allowlist.
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: npm publish --provenance --access public
+        run: npm publish --provenance --access public --registry https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: npm publish --dry-run --access public
+        run: npm publish --dry-run --access public --registry https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
