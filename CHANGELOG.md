@@ -5,6 +5,18 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3]
+
+### Added
+
+- The ten `EmptyState` illustrations are exported. They shipped inside the
+  package from the first release but no barrel named them, so a consumer
+  composing its own empty state, which is the case `EmptyState` itself cannot
+  cover, had no way to reach one. Same shape as the stylesheets in
+  0.1.0-alpha.1: present in the tarball, addressable by nothing.
+- `IllustrationProps` is exported alongside them, so a consumer can type a
+  wrapper without redeclaring it.
+
 ## [0.1.0-alpha.2]
 
 ### Changed
@@ -50,7 +62,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.2...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.3...HEAD
+[0.1.0-alpha.3]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.2...v0.1.0-alpha.3
 [0.1.0-alpha.2]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.1...v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.0...v0.1.0-alpha.1
 [0.1.0-alpha.0]: https://github.com/lablup/ui-common/releases/tag/v0.1.0-alpha.0
