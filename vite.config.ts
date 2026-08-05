@@ -1,7 +1,7 @@
 import { cp, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { dirname, isAbsolute, resolve } from "node:path";
+import { dirname, isAbsolute, posix, relative, resolve, sep } from "node:path";
 
 import react from "@vitejs/plugin-react";
 import type { Plugin } from "vite";
@@ -49,11 +49,100 @@ function copyStyles(): Plugin {
   };
 }
 
+/** Strip a query suffix and express an id relative to the repository root. */
+function sourceKey(id: string): string {
+  const path = id.split("?")[0] ?? id;
+  const absolute = isAbsolute(path) ? path : resolve(root, path);
+  return relative(root, absolute).split(sep).join("/");
+}
+
+/**
+ * Re-attach each emitted stylesheet to the chunk whose module imported it.
+ *
+ * In library mode Rollup strips `import "./Button.css"` out of the chunk and
+ * leaves an "empty css" marker comment, because an application build would
+ * have injected a link tag instead. Nothing puts the import back, so a published
+ * package can carry a component's stylesheet as an emitted asset that no code
+ * path reaches. That is what 0.1.0-alpha.0 shipped: 20 stylesheets under
+ * `dist/assets/`, none imported by any chunk, and no exports entry pointing at
+ * them either, so a consumer rendered every component unstyled with no
+ * supported way to fix it. Both the package build and the install fixture were
+ * green throughout, since neither one looked at whether an emitted asset was
+ * reachable.
+ *
+ * Restoring the import here is what makes README's "component CSS travels with
+ * the component" true, and keeps `styles/base.css` the tokens-only entry point
+ * it is documented to be rather than a second thing to remember. Imports are
+ * appended rather than prepended: ES modules hoist them, so execution order is
+ * unchanged while every existing line keeps its position and the sourcemap
+ * emitted moments earlier stays accurate.
+ */
+function linkComponentStyles(): Plugin {
+  return {
+    name: "ui-common-link-component-styles",
+    apply: "build",
+    enforce: "post",
+    generateBundle(_options, bundle) {
+      const emittedBySource = new Map<string, string>();
+
+      for (const file of Object.values(bundle)) {
+        if (file.type !== "asset" || !file.fileName.endsWith(".css")) continue;
+        for (const original of file.originalFileNames ?? []) {
+          emittedBySource.set(sourceKey(original), file.fileName);
+        }
+      }
+
+      for (const file of Object.values(bundle)) {
+        if (file.type !== "chunk") continue;
+
+        // The stripped import is gone from `moduleIds`, but the edge that
+        // produced it survives in the module graph, so the graph is what this
+        // reads. Pairing `Button.css` with `Button.tsx` by filename would
+        // agree on every component the package has today and quietly stop
+        // agreeing on the first one that breaks the convention.
+        const specifiers: string[] = [];
+        for (const id of file.moduleIds) {
+          for (const imported of this.getModuleInfo(id)?.importedIds ?? []) {
+            if (!imported.endsWith(".css")) continue;
+
+            const key = sourceKey(imported);
+            // A stylesheet from a dependency stays a bare specifier that the
+            // consumer resolves; only this package's own files are re-linked.
+            if (key.startsWith("..")) continue;
+
+            const emitted = emittedBySource.get(key);
+            if (!emitted) {
+              this.error(
+                `${file.fileName} imports "${key}", which was not emitted as an asset. ` +
+                  `Its rules would ship with nothing able to reach them. ` +
+                  `Emitted stylesheets: ${[...emittedBySource.keys()].join(", ")}`,
+              );
+            }
+
+            const relativeToChunk = posix.relative(
+              posix.dirname(file.fileName),
+              emitted,
+            );
+            const specifier = relativeToChunk.startsWith(".")
+              ? relativeToChunk
+              : `./${relativeToChunk}`;
+            if (!specifiers.includes(specifier)) specifiers.push(specifier);
+          }
+        }
+
+        if (specifiers.length === 0) continue;
+        file.code += `\n${specifiers.map((s) => `import "${s}";`).join("\n")}\n`;
+      }
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
     dts({ include: ["src"], exclude: ["src/**/*.test.*", "src/test/**"] }),
     copyStyles(),
+    linkComponentStyles(),
   ],
   build: {
     target: "es2022",

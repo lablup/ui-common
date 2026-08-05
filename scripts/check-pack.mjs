@@ -7,11 +7,22 @@
  * This packs the real tarball, asserts nothing unexpected is inside it, and
  * asserts every path the exports map advertises actually resolves to a packed
  * file, so a broken subpath is caught here rather than by a consumer.
+ *
+ * It also asserts the converse, which is how 0.1.0-alpha.0 shipped every
+ * component unstyled: each of the 20 emitted stylesheets was packed, imported
+ * by nothing, and named by no exports entry, so a consumer had no supported
+ * way to load it. Checking that advertised paths resolve says nothing about
+ * files that arrive advertised by no one.
  */
 import { execFileSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import {
+  dirname as posixDirname,
+  join as posixJoin,
+  normalize as posixNormalize,
+} from "node:path/posix";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -56,8 +67,26 @@ for (const file of packed) {
 const pkg = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const packedSet = new Set(packed);
 
+/** Turn an exports target into a predicate over packed file paths. */
+function targetMatcher(target) {
+  const clean = target.replace(/^\.\//, "");
+
+  if (!clean.includes("*")) return (file) => file === clean;
+
+  const pattern = new RegExp(
+    "^" +
+      clean
+        .split("*")
+        .map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+        .join(".+") +
+      "$",
+  );
+  return (file) => pattern.test(file);
+}
+
 function assertResolves(target, subpath) {
   const clean = target.replace(/^\.\//, "");
+  const matches = targetMatcher(target);
 
   if (!clean.includes("*")) {
     if (!packedSet.has(clean)) {
@@ -66,26 +95,51 @@ function assertResolves(target, subpath) {
     return;
   }
 
-  const matcher = new RegExp(
-    "^" +
-      clean
-        .split("*")
-        .map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-        .join(".+") +
-      "$",
-  );
-  if (!packed.some((f) => matcher.test(f))) {
+  if (!packed.some(matches)) {
     failures.push(`exports["${subpath}"] pattern "${clean}" matches nothing packed`);
   }
 }
+
+const exportedMatchers = [];
 
 for (const [subpath, target] of Object.entries(pkg.exports ?? {})) {
   if (subpath === "./package.json") continue;
   if (typeof target === "string") {
     assertResolves(target, subpath);
+    exportedMatchers.push(targetMatcher(target));
   } else {
-    for (const value of Object.values(target)) assertResolves(value, subpath);
+    for (const value of Object.values(target)) {
+      assertResolves(value, subpath);
+      exportedMatchers.push(targetMatcher(value));
+    }
   }
+}
+
+/**
+ * Every packed stylesheet has to be loadable. A component's CSS is loadable
+ * because the chunk that owns it imports it (see `linkComponentStyles` in
+ * vite.config.ts); a token or theme stylesheet is loadable because the exports
+ * map names it and a consumer imports it directly. A stylesheet that is
+ * neither reaches nobody, and the build stays green while every rule in it
+ * goes missing at the consumer.
+ */
+const importedStylesheets = new Set();
+
+for (const file of packed.filter((f) => f.endsWith(".js"))) {
+  const code = await readFile(resolve(root, file), "utf8");
+  for (const [, specifier] of code.matchAll(/\bimport\s*["']([^"']+\.css)["']/g)) {
+    if (!specifier.startsWith(".")) continue; // resolved at the consumer
+    importedStylesheets.add(posixNormalize(posixJoin(posixDirname(file), specifier)));
+  }
+}
+
+for (const stylesheet of packed.filter((f) => f.endsWith(".css"))) {
+  if (importedStylesheets.has(stylesheet)) continue;
+  if (exportedMatchers.some((matches) => matches(stylesheet))) continue;
+  failures.push(
+    `"${stylesheet}" is packed but unreachable: no packed module imports it and no ` +
+      `exports entry names it, so a consumer cannot load its rules`,
+  );
 }
 
 if (failures.length > 0) {
