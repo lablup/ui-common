@@ -17,7 +17,6 @@
     "url": "https://github.com/lablup/ui-common/issues"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
     "access": "public",
     "provenance": false
   },

@@ -10,8 +10,24 @@ a component impossible to share.
 
 ## Install
 
-The package is distributed through GitHub Packages, which requires
-authentication even for public packages. Point the `@lablup` scope at the
+```
+pnpm add @lablup/ui-common
+```
+
+That is npmjs, which needs no authentication and is the right route for
+essentially everyone, including open-source consumers and forked CI.
+
+`react` and `react-dom` are peer dependencies. Version 18 and 19 are both
+supported.
+
+### The GitHub Packages mirror
+
+The same versions are also published to GitHub Packages for projects that
+already authenticate to GitHub. It is a mirror, not a different package, so
+there is no reason to prefer it unless your organization requires it.
+
+GitHub Packages requires authentication **even for public packages**, which is
+why it is not the default route here. To use it, point the scope at that
 registry:
 
 ```
@@ -19,7 +35,8 @@ registry:
 @lablup:registry=https://npm.pkg.github.com
 ```
 
-In GitHub Actions, authenticate with the built-in token:
+In GitHub Actions, authenticate with the built-in token and grant
+`permissions: packages: read`:
 
 ```yaml
 - uses: actions/setup-node@v5
@@ -30,17 +47,8 @@ env:
   NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The workflow needs `permissions: packages: read`.
-
-Locally, use a personal access token with `read:packages`. Put it in your user
-`~/.npmrc`, never in a project file.
-
-```
-pnpm add @lablup/ui-common
-```
-
-`react` and `react-dom` are peer dependencies. Version 18 and 19 are both
-supported.
+Locally, use a personal access token with `read:packages`, in your user
+`~/.npmrc` and never in a project file.
 
 ## Use
 

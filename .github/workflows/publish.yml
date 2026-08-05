@@ -5,21 +5,35 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
+      target:
+        description: "Where to publish"
+        type: choice
+        options: [both, npmjs, github-packages]
+        default: both
       dry_run:
         description: "Pack and validate without publishing"
         type: boolean
         default: true
 
-# Least privilege: the job needs to read the repository and write one package.
-# Nothing else is granted, and no long-lived token is stored in the repository.
+# Least privilege, declared per job rather than here, because the two
+# registries need different things: GitHub Packages needs packages: write,
+# npmjs needs id-token: write for provenance and neither needs the other's.
 permissions:
   contents: read
-  packages: write
 
 jobs:
-  publish:
+  # Consumed by internal projects that already authenticate to GitHub.
+  github-packages:
+    if: >-
+      github.event_name == 'release' ||
+      inputs.target == 'both' || inputs.target == 'github-packages'
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+      contents: read
+      packages: write
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v5
 
@@ -52,9 +66,67 @@ jobs:
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
         run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
         run: pnpm pack && ls -la *.tgz
+
+  # GitHub Packages requires authentication even for public packages, so an
+  # open-source consumer cannot install from it without every contributor
+  # minting a token. npmjs is the registry that makes this package actually
+  # public, which is the point of publishing it publicly at all.
+  npmjs:
+    if: >-
+      github.event_name == 'release' ||
+      inputs.target == 'both' || inputs.target == 'npmjs'
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      # Provenance: npm records which repository, workflow and commit produced
+      # the tarball, and shows a verified badge on the package page. It costs
+      # one permission and is worth it for a package strangers install.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+          scope: "@lablup"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Verify before publishing
+        run: pnpm run verify
+
+      - name: Confirm the release tag matches the package version
+        if: github.event_name == 'release'
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG="${GITHUB_REF_NAME#v}"
+          if [ "$PKG_VERSION" != "$TAG" ]; then
+            echo "package.json is $PKG_VERSION but the release tag is $TAG" >&2
+            exit 1
+          fi
+
+      # npm rather than pnpm here: provenance is an npm CLI feature and this
+      # is the one step that needs it. The tarball is identical either way,
+      # since both pack from the same files allowlist.
+      - name: Publish
+        if: github.event_name == 'release' || inputs.dry_run == false
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Dry run
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+        run: npm publish --dry-run --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
