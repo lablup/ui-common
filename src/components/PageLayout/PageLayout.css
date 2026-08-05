@@ -1,0 +1,49 @@
+/**
+ * PageLayout Component Styles
+ *
+ * Provides standardized page layout with consistent max-width,
+ * centering, and responsive behavior.
+ */
+
+/* Base layout styles */
+.page-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Standard layout: 900px max-width (default for most pages) */
+.page-layout--standard {
+  max-width: 900px;
+}
+
+/* Wide layout: 1400px max-width (for dashboard and complex layouts) */
+.page-layout--wide {
+  max-width: 1400px;
+}
+
+/*
+ * Full-width layout: no max-width clamp.
+ *
+ * Used by pages that own their own internal layout chrome (e.g. a left
+ * sidebar via SettingsLayout). The page can span the full viewport width
+ * without being centered or gaining a right-side gutter.
+ */
+.page-layout--full {
+  max-width: none;
+}
+
+/* Responsive adjustments
+ *
+ * The default mobile fallback adds horizontal padding so content doesn't
+ * touch the viewport edges. The `--full` variant opts out — pages using
+ * `variant="full"` apply their own internal padding (e.g. inside a sidebar
+ * or content panel), and adding outer padding here would double-pad them.
+ */
+@media (max-width: 767px) {
+  .page-layout:not(.page-layout--full) {
+    padding: 0 var(--token-paddingSM, 0.5rem);
+  }
+}

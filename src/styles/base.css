@@ -1,0 +1,169 @@
+/**
+ * @lablup/ui-common design tokens
+ *
+ * The 113 `--token-*` custom properties every component in this package
+ * reads. This file is the token contract: renaming or removing an entry is
+ * a breaking change, exactly like renaming a prop (see CONTRIBUTING.md).
+ *
+ * Values are the resolved defaults of the source product's default theme
+ * (theme family "stained", color scheme "light"), taken from that product's
+ * `src/themes/base.css` (structural tokens: spacing, radius, motion, type
+ * scale, focus ring, z-index) and `src/themes/tokens/stained-light.css`
+ * (color and button tokens). A handful of tokens that no source theme
+ * ever defines (e.g. `--token-colorTextQuaternary`, `--token-marginXXS`)
+ * are given the same literal fallback value the component CSS already
+ * carries at its call site.
+ *
+ * Every component also gives every token reference here its own inline
+ * fallback, so a consumer that imports a component without this stylesheet
+ * still gets a rendered (unthemed) result.
+ *
+ * Those inline fallbacks are NOT all equal to the values above. Roughly 143
+ * of them were inherited verbatim from the source product, where they predate
+ * current theme and were already dead code (the token is always defined, so
+ * the fallback never applies). The most visible divergence is
+ * `--token-colorPrimary`, whose call-site fallback is the older orange
+ * `#ff7a00` rather than the current `#8b5cf6`.
+ *
+ * Consequence: importing a component WITHOUT this stylesheet renders, but not
+ * in the documented default palette. Import `styles/base.css`. Aligning the
+ * fallbacks is a deliberate visual change and was left out of the extraction,
+ * which was required to preserve current rendering exactly.
+ */
+
+:root {
+  --token-borderRadius: 0.375rem;
+  --token-borderRadiusLG: 0.5rem;
+  --token-borderRadiusSM: 0.25rem;
+  --token-borderRadiusXL: 0.75rem;
+  --token-boxShadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  --token-boxShadowSecondary:
+    0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  --token-boxShadowTertiary: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --token-buttonActiveTransform: scale(0.97);
+  --token-buttonBorderRadius: 0.375rem;
+  --token-buttonHoverTransform: translateY(-1px);
+  --token-buttonDangerBg: transparent;
+  --token-buttonDangerBgActive: rgba(255, 77, 79, 0.2);
+  --token-buttonDangerBgHover: rgba(255, 77, 79, 0.1);
+  --token-buttonDangerBorder: 1px solid #c82333;
+  --token-buttonDangerShadow: none;
+  --token-buttonDangerText: #c82333;
+  --token-buttonGhostBackdrop: none;
+  --token-buttonGhostBg: transparent;
+  --token-buttonGhostBgActive: #f5f5f5;
+  --token-buttonGhostBgHover: rgba(139, 92, 246, 0.06);
+  --token-buttonGhostBorder: 1px solid transparent;
+  --token-buttonGhostBorderHover: 1px solid transparent;
+  --token-buttonGhostShadow: none;
+  --token-buttonGhostShadowHover: none;
+  --token-buttonPrimaryBackdrop: none;
+  --token-buttonPrimaryBg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%), #8b5cf6;
+  --token-buttonPrimaryBgHover:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%), #7c3aed;
+  --token-buttonPrimaryBorder: none;
+  --token-buttonPrimaryShadow:
+    0 2px 6px rgba(139, 92, 246, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  --token-buttonPrimaryShadowHover:
+    0 4px 10px rgba(139, 92, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  --token-buttonSecondaryBackdrop: none;
+  --token-buttonSecondaryBg: rgba(139, 92, 246, 0.04);
+  --token-buttonSecondaryBgActive: #f5f5f5;
+  --token-buttonSecondaryBgHover: rgba(139, 92, 246, 0.08);
+  --token-buttonSecondaryBorder: 1px solid rgba(139, 92, 246, 0.2);
+  --token-buttonSecondaryBorderHover: 1px solid rgba(139, 92, 246, 0.3);
+  --token-buttonSecondaryShadow:
+    0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --token-buttonSuccessBackdrop: none;
+  --token-buttonSuccessBg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%), #007a63;
+  --token-buttonSuccessBgHover:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%), #006654;
+  --token-buttonSuccessBorder: none;
+  --token-buttonSuccessShadow:
+    0 2px 6px rgba(0, 189, 155, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  --token-colorBgContainer: #ffffff;
+  --token-colorBgElevated: #ffffff;
+  --token-colorBgLayout: #f5f5f5;
+  --token-colorBgMask: rgba(0, 0, 0, 0.45);
+  --token-colorBgTextActive: rgba(0, 0, 0, 0.08);
+  --token-colorBgTextHover: rgba(0, 0, 0, 0.04);
+  --token-colorBorder: #d9d9d9;
+  --token-colorBorderSecondary: #e5e7eb;
+  --token-colorFillQuaternary: #fafafa;
+  --token-colorFillSecondary: #f3f4f6;
+  --token-colorFillTertiary: #f9fafb;
+  --token-colorError: #c82333;
+  --token-colorInfo: #0066cc;
+  --token-colorLink: #8b5cf6;
+  --token-colorLinkHover: #7c3aed;
+  --token-colorPrimary: #8b5cf6;
+  --token-colorPrimaryActive: #6d28d9;
+  --token-colorPrimaryBg: rgba(139, 92, 246, 0.1);
+  --token-colorPrimaryBorder: rgba(139, 92, 246, 0.2);
+  --token-colorSuccess: #007a63;
+  --token-colorSuccessActive: #005244;
+  --token-colorSuccessBg: rgba(0, 189, 155, 0.05);
+  --token-colorSuccessBorder: rgba(0, 189, 155, 0.4);
+  --token-colorSuccessBorderHover: rgba(0, 189, 155, 0.6);
+  --token-colorSuccessBoxShadow: 0 4px 12px rgba(0, 189, 155, 0.15);
+  --token-colorWarning: #9a5d00;
+  --token-colorText: #141414;
+  --token-colorTextQuaternary: #bfbfbf;
+  --token-colorTextSecondary: #595959;
+  --token-colorTextTertiary: #737373;
+  --token-focusRingColor: #8b5cf6;
+  --token-focusRingOffset: 2px;
+  --token-focusRingStyle: solid;
+  --token-focusRingWidth: 2px;
+  --token-fontFamily:
+    "Ubuntu Sans", "Pretendard Variable", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  --token-fontSize: 0.875rem;
+  --token-fontSizeLG: 1rem;
+  --token-fontSizeSM: 0.75rem;
+  --token-fontSizeXL: 1.25rem;
+  --token-fontSizeXXS: 0.5rem;
+  --token-marginXXS: 4px;
+  --token-padding: 0.75rem;
+  --token-paddingLG: 1.5rem;
+  --token-paddingMD: 1rem;
+  --token-paddingSM: 0.5rem;
+  --token-paddingXL: 2rem;
+  --token-paddingXS: 0.25rem;
+  --token-paddingXXS: 0.125rem;
+  --token-motionDurationFast: 0.1s;
+  --token-motionDurationMid: 0.2s;
+  --token-motionDurationSlow: 0.3s;
+  --token-themeTransitionDuration: 0.25s;
+  --token-themeTransitionTiming: ease-in-out;
+  --token-tabActiveBg: rgba(139, 92, 246, 0.1);
+  --token-tabFocusShadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  --token-tabHoverBg: #f3f4f6;
+  --token-zIndexDrawer: 1100;
+  --token-zIndexDrawerContent: 1101;
+  --token-zIndexPopover: 1150;
+  --token-zIndexTooltip: 1300;
+
+  /* Type scale (source `src/themes/base.css` :root, which wins over the
+     call-site fallback in the source product today). */
+  --token-fontSizeHeading1: 2rem;
+  --token-fontSizeHeading2: 1.5rem;
+  --token-fontSizeHeading3: 1.25rem;
+  --token-fontSizeHeading4: 1rem;
+  --token-fontSizeDisplay4: 1.75rem;
+
+  /* Referenced by components but defined by no source theme, so the
+     call-site fallback is what renders today and is carried here verbatim. */
+  --token-boxShadowDrawerRight: -4px 0 20px rgba(0, 0, 0, 0.15);
+  --token-buttonPrimaryBgActive: var(--token-colorPrimaryActive);
+  --token-buttonSuccessBgActive: var(--token-colorSuccessActive);
+  --token-buttonDangerShadowHover: var(--token-buttonDangerShadow);
+  --token-buttonSuccessShadowHover: var(--token-buttonSuccessShadow);
+  --token-buttonSecondaryShadowHover:
+    0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}

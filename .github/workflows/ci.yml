@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Format check
+        run: pnpm run format:check
+
+      - name: Public boundary
+        run: pnpm run check:boundary
+
+      - name: Test
+        run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Packed artifact and export paths
+        run: pnpm run check:pack
+
+  external-install:
+    # Building green is not the same as being installable. This consumes the
+    # real tarball from a project that shares nothing with this repository, so
+    # a missing dependency, a broken exports map, or a type declaration that
+    # only resolves against local paths fails here rather than at a consumer.
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.19.0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build and pack
+        run: |
+          pnpm run build
+          pnpm pack --pack-destination "$RUNNER_TEMP"
+
+      - name: Install the tarball into a clean React project
+        working-directory: fixture
+        run: |
+          TARBALL=$(find "$RUNNER_TEMP" -name 'lablup-ui-common-*.tgz' | head -1)
+          echo "Installing $TARBALL"
+          npm install --no-package-lock "$TARBALL"
+          npm install --no-package-lock
+
+      - name: Type-check and build the fixture against the packed artifact
+        working-directory: fixture
+        run: |
+          npx tsc --noEmit
+          npx vite build

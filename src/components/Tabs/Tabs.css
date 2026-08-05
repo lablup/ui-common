@@ -1,0 +1,747 @@
+/**
+ * Tabs Component Styles
+ *
+ * Unified tab navigation with responsive overflow handling.
+ * Supports both dropdown mode (< 480px) and overflow menu mode (< 768px).
+ *
+ * Breakpoints:
+ * - > 768px: Full tabs with scroll arrows
+ * - 480-768px: Scrollable tabs with arrows (or overflow menu in menu mode)
+ * - < 480px: Dropdown mode (dropdown overflow) or compact tabs (menu overflow)
+ */
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Container for tabs and scroll arrows */
+.tabs__container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--token-paddingXS, 0.25rem);
+  margin: 0 0 var(--token-paddingMD, 1rem);
+}
+
+/* Scrollable tabs list */
+.tabs__list {
+  display: flex;
+  gap: var(--token-paddingXS, 0.25rem);
+  padding: var(--token-paddingSM, 0.5rem) var(--token-paddingMD, 1rem);
+  background-color: var(--token-colorBgContainer, #ffffff);
+  border: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+  border-radius: var(--token-borderRadiusXL, 0.75rem);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: var(
+    --token-boxShadow,
+    0 1px 2px 0 rgba(0, 0, 0, 0.03),
+    0 1px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px 0 rgba(0, 0, 0, 0.02)
+  );
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+  scroll-behavior: smooth;
+  flex: 1;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabs__list::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+/* Tab list with groups uses wider gap */
+.tabs--overflow-menu .tabs__list {
+  gap: var(--token-paddingMD, 1rem);
+}
+
+/* Individual tab button */
+.tabs__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--token-paddingXS, 0.25rem);
+  padding: var(--token-paddingSM, 0.5rem) var(--token-paddingMD, 1rem);
+  font-size: var(--token-fontSize, 0.875rem);
+  font-weight: 500;
+  color: var(--token-colorTextSecondary, #595959);
+  background: transparent;
+  border: none;
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  cursor: pointer;
+  transition:
+    color var(--token-motionDurationFast, 0.1s),
+    background-color var(--token-motionDurationFast, 0.1s);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tabs__tab:hover {
+  color: var(--token-colorText, #141414);
+  background-color: var(--token-tabHoverBg, #f3f4f6);
+}
+
+.tabs__tab:focus {
+  box-shadow: var(--token-tabFocusShadow, 0 0 0 3px rgba(139, 92, 246, 0.15));
+}
+
+.tabs__tab:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.tabs__tab:focus-visible {
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+  outline-offset: var(--token-focusRingOffset, 2px);
+}
+
+.tabs__tab--active {
+  color: var(--token-colorPrimary, #8b5cf6);
+  background-color: var(--token-tabActiveBg, rgba(139, 92, 246, 0.1));
+}
+
+.tabs__tab--active:hover {
+  background-color: var(--token-tabActiveBg, rgba(139, 92, 246, 0.1));
+}
+
+.tabs__tab-label {
+  display: inline-block;
+}
+
+/* Guide tag badge rendered after the tab label */
+.tabs__tag-badge {
+  font-size: var(--token-fontSizeXXS, 0.5rem);
+  line-height: 1;
+  padding: 1px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Group styles (used when groups prop is provided)
+ * ============================================================================ */
+
+.tabs__group {
+  display: flex;
+  align-items: center;
+  gap: var(--token-paddingXS, 0.25rem);
+  flex-shrink: 0;
+}
+
+.tabs__group-label {
+  font-size: var(--token-fontSizeSM, 0.75rem);
+  font-weight: 600;
+  color: var(--token-colorTextTertiary, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  padding: 0 var(--token-paddingXS, 0.25rem);
+  user-select: none;
+}
+
+.tabs__separator {
+  width: 1px;
+  height: 24px;
+  background-color: var(--token-colorBorderSecondary, #e5e7eb);
+  margin: 0 var(--token-paddingSM, 0.5rem);
+  flex-shrink: 0;
+}
+
+.tabs__group-tabs {
+  display: flex;
+  gap: var(--token-paddingXS, 0.25rem);
+  align-items: center;
+}
+
+/* ============================================================================
+ * Scroll arrows
+ * ============================================================================ */
+
+.tabs__scroll-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background-color: var(--token-colorBgContainer, #ffffff);
+  border: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  color: var(--token-colorTextSecondary, #595959);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color var(--token-motionDurationFast, 0.1s),
+    color var(--token-motionDurationFast, 0.1s),
+    border-color var(--token-motionDurationFast, 0.1s);
+  box-shadow: var(
+    --token-boxShadow,
+    0 1px 2px 0 rgba(0, 0, 0, 0.03),
+    0 1px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px 0 rgba(0, 0, 0, 0.02)
+  );
+}
+
+.tabs__scroll-arrow:hover {
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+  color: var(--token-colorText, #141414);
+  border-color: var(--token-colorBorder, #d9d9d9);
+}
+
+.tabs__scroll-arrow:active {
+  background-color: var(--token-colorFillTertiary, #f9fafb);
+}
+
+.tabs__scroll-arrow:focus {
+  box-shadow: var(--token-tabFocusShadow, 0 0 0 3px rgba(139, 92, 246, 0.15));
+}
+
+.tabs__scroll-arrow:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.tabs__scroll-arrow:focus-visible {
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+  outline-offset: var(--token-focusRingOffset, 2px);
+}
+
+.tabs__scroll-arrow--left {
+  margin-right: -4px;
+}
+
+.tabs__scroll-arrow--right {
+  margin-left: -4px;
+}
+
+/* ============================================================================
+ * Tab panel
+ * ============================================================================ */
+
+.tabs__panel {
+  outline: none;
+}
+
+.tabs__panel:focus {
+  outline: none;
+}
+
+/* ============================================================================
+ * Mobile dropdown mode (overflowMode="dropdown", < 480px)
+ * ============================================================================ */
+
+.tabs--mobile-dropdown {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.tabs__dropdown-container {
+  position: relative;
+  margin: 0 0 var(--token-paddingMD, 1rem);
+}
+
+.tabs__dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--token-paddingSM, 0.5rem) var(--token-paddingMD, 1rem);
+  background-color: var(--token-colorBgContainer, #ffffff);
+  border: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  color: var(--token-colorText, #141414);
+  font-size: var(--token-fontSize, 0.875rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color var(--token-motionDurationFast, 0.1s),
+    border-color var(--token-motionDurationFast, 0.1s);
+  box-shadow: var(
+    --token-boxShadow,
+    0 1px 2px 0 rgba(0, 0, 0, 0.03),
+    0 1px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px 0 rgba(0, 0, 0, 0.02)
+  );
+}
+
+.tabs__dropdown-trigger:hover {
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+  border-color: var(--token-colorBorder, #d9d9d9);
+}
+
+.tabs__dropdown-trigger:focus {
+  border-color: var(--token-colorPrimary, #8b5cf6);
+  box-shadow: var(--token-tabFocusShadow, 0 0 0 3px rgba(139, 92, 246, 0.15));
+}
+
+.tabs__dropdown-trigger:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.tabs__dropdown-trigger:focus-visible {
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+  outline-offset: var(--token-focusRingOffset, 2px);
+}
+
+.tabs__dropdown-label {
+  flex: 1;
+  text-align: left;
+}
+
+.tabs__dropdown-arrow {
+  flex-shrink: 0;
+  transition: transform var(--token-motionDurationMid, 0.2s);
+}
+
+.tabs__dropdown-arrow--open {
+  transform: rotate(180deg);
+}
+
+.tabs__dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--token-colorBgContainer, #ffffff);
+  border: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  box-shadow: var(
+    --token-boxShadowSecondary,
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05)
+  );
+  overflow: hidden;
+  animation: tabs-dropdown-fade-in var(--token-motionDurationMid, 0.2s);
+}
+
+@keyframes tabs-dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tabs__dropdown-item {
+  display: block;
+  width: 100%;
+  padding: var(--token-paddingSM, 0.5rem) var(--token-paddingMD, 1rem);
+  background: transparent;
+  border: none;
+  color: var(--token-colorText, #141414);
+  font-size: var(--token-fontSize, 0.875rem);
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--token-motionDurationFast, 0.1s);
+}
+
+.tabs__dropdown-item:hover {
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+}
+
+.tabs__dropdown-item:focus-visible {
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+  outline-offset: -2px;
+}
+
+.tabs__dropdown-item--active {
+  color: var(--token-colorPrimary, #8b5cf6);
+  font-weight: 500;
+  background-color: var(--token-tabActiveBg, rgba(139, 92, 246, 0.1));
+}
+
+.tabs__dropdown-item--active:hover {
+  background-color: var(--token-tabActiveBg, rgba(139, 92, 246, 0.1));
+}
+
+/* ============================================================================
+ * Overflow menu mode (overflowMode="menu")
+ * ============================================================================ */
+
+.tabs__overflow {
+  position: relative;
+  display: none; /* Hidden on desktop, shown on mobile via media query */
+  flex-shrink: 0;
+}
+
+.tabs__overflow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background-color: var(--token-colorBgContainer, #ffffff);
+  border: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  color: var(--token-colorTextSecondary, #595959);
+  cursor: pointer;
+  transition:
+    background-color var(--token-motionDurationFast, 0.1s),
+    color var(--token-motionDurationFast, 0.1s);
+  box-shadow: var(
+    --token-boxShadow,
+    0 1px 2px 0 rgba(0, 0, 0, 0.03),
+    0 1px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px 0 rgba(0, 0, 0, 0.02)
+  );
+}
+
+.tabs__overflow-btn:hover {
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+  color: var(--token-colorText, #141414);
+}
+
+.tabs__overflow-btn:focus {
+  box-shadow: var(--token-tabFocusShadow, 0 0 0 3px rgba(139, 92, 246, 0.15));
+}
+
+.tabs__overflow-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.tabs__overflow-btn:focus-visible {
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+  outline-offset: var(--token-focusRingOffset, 2px);
+}
+
+.tabs__overflow-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  max-width: calc(100vw - 2rem);
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: var(--token-colorBgElevated, #ffffff);
+  border: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  box-shadow: var(
+    --token-boxShadowSecondary,
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05)
+  );
+  z-index: var(--token-zIndexPopover, 1150);
+  padding: var(--token-paddingXS, 0.25rem);
+}
+
+.tabs__overflow-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs__overflow-group + .tabs__overflow-group {
+  margin-top: var(--token-paddingSM, 0.5rem);
+  padding-top: var(--token-paddingSM, 0.5rem);
+  border-top: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+}
+
+.tabs__overflow-group-label {
+  font-size: var(--token-fontSizeSM, 0.75rem);
+  font-weight: 600;
+  color: var(--token-colorTextTertiary, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--token-paddingXS, 0.25rem) var(--token-paddingSM, 0.5rem);
+  margin-bottom: var(--token-paddingXXS, 0.125rem);
+}
+
+.tabs__overflow-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--token-paddingSM, 0.5rem);
+  width: 100%;
+  padding: var(--token-paddingSM, 0.5rem) var(--token-paddingMD, 1rem);
+  font-size: var(--token-fontSize, 0.875rem);
+  color: var(--token-colorText, #141414);
+  background: transparent;
+  border: none;
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--token-motionDurationFast, 0.1s);
+}
+
+.tabs__overflow-item:hover {
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+}
+
+.tabs__overflow-item:focus-visible {
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+  outline-offset: -2px;
+}
+
+.tabs__overflow-item--active {
+  color: var(--token-colorPrimary, #8b5cf6);
+  background-color: var(--token-tabActiveBg, rgba(139, 92, 246, 0.1));
+  font-weight: 600;
+}
+
+.tabs__overflow-item--active:hover {
+  background-color: var(--token-tabActiveBg, rgba(139, 92, 246, 0.1));
+}
+
+/* ============================================================================
+ * Responsive breakpoints
+ * ============================================================================ */
+
+/* Tablet (dropdown mode) */
+@media (min-width: 480px) and (max-width: 767px) {
+  .tabs:not(.tabs--overflow-menu) .tabs__list {
+    padding: var(--token-paddingSM, 0.5rem);
+  }
+
+  .tabs:not(.tabs--overflow-menu) .tabs__tab {
+    padding: var(--token-paddingXS, 0.25rem) var(--token-paddingSM, 0.5rem);
+    font-size: var(--token-fontSize, 0.875rem);
+  }
+
+  .tabs:not(.tabs--overflow-menu) .tabs__scroll-arrow {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Mobile (dropdown mode): hide scroll arrows */
+@media (max-width: 479px) {
+  .tabs:not(.tabs--overflow-menu) .tabs__scroll-arrow {
+    display: none;
+  }
+}
+
+/* Mobile/tablet (menu mode): show overflow menu, hide group labels/separators */
+@media (max-width: 767px) {
+  .tabs--overflow-menu .tabs__overflow {
+    display: block;
+  }
+
+  .tabs--overflow-menu .tabs__list {
+    gap: 0;
+    padding: var(--token-paddingSM, 0.5rem);
+  }
+
+  .tabs--overflow-menu .tabs__group-label {
+    display: none;
+  }
+
+  .tabs--overflow-menu .tabs__separator {
+    display: none;
+  }
+
+  .tabs--overflow-menu .tabs__group {
+    gap: 0;
+  }
+
+  .tabs--overflow-menu .tabs__group-tabs {
+    gap: 0;
+  }
+
+  .tabs--overflow-menu .tabs__tab {
+    flex: 1;
+    min-width: auto;
+    padding: var(--token-paddingSM, 0.5rem) var(--token-padding, 0.75rem);
+    font-size: var(--token-fontSize, 0.875rem);
+  }
+
+  /* Hide scroll buttons on mobile in menu mode */
+  .tabs--overflow-menu .tabs__scroll-arrow {
+    display: none !important;
+  }
+}
+
+/* ============================================================================
+ * Variant: segmented (iOS-style segmented control)
+ *
+ * Replaces hand-rolled per-page "segmented control" markup. Gray-filled
+ * container, transparent inactive tabs, raised white active tab.
+ * ============================================================================ */
+
+.tabs--variant-segmented .tabs__container {
+  /* No outer gap — the pill IS the container */
+  gap: 0;
+}
+
+.tabs--variant-segmented .tabs__list {
+  background-color: var(--token-colorFillTertiary, #f9fafb);
+  border: 1px solid transparent;
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  padding: var(--token-paddingXS, 0.25rem);
+  gap: var(--token-paddingXS, 0.25rem);
+  /* Segmented pills are never sticky and never show scroll arrows */
+  position: static;
+  top: auto;
+  z-index: auto;
+  box-shadow: none;
+  overflow-x: visible;
+}
+
+.tabs--variant-segmented .tabs__tab {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--token-borderRadius, 0.375rem);
+  color: var(--token-colorTextSecondary, #595959);
+  font-weight: 500;
+}
+
+.tabs--variant-segmented .tabs__tab:hover:not(.tabs__tab--active) {
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+  color: var(--token-colorText, #141414);
+}
+
+.tabs--variant-segmented .tabs__tab--active {
+  color: var(--token-colorText, #141414);
+  background-color: var(--token-colorBgContainer, #ffffff);
+  box-shadow: var(--token-boxShadowTertiary, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.tabs--variant-segmented .tabs__tab--active:hover {
+  background-color: var(--token-colorBgContainer, #ffffff);
+}
+
+/* Equal-width children when fillContainer=true */
+.tabs--variant-segmented.tabs--fill-container .tabs__tab {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+}
+
+/* Scroll arrows are visually incompatible with the segmented look */
+.tabs--variant-segmented .tabs__scroll-arrow {
+  display: none;
+}
+
+/* ============================================================================
+ * Variant: compact (small segmented control)
+ *
+ * Used when the tab bar lives in a PageHeader actions row alongside other
+ * controls (e.g. StatisticsPage). Smaller padding and border-radius.
+ * ============================================================================ */
+
+.tabs--variant-compact .tabs__container {
+  margin: 0;
+  gap: 0;
+}
+
+.tabs--variant-compact .tabs__list {
+  display: inline-flex;
+  background-color: var(--token-colorFillQuaternary, #fafafa);
+  border: 1px solid transparent;
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+  padding: 2px;
+  gap: 2px;
+  /* No sticky/scroll/shadow */
+  position: static;
+  top: auto;
+  z-index: auto;
+  box-shadow: none;
+  overflow-x: visible;
+  /* Compact variant is intentionally not flex:1 so it sits next to siblings */
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.tabs--variant-compact .tabs__tab {
+  padding: var(--token-paddingXS, 0.25rem) var(--token-paddingSM, 0.5rem);
+  font-size: var(--token-fontSize, 0.875rem);
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--token-borderRadiusSM, 0.25rem) - 1px);
+  color: var(--token-colorTextSecondary, #595959);
+  min-width: 72px;
+}
+
+.tabs--variant-compact .tabs__tab:hover:not(.tabs__tab--active) {
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+  color: var(--token-colorText, #141414);
+}
+
+.tabs--variant-compact .tabs__tab--active {
+  color: var(--token-colorText, #141414);
+  background-color: var(--token-colorBgContainer, #ffffff);
+  box-shadow: var(--token-boxShadowTertiary, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.tabs--variant-compact .tabs__tab--active:hover {
+  background-color: var(--token-colorBgContainer, #ffffff);
+}
+
+.tabs--variant-compact.tabs--fill-container .tabs__tab {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+}
+
+.tabs--variant-compact .tabs__scroll-arrow {
+  display: none;
+}
+
+/* Segmented & compact variants: keep gap from group rule out of the picture */
+.tabs--variant-segmented .tabs__group,
+.tabs--variant-compact .tabs__group {
+  gap: 0;
+}
+
+.tabs--variant-segmented .tabs__group-tabs,
+.tabs--variant-compact .tabs__group-tabs {
+  gap: var(--token-paddingXS, 0.25rem);
+}
+
+/* Responsive: segmented variant collapses to scrollable on narrow screens */
+@media (max-width: 479px) {
+  .tabs--variant-segmented .tabs__list {
+    overflow-x: auto;
+  }
+}
+
+/* ============================================================================
+ * Reduced motion support
+ * ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs__list {
+    scroll-behavior: auto;
+  }
+
+  .tabs__scroll-arrow,
+  .tabs__tab,
+  .tabs__dropdown-trigger,
+  .tabs__dropdown-item,
+  .tabs__dropdown-arrow,
+  .tabs__overflow-btn,
+  .tabs__overflow-item {
+    transition: none;
+  }
+
+  .tabs__dropdown-menu {
+    animation: none;
+  }
+
+  .tabs__scroll-arrow:active {
+    transform: none;
+  }
+
+  /* Segmented/compact variants reuse the same .tabs__tab selector above */
+  .tabs--variant-segmented .tabs__tab,
+  .tabs--variant-compact .tabs__tab {
+    transition: none;
+  }
+}

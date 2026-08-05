@@ -1,0 +1,11 @@
+# Every change to the public surface needs an owning review. The exports map,
+# the token contract, and the license are the parts a consumer cannot work
+# around, so they are called out separately.
+
+*                       @lablup/frontend
+
+/package.json           @lablup/frontend
+/LICENSE                @lablup/frontend
+/NOTICE                 @lablup/frontend
+/src/styles/            @lablup/frontend
+/.github/workflows/     @lablup/frontend

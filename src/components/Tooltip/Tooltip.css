@@ -1,0 +1,50 @@
+/**
+ * Tooltip Component Styles
+ *
+ * Base tooltip styles used across the app.
+ * Can be extended with contentClassName for specific use cases.
+ */
+
+.tooltip__wrapper {
+  display: inline-flex;
+}
+
+.tooltip__wrapper:focus-visible {
+  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
+  outline-offset: 2px;
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+}
+
+/* Allow children to handle their own focus styling if needed */
+.tooltip__wrapper:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.tooltip__content {
+  position: fixed;
+  z-index: var(--token-zIndexTooltip, 1300);
+  max-width: 280px;
+  padding: 0.5rem 0.75rem;
+  background-color: #1f2937;
+  color: #f3f4f6;
+  border-radius: 6px;
+  font-size: var(--token-fontSize, 0.875rem);
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+.tooltip__content p,
+.tooltip__content span {
+  color: #f3f4f6;
+}
+
+.tooltip__text {
+  margin: 0;
+  color: #f3f4f6;
+}
+
+/* ParamTooltip specific styles - width override */
+.tooltip__content.param-tooltip__content {
+  width: 280px;
+}

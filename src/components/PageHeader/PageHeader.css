@@ -1,0 +1,126 @@
+/**
+ * PageHeader Component Styles
+ *
+ * Standardized header styling with title, description,
+ * actions area, and error display.
+ */
+
+.page-header {
+  margin-bottom: var(--token-paddingLG, 1.5rem);
+}
+
+.page-header__content {
+  display: flex;
+  /* A wide action row wraps below the title instead of squeezing it. Without
+     this, a page that passes many actions (a search box plus several buttons)
+     leaves the text column a few characters wide and the description renders
+     as a one-word-per-line strip. */
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--token-paddingMD, 1rem);
+}
+
+.page-header__text {
+  /* Grows into the free space, but never shrinks below a readable width: the
+     content row wraps first. `min()` keeps it from overflowing a viewport
+     narrower than the floor itself. */
+  flex: 1 1 20rem;
+  min-width: min(100%, 12rem);
+}
+
+.page-header__title {
+  margin: 0 0 var(--token-paddingSM, 0.5rem);
+  font-size: var(--token-fontSizeDisplay4, 1.75rem);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: var(--token-colorText, #141414);
+}
+
+.page-header__description {
+  margin: 0;
+  font-size: var(--token-fontSize, 0.875rem);
+  color: var(--token-colorTextSecondary, #595959);
+}
+
+.page-header__actions {
+  display: flex;
+  /* Individual actions wrap onto a second row rather than being squashed;
+     `margin-left: auto` keeps the block right-aligned both when it shares the
+     line with the text and when it has wrapped onto its own. */
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--token-paddingSM, 0.5rem);
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+}
+
+/* The block may shrink so it can wrap; the controls inside it may not, so a
+   page that passes its own action wrapper keeps the sizing it had when the
+   block was `flex-shrink: 0`. */
+.page-header__actions > * {
+  flex-shrink: 0;
+}
+
+/* Error display */
+.page-header__error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--token-paddingSM, 0.5rem);
+  margin-top: var(--token-paddingSM, 0.5rem);
+  padding: var(--token-paddingSM, 0.5rem) var(--token-paddingMD, 1rem);
+  font-size: var(--token-fontSize, 0.875rem);
+  color: var(--token-colorError, #c82333);
+  background-color: rgba(255, 77, 79, 0.08);
+  border: 1px solid rgba(255, 77, 79, 0.3);
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+}
+
+.page-header__error-text {
+  flex: 1;
+  word-break: break-word;
+}
+
+.page-header__error-dismiss {
+  background: none;
+  border: none;
+  font-size: var(--token-fontSizeXL, 1.25rem);
+  line-height: 1;
+  color: currentColor;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity var(--token-motionDurationFast, 0.1s);
+}
+
+.page-header__error-dismiss:hover {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .page-header__content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* The flex shorthand above sets a main-size basis, which becomes a *height*
+     once the container switches to a column. Reset it here. */
+  .page-header__text {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+
+  .page-header__actions {
+    justify-content: flex-end;
+  }
+}

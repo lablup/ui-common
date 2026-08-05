@@ -1,0 +1,78 @@
+/**
+ * SkeletonChart Component Styles
+ *
+ * Chart skeleton styles for different chart types.
+ */
+
+.skeleton-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--token-paddingLG, 1.5rem);
+  background-color: var(--token-colorBgContainer, #ffffff);
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  border: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+}
+
+/* Bar Chart */
+.skeleton-chart__bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--token-paddingSM, 0.5rem);
+  width: 100%;
+  height: 100%;
+}
+
+.skeleton-chart__bar {
+  flex: 1;
+  min-width: 20px;
+}
+
+/* Line/Area Chart */
+.skeleton-chart__line {
+  width: 100%;
+  height: 100%;
+}
+
+/* Pie Chart */
+.skeleton-chart__pie {
+  display: flex;
+  align-items: center;
+  gap: var(--token-paddingLG, 1.5rem);
+  width: 100%;
+  height: 100%;
+}
+
+.skeleton-chart__pie > div:first-child {
+  width: min(200px, 40%);
+  aspect-ratio: 1;
+}
+
+.skeleton-chart__legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--token-paddingSM, 0.5rem);
+  flex: 1;
+}
+
+.skeleton-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--token-paddingSM, 0.5rem);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 767px) {
+  .skeleton-chart {
+    padding: var(--token-paddingMD, 1rem);
+  }
+
+  .skeleton-chart__pie {
+    flex-direction: column;
+  }
+
+  .skeleton-chart__pie > div:first-child {
+    width: 120px;
+  }
+}

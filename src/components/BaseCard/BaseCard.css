@@ -1,0 +1,181 @@
+/**
+ * BaseCard Component Styles
+ *
+ * Common card foundation providing unified hover, animation, and state effects.
+ * Use this component to ensure consistent UI/UX across all card-style components.
+ */
+
+/* Base Card Container */
+.base-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--token-paddingMD, 1rem);
+  background-color: var(--token-colorFillTertiary, #f9fafb);
+  border: 1px solid transparent;
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  transition:
+    border-color var(--token-motionDurationFast, 0.1s),
+    box-shadow var(--token-motionDurationMid, 0.2s),
+    transform var(--token-motionDurationMid, 0.2s),
+    background-color var(--token-motionDurationFast, 0.1s);
+}
+
+/* Horizontal layout — opt-in via the `direction="row"` prop. Defined right
+ * after `.base-card` so it reliably overrides the default `column` regardless
+ * of how the consuming component's stylesheet is ordered in the bundle. */
+.base-card--row {
+  flex-direction: row;
+}
+
+/* ============================================
+ * Hover Effects
+ * ============================================ */
+
+.base-card--hoverable:hover {
+  border-color: var(--token-colorBorderSecondary, #e5e7eb);
+  box-shadow: var(
+    --token-boxShadowSecondary,
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05)
+  );
+  transform: translateY(-2px);
+}
+
+/* Clickable variant */
+.base-card--clickable {
+  cursor: pointer;
+}
+
+.base-card--clickable:hover {
+  border-color: var(--token-colorPrimary, #8b5cf6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Focus within for accessibility */
+.base-card:focus-within {
+  border-color: var(--token-colorPrimary, #8b5cf6);
+  outline: none;
+}
+
+.base-card--clickable:focus {
+  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
+  outline-offset: 2px;
+}
+
+/* ============================================
+ * Variant Styles
+ * ============================================ */
+
+/* Default variant */
+.base-card--default {
+  background-color: var(--token-colorFillTertiary, #f9fafb);
+}
+
+/* Installed variant - slightly more prominent */
+.base-card--installed {
+  background-color: var(--token-colorBgContainer, #ffffff);
+  border-color: var(--token-colorBorderSecondary, #e5e7eb);
+}
+
+/* Available variant */
+.base-card--available {
+  background-color: var(--token-colorFillQuaternary, #fafafa);
+  border-color: var(--token-colorBorderSecondary, #e5e7eb);
+}
+
+/* ============================================
+ * State Styles
+ * ============================================ */
+
+/* Active state - green accent */
+.base-card--active {
+  border-color: var(--token-colorSuccessBorder, rgba(0, 189, 155, 0.4));
+  background-color: var(--token-colorSuccessBg, rgba(0, 189, 155, 0.05));
+}
+
+.base-card--active:hover {
+  border-color: var(--token-colorSuccessBorderHover, rgba(0, 189, 155, 0.6));
+  box-shadow: var(--token-colorSuccessBoxShadow, 0 4px 12px rgba(0, 189, 155, 0.15));
+}
+
+/* Loading state - pulsing animation */
+.base-card--loading {
+  border-color: color-mix(in srgb, var(--token-colorPrimary, #8b5cf6) 40%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--token-colorPrimary, #8b5cf6) 3%,
+    transparent
+  );
+  animation: base-card-pulse 2s ease-in-out infinite;
+}
+
+@keyframes base-card-pulse {
+  0%,
+  100% {
+    border-color: color-mix(
+      in srgb,
+      var(--token-colorPrimary, #8b5cf6) 30%,
+      transparent
+    );
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    border-color: color-mix(
+      in srgb,
+      var(--token-colorPrimary, #8b5cf6) 50%,
+      transparent
+    );
+    box-shadow: 0 0 0 4px var(--token-colorPrimaryBg, rgba(139, 92, 246, 0.1));
+  }
+}
+
+/* Disabled state */
+.base-card--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(50%);
+}
+
+.base-card--disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+/* Warning state */
+.base-card--warning {
+  border-color: rgba(250, 173, 20, 0.4);
+  background-color: rgba(250, 173, 20, 0.03);
+}
+
+/* ============================================
+ * Reduced Motion Preference
+ * ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .base-card {
+    transition: none;
+  }
+
+  .base-card--hoverable:hover,
+  .base-card--clickable:hover {
+    transform: none;
+  }
+
+  .base-card--loading {
+    animation: none;
+  }
+}
+
+/* ============================================
+ * Mobile Adjustments
+ * ============================================ */
+
+@media (max-width: 767px) {
+  .base-card {
+    padding: var(--token-paddingSM, 0.5rem);
+  }
+}

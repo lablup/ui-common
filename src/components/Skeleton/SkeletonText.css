@@ -1,0 +1,23 @@
+/**
+ * SkeletonText Component Styles
+ *
+ * Text skeleton styles with configurable spacing.
+ */
+
+.skeleton-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Spacing Variants */
+.skeleton-text--compact {
+  gap: var(--token-paddingXS, 0.25rem);
+}
+
+.skeleton-text--normal {
+  gap: var(--token-paddingSM, 0.5rem);
+}
+
+.skeleton-text--relaxed {
+  gap: var(--token-paddingMD, 1rem);
+}

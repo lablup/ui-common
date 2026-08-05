@@ -1,0 +1,225 @@
+/**
+ * StatCard styles
+ *
+ * Uses design tokens from src/styles/tokens.css. Wraps BaseCard so motion,
+ * hover lift, focus ring, and reduced-motion handling are inherited. Only
+ * StatCard-specific surface details (tone accents, value typography) live
+ * here.
+ */
+
+.stat-card {
+  /* BaseCard already handles padding/border/background. We only adjust
+     vertical rhythm so the label/value/hint stack reads cleanly. */
+  gap: var(--token-paddingSM, 0.5rem);
+  min-width: 0;
+  /* Clip the shared corner-accent triangle to the card's rounded corner. */
+  overflow: hidden;
+}
+
+.stat-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--token-paddingXS, 0.25rem);
+}
+
+.stat-card__label {
+  font-size: var(--token-fontSizeSM, 0.75rem);
+  font-weight: 600;
+  color: var(--token-colorTextSecondary, rgba(255, 255, 255, 0.45));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+  background: var(--token-colorFillSecondary, rgba(255, 255, 255, 0.04));
+  color: var(--token-colorTextSecondary, rgba(255, 255, 255, 0.6));
+  flex-shrink: 0;
+}
+
+.stat-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-card__value-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  flex-wrap: wrap;
+}
+
+/* Present only when a `sparkline` slot is passed, so cards without one keep
+   the value row as a direct child of the body. */
+.stat-card__value-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--token-paddingSM, 0.5rem);
+  min-width: 0;
+}
+
+.stat-card__sparkline {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.stat-card__value {
+  font-size: var(--token-fontSizeHeading2, 1.75rem);
+  font-weight: 600;
+  color: var(--token-colorText, #141414);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card__value-suffix {
+  font-size: var(--token-fontSize, 0.875rem);
+  font-weight: 400;
+  color: var(--token-colorTextSecondary, rgba(255, 255, 255, 0.45));
+}
+
+.stat-card__trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--token-fontSizeSM, 0.75rem);
+  font-weight: 500;
+}
+
+.stat-card__trend--up {
+  color: var(--token-colorSuccess, #52c41a);
+}
+
+.stat-card__trend--down {
+  color: var(--token-colorError, #f5222d);
+}
+
+.stat-card__trend--flat {
+  color: var(--token-colorTextSecondary, rgba(255, 255, 255, 0.45));
+}
+
+.stat-card__hint {
+  font-size: var(--token-fontSizeSM, 0.75rem);
+  color: var(--token-colorTextSecondary, rgba(255, 255, 255, 0.45));
+  line-height: 1.4;
+}
+
+/* ── Emphasis ───────────────────────────────────────────────────────────── */
+
+/* `prominent` is the shared opt-in treatment for a dashboard's hero metrics.
+   It carries the primary-tinted surface the Statistics page used to fork into
+   its own card, so the emphasis lives in one place instead of two. */
+/* Padding is doubled up on the block class deliberately. `.base-card` sets
+   `padding` at the same single-class specificity and ships in a different CSS
+   chunk, so a one-class selector here would win or lose on chunk load order.
+   `.stat-card.stat-card--*` settles it regardless of bundler chunking. */
+.stat-card.stat-card--prominent {
+  padding: var(--token-paddingLG, 1.5rem);
+}
+
+.stat-card--prominent {
+  background: linear-gradient(
+    135deg,
+    var(--token-colorBgContainer, #ffffff) 0%,
+    color-mix(in srgb, var(--token-colorPrimary, #8b5cf6) 4%, transparent) 100%
+  );
+}
+
+.stat-card--prominent:hover {
+  border-color: color-mix(in srgb, var(--token-colorPrimary, #8b5cf6) 30%, transparent);
+}
+
+.stat-card--prominent .stat-card__value {
+  font-size: var(--token-fontSizeHeading1, 2.25rem);
+}
+
+.stat-card--prominent .stat-card__icon {
+  width: 34px;
+  height: 34px;
+}
+
+.stat-card.stat-card--compact {
+  padding: var(--token-paddingSM, 0.5rem);
+}
+
+.stat-card--compact .stat-card__value {
+  font-size: var(--token-fontSizeHeading3, 1.5rem);
+}
+
+/* ── Tone accents ───────────────────────────────────────────────────────── */
+
+.stat-card--tone-success .stat-card__value {
+  color: var(--token-colorSuccess, #52c41a);
+}
+
+.stat-card--tone-success .stat-card__icon {
+  color: var(--token-colorSuccess, #52c41a);
+  background: rgba(82, 196, 26, 0.12);
+}
+
+.stat-card--tone-warning .stat-card__value {
+  color: var(--token-colorWarning, #faad14);
+}
+
+.stat-card--tone-warning .stat-card__icon {
+  color: var(--token-colorWarning, #faad14);
+  background: rgba(250, 173, 20, 0.14);
+}
+
+.stat-card--tone-danger .stat-card__value {
+  color: var(--token-colorError, #f5222d);
+}
+
+.stat-card--tone-danger .stat-card__icon {
+  color: var(--token-colorError, #f5222d);
+  background: rgba(245, 34, 45, 0.12);
+}
+
+.stat-card--tone-info .stat-card__value {
+  color: var(--token-colorPrimary, #8b5cf6);
+}
+
+.stat-card--tone-info .stat-card__icon {
+  color: var(--token-colorPrimary, #8b5cf6);
+  background: rgba(106, 53, 252, 0.12);
+}
+
+/* Tone is flagged at a glance by the shared top-left corner-accent triangle
+   (see src/styles/corner-accent.css). Each tone supplies its color via the
+   `--corner-accent-color` custom property so the accent stays visible even
+   when the value is zero (and thus rendered in the default text color). The
+   default tone leaves the color unset, so its triangle stays transparent. */
+.stat-card--tone-success {
+  --corner-accent-color: var(--token-colorSuccess, #52c41a);
+}
+
+.stat-card--tone-warning {
+  --corner-accent-color: var(--token-colorWarning, #faad14);
+}
+
+.stat-card--tone-danger {
+  --corner-accent-color: var(--token-colorError, #f5222d);
+}
+
+.stat-card--tone-info {
+  --corner-accent-color: var(--token-colorPrimary, #8b5cf6);
+}
+
+/* ── Reduced motion (BaseCard already handles transform suppression) ───── */
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-card__trend {
+    transition: none;
+  }
+}

@@ -1,0 +1,340 @@
+/**
+ * EmptyState Component Styles
+ *
+ * Unified empty state styling following Backend.AI Design System.
+ * Uses design tokens for consistent theming across light/dark modes.
+ */
+
+/* ============================================
+ * Base Container
+ * ============================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--token-paddingXL, 2rem) var(--token-paddingLG, 1.5rem);
+  text-align: center;
+  min-height: 300px;
+  animation: empty-state-fade-in 0.5s ease-out;
+}
+
+@keyframes empty-state-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+ * Illustration
+ * ============================================ */
+
+.empty-state__illustration {
+  position: relative;
+  margin-bottom: var(--token-paddingLG, 1.5rem);
+}
+
+.empty-state__icon {
+  color: var(--token-colorTextQuaternary, #bfbfbf);
+  transition: color var(--token-motionDurationMid, 0.2s);
+}
+
+/* Decorative background glow */
+.empty-state__illustration::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--token-colorPrimary, #8b5cf6) 8%, transparent) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0;
+  animation: glow-pulse 3s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Illustration animations */
+.illustration-sparkle {
+  animation: sparkle-twinkle 2s ease-in-out infinite;
+  transform-origin: center;
+  will-change: opacity, transform;
+}
+
+@keyframes sparkle-twinkle {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.illustration-arrow {
+  animation: arrow-bounce 2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes arrow-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+.illustration-needle {
+  animation: needle-swing 3s ease-in-out infinite;
+  transform-origin: 256px 308px;
+  will-change: transform;
+}
+
+@keyframes needle-swing {
+  0% {
+    transform: rotate(-12deg);
+  }
+  50% {
+    transform: rotate(12deg);
+  }
+  100% {
+    transform: rotate(-12deg);
+  }
+}
+
+/* ============================================
+ * Content
+ * ============================================ */
+
+.empty-state__content {
+  margin-bottom: var(--token-paddingLG, 1.5rem);
+  max-width: 480px;
+}
+
+.empty-state__title {
+  margin: 0 0 var(--token-paddingSM, 0.5rem) 0;
+  font-size: var(--token-fontSizeXL, 1.25rem);
+  font-weight: 600;
+  color: var(--token-colorText, #141414);
+  line-height: 1.4;
+}
+
+.empty-state__description {
+  margin: 0;
+  font-size: var(--token-fontSize, 0.875rem);
+  color: var(--token-colorTextSecondary, #595959);
+  line-height: 1.6;
+}
+
+/* ============================================
+ * Actions
+ * ============================================ */
+
+.empty-state__actions {
+  display: flex;
+  gap: var(--token-paddingMD, 1rem);
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.empty-state__action-btn {
+  min-width: 120px;
+}
+
+.empty-state__action-link {
+  font-size: var(--token-fontSize, 0.875rem);
+  color: var(--token-colorLink, #8b5cf6);
+  text-decoration: none;
+  padding: var(--token-paddingXS, 0.25rem) var(--token-paddingSM, 0.5rem);
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+  transition:
+    color var(--token-motionDurationFast, 0.1s),
+    background-color var(--token-motionDurationFast, 0.1s);
+}
+
+.empty-state__action-link:hover {
+  color: var(--token-colorLinkHover, #7c3aed);
+  background-color: var(--token-colorFillTertiary, #f9fafb);
+}
+
+.empty-state__action-link:focus {
+  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
+  outline-offset: 2px;
+}
+
+/* ============================================
+ * Illustration Type Variants
+ * ============================================ */
+
+/* Chat - Warm orange glow */
+.empty-state--chat .empty-state__illustration::before {
+  background: radial-gradient(
+    circle,
+    var(--token-colorPrimaryBg, rgba(139, 92, 246, 0.1)) 0%,
+    transparent 70%
+  );
+}
+
+/* Models - Blue/tech glow */
+.empty-state--models .empty-state__illustration::before {
+  background: radial-gradient(circle, rgba(24, 144, 255, 0.08) 0%, transparent 70%);
+}
+
+/* Creations - Purple/creative glow */
+.empty-state--creations .empty-state__illustration::before {
+  background: radial-gradient(circle, rgba(114, 46, 209, 0.08) 0%, transparent 70%);
+}
+
+/* Text - Indigo/document glow */
+.empty-state--text .empty-state__illustration::before {
+  background: radial-gradient(circle, rgba(82, 99, 209, 0.08) 0%, transparent 70%);
+}
+
+/* Benchmark - Green/performance glow */
+.empty-state--benchmark .empty-state__illustration::before {
+  background: radial-gradient(circle, rgba(0, 189, 155, 0.08) 0%, transparent 70%);
+}
+
+/* Statistics - Teal/data glow */
+.empty-state--statistics .empty-state__illustration::before {
+  background: radial-gradient(circle, rgba(19, 194, 194, 0.08) 0%, transparent 70%);
+}
+
+/* Error - Red/warning glow */
+.empty-state--error .empty-state__illustration::before {
+  background: radial-gradient(circle, rgba(255, 77, 79, 0.08) 0%, transparent 70%);
+}
+
+/* ============================================
+ * Dark Theme Adjustments
+ * ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .empty-state--chat .empty-state__illustration::before {
+    background: radial-gradient(
+      circle,
+      var(--token-colorPrimaryBg, rgba(139, 92, 246, 0.1)) 0%,
+      transparent 70%
+    );
+  }
+
+  .empty-state--models .empty-state__illustration::before {
+    background: radial-gradient(circle, rgba(24, 144, 255, 0.12) 0%, transparent 70%);
+  }
+
+  .empty-state--creations .empty-state__illustration::before {
+    background: radial-gradient(circle, rgba(114, 46, 209, 0.12) 0%, transparent 70%);
+  }
+
+  .empty-state--text .empty-state__illustration::before {
+    background: radial-gradient(circle, rgba(82, 99, 209, 0.12) 0%, transparent 70%);
+  }
+
+  .empty-state--benchmark .empty-state__illustration::before {
+    background: radial-gradient(circle, rgba(0, 189, 155, 0.12) 0%, transparent 70%);
+  }
+
+  .empty-state--statistics .empty-state__illustration::before {
+    background: radial-gradient(circle, rgba(19, 194, 194, 0.12) 0%, transparent 70%);
+  }
+
+  .empty-state--error .empty-state__illustration::before {
+    background: radial-gradient(circle, rgba(255, 77, 79, 0.12) 0%, transparent 70%);
+  }
+}
+
+/* ============================================
+ * Reduced Motion Support
+ * ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .empty-state {
+    animation: none;
+  }
+
+  .empty-state__illustration::before {
+    animation: none;
+    opacity: 0.5;
+  }
+
+  .illustration-sparkle,
+  .illustration-arrow,
+  .illustration-needle {
+    animation: none;
+  }
+}
+
+/* ============================================
+ * Mobile Responsive
+ * ============================================ */
+
+@media (max-width: 768px) {
+  .empty-state {
+    padding: var(--token-paddingLG, 1.5rem) var(--token-paddingMD, 1rem);
+    min-height: 250px;
+  }
+
+  .empty-state__illustration {
+    margin-bottom: var(--token-paddingMD, 1rem);
+  }
+
+  .empty-state__icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .empty-state__title {
+    font-size: var(--token-fontSizeLG, 1rem);
+  }
+
+  .empty-state__description {
+    font-size: var(--token-fontSize, 0.875rem);
+  }
+
+  .empty-state__actions {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--token-paddingSM, 0.5rem);
+  }
+
+  .empty-state__action-btn {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .empty-state__icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .empty-state__title {
+    font-size: var(--token-fontSizeLG, 1rem);
+  }
+}

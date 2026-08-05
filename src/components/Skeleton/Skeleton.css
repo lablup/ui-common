@@ -1,0 +1,63 @@
+/**
+ * Skeleton Component Styles
+ *
+ * Base skeleton styles with shimmer animation for loading states.
+ * Respects prefers-reduced-motion preference.
+ */
+
+/* Base Skeleton */
+.skeleton {
+  position: relative;
+  display: inline-block;
+  background-color: var(--token-colorFillTertiary, #f9fafb);
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+  overflow: hidden;
+}
+
+/* Skeleton Variants */
+.skeleton--rect {
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+}
+
+.skeleton--circle {
+  border-radius: 50%;
+}
+
+.skeleton--text {
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+  height: 1em;
+  transform: scale(1, 0.6);
+}
+
+/* Shimmer Effect */
+.skeleton__shimmer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--token-colorBgContainer, #ffffff) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer var(--token-motionDurationSlow, 1.5s) infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton__shimmer {
+    animation: none;
+  }
+}

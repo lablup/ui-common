@@ -1,0 +1,211 @@
+/**
+ * DataTable styles
+ *
+ * Theme-aware via design tokens. Header cells use a subtle background
+ * to delineate them from rows, and rows hover-highlight when they are
+ * clickable.
+ *
+ * Sortable column affordances (added epic #2859 / issue #2861):
+ * - .data-table__cell--sortable  — cursor affordance + focus ring
+ * - .data-table__cell--sort-active — accent colour on active column
+ * - .data-table__sort-icon  — the inline SVG sort indicator
+ */
+
+.data-table {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--token-colorBorderSecondary, var(--token-colorBorder, #d9d9d9));
+  border-radius: var(--token-borderRadiusLG, 8px);
+  background-color: var(--token-colorBgContainer, #ffffff);
+}
+
+.data-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.data-table__head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(
+    --token-colorFillQuaternary,
+    var(--token-colorBgLayout, #f5f5f5)
+  );
+}
+
+.data-table__row {
+  border-bottom: 1px solid var(--token-colorBorderSecondary, transparent);
+}
+
+.data-table__row:last-of-type {
+  border-bottom: none;
+}
+
+.data-table__row--clickable {
+  cursor: pointer;
+  transition: background-color var(--token-motionDurationFast, 0.12s) ease;
+}
+
+.data-table__row--clickable:hover {
+  background-color: var(--token-colorFillQuaternary, rgba(0, 0, 0, 0.04));
+}
+
+.data-table__row--clickable:focus-visible {
+  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
+  outline-offset: -2px;
+}
+
+.data-table__cell {
+  padding: var(--token-paddingSM, 0.5rem) var(--token-paddingMD, 1rem);
+  font-size: var(--token-fontSize, 0.875rem);
+  color: var(--token-colorText, #141414);
+  vertical-align: middle;
+  /*
+   * Allow long text (model paths, agent ids) to wrap so a single long
+   * cell does not blow the table out horizontally.
+   */
+  word-break: break-word;
+}
+
+.data-table__cell--align-right {
+  text-align: right;
+}
+
+.data-table__cell--align-center {
+  text-align: center;
+}
+
+.data-table__cell--head {
+  position: relative;
+  font-weight: 600;
+  font-size: var(--token-fontSizeSM, 0.75rem);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--token-colorTextSecondary, #595959);
+  background-color: var(
+    --token-colorFillQuaternary,
+    var(--token-colorBgLayout, #f5f5f5)
+  );
+  border-bottom: 1px solid
+    var(--token-colorBorderSecondary, var(--token-colorBorder, #d9d9d9));
+  user-select: none;
+  /*
+   * Header labels are short and must never break mid-word or push the
+   * sort indicator onto a second line. Override the body cell's
+   * `word-break: break-word` so the header's min-content width stays the
+   * full label width — table-layout: auto then sizes the column wide
+   * enough for the label + inline sort icon.
+   */
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.data-table__head-label {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* ---- Sortable header cells ------------------------------------------------ */
+
+/**
+ * Sortable column headers are interactive. We lay them out with flexbox
+ * so the label and the sort icon sit side-by-side and the resize handle
+ * can still hang off the right edge.
+ */
+.data-table__cell--sortable {
+  cursor: pointer;
+  /* Prevent accidental text selection while clicking quickly. */
+  user-select: none;
+}
+
+.data-table__cell--sortable:hover {
+  background-color: var(--token-colorFillTertiary, rgba(0, 0, 0, 0.06));
+}
+
+.data-table__cell--sortable:focus-visible {
+  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
+  outline-offset: -2px;
+}
+
+/**
+ * When a sort is active on this column, tint the header text to signal
+ * the active sort key.
+ */
+.data-table__cell--sort-active {
+  color: var(--token-colorPrimary, #8b5cf6);
+}
+
+/* ---- Sort indicator icon -------------------------------------------------- */
+
+.data-table__sort-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-inline-start: var(--token-marginXXS, 4px);
+  vertical-align: middle;
+  color: var(--token-colorTextSecondary, #595959);
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.data-table__cell--sort-active .data-table__sort-icon {
+  color: var(--token-colorPrimary, #8b5cf6);
+}
+
+.data-table__resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color var(--token-motionDurationFast, 0.12s) ease;
+}
+
+.data-table__resize-handle:hover {
+  background-color: var(--token-colorPrimaryBorder, var(--token-colorPrimary, #8b5cf6));
+  opacity: 0.5;
+}
+
+.data-table__row--state {
+  /* No hover effect on placeholder rows. */
+}
+
+.data-table__state-cell {
+  padding: var(--token-paddingLG, 16px);
+  text-align: center;
+  color: var(--token-colorTextSecondary, #595959);
+}
+
+.data-table__loading {
+  width: 100%;
+  height: 24px;
+  background: linear-gradient(
+    90deg,
+    var(--token-colorFillQuaternary, #fafafa) 25%,
+    var(--token-colorFillTertiary, #f9fafb) 50%,
+    var(--token-colorFillQuaternary, #fafafa) 75%
+  );
+  background-size: 200% 100%;
+  animation: data-table-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+}
+
+@keyframes data-table-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .data-table__loading {
+    animation: none;
+  }
+}

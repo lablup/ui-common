@@ -1,0 +1,104 @@
+/**
+ * @lablup/ui-common theme tokens: reverie-dark
+ *
+ * Overrides for the subset of the 104-token contract (see
+ * ../base.css) that this theme customizes. Import at most one
+ * theme file alongside base.css; components never import a
+ * theme file themselves.
+ */
+
+[data-theme="reverie-dark"] {
+  --token-boxShadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0.15), 0 1px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  --token-boxShadowSecondary:
+    0 6px 16px 0 rgba(0, 0, 0, 0.2), 0 3px 6px -4px rgba(0, 0, 0, 0.24),
+    0 9px 28px 8px rgba(0, 0, 0, 0.15);
+  --token-buttonGhostBackdrop: none;
+  --token-buttonGhostBg: rgba(253, 164, 175, 0.04);
+  --token-buttonGhostBgHover: rgba(253, 164, 175, 0.1);
+  --token-buttonGhostBorder: 1px solid transparent;
+  --token-buttonGhostShadow: none;
+  --token-buttonGhostShadowHover: 0 0 14px rgba(253, 164, 175, 0.1);
+  --token-buttonPrimaryBg:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.03) 50%,
+      transparent 100%
+    ),
+    var(--token-colorPrimary);
+  --token-buttonPrimaryBgHover:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0.06) 50%,
+      transparent 100%
+    ),
+    #fb7185;
+  --token-buttonPrimaryBorder: 1px solid rgba(255, 255, 255, 0.15);
+  --token-buttonPrimaryShadow:
+    0 2px 8px rgba(253, 164, 175, 0.35), 0 0 20px rgba(253, 164, 175, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  --token-buttonPrimaryShadowHover:
+    0 4px 14px rgba(253, 164, 175, 0.45), 0 0 24px rgba(253, 164, 175, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  --token-buttonSecondaryBackdrop: blur(4px);
+  --token-buttonSecondaryBg: rgba(253, 164, 175, 0.08);
+  --token-buttonSecondaryBgHover: rgba(253, 164, 175, 0.14);
+  --token-buttonSecondaryBorder: 1px solid rgba(253, 164, 175, 0.2);
+  --token-buttonSecondaryBorderHover: 1px solid rgba(253, 164, 175, 0.35);
+  --token-buttonSecondaryShadow:
+    0 1px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --token-buttonSuccessBg:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.03) 50%,
+      transparent 100%
+    ),
+    var(--token-colorSuccess);
+  --token-buttonSuccessBgHover:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.3) 0%,
+      rgba(255, 255, 255, 0.06) 50%,
+      transparent 100%
+    ),
+    #04b898;
+  --token-buttonSuccessBorder: 1px solid rgba(255, 255, 255, 0.15);
+  --token-buttonSuccessShadow:
+    0 2px 8px rgba(3, 164, 135, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  --token-colorBgContainer: #1f1f1f;
+  --token-colorBgElevated: #262626;
+  --token-colorBgLayout: #121212;
+  --token-colorBorder: #424242;
+  --token-colorBorderSecondary: #303030;
+  --token-colorError: #dc4446;
+  --token-colorFillQuaternary: rgba(255, 255, 255, 0.04);
+  --token-colorFillSecondary: #262626;
+  --token-colorFillTertiary: #1a1a1a;
+  --token-colorInfo: #009bdd;
+  --token-colorLink: #fda4af;
+  --token-colorPrimary: #fda4af;
+  --token-colorPrimaryActive: #f43f5e;
+  --token-colorPrimaryBg: rgba(253, 164, 175, 0.12);
+  --token-colorPrimaryBorder: rgba(253, 164, 175, 0.25);
+  --token-colorSuccess: #03a487;
+  --token-colorSuccessActive: #05cca8;
+  --token-colorSuccessBg: rgba(3, 164, 135, 0.15);
+  --token-colorSuccessBorder: rgba(3, 164, 135, 0.4);
+  --token-colorSuccessBorderHover: rgba(3, 164, 135, 0.6);
+  --token-colorSuccessBoxShadow: 0 4px 12px rgba(3, 164, 135, 0.2);
+  --token-colorText: #ffffff;
+  --token-colorTextSecondary: #b3b3b3;
+  --token-colorTextTertiary: #8c8c8c;
+  --token-colorWarning: #d89614;
+  --token-focusRingColor: #fda4af;
+  --token-focusRingOffset: 2px;
+  --token-focusRingStyle: solid;
+  --token-focusRingWidth: 2px;
+  --token-tabActiveBg: rgba(253, 164, 175, 0.1);
+  --token-tabFocusShadow: 0 0 0 3px rgba(253, 164, 175, 0.2);
+  --token-tabHoverBg: rgba(255, 255, 255, 0.05);
+}

@@ -1,0 +1,59 @@
+/**
+ * SkeletonRow Component Styles
+ *
+ * Row skeleton styles for lists and tables.
+ */
+
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--token-paddingMD, 1rem);
+  padding: var(--token-paddingMD, 1rem);
+  background-color: var(--token-colorBgContainer, #ffffff);
+  border-bottom: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+  transition: background-color var(--token-motionDurationFast, 0.1s);
+}
+
+.skeleton-row:first-child {
+  border-top-left-radius: var(--token-borderRadiusSM, 0.25rem);
+  border-top-right-radius: var(--token-borderRadiusSM, 0.25rem);
+}
+
+.skeleton-row:last-child {
+  border-bottom: none;
+  border-bottom-left-radius: var(--token-borderRadiusSM, 0.25rem);
+  border-bottom-right-radius: var(--token-borderRadiusSM, 0.25rem);
+}
+
+/* Avatar Section */
+.skeleton-row__avatar {
+  flex-shrink: 0;
+}
+
+/* Content Section */
+.skeleton-row__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--token-paddingXS, 0.25rem);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Actions Section */
+.skeleton-row__actions {
+  display: flex;
+  gap: var(--token-paddingSM, 0.5rem);
+  flex-shrink: 0;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 767px) {
+  .skeleton-row {
+    padding: var(--token-paddingSM, 0.5rem);
+    gap: var(--token-paddingSM, 0.5rem);
+  }
+
+  .skeleton-row__actions {
+    display: none;
+  }
+}

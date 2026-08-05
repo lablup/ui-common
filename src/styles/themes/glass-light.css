@@ -1,0 +1,125 @@
+/**
+ * @lablup/ui-common theme tokens: glass-light
+ *
+ * Overrides for the subset of the 104-token contract (see
+ * ../base.css) that this theme customizes. Import at most one
+ * theme file alongside base.css; components never import a
+ * theme file themselves.
+ */
+
+[data-theme="glass-light"] {
+  --token-boxShadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --token-boxShadowSecondary:
+    0 4px 12px 0 rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+  --token-buttonActiveTransform: scale(0.97);
+  --token-buttonBorderRadius: 624.9375rem;
+  --token-buttonDangerBg:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.05) 40%,
+      transparent 100%
+    ),
+    #ff3b30;
+  --token-buttonDangerBgActive: #c22d26;
+  --token-buttonDangerBgHover:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.06) 40%,
+      transparent 100%
+    ),
+    #e0342b;
+  --token-buttonDangerBorder: 1px solid rgba(255, 255, 255, 0.15);
+  --token-buttonDangerShadow: 0 1px 3px rgba(255, 59, 48, 0.2);
+  --token-buttonDangerText: white;
+  --token-buttonGhostBackdrop: none;
+  --token-buttonGhostBg: transparent;
+  --token-buttonGhostBgActive: rgba(142, 142, 147, 0.16);
+  --token-buttonGhostBgHover: rgba(142, 142, 147, 0.1);
+  --token-buttonGhostBorder: 1px solid transparent;
+  --token-buttonGhostBorderHover: 1px solid rgba(0, 0, 0, 0.04);
+  --token-buttonGhostShadow: none;
+  --token-buttonGhostShadowHover: none;
+  --token-buttonHoverTransform: translateY(-1px);
+  --token-buttonPrimaryBg:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.05) 40%,
+      transparent 100%
+    ),
+    var(--token-colorPrimary);
+  --token-buttonPrimaryBgHover:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.06) 40%,
+      transparent 100%
+    ),
+    #0062cc;
+  --token-buttonPrimaryBorder: 1px solid rgba(255, 255, 255, 0.15);
+  --token-buttonPrimaryShadow: 0 1px 3px rgba(0, 122, 255, 0.2);
+  --token-buttonPrimaryShadowHover: 0 3px 8px rgba(0, 122, 255, 0.25);
+  --token-buttonSecondaryBackdrop: blur(12px);
+  --token-buttonSecondaryBg: rgba(142, 142, 147, 0.12);
+  --token-buttonSecondaryBgActive: rgba(142, 142, 147, 0.24);
+  --token-buttonSecondaryBgHover: rgba(142, 142, 147, 0.18);
+  --token-buttonSecondaryBorder: 1px solid rgba(0, 0, 0, 0.04);
+  --token-buttonSecondaryBorderHover: 1px solid rgba(0, 0, 0, 0.06);
+  --token-buttonSecondaryShadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --token-buttonSuccessBg:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.18) 0%,
+      rgba(255, 255, 255, 0.05) 40%,
+      transparent 100%
+    ),
+    var(--token-colorSuccess);
+  --token-buttonSuccessBgHover:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.06) 40%,
+      transparent 100%
+    ),
+    #1a6d3b;
+  --token-buttonSuccessBorder: 1px solid rgba(255, 255, 255, 0.15);
+  --token-buttonSuccessShadow: 0 1px 3px rgba(52, 199, 89, 0.2);
+  --token-colorBgContainer: rgba(255, 255, 255, 0.92);
+  --token-colorBgElevated: rgba(255, 255, 255, 0.95);
+  --token-colorBgLayout: rgba(242, 242, 247, 0.95);
+  --token-colorBorder: rgba(0, 0, 0, 0.08);
+  --token-colorBorderSecondary: rgba(0, 0, 0, 0.05);
+  --token-colorError: #c22d26;
+  --token-colorFillQuaternary: rgba(116, 116, 128, 0.04);
+  --token-colorFillSecondary: rgba(120, 120, 128, 0.08);
+  --token-colorFillTertiary: rgba(118, 118, 128, 0.06);
+  --token-colorInfo: #005eb8;
+  --token-colorLink: #007aff;
+  --token-colorPrimary: #007aff;
+  --token-colorPrimaryActive: #004999;
+  --token-colorPrimaryBg: rgba(0, 122, 255, 0.08);
+  --token-colorPrimaryBorder: rgba(0, 122, 255, 0.2);
+  --token-colorSuccess: #1d7d43;
+  --token-colorSuccessActive: #165c33;
+  --token-colorSuccessBg: rgba(52, 199, 89, 0.05);
+  --token-colorSuccessBorder: rgba(52, 199, 89, 0.4);
+  --token-colorSuccessBorderHover: rgba(52, 199, 89, 0.6);
+  --token-colorSuccessBoxShadow: 0 4px 12px rgba(52, 199, 89, 0.15);
+  --token-colorText: #1d1d1f;
+  --token-colorTextSecondary: #545458;
+  --token-colorTextTertiary: #6e6e73;
+  --token-colorWarning: #9a5700;
+  --token-focusRingColor: #007aff;
+  --token-focusRingOffset: 2px;
+  --token-focusRingStyle: solid;
+  --token-focusRingWidth: 2px;
+  --token-fontFamily:
+    system-ui, -apple-system, BlinkMacSystemFont, "Ubuntu Sans", "Pretendard Variable",
+    "Segoe UI", Roboto, sans-serif;
+  --token-tabActiveBg: rgba(0, 122, 255, 0.08);
+  --token-tabFocusShadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
+  --token-tabHoverBg: rgba(120, 120, 128, 0.08);
+}

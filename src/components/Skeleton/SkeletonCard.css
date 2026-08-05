@@ -1,0 +1,77 @@
+/**
+ * SkeletonCard Component Styles
+ *
+ * Card skeleton styles matching the BaseCard layout.
+ */
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--token-paddingSM, 0.5rem);
+  padding: var(--token-paddingMD, 1rem);
+  background-color: var(--token-colorFillTertiary, #f9fafb);
+  border: 1px solid transparent;
+  border-radius: var(--token-borderRadiusLG, 0.5rem);
+  transition:
+    border-color var(--token-motionDurationFast, 0.1s),
+    box-shadow var(--token-motionDurationMid, 0.2s);
+}
+
+/* Header Section */
+.skeleton-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--token-paddingSM, 0.5rem);
+}
+
+.skeleton-card__header-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--token-paddingXS, 0.25rem);
+  flex: 1;
+}
+
+/* Content Section */
+.skeleton-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--token-paddingXS, 0.25rem);
+  padding: var(--token-paddingSM, 0.5rem) 0;
+}
+
+/* Footer Section */
+.skeleton-card__footer {
+  display: flex;
+  gap: var(--token-paddingSM, 0.5rem);
+  padding-top: var(--token-paddingSM, 0.5rem);
+  border-top: 1px solid var(--token-colorBorderSecondary, #e5e7eb);
+}
+
+/* Variant: Compact */
+.skeleton-card--compact {
+  padding: var(--token-paddingSM, 0.5rem);
+}
+
+.skeleton-card--compact .skeleton-card__content {
+  padding: var(--token-paddingXS, 0.25rem) 0;
+}
+
+/* Variant: Stat Card */
+.skeleton-card--stat {
+  padding: var(--token-paddingLG, 1.5rem);
+}
+
+.skeleton-card--stat .skeleton-card__header {
+  gap: var(--token-paddingMD, 1rem);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 767px) {
+  .skeleton-card {
+    padding: var(--token-paddingSM, 0.5rem);
+  }
+
+  .skeleton-card--stat {
+    padding: var(--token-paddingMD, 1rem);
+  }
+}

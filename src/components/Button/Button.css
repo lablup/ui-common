@@ -1,0 +1,578 @@
+/**
+ * Button Component Styles
+ * Design system tokens
+ *
+ * All color/effect styles use theme tokens for customization.
+ * See src/themes/base.css for token definitions.
+ */
+
+/* ============================================
+   Base Button Styles
+   ============================================ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem; /* 6px - use rem for zoom accessibility */
+  font-family: var(
+    --token-fontFamily,
+    "Ubuntu Sans",
+    "Pretendard Variable",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif
+  );
+  font-weight: 500;
+  /* Use pill border-radius from theme if available, fallback to default */
+  border-radius: var(--token-buttonBorderRadius, var(--token-borderRadius, 0.375rem));
+  cursor: pointer;
+  /* Spring-like transition for macOS 26 Liquid Glass feel */
+  transition:
+    background var(--token-motionDurationFast, 0.1s) ease-out,
+    border-color var(--token-motionDurationFast, 0.1s) ease-out,
+    box-shadow var(--token-motionDurationMid, 0.2s) ease-out,
+    transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    color var(--token-motionDurationFast, 0.1s) ease-out,
+    opacity var(--token-motionDurationFast, 0.1s) ease-out;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  position: relative;
+  /* Ensure minimum touch target size at any zoom level */
+  min-height: 2.75rem; /* 44px - WCAG 2.1 minimum touch target */
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
+  outline-offset: 2px;
+}
+
+/* Full width variant */
+.button--full-width {
+  width: 100%;
+}
+
+/* ============================================
+   Inline mode
+   ============================================
+
+   `<Button inline />` turns the common Button into a thin styling /
+   accessibility shell so a *host class* can own padding, height, icon
+   layout, and hover treatment. The host writes its own
+   `display: inline-flex; align-items: center; gap: …; padding: …;`
+   rules; Button supplies only the variant theming, focus ring, and
+   button-element semantics.
+
+   Use this for compact triggers (selector triggers, badge buttons,
+   inline action buttons, collapsible block headers like ThinkingBlock /
+   ToolCallBlock / ToolResultBlock) where Button's full geometry would
+   fight the surrounding layout.
+
+   Three concerns are layered into the rules below:
+
+     1. Layout handoff — wake the host class up by clearing Button's
+        enforced size + `justify-content: center` defaults, and render
+        children directly inside `<button>` instead of through the
+        `<span class="button__text">` wrapper (the wrapper is what
+        breaks the host's flex row layout when used with text children).
+        The TSX handles the wrapper bit; the rules below handle the
+        size + justify part.
+
+     2. Layout-shift prevention — neutralize every variant-rule channel
+        that could change the button's box geometry on hover/active:
+        transform, box-shadow, and (most importantly) border-width.
+        Variant `:hover` selectors (e.g. `.button--ghost:hover`) have
+        higher specificity than a host's `border: none`, so we drop the
+        contribution down at the token layer where the variant rule
+        reads its value from. The host still wins on equal terms when
+        it declares its own resting border.
+
+     3. Transition discipline — restrict animated properties to a
+        background+color dissolve. The variant rules still flip
+        transform/shadow on hover, but with no transition on those
+        properties they snap instead of interpolating, and the hover
+        stop pins them to `none` anyway. End result: pure color
+        highlight on hover, zero visual movement.
+
+   Specificity note — `.button.button--inline` (0,2,0) intentionally
+   doubles the inline class so it beats the single-class size variants
+   (`.button--small`, `.button--medium`) on `min-height` regardless of
+   source order. Size-variant paddings share specificity with the host
+   class's padding rule; source order (host CSS loads after Button.css)
+   already lets the host win there, so we don't need to override
+   padding here. */
+
+.button.button--inline {
+  /* Layout handoff — host class owns geometry from here on.
+     NOTE: `justify-content: flex-start` lives in a *separate* rule
+     below at single-class specificity (`.button--inline`). That way a
+     host class that wants centered children (e.g. circular icon-only
+     triggers like `.sidebar-toggle-btn`) can declare
+     `justify-content: center` on its own single-class selector and win
+     on source order, instead of having to use a doubled selector. */
+  min-height: auto;
+  line-height: 1;
+
+  /* Layout-shift prevention — null out every variant-rule property
+     that would change box geometry on hover/active. */
+  --token-buttonHoverTransform: none;
+  --token-buttonActiveTransform: none;
+  --token-buttonGhostBorder: none;
+  --token-buttonGhostBorderHover: none;
+  --token-buttonSecondaryBorder: none;
+  --token-buttonSecondaryBorderHover: none;
+  --token-buttonPrimaryBorder: none;
+  --token-buttonDangerBorder: none;
+
+  /* Transition discipline — pure color dissolve. */
+  transition:
+    background-color var(--token-motionDurationFast, 0.1s) ease-out,
+    color var(--token-motionDurationFast, 0.1s) ease-out;
+}
+
+/* Inline-mode default child justification — single-class so a host with
+   its own `justify-content` declaration (center, space-between, etc.)
+   wins on source order. */
+.button--inline {
+  justify-content: flex-start;
+}
+
+/* Direct `<svg>` children render as block-level so the flex container
+   centers them by box-center (not the inherited inline-svg baseline)
+   and they can't squish under a long label. */
+.button.button--inline > svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Hover/active hard-stops — defense in depth. The token resets above
+   already make the variant rules emit `transform: none` and
+   `border: none`; these `!important` lines guarantee `transform` and
+   `box-shadow` stay `none` even if a future variant rule sets them
+   directly instead of via a token. */
+.button.button--inline:hover:not(:disabled),
+.button.button--inline:active:not(:disabled) {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================================
+   Size Variants
+   ============================================ */
+
+.button--xsmall {
+  padding: 0.125rem 0.375rem;
+  font-size: var(--token-fontSizeSM, 0.75rem); /* 11px */
+  gap: 0.1875rem; /* 3px */
+  min-height: 1.75rem; /* 28px - compact inline actions */
+}
+
+.button--small {
+  padding: var(--token-paddingXS, 0.25rem) var(--token-paddingSM, 0.5rem);
+  font-size: var(--token-fontSizeSM, 0.75rem);
+  gap: 0.25rem; /* 4px */
+  min-height: 2rem; /* Allow smaller buttons when needed */
+}
+
+.button--medium {
+  padding: var(--token-paddingXS, 0.25rem) var(--token-padding, 0.75rem);
+  font-size: var(--token-fontSize, 0.875rem);
+  gap: 0.375rem; /* 6px */
+}
+
+.button--large {
+  padding: var(--token-paddingSM, 0.5rem) var(--token-paddingMD, 1rem);
+  font-size: var(--token-fontSize, 0.875rem);
+  gap: 0.5rem; /* 8px */
+}
+
+/* ============================================
+   Icon-Only Variants
+   ============================================ */
+
+.button--icon-only {
+  padding: var(--token-paddingXS, 0.25rem);
+  aspect-ratio: 1;
+}
+
+.button--icon-only.button--xsmall {
+  padding: 0.125rem;
+}
+
+.button--icon-only.button--small {
+  padding: var(--token-paddingXS, 0.25rem);
+}
+
+.button--icon-only.button--large {
+  padding: var(--token-paddingSM, 0.5rem);
+}
+
+/* ============================================
+   Shape Variants
+   ============================================ */
+
+.button--circle {
+  border-radius: 50%;
+  aspect-ratio: 1;
+  padding: var(--token-paddingXS, 0.25rem);
+}
+
+.button--circle.button--xsmall {
+  padding: 0.125rem;
+}
+
+.button--circle.button--small {
+  padding: var(--token-paddingXS, 0.25rem);
+}
+
+.button--circle.button--large {
+  padding: var(--token-paddingSM, 0.5rem);
+}
+
+/* ============================================
+   Color Variants (Token-based)
+   ============================================ */
+
+/* Primary */
+.button--primary {
+  background: var(
+    --token-buttonPrimaryBg,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+    #8b5cf6
+  );
+  color: white;
+  border: var(--token-buttonPrimaryBorder, none);
+  box-shadow: var(
+    --token-buttonPrimaryShadow,
+    0 2px 6px rgba(139, 92, 246, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2)
+  );
+  backdrop-filter: var(--token-buttonPrimaryBackdrop, none);
+  -webkit-backdrop-filter: var(--token-buttonPrimaryBackdrop, none);
+}
+
+.button--primary:hover:not(:disabled) {
+  background: var(
+    --token-buttonPrimaryBgHover,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%),
+    #7c3aed
+  );
+  box-shadow: var(
+    --token-buttonPrimaryShadowHover,
+    0 4px 10px rgba(139, 92, 246, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25)
+  );
+  transform: var(--token-buttonHoverTransform, translateY(-1px));
+}
+
+.button--primary:active:not(:disabled) {
+  background: var(
+    --token-buttonPrimaryBgActive,
+    var(--token-colorPrimaryActive, #6d28d9)
+  );
+  transform: var(--token-buttonActiveTransform, scale(0.97));
+  box-shadow: var(
+    --token-buttonPrimaryShadow,
+    0 2px 6px rgba(139, 92, 246, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2)
+  );
+}
+
+/* Secondary */
+.button--secondary {
+  background: var(--token-buttonSecondaryBg, rgba(139, 92, 246, 0.04));
+  color: var(--token-colorTextSecondary, #595959);
+  border: var(--token-buttonSecondaryBorder, 1px solid rgba(139, 92, 246, 0.2));
+  box-shadow: var(
+    --token-buttonSecondaryShadow,
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8)
+  );
+  backdrop-filter: var(--token-buttonSecondaryBackdrop, none);
+  -webkit-backdrop-filter: var(--token-buttonSecondaryBackdrop, none);
+}
+
+.button--secondary:hover:not(:disabled) {
+  background: var(--token-buttonSecondaryBgHover, rgba(139, 92, 246, 0.08));
+  border: var(--token-buttonSecondaryBorderHover, 1px solid rgba(139, 92, 246, 0.3));
+  color: var(--token-colorText, #141414);
+  box-shadow: var(
+    --token-buttonSecondaryShadowHover,
+    var(
+      --token-buttonSecondaryShadow,
+      0 1px 3px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8)
+    )
+  );
+  transform: var(--token-buttonHoverTransform, translateY(-1px));
+}
+
+.button--secondary:active:not(:disabled) {
+  background: var(--token-buttonSecondaryBgActive, var(--token-colorBgLayout, #f5f5f5));
+  transform: var(--token-buttonActiveTransform, scale(0.97));
+  box-shadow: var(
+    --token-buttonSecondaryShadow,
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8)
+  );
+}
+
+/* Danger */
+.button--danger {
+  background: var(--token-buttonDangerBg, transparent);
+  color: var(--token-buttonDangerText, var(--token-colorError, #c82333));
+  border: var(--token-buttonDangerBorder, 1px solid #c82333);
+  box-shadow: var(--token-buttonDangerShadow, none);
+}
+
+.button--danger:hover:not(:disabled) {
+  background: var(--token-buttonDangerBgHover, rgba(255, 77, 79, 0.1));
+  border-color: var(--token-colorError, #c82333);
+  box-shadow: var(
+    --token-buttonDangerShadowHover,
+    var(--token-buttonDangerShadow, none)
+  );
+  transform: var(--token-buttonHoverTransform, translateY(-1px));
+}
+
+.button--danger:active:not(:disabled) {
+  background: var(--token-buttonDangerBgActive, rgba(255, 77, 79, 0.2));
+  transform: var(--token-buttonActiveTransform, scale(0.97));
+  box-shadow: var(--token-buttonDangerShadow, none);
+}
+
+/* Success */
+.button--success {
+  background: var(
+    --token-buttonSuccessBg,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+    #007a63
+  );
+  color: white;
+  border: var(--token-buttonSuccessBorder, none);
+  box-shadow: var(
+    --token-buttonSuccessShadow,
+    0 2px 6px rgba(0, 189, 155, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2)
+  );
+  backdrop-filter: var(--token-buttonSuccessBackdrop, none);
+  -webkit-backdrop-filter: var(--token-buttonSuccessBackdrop, none);
+}
+
+.button--success:hover:not(:disabled) {
+  background: var(
+    --token-buttonSuccessBgHover,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%),
+    #006654
+  );
+  box-shadow: var(
+    --token-buttonSuccessShadowHover,
+    var(
+      --token-buttonSuccessShadow,
+      0 2px 6px rgba(0, 189, 155, 0.25),
+      inset 0 1px 1px rgba(255, 255, 255, 0.2)
+    )
+  );
+  transform: var(--token-buttonHoverTransform, translateY(-1px));
+}
+
+.button--success:active:not(:disabled) {
+  background: var(
+    --token-buttonSuccessBgActive,
+    var(--token-colorSuccessActive, #005244)
+  );
+  transform: var(--token-buttonActiveTransform, scale(0.97));
+  box-shadow: var(
+    --token-buttonSuccessShadow,
+    0 2px 6px rgba(0, 189, 155, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2)
+  );
+}
+
+/* Ghost */
+.button--ghost {
+  background: var(--token-buttonGhostBg, transparent);
+  color: var(--token-colorTextSecondary, #595959);
+  border: var(--token-buttonGhostBorder, 1px solid transparent);
+  box-shadow: var(--token-buttonGhostShadow, none);
+  backdrop-filter: var(--token-buttonGhostBackdrop, none);
+  -webkit-backdrop-filter: var(--token-buttonGhostBackdrop, none);
+}
+
+.button--ghost:hover:not(:disabled) {
+  background: var(--token-buttonGhostBgHover, rgba(139, 92, 246, 0.06));
+  border: var(
+    --token-buttonGhostBorderHover,
+    var(--token-buttonGhostBorder, 1px solid transparent)
+  );
+  color: var(--token-colorText, #141414);
+  box-shadow: var(--token-buttonGhostShadowHover, none);
+  transform: var(--token-buttonHoverTransform, translateY(-1px));
+}
+
+.button--ghost:active:not(:disabled) {
+  background: var(--token-buttonGhostBgActive, var(--token-colorBgLayout, #f5f5f5));
+  transform: var(--token-buttonActiveTransform, scale(0.97));
+}
+
+/* Text - minimal text-only button for menus/lists */
+.button--text {
+  background: transparent;
+  color: var(--token-colorTextSecondary, #595959);
+  border: 1px solid transparent;
+  box-shadow: none;
+  min-height: auto;
+  padding: 0.25rem 0.5rem;
+}
+
+.button--text:hover:not(:disabled) {
+  background: var(--token-colorBgTextHover, rgba(0, 0, 0, 0.04));
+  color: var(--token-colorText, #141414);
+  transform: none;
+}
+
+.button--text:active:not(:disabled) {
+  background: var(--token-colorBgTextActive, rgba(0, 0, 0, 0.08));
+  transform: none;
+}
+
+/* Outline - outlined style for form controls */
+.button--outline {
+  background: transparent;
+  color: var(--token-colorTextSecondary, #595959);
+  border: 1px solid var(--token-colorBorderSecondary, rgba(0, 0, 0, 0.15));
+  box-shadow: none;
+}
+
+.button--outline:hover:not(:disabled) {
+  background: var(--token-colorBgTextHover, rgba(0, 0, 0, 0.04));
+  border-color: var(--token-colorPrimary, #8b5cf6);
+  color: var(--token-colorPrimary, #8b5cf6);
+  transform: var(--token-buttonHoverTransform, translateY(-1px));
+}
+
+.button--outline:active:not(:disabled) {
+  background: var(--token-colorBgTextActive, rgba(0, 0, 0, 0.08));
+  transform: var(--token-buttonActiveTransform, scale(0.97));
+}
+
+/* ============================================
+   Tab Role Override
+   Buttons used as tabs should not shift position on hover/active.
+   Enforces consistent border-width so ghost hover border change
+   does not cause layout reflow.
+   ============================================ */
+
+.button[role="tab"] {
+  border: 1px solid transparent;
+}
+
+.button[role="tab"]:hover:not(:disabled),
+.button[role="tab"]:active:not(:disabled) {
+  transform: none;
+}
+
+/* ============================================
+   Active State
+   ============================================ */
+
+.button--active {
+  color: var(--token-colorPrimary, #8b5cf6);
+  font-weight: 600;
+}
+
+.button--active.button--ghost,
+.button--active.button--text {
+  background: var(--token-colorPrimaryBg, rgba(22, 119, 255, 0.08));
+  color: var(--token-colorPrimary, #8b5cf6);
+}
+
+.button--active.button--outline {
+  background: var(--token-colorPrimaryBg, rgba(22, 119, 255, 0.08));
+  border-color: var(--token-colorPrimary, #8b5cf6);
+  color: var(--token-colorPrimary, #8b5cf6);
+}
+
+.button--active.button--secondary {
+  background: var(--token-colorPrimaryBg, rgba(22, 119, 255, 0.08));
+  border-color: var(--token-colorPrimary, #8b5cf6);
+  color: var(--token-colorPrimary, #8b5cf6);
+}
+
+/* ============================================
+   Loading State
+   ============================================ */
+
+.button--loading {
+  pointer-events: none;
+}
+
+.button--loading .button__text,
+.button--loading .button__icon {
+  opacity: 0;
+}
+
+.button__loading-spinner {
+  position: absolute;
+  width: 0.875rem; /* 14px */
+  height: 0.875rem; /* 14px */
+  border: 0.125rem solid currentColor;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: button-spinner-rotate 0.6s linear infinite;
+}
+
+@keyframes button-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   Icon & Text
+   ============================================ */
+
+.button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.button__icon svg {
+  display: block;
+}
+
+.button__text {
+  line-height: 1;
+}
+
+/* ============================================
+   Reduced Motion Preference
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .button:hover:not(:disabled),
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+
+  .button__loading-spinner {
+    /* Keep spinner visible but stop rotation */
+    animation: none;
+    /* Show partial border to indicate loading */
+    border-top-color: currentColor;
+    opacity: 0.6;
+  }
+}

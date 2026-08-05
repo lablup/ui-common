@@ -1,0 +1,46 @@
+/**
+ * StatusTag styles
+ *
+ * The Badge underneath already paints the background/foreground via the
+ * design tokens; this file only adds:
+ * - tighter inline-flex layout so the optional indicator dot sits on
+ *   the same baseline as the label,
+ * - a pulsing dot animation for transient states.
+ */
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--token-paddingXXS, 4px);
+}
+
+.status-tag__indicator {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: status-tag-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes status-tag-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.85);
+  }
+}
+
+.status-tag__label {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-tag__indicator {
+    animation: none;
+  }
+}

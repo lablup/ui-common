@@ -1,0 +1,70 @@
+/**
+ * @lablup/ui-common theme tokens: orange-light
+ *
+ * Overrides for the subset of the 104-token contract (see
+ * ../base.css) that this theme customizes. Import at most one
+ * theme file alongside base.css; components never import a
+ * theme file themselves.
+ */
+
+[data-theme="orange-light"] {
+  --token-boxShadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  --token-boxShadowSecondary:
+    0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  --token-buttonGhostBackdrop: none;
+  --token-buttonGhostBg: transparent;
+  --token-buttonGhostBgHover: rgba(255, 122, 0, 0.06);
+  --token-buttonGhostBorder: 1px solid transparent;
+  --token-buttonGhostShadow: none;
+  --token-buttonGhostShadowHover: none;
+  --token-buttonPrimaryBg: var(--token-colorPrimary);
+  --token-buttonPrimaryBgHover: #e86e00;
+  --token-buttonPrimaryBorder: none;
+  --token-buttonPrimaryShadow: 0 2px 4px rgba(255, 122, 0, 0.2);
+  --token-buttonPrimaryShadowHover: 0 4px 8px rgba(255, 122, 0, 0.25);
+  --token-buttonSecondaryBackdrop: none;
+  --token-buttonSecondaryBg: transparent;
+  --token-buttonSecondaryBgHover: rgba(255, 122, 0, 0.06);
+  --token-buttonSecondaryBorder: 1px solid var(--token-colorBorder);
+  --token-buttonSecondaryBorderHover: 1px solid rgba(255, 122, 0, 0.3);
+  --token-buttonSecondaryShadow: none;
+  --token-buttonSuccessBg: var(--token-colorSuccess);
+  --token-buttonSuccessBgHover: #006654;
+  --token-buttonSuccessBorder: none;
+  --token-buttonSuccessShadow: 0 2px 4px rgba(0, 189, 155, 0.2);
+  --token-colorBgContainer: #ffffff;
+  --token-colorBgElevated: #ffffff;
+  --token-colorBgLayout: #f5f5f5;
+  --token-colorBorder: #d9d9d9;
+  --token-colorBorderSecondary: #e5e7eb;
+  --token-colorError: #c82333;
+  --token-colorFillQuaternary: #fafafa;
+  --token-colorFillSecondary: #f3f4f6;
+  --token-colorFillTertiary: #f9fafb;
+  --token-colorInfo: #0066cc;
+  --token-colorLink: #ff7a00;
+  --token-colorPrimary: #ff7a00;
+  --token-colorPrimaryActive: #cc6200;
+  --token-colorPrimaryBg: rgba(255, 122, 0, 0.1);
+  --token-colorPrimaryBorder: rgba(255, 122, 0, 0.2);
+  --token-colorSuccess: #007a63;
+  --token-colorSuccessActive: #005244;
+  --token-colorSuccessBg: rgba(0, 189, 155, 0.05);
+  --token-colorSuccessBorder: rgba(0, 189, 155, 0.4);
+  --token-colorSuccessBorderHover: rgba(0, 189, 155, 0.6);
+  --token-colorSuccessBoxShadow: 0 4px 12px rgba(0, 189, 155, 0.15);
+  --token-colorText: #141414;
+  --token-colorTextSecondary: #595959;
+  --token-colorTextTertiary: #737373;
+  --token-colorWarning: #9a5d00;
+  --token-focusRingColor: #ff7a00;
+  --token-focusRingOffset: 2px;
+  --token-focusRingStyle: solid;
+  --token-focusRingWidth: 2px;
+  --token-tabActiveBg: rgba(255, 122, 0, 0.1);
+  --token-tabFocusShadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
+  --token-tabHoverBg: var(--token-colorFillSecondary);
+}

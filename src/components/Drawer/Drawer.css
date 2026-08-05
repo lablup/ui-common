@@ -1,0 +1,227 @@
+/**
+ * Drawer Component Styles
+ *
+ * Shared styles for drawer component using Backend.AI design system tokens.
+ * Provides backdrop animation, slide-in transitions, and responsive behavior.
+ *
+ * IMPORTANT: Selectors that declare `transition` use doubled-class specificity
+ * (e.g., `.drawer.drawer`) to ensure they are NOT overridden by the
+ * `[class*="drawer"]` attribute selector in transitions.css. Both selectors
+ * would normally have specificity (0,1,0), but since transitions.css appears
+ * later in the CSS bundle, it would win the cascade and strip transform/opacity
+ * transitions. Doubling the class selector raises specificity to (0,2,0).
+ */
+
+/* ============================================================================
+ * Backdrop
+ * ============================================================================ */
+
+.drawer__backdrop.drawer__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--token-colorBgMask, rgba(0, 0, 0, 0.45));
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  z-index: var(--token-zIndexDrawer, 1100);
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  /* Merge animation transitions (opacity, visibility) with theme color
+   * transitions (background-color) so both work correctly. */
+  transition:
+    opacity var(--token-motionDurationMid, 0.3s) ease,
+    visibility 0s linear var(--token-motionDurationMid, 0.3s),
+    background-color var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out),
+    backdrop-filter var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out);
+}
+
+.drawer__backdrop--open.drawer__backdrop--open {
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+  /* When open, visibility transition has no delay so backdrop appears instantly. */
+  transition:
+    opacity var(--token-motionDurationMid, 0.3s) ease,
+    visibility 0s linear 0s,
+    background-color var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out),
+    backdrop-filter var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out);
+}
+
+/* ============================================================================
+ * Drawer Panel
+ * ============================================================================ */
+
+.drawer.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--token-colorBgContainer, #ffffff);
+  box-shadow: var(--token-boxShadowDrawerRight, -4px 0 20px rgba(0, 0, 0, 0.15));
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  opacity: 0;
+  /* Merge animation transitions (transform, opacity) with theme color
+   * transitions (background-color, color, border-color, box-shadow)
+   * so both slide animation and theme switching work correctly. */
+  transition:
+    transform var(--token-motionDurationMid, 0.3s) cubic-bezier(0.4, 0, 0.2, 1),
+    opacity var(--token-motionDurationMid, 0.3s) ease,
+    background-color var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out),
+    color var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out),
+    border-color var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out),
+    box-shadow var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out);
+  z-index: var(--token-zIndexDrawerContent, 1101);
+}
+
+.drawer.drawer--open {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* ============================================================================
+ * Header
+ * ============================================================================ */
+
+.drawer__header {
+  padding: var(--token-paddingLG, 1.5rem);
+  border-bottom: 1px solid var(--token-colorBorder, #d9d9d9);
+  flex-shrink: 0;
+}
+
+.drawer__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--token-paddingMD, 1rem);
+}
+
+.drawer__title {
+  font-size: var(--token-fontSizeHeading4, 1.25rem);
+  font-weight: 600;
+  color: var(--token-colorText, #141414);
+  margin: 0;
+}
+
+.drawer__subtitle {
+  font-size: var(--token-fontSizeSM, 0.875rem);
+  color: var(--token-colorTextSecondary, #6b7280);
+  margin: var(--token-paddingSM, 0.5rem) 0 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer__close-btn.drawer__close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--token-borderRadius, 6px);
+  color: var(--token-colorTextSecondary, #6b7280);
+  cursor: pointer;
+  flex-shrink: 0;
+  /* Merge interaction transitions (background-color, color) with theme
+   * color transition (border-color) so both hover effects and theme
+   * switching work correctly. */
+  transition:
+    background-color var(--token-motionDurationFast, 0.15s) ease,
+    color var(--token-motionDurationFast, 0.15s) ease,
+    border-color var(--token-themeTransitionDuration, 0.25s)
+      var(--token-themeTransitionTiming, ease-in-out);
+}
+
+.drawer__close-btn:hover {
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+  color: var(--token-colorText, #141414);
+}
+
+.drawer__close-btn:focus-visible {
+  outline: 2px solid var(--token-colorPrimary, #ff7a00);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * Content
+ * ============================================================================ */
+
+.drawer__content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ============================================================================
+ * Footer
+ * ============================================================================ */
+
+.drawer__footer {
+  padding: var(--token-paddingMD, 1rem) var(--token-paddingLG, 1.5rem);
+  border-top: 1px solid var(--token-colorBorder, #d9d9d9);
+  background-color: var(--token-colorFillSecondary, #f3f4f6);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * Accessibility - Reduced Motion
+ *
+ * Uses doubled-class specificity to match the main rules above, ensuring
+ * transition: none takes effect even if transitions.css appears later.
+ * ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer__backdrop.drawer__backdrop,
+  .drawer.drawer,
+  .drawer__close-btn.drawer__close-btn {
+    transition: none;
+  }
+
+  .drawer__backdrop--open.drawer__backdrop--open {
+    transition: none;
+  }
+}
+
+/* ============================================================================
+ * Accessibility - Reduced Transparency
+ * ============================================================================ */
+
+@media (prefers-reduced-transparency: reduce) {
+  .drawer__backdrop.drawer__backdrop {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: rgba(0, 0, 0, 0.65);
+  }
+}
+
+/* ============================================================================
+ * Responsive - Mobile
+ * ============================================================================ */
+
+@media (max-width: 767px) {
+  .drawer {
+    width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  .drawer__header {
+    padding: var(--token-paddingMD, 1rem);
+  }
+
+  .drawer__footer {
+    padding: var(--token-paddingMD, 1rem);
+  }
+}
