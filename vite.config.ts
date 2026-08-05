@@ -32,8 +32,8 @@ function entryPoints(): Record<string, string> {
 
 /**
  * Design tokens are standalone stylesheets that no component imports, so
- * Rollup never sees them. They are copied verbatim so each theme family stays
- * an opt-in entry point rather than being folded into a single bundle.
+ * Rollup never sees them. They are copied verbatim so the palette stays an
+ * opt-in entry point rather than being folded into a single bundle.
  */
 function copyStyles(): Plugin {
   return {

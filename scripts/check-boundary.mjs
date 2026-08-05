@@ -116,20 +116,47 @@ const docFiles = globSync(["*.md", "NOTICE", ".github/**/*.yml"], {
   absolute: true,
 });
 
+/**
+ * Blank out comment markers without moving anything.
+ *
+ * A name that wraps across two comment lines reads as one name and ships as
+ * one name, but arrives at a line-by-line scan as "Backend.AI" and "GO does",
+ * neither of which matches. That is not hypothetical: it is how a product
+ * edition got into this file's own token stylesheet and past this guard.
+ * Replacing each marker with the same number of spaces lets a pattern span the
+ * wrap while every offset still maps back to its original line.
+ */
+function blankCommentMarkers(text) {
+  return text.replace(/^[ \t]*(?:\/\/+|\/?\*+|#+)[ \t]?/gm, (marker) =>
+    " ".repeat(marker.length),
+  );
+}
+
+function lineOf(text, index) {
+  return text.slice(0, index).split("\n").length;
+}
+
 for (const file of [...files, ...docFiles]) {
   const contents = await readFile(file, "utf8");
-  contents.split("\n").forEach((line, index) => {
-    for (const { pattern, reason } of DISCLOSURE) {
-      if (pattern.test(line)) {
-        violations.push({
-          file: relative(root, file),
-          line: index + 1,
-          text: line.trim(),
-          reason: `${reason}; this repository is published publicly`,
-        });
-      }
+  const scannable = blankCommentMarkers(contents);
+  const lines = contents.split("\n");
+
+  for (const { pattern, reason } of DISCLOSURE) {
+    const global = new RegExp(
+      pattern.source,
+      pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`,
+    );
+    for (const match of scannable.matchAll(global)) {
+      const line = lineOf(scannable, match.index);
+      violations.push({
+        file: relative(root, file),
+        line,
+        // The match rather than the line, since it may span two of them.
+        text: `${lines[line - 1].trim()}  [matched: ${match[0].replace(/\s+/g, " ")}]`,
+        reason: `${reason}; this repository is published publicly`,
+      });
     }
-  });
+  }
 }
 
 if (violations.length > 0) {
