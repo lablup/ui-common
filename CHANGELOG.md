@@ -5,6 +5,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.4]
+
+### Added
+
+- `SkeletonCard`, `SkeletonText` and `SkeletonRow` take a `loadingLabel` and
+  forward it to every `Skeleton` they render. `Skeleton` has always taken its
+  accessible name as a prop, but the composed skeletons offered no way to pass
+  one through, so every nested skeleton announced the English default however
+  the consumer was translated.
+
 ## [0.1.0-alpha.3]
 
 ### Added
@@ -62,7 +72,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.3...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.4...HEAD
+[0.1.0-alpha.4]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.3...v0.1.0-alpha.4
 [0.1.0-alpha.3]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.2...v0.1.0-alpha.3
 [0.1.0-alpha.2]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.1...v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.0...v0.1.0-alpha.1

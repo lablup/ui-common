@@ -25,6 +25,8 @@ export interface SkeletonTextProps {
   className?: string;
   /** Test ID for testing */
   testId?: string;
+  /** Accessible name for each skeleton inside. Defaults to "Loading". */
+  loadingLabel?: string;
 }
 
 /**
@@ -40,6 +42,7 @@ export function SkeletonText({
   spacing = "normal",
   className = "",
   testId,
+  loadingLabel,
 }: SkeletonTextProps) {
   const classNames = ["skeleton-text", `skeleton-text--${spacing}`, className]
     .filter(Boolean)
@@ -58,7 +61,13 @@ export function SkeletonText({
   return (
     <div className={classNames} data-testid={testId} role="status" aria-busy="true">
       {widths.map((width, index) => (
-        <Skeleton key={index} width={width} height="1em" variant="text" />
+        <Skeleton
+          loadingLabel={loadingLabel}
+          key={index}
+          width={width}
+          height="1em"
+          variant="text"
+        />
       ))}
     </div>
   );

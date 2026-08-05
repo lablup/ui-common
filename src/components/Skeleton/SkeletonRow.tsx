@@ -27,6 +27,8 @@ export interface SkeletonRowProps {
   className?: string;
   /** Test ID for testing */
   testId?: string;
+  /** Accessible name for each skeleton inside. Defaults to "Loading". */
+  loadingLabel?: string;
 }
 
 /**
@@ -43,6 +45,7 @@ export function SkeletonRow({
   count = 1,
   className = "",
   testId,
+  loadingLabel,
 }: SkeletonRowProps) {
   const rows = Array.from({ length: count });
 
@@ -58,17 +61,22 @@ export function SkeletonRow({
         >
           {showAvatar && (
             <div className="skeleton-row__avatar">
-              <Skeleton width="40px" height="40px" variant="circle" />
+              <Skeleton
+                loadingLabel={loadingLabel}
+                width="40px"
+                height="40px"
+                variant="circle"
+              />
             </div>
           )}
           <div className="skeleton-row__content">
-            <Skeleton width="25%" height="14px" />
-            <Skeleton width="100%" height="16px" />
+            <Skeleton loadingLabel={loadingLabel} width="25%" height="14px" />
+            <Skeleton loadingLabel={loadingLabel} width="100%" height="16px" />
           </div>
           {showActions && (
             <div className="skeleton-row__actions">
-              <Skeleton width="32px" height="32px" />
-              <Skeleton width="32px" height="32px" />
+              <Skeleton loadingLabel={loadingLabel} width="32px" height="32px" />
+              <Skeleton loadingLabel={loadingLabel} width="32px" height="32px" />
             </div>
           )}
         </div>
