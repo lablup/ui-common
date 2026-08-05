@@ -23,6 +23,8 @@ export interface SkeletonCardProps {
   className?: string;
   /** Test ID for testing */
   testId?: string;
+  /** Accessible name for each skeleton inside. Defaults to "Loading". */
+  loadingLabel?: string;
 }
 
 /**
@@ -37,6 +39,7 @@ export function SkeletonCard({
   variant = "default",
   className = "",
   testId,
+  loadingLabel,
 }: SkeletonCardProps) {
   const classNames = ["skeleton-card", `skeleton-card--${variant}`, className]
     .filter(Boolean)
@@ -47,27 +50,32 @@ export function SkeletonCard({
       {variant === "stat" ? (
         <>
           <div className="skeleton-card__header">
-            <Skeleton width="48px" height="48px" variant="circle" />
+            <Skeleton
+              loadingLabel={loadingLabel}
+              width="48px"
+              height="48px"
+              variant="circle"
+            />
             <div className="skeleton-card__header-text">
-              <Skeleton width="60%" height="16px" />
-              <Skeleton width="40%" height="24px" />
+              <Skeleton loadingLabel={loadingLabel} width="60%" height="16px" />
+              <Skeleton loadingLabel={loadingLabel} width="40%" height="24px" />
             </div>
           </div>
         </>
       ) : (
         <>
           <div className="skeleton-card__header">
-            <Skeleton width="70%" height="20px" />
+            <Skeleton loadingLabel={loadingLabel} width="70%" height="20px" />
           </div>
           <div className="skeleton-card__content">
-            <Skeleton width="100%" height="16px" />
-            <Skeleton width="90%" height="16px" />
-            <Skeleton width="80%" height="16px" />
+            <Skeleton loadingLabel={loadingLabel} width="100%" height="16px" />
+            <Skeleton loadingLabel={loadingLabel} width="90%" height="16px" />
+            <Skeleton loadingLabel={loadingLabel} width="80%" height="16px" />
           </div>
           {variant !== "compact" && (
             <div className="skeleton-card__footer">
-              <Skeleton width="80px" height="32px" />
-              <Skeleton width="80px" height="32px" />
+              <Skeleton loadingLabel={loadingLabel} width="80px" height="32px" />
+              <Skeleton loadingLabel={loadingLabel} width="80px" height="32px" />
             </div>
           )}
         </>
