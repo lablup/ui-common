@@ -32,8 +32,13 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # setup-node writes an .npmrc containing ${NODE_AUTH_TOKEN}, and pnpm warns
+    # on every step where that variable is unset. Defining it empty here silences
+    # the warning without handing a publish-capable credential to install, build
+    # and test steps, which run third-party code from node_modules. The real
+    # secret is attached only to the steps that actually talk to the registry.
     env:
-      NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_AUTH_TOKEN: ""
     steps:
       - uses: actions/checkout@v7
 
@@ -78,6 +83,8 @@ jobs:
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
         run: pnpm publish --no-git-checks --access public --tag ${{ steps.tag.outputs.tag }} --registry https://npm.pkg.github.com
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
@@ -99,6 +106,13 @@ jobs:
       # the tarball, and shows a verified badge on the package page. It costs
       # one permission and is worth it for a package strangers install.
       id-token: write
+    # setup-node writes an .npmrc containing ${NODE_AUTH_TOKEN}, and pnpm warns
+    # on every step where that variable is unset. Defining it empty here silences
+    # the warning without handing a publish-capable credential to install, build
+    # and test steps, which run third-party code from node_modules. The real
+    # secret is attached only to the steps that actually talk to the registry.
+    env:
+      NODE_AUTH_TOKEN: ""
     steps:
       - uses: actions/checkout@v7
 
