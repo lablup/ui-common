@@ -61,9 +61,23 @@ jobs:
             exit 1
           fi
 
+      - name: Choose the dist-tag from the version
+        id: tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          case "$VERSION" in
+            *-alpha*) TAG=alpha ;;
+            *-beta*)  TAG=beta ;;
+            *-rc*)    TAG=rc ;;
+            *-*)      TAG=next ;;
+            *)        TAG=latest ;;
+          esac
+          echo "Publishing $VERSION under dist-tag $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: pnpm publish --no-git-checks --access public --registry https://npm.pkg.github.com
+        run: pnpm publish --no-git-checks --access public --tag ${{ steps.tag.outputs.tag }} --registry https://npm.pkg.github.com
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
@@ -112,6 +126,20 @@ jobs:
             exit 1
           fi
 
+      - name: Choose the dist-tag from the version
+        id: tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          case "$VERSION" in
+            *-alpha*) TAG=alpha ;;
+            *-beta*)  TAG=beta ;;
+            *-rc*)    TAG=rc ;;
+            *-*)      TAG=next ;;
+            *)        TAG=latest ;;
+          esac
+          echo "Publishing $VERSION under dist-tag $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
       - name: Confirm the credential is valid for npmjs
         run: npm whoami --registry https://registry.npmjs.org
         env:
@@ -122,12 +150,12 @@ jobs:
       # since both pack from the same files allowlist.
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: npm publish --provenance --access public --registry https://registry.npmjs.org
+        run: npm publish --provenance --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: npm publish --dry-run --access public --registry https://registry.npmjs.org
+        run: npm publish --dry-run --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
