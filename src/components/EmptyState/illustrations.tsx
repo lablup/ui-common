@@ -8,7 +8,7 @@
 
 import { memo } from "react";
 
-interface IllustrationProps {
+export interface IllustrationProps {
   className?: string;
 }
 
