@@ -5,6 +5,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.5]
+
+### Fixed
+
+- The build no longer mistakes a dependency stylesheet for one of its own. A
+  bare specifier such as `katex/dist/katex.min.css` resolves to a path inside
+  the package root, so the check meant to leave dependencies alone never fired
+  and the build would stop on a stylesheet it was never meant to re-link. This
+  package has no such import yet; `@lablup/ui-ai` hit it while taking the same
+  fix.
+
 ## [0.1.0-alpha.4]
 
 ### Added
@@ -72,7 +83,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.4...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.5...HEAD
+[0.1.0-alpha.5]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.4...v0.1.0-alpha.5
 [0.1.0-alpha.4]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.3...v0.1.0-alpha.4
 [0.1.0-alpha.3]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.2...v0.1.0-alpha.3
 [0.1.0-alpha.2]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.1...v0.1.0-alpha.2

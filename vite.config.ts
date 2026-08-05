@@ -105,9 +105,18 @@ function linkComponentStyles(): Plugin {
           for (const imported of this.getModuleInfo(id)?.importedIds ?? []) {
             if (!imported.endsWith(".css")) continue;
 
-            const key = sourceKey(imported);
             // A stylesheet from a dependency stays a bare specifier that the
-            // consumer resolves; only this package's own files are re-linked.
+            // consumer resolves, and is already present in the output as one.
+            // Only this package's own files are re-linked. Deciding that on
+            // the specifier form rather than on where the path lands is what
+            // this package needs before it grows such an import: resolving a
+            // bare specifier against the root produces a path inside it, so
+            // the "outside the package" test never fires and the build stops
+            // on a stylesheet it was never meant to touch. `@lablup/ui-ai`
+            // found this the hard way with `katex/dist/katex.min.css`.
+            if (!imported.startsWith(".") && !isAbsolute(imported)) continue;
+
+            const key = sourceKey(imported);
             if (key.startsWith("..")) continue;
 
             const emitted = emittedBySource.get(key);
