@@ -14,7 +14,7 @@ import { ErrorState } from "./ErrorState";
 export function NetworkErrorExample() {
   return (
     <ErrorState
-      type="network"
+      tone="warning"
       title="Connection Error"
       message="Could not connect to the inference server. Please check if the model is loaded and the server is running."
       primaryAction={{
@@ -42,7 +42,7 @@ export function NetworkErrorExample() {
 export function ConfigurationErrorExample() {
   return (
     <ErrorState
-      type="configuration"
+      tone="accent"
       title="Configuration Error"
       message="Invalid settings detected. Please check your configuration and try again."
       primaryAction={{
@@ -63,7 +63,7 @@ export function ConfigurationErrorExample() {
 export function ModelErrorExample() {
   return (
     <ErrorState
-      type="model"
+      tone="danger"
       title="Model Error"
       message="Failed to load the selected model. The model file may be corrupted or incompatible."
       primaryAction={{
@@ -91,7 +91,7 @@ export function ModelErrorExample() {
 export function PermissionErrorExample() {
   return (
     <ErrorState
-      type="permission"
+      tone="warning"
       title="Permission Denied"
       message="You don't have the necessary permissions to access this resource."
       primaryAction={{
@@ -112,7 +112,7 @@ export function PermissionErrorExample() {
 export function GenericErrorExample() {
   return (
     <ErrorState
-      type="generic"
+      tone="danger"
       title="An Error Occurred"
       message="Something unexpected happened. Please try again later."
       primaryAction={{
@@ -133,7 +133,7 @@ export function GenericErrorExample() {
 export function MinimalErrorExample() {
   return (
     <ErrorState
-      type="generic"
+      tone="danger"
       title="Unable to Load Content"
       message="This content is currently unavailable."
     />
@@ -147,7 +147,7 @@ export function MinimalErrorExample() {
 export function CompactErrorExample() {
   return (
     <ErrorState
-      type="network"
+      tone="warning"
       title="Connection Failed"
       message="Unable to reach the server."
       showIcon={false}
@@ -168,7 +168,7 @@ export function CompactErrorExample() {
 export function CustomStyledErrorExample() {
   return (
     <ErrorState
-      type="model"
+      tone="danger"
       title="Model Incompatible"
       message="This model requires a newer version of the inference engine."
       className="custom-error-style"

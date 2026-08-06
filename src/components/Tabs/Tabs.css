@@ -112,7 +112,14 @@
   display: inline-block;
 }
 
-/* Guide tag badge rendered after the tab label */
+/**
+ * Styling for a small badge a consumer renders through `TabItem.labelExtra`.
+ *
+ * The component no longer renders one itself: the four-name guide vocabulary
+ * that used to drive it belongs to the consumer, along with its wording. This
+ * class stays so the arrangement still looks right when a consumer opts into
+ * that shape, and it is documented in the README rather than applied here.
+ */
 .tabs__tag-badge {
   font-size: var(--token-fontSizeXXS, 0.5rem);
   line-height: 1;

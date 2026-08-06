@@ -143,11 +143,22 @@ export interface DataTableProps<T> {
   /** When `true`, the loading slot replaces the table body. */
   loading?: boolean;
   /**
-   * When provided, column widths and visibility settings are persisted
-   * to `localStorage` under this key. Use a stable, namespaced string
-   * (e.g. `"sessions.activeTab"`).
+   * Column widths and visibility, controlled by the caller.
+   *
+   * This component used to take a `persistKey` and write to `localStorage`
+   * itself. Storage is a policy decision that belongs to the consumer: where
+   * it goes, under which key, whether it is per user or per workspace, and
+   * whether it exists at all in a host that has no `localStorage`. A
+   * rendering component that answers those questions on its own cannot be
+   * reused by a consumer that answers them differently.
    */
-  persistKey?: string;
+  columnState?: DataTablePersistedState;
+  /**
+   * Called whenever the user resizes a column or toggles its visibility.
+   * Pair it with `columnState` to persist wherever the consumer keeps
+   * preferences; omit both to get a table that forgets on unmount.
+   */
+  onColumnStateChange?: (state: DataTablePersistedState) => void;
   /** Extra class for the table's wrapping element. */
   className?: string;
   /** ARIA label for the table. Defaults to "Data table". */
@@ -190,58 +201,7 @@ export interface DataTableProps<T> {
   ) => void;
 }
 
-// ============================================================================
-// Storage helpers
-// ============================================================================
-
-const STORAGE_NAMESPACE = "dataTable";
-
-function buildStorageKey(persistKey: string): string {
-  return `${STORAGE_NAMESPACE}.${persistKey}`;
-}
-
-/**
- * Load persisted state from `localStorage`. Returns an empty state on
- * any failure (missing storage, malformed JSON, schema drift) so the
- * component degrades gracefully.
- */
-function loadPersistedState(persistKey: string | undefined): DataTablePersistedState {
-  if (!persistKey || typeof window === "undefined") {
-    return { widths: {}, visibility: {} };
-  }
-  try {
-    const raw = window.localStorage.getItem(buildStorageKey(persistKey));
-    if (!raw) return { widths: {}, visibility: {} };
-    const parsed = JSON.parse(raw) as unknown;
-    if (typeof parsed !== "object" || parsed === null) {
-      return { widths: {}, visibility: {} };
-    }
-    const obj = parsed as { widths?: unknown; visibility?: unknown };
-    const widths =
-      typeof obj.widths === "object" && obj.widths !== null
-        ? (obj.widths as Record<string, number>)
-        : {};
-    const visibility =
-      typeof obj.visibility === "object" && obj.visibility !== null
-        ? (obj.visibility as Record<string, boolean>)
-        : {};
-    return { widths, visibility };
-  } catch {
-    return { widths: {}, visibility: {} };
-  }
-}
-
-function savePersistedState(
-  persistKey: string | undefined,
-  state: DataTablePersistedState,
-): void {
-  if (!persistKey || typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(buildStorageKey(persistKey), JSON.stringify(state));
-  } catch {
-    // Quota exceeded / disabled storage — silently ignore.
-  }
-}
+const EMPTY_COLUMN_STATE: DataTablePersistedState = { widths: {}, visibility: {} };
 
 // ============================================================================
 // Sorting helpers
@@ -389,7 +349,8 @@ function DataTableInner<T>({
   emptyState,
   loadingState,
   loading = false,
-  persistKey,
+  columnState,
+  onColumnStateChange,
   className = "",
   ariaLabel = "Data table",
   testId,
@@ -399,16 +360,17 @@ function DataTableInner<T>({
   sortDirection: controlledSortDirection,
   onSortChange,
 }: DataTableProps<T>) {
-  // ---- Persisted state (widths + visibility) -------------------------------
-  const [persisted, setPersisted] = useState<DataTablePersistedState>(() =>
-    loadPersistedState(persistKey),
+  // ---- Column state (widths + visibility) ----------------------------------
+  //
+  // Held internally so a caller that does not care about persistence gets a
+  // working table, and re-seeded whenever the caller supplies a new one.
+  const [persisted, setPersisted] = useState<DataTablePersistedState>(
+    () => columnState ?? EMPTY_COLUMN_STATE,
   );
 
-  // Refresh persisted state when the storage key changes (defensive — the
-  // expected use case is a stable key).
   useEffect(() => {
-    setPersisted(loadPersistedState(persistKey));
-  }, [persistKey]);
+    if (columnState) setPersisted(columnState);
+  }, [columnState]);
 
   // ---- Sorting state (uncontrolled fallback) -------------------------------
   //
@@ -537,10 +499,15 @@ function DataTableInner<T>({
     [],
   );
 
-  // Persist when state changes
+  // Report changes so the caller can persist them. Skipped while `persisted`
+  // still holds what the caller last handed in, so echoing the callback back
+  // through `columnState` does not loop.
+  const reported = useRef(persisted);
   useEffect(() => {
-    savePersistedState(persistKey, persisted);
-  }, [persistKey, persisted]);
+    if (reported.current === persisted) return;
+    reported.current = persisted;
+    onColumnStateChange?.(persisted);
+  }, [persisted, onColumnStateChange]);
 
   // ---- Sorted rows --------------------------------------------------------
   const sortedRows = useMemo(() => {

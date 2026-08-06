@@ -80,34 +80,20 @@
  * Error Type Variants
  * ============================================ */
 
-/* Network Error - Connection issues */
-.error-state--network .error-state__icon {
+/* Tones. A consumer maps its own error categories onto these. */
+.error-state--danger .error-state__icon {
+  color: var(--token-colorError, #c82333);
+  background-color: rgba(255, 77, 79, 0.1);
+}
+
+.error-state--warning .error-state__icon {
   color: var(--token-colorWarning, #9a5d00);
   background-color: rgba(250, 173, 20, 0.1);
 }
 
-/* Configuration Error - Setup/config issues */
-.error-state--configuration .error-state__icon {
+.error-state--accent .error-state__icon {
   color: var(--token-colorPrimary, #8b5cf6);
   background-color: var(--token-colorPrimaryBg, rgba(139, 92, 246, 0.1));
-}
-
-/* Model Error - Model-related issues */
-.error-state--model .error-state__icon {
-  color: var(--token-colorError, #c82333);
-  background-color: rgba(255, 77, 79, 0.1);
-}
-
-/* Permission Error - Access denied */
-.error-state--permission .error-state__icon {
-  color: var(--token-colorWarning, #9a5d00);
-  background-color: rgba(250, 173, 20, 0.1);
-}
-
-/* Generic Error - Default fallback */
-.error-state--generic .error-state__icon {
-  color: var(--token-colorError, #c82333);
-  background-color: rgba(255, 77, 79, 0.1);
 }
 
 /* ============================================

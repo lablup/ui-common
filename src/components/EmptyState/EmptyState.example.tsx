@@ -46,7 +46,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Chat Empty State</h2>
         <EmptyState
-          illustration="chat"
+          illustration={<svg data-testid="illustration" />}
           title="No conversations yet"
           description="Start a new chat to begin interacting with your AI model"
           primaryAction={{
@@ -64,7 +64,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Models Empty State</h2>
         <EmptyState
-          illustration="models"
+          illustration={<svg data-testid="illustration" />}
           title="No models installed"
           description="Download a model from Hugging Face to get started"
           primaryAction={{
@@ -82,7 +82,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Creations Empty State</h2>
         <EmptyState
-          illustration="creations"
+          illustration={<svg data-testid="illustration" />}
           title="No creations yet"
           description="Your generated images and content will appear here"
           primaryAction={{
@@ -96,7 +96,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Benchmark Empty State</h2>
         <EmptyState
-          illustration="benchmark"
+          illustration={<svg data-testid="illustration" />}
           title="No benchmarks run"
           description="Run a benchmark to compare model performance"
           primaryAction={{
@@ -114,7 +114,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Logs Empty State</h2>
         <EmptyState
-          illustration="logs"
+          illustration={<svg data-testid="illustration" />}
           title="No logs available"
           description="Application logs will appear here when events occur"
         />
@@ -124,7 +124,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Statistics Empty State</h2>
         <EmptyState
-          illustration="statistics"
+          illustration={<svg data-testid="illustration" />}
           title="No statistics yet"
           description="Usage statistics will be displayed once you start using the application"
         />
@@ -134,7 +134,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Error Empty State</h2>
         <EmptyState
-          illustration="error"
+          illustration={<svg data-testid="illustration" />}
           title="Something went wrong"
           description="We encountered an error while loading your data"
           primaryAction={{
@@ -152,7 +152,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Generic Empty State</h2>
         <EmptyState
-          illustration="generic"
+          illustration={<svg data-testid="illustration" />}
           title="No items found"
           description="There are no items to display at this time"
           primaryAction={{
@@ -166,7 +166,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Without Illustration</h2>
         <EmptyState
-          illustration="chat"
+          illustration={<svg data-testid="illustration" />}
           title="Simple Empty State"
           description="This example doesn't show an illustration"
           showIllustration={false}
@@ -181,7 +181,7 @@ export function EmptyStateExamples() {
       <div>
         <h2>Without Actions</h2>
         <EmptyState
-          illustration="statistics"
+          illustration={<svg data-testid="illustration" />}
           title="Informational Only"
           description="This empty state provides information without any actions"
         />

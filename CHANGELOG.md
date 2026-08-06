@@ -5,6 +5,62 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.6]
+
+Four places where one product's concepts had come across with the code, found
+by re-reading the package against a single question: is this a rendering
+component, or does it need to know something only a product knows. All four
+are breaking, and they land while there is exactly one consumer.
+
+### Changed
+
+- **`DataTable` no longer writes to `localStorage`.** `persistKey` is replaced
+  by `columnState` and `onColumnStateChange`. Where column preferences live,
+  under which key, per user or per workspace, or whether they persist at all,
+  is a decision only the consumer can make, and a component that answers it
+  cannot be reused by a consumer that answers differently. It also stopped the
+  table working anywhere `localStorage` is absent.
+- **`ErrorState` takes a tone, not an error category.** `type` was
+  `"network" | "configuration" | "model" | "permission" | "generic"`; `"model"`
+  in particular is one product's vocabulary. All five resolved to three colours
+  anyway, so the prop is now `tone: "danger" | "warning" | "accent"`, plus an
+  `icon` slot. A consumer maps its own categories onto tones.
+- **`EmptyState` takes an illustration, not the name of one.** The ten drawings
+  that shipped here (chat, models, creations, benchmark, logs, statistics,
+  schedule and the rest) are one product's information architecture; no other
+  consumer has a "creations" screen to draw for. `illustration` is now a
+  `ReactNode`, and the drawings move to the product that owns those screens.
+  This reverses the export added in 0.1.0-alpha.3, which unblocked a consumer
+  by widening the wrong side of the boundary.
+- **`Tabs` no longer carries a guide-tag system.** `tag`, the deprecated
+  `required`, `TabTagType`, `TabTagLabels`, `TAG_CONFIG` and `tagLabels` are
+  removed. The arrangement had already split across the boundary, with the
+  badge variant here and the label text passed in from the consumer's locale
+  bundle, which is what a wrong boundary looks like. A consumer renders its own
+  badge through the existing `TabItem.labelExtra` slot and owns both halves;
+  the `.tabs__tag-badge` class stays for the styling.
+
+### Migration
+
+```tsx
+// DataTable
+- <DataTable persistKey="sessions.activeTab" ... />
++ <DataTable columnState={state} onColumnStateChange={setState} ... />
+
+// ErrorState
+- <ErrorState type="model" ... />        → tone="danger"
+- <ErrorState type="network" ... />      → tone="warning"
+- <ErrorState type="configuration" ... />→ tone="accent"
+
+// EmptyState
+- <EmptyState illustration="models" ... />
++ <EmptyState illustration={<ModelsIllustration />} ... />
+
+// Tabs
+- { id, label, content, tag: "beta" }
++ { id, label, content, labelExtra: <Badge variant="info">Beta</Badge> }
+```
+
 ## [0.1.0-alpha.5]
 
 ### Fixed
@@ -83,7 +139,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.5...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.6...HEAD
+[0.1.0-alpha.6]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.5...v0.1.0-alpha.6
 [0.1.0-alpha.5]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.4...v0.1.0-alpha.5
 [0.1.0-alpha.4]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.3...v0.1.0-alpha.4
 [0.1.0-alpha.3]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.2...v0.1.0-alpha.3
