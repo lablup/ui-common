@@ -5,19 +5,29 @@
  * Provides consistent error presentation across all pages with actionable buttons.
  *
  * Features:
- * - Error type variants (network, configuration, model, permission, generic)
+ * - Three visual tones
  * - Primary and secondary action buttons
  * - Accessible (ARIA attributes, focus management)
  * - Dark/light theme support
  */
 
+import type { ReactNode } from "react";
 import { useCallback } from "react";
 import { AlertCircleIcon } from "../../icons/AlertCircleIcon";
 import { Button } from "../Button";
 import "./ErrorState.css";
 
-export type ErrorType =
-  "network" | "configuration" | "model" | "permission" | "generic";
+/**
+ * How the error reads, not what it is about.
+ *
+ * This prop used to be a union of five names: network, configuration, model,
+ * permission, generic. Two of those, and "model" in particular, are one
+ * product's categories rather than anything a shared component can reason
+ * about, and all five resolved to three colours anyway: network and permission
+ * were the same amber, model and generic the same red. A consumer decides
+ * which of its own error categories reads as which tone.
+ */
+export type ErrorTone = "danger" | "warning" | "accent";
 
 export interface ErrorAction {
   label: string;
@@ -25,8 +35,10 @@ export interface ErrorAction {
 }
 
 export interface ErrorStateProps {
-  /** Error type determines icon and default styling */
-  type?: ErrorType;
+  /** How the error reads. Defaults to `danger`. */
+  tone?: ErrorTone;
+  /** Replaces the default alert icon. */
+  icon?: ReactNode;
   /** Error title - main heading */
   title: string;
   /** Detailed error message */
@@ -42,19 +54,11 @@ export interface ErrorStateProps {
 }
 
 /**
- * Get icon for error type
- */
-function getErrorIcon(_type: ErrorType): React.ReactNode {
-  // All error types use the same AlertCircleIcon for now
-  // Can be extended with different icons per type in the future
-  return <AlertCircleIcon size={48} />;
-}
-
-/**
  * ErrorState Component
  */
 export function ErrorState({
-  type = "generic",
+  tone = "danger",
+  icon,
   title,
   message,
   primaryAction,
@@ -70,7 +74,7 @@ export function ErrorState({
     secondaryAction?.onClick();
   }, [secondaryAction]);
 
-  const containerClass = ["error-state", `error-state--${type}`, className]
+  const containerClass = ["error-state", `error-state--${tone}`, className]
     .filter(Boolean)
     .join(" ");
 
@@ -78,7 +82,7 @@ export function ErrorState({
     <div className={containerClass} role="alert" aria-live="polite">
       {showIcon && (
         <div className="error-state__icon" aria-hidden="true">
-          {getErrorIcon(type)}
+          {icon ?? <AlertCircleIcon size={48} />}
         </div>
       )}
 

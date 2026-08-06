@@ -17,31 +17,7 @@
 
 import { memo, useCallback, useMemo, type ReactNode } from "react";
 import { Button } from "../Button";
-import {
-  ChatIllustration,
-  ModelsIllustration,
-  CreationsIllustration,
-  TextIllustration,
-  BenchmarkIllustration,
-  LogsIllustration,
-  StatisticsIllustration,
-  ErrorIllustration,
-  ScheduleIllustration,
-  GenericIllustration,
-} from "./illustrations";
 import "./EmptyState.css";
-
-export type IllustrationType =
-  | "chat"
-  | "models"
-  | "creations"
-  | "text"
-  | "benchmark"
-  | "logs"
-  | "statistics"
-  | "error"
-  | "schedule"
-  | "generic";
 
 export interface EmptyStateAction {
   label: string;
@@ -55,8 +31,16 @@ export interface EmptyStateSecondaryAction {
 }
 
 export interface EmptyStateProps {
-  /** Type of illustration to display */
-  illustration: IllustrationType;
+  /**
+   * The drawing shown above the text.
+   *
+   * This used to be one of ten names: chat, models, creations, benchmark,
+   * logs, statistics, schedule and so on, each resolving to an SVG shipped
+   * inside this package. Those names are one product's information
+   * architecture, and no other consumer has a "creations" screen to draw for.
+   * A consumer passes its own artwork and keeps its own vocabulary.
+   */
+  illustration?: ReactNode;
   /** Main heading */
   title: string;
   /** Descriptive text */
@@ -79,26 +63,6 @@ export interface EmptyStateProps {
   /** Whether to show illustration (default: true) */
   showIllustration?: boolean;
 }
-
-/**
- * Static map of illustration types to components.
- * Defined outside component to avoid recreation on each render.
- */
-const illustrationMap: Record<
-  IllustrationType,
-  React.ComponentType<{ className?: string }>
-> = {
-  chat: ChatIllustration,
-  models: ModelsIllustration,
-  creations: CreationsIllustration,
-  text: TextIllustration,
-  benchmark: BenchmarkIllustration,
-  logs: LogsIllustration,
-  statistics: StatisticsIllustration,
-  error: ErrorIllustration,
-  schedule: ScheduleIllustration,
-  generic: GenericIllustration,
-};
 
 /**
  * EmptyState Component
@@ -128,24 +92,16 @@ function EmptyStateComponent({
     secondaryOnClick?.();
   }, [secondaryOnClick]);
 
-  // Memoize illustration component lookup
-  const Illustration = useMemo(() => illustrationMap[illustration], [illustration]);
-
   // Memoize class name computation
   const containerClass = useMemo(
-    () =>
-      ["empty-state", `empty-state--${illustration}`, className]
-        .filter(Boolean)
-        .join(" "),
-    [illustration, className],
+    () => ["empty-state", className].filter(Boolean).join(" "),
+    [className],
   );
 
   return (
     <div className={containerClass} role="status" aria-live="polite">
-      {showIllustration && (
-        <div className="empty-state__illustration">
-          <Illustration className="empty-state__icon" />
-        </div>
+      {showIllustration && illustration && (
+        <div className="empty-state__illustration">{illustration}</div>
       )}
 
       <div className="empty-state__content">

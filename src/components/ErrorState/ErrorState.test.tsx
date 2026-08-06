@@ -35,37 +35,37 @@ describe("ErrorState", () => {
 
   describe("Error Types", () => {
     it("applies network error type class", () => {
-      render(<ErrorState type="network" title="Error" message="Message" />);
+      render(<ErrorState tone="warning" title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--network");
+      const container = document.querySelector(".error-state--warning");
       expect(container).toBeInTheDocument();
     });
 
     it("applies configuration error type class", () => {
-      render(<ErrorState type="configuration" title="Error" message="Message" />);
+      render(<ErrorState tone="accent" title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--configuration");
+      const container = document.querySelector(".error-state--accent");
       expect(container).toBeInTheDocument();
     });
 
     it("applies model error type class", () => {
-      render(<ErrorState type="model" title="Error" message="Message" />);
+      render(<ErrorState tone="danger" title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--model");
+      const container = document.querySelector(".error-state--danger");
       expect(container).toBeInTheDocument();
     });
 
     it("applies permission error type class", () => {
-      render(<ErrorState type="permission" title="Error" message="Message" />);
+      render(<ErrorState tone="warning" title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--permission");
+      const container = document.querySelector(".error-state--warning");
       expect(container).toBeInTheDocument();
     });
 
     it("applies generic error type class by default", () => {
       render(<ErrorState title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--generic");
+      const container = document.querySelector(".error-state--danger");
       expect(container).toBeInTheDocument();
     });
   });
@@ -178,14 +178,14 @@ describe("ErrorState", () => {
     it("preserves error type class when custom className is applied", () => {
       render(
         <ErrorState
-          type="network"
+          tone="warning"
           title="Error"
           message="Message"
           className="custom-error"
         />,
       );
 
-      const container = document.querySelector(".error-state--network.custom-error");
+      const container = document.querySelector(".error-state--warning.custom-error");
       expect(container).toBeInTheDocument();
     });
   });

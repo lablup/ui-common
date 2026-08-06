@@ -3,4 +3,4 @@
  */
 
 export { ErrorState } from "./ErrorState";
-export type { ErrorStateProps, ErrorType, ErrorAction } from "./ErrorState";
+export type { ErrorStateProps, ErrorTone, ErrorAction } from "./ErrorState";

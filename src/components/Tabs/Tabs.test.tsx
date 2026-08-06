@@ -7,7 +7,7 @@
  * - Keyboard navigation (Arrow keys, Home, End)
  * - Accessibility attributes (ARIA roles, aria-selected)
  * - Controlled vs uncontrolled state
- * - Required badge display
+ * - The labelExtra slot
  * - Group separators and labels
  * - Overflow menu (overflowMode="menu")
  * - Mobile dropdown (overflowMode="dropdown")
@@ -17,14 +17,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  render,
-  screen,
-  within,
-  waitFor,
-  fireEvent,
-  act,
-} from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Tabs, type TabItem, type TabGroupMeta } from "./Tabs";
 
@@ -371,7 +364,6 @@ describe("Tabs", () => {
         label: "Tab 2",
         content: <div>Content 2</div>,
         groupId: "group1",
-        required: true,
       },
       {
         id: "tab3",
@@ -419,22 +411,6 @@ describe("Tabs", () => {
       const separator = container.querySelector(".tabs__separator");
       expect(separator).toHaveAttribute("role", "separator");
       expect(separator).toHaveAttribute("aria-hidden", "true");
-    });
-
-    it("should render required badge for required tabs", () => {
-      render(<Tabs tabs={groupedTabs} groups={groups} />);
-
-      const tab2 = screen.getByRole("tab", { name: /Tab 2/i });
-      const requiredBadge = within(tab2).getByText("Required");
-      expect(requiredBadge).toBeInTheDocument();
-    });
-
-    it("should not render required badge for non-required tabs", () => {
-      render(<Tabs tabs={groupedTabs} groups={groups} />);
-
-      const tab1 = screen.getByRole("tab", { name: "Tab 1" });
-      const badge = within(tab1).queryByText("Required");
-      expect(badge).not.toBeInTheDocument();
     });
   });
 
@@ -741,139 +717,24 @@ describe("Tabs", () => {
     });
   });
 
-  describe("Guide Tags", () => {
-    it("should render experimental tag badge after tab label", () => {
-      const tabsWithTag: TabItem[] = [
+  describe("labelExtra", () => {
+    it("renders a trailing node after the tab label", () => {
+      const tabs: TabItem[] = [
         {
           id: "tab-exp",
           label: "ACP",
           content: <div>ACP Content</div>,
-          tag: "experimental",
+          labelExtra: <span data-testid="trailing">Experimental</span>,
         },
         { id: "tab-normal", label: "Normal", content: <div>Normal</div> },
       ];
 
-      const { container } = render(<Tabs tabs={tabsWithTag} />);
+      render(<Tabs tabs={tabs} />);
 
-      const badge = container.querySelector(".tabs__tag-badge");
-      expect(badge).toBeInTheDocument();
-      expect(badge).toHaveTextContent("Experimental");
-    });
-
-    it("should render beta tag with info variant class", () => {
-      const tabsWithBeta: TabItem[] = [
-        {
-          id: "tab-beta",
-          label: "Beta Feature",
-          content: <div>Beta</div>,
-          tag: "beta",
-        },
-      ];
-
-      const { container } = render(<Tabs tabs={tabsWithBeta} />);
-
-      const badge = container.querySelector(".tabs__tag-badge");
-      expect(badge).toBeInTheDocument();
-      expect(badge).toHaveTextContent("Beta");
-      // Badge should use info variant
-      expect(badge).toHaveClass("badge--info");
-    });
-
-    it("should render recommended tag with primary variant class", () => {
-      const tabsWithRecommended: TabItem[] = [
-        {
-          id: "tab-rec",
-          label: "Recommended Tab",
-          content: <div>Recommended</div>,
-          tag: "recommended",
-        },
-      ];
-
-      const { container } = render(<Tabs tabs={tabsWithRecommended} />);
-
-      const badge = container.querySelector(".tabs__tag-badge");
-      expect(badge).toBeInTheDocument();
-      expect(badge).toHaveTextContent("Recommended");
-      expect(badge).toHaveClass("badge--primary");
-    });
-
-    it("should maintain backward compatibility with required boolean prop", () => {
-      const tabsWithRequired: TabItem[] = [
-        {
-          id: "tab-req",
-          label: "Required Tab",
-          content: <div>Required</div>,
-          required: true,
-        },
-      ];
-
-      const { container } = render(<Tabs tabs={tabsWithRequired} />);
-
-      const badge = container.querySelector(".tabs__tag-badge");
-      expect(badge).toBeInTheDocument();
-      expect(badge).toHaveTextContent("Required");
-      // Required uses warning variant
-      expect(badge).toHaveClass("badge--warning");
-    });
-
-    it("should not render tag badge for tabs without tag or required", () => {
-      const { container } = render(<Tabs tabs={mockTabs} />);
-
-      const badges = container.querySelectorAll(".tabs__tag-badge");
-      expect(badges).toHaveLength(0);
-    });
-
-    it("should prefer tag prop over required boolean when both are set", () => {
-      const tabsWithBoth: TabItem[] = [
-        {
-          id: "tab-both",
-          label: "Conflicted Tab",
-          content: <div>Both</div>,
-          required: true,
-          tag: "beta",
-        },
-      ];
-
-      const { container } = render(<Tabs tabs={tabsWithBoth} />);
-
-      const badge = container.querySelector(".tabs__tag-badge");
-      expect(badge).toBeInTheDocument();
-      // Should use `tag` (beta) not `required`
-      expect(badge).toHaveClass("badge--info");
-      expect(badge).toHaveTextContent("Beta");
-    });
-
-    it("should render tag badge in overflow menu items", async () => {
-      const tabsWithTag: TabItem[] = [
-        {
-          id: "tab-exp",
-          label: "ACP",
-          content: <div>ACP Content</div>,
-          tag: "experimental",
-        },
-        { id: "tab-normal", label: "Normal", content: <div>Normal</div> },
-      ];
-
-      const { container } = render(<Tabs tabs={tabsWithTag} overflowMode="menu" />);
-
-      const overflowButton = container.querySelector(
-        ".tabs__overflow-btn",
-      ) as HTMLButtonElement;
-
-      act(() => {
-        fireEvent.click(overflowButton);
-      });
-
-      await waitFor(() => {
-        const menu = container.querySelector(".tabs__overflow-menu");
-        expect(menu).toBeInTheDocument();
-        // The experimental tab's badge should appear in the menu
-        const menuItems = container.querySelectorAll(".tabs__overflow-item");
-        const expMenuItem = menuItems[0];
-        const menuBadge = expMenuItem?.querySelector(".badge");
-        expect(menuBadge).toBeInTheDocument();
-        expect(menuBadge).toHaveTextContent("Experimental");
-      });
+      // The four-name guide vocabulary this replaced was one product's, and
+      // its label text had to come from that product's locale bundle anyway.
+      // A slot is what a shared component can offer.
+      expect(screen.getByTestId("trailing")).toHaveTextContent("Experimental");
     });
   });
 

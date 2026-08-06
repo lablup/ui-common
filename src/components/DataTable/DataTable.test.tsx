@@ -135,17 +135,13 @@ describe("DataTable", () => {
     expect(onClick).toHaveBeenCalledWith({ id: "a", name: "Alpha", score: 3 });
   });
 
-  it("loads persisted widths from localStorage on mount", () => {
-    window.localStorage.setItem(
-      "dataTable.test-key",
-      JSON.stringify({ widths: { name: 333 }, visibility: {} }),
-    );
+  it("applies the column widths it is given", () => {
     const { container } = render(
       <DataTable
         columns={COLUMNS}
         rows={ROWS}
         getRowKey={(r) => r.id}
-        persistKey="test-key"
+        columnState={{ widths: { name: 333 }, visibility: {} }}
       />,
     );
     const headers = container.querySelectorAll("th");
@@ -153,13 +149,6 @@ describe("DataTable", () => {
   });
 
   it("hides columns whose visibility flag is false unless alwaysVisible", () => {
-    window.localStorage.setItem(
-      "dataTable.test-key-2",
-      JSON.stringify({
-        widths: {},
-        visibility: { name: false, id: false },
-      }),
-    );
     const cols: DataTableColumn<Row>[] = [
       { ...COLUMNS[0]!, alwaysVisible: true },
       { ...COLUMNS[1]! },
@@ -169,11 +158,61 @@ describe("DataTable", () => {
         columns={cols}
         rows={ROWS}
         getRowKey={(r) => r.id}
-        persistKey="test-key-2"
+        columnState={{ widths: {}, visibility: { name: false, id: false } }}
       />,
     );
     expect(screen.getByText("Name")).toBeInTheDocument();
     expect(screen.queryByText("ID")).not.toBeInTheDocument();
+  });
+
+  it("touches no storage of its own", () => {
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
+    const getItem = vi.spyOn(Storage.prototype, "getItem");
+
+    render(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        getRowKey={(r) => r.id}
+        columnState={{ widths: { name: 200 }, visibility: {} }}
+        onColumnStateChange={() => {}}
+      />,
+    );
+
+    // Where column preferences live is the consumer's decision, and a host
+    // without `localStorage` has to keep working.
+    expect(setItem).not.toHaveBeenCalled();
+    expect(getItem).not.toHaveBeenCalled();
+    setItem.mockRestore();
+    getItem.mockRestore();
+  });
+
+  it("does not report the state it was handed back to the caller", () => {
+    const onColumnStateChange = vi.fn();
+    const columnState = { widths: { name: 250 }, visibility: {} };
+
+    const { rerender } = render(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        getRowKey={(r) => r.id}
+        columnState={columnState}
+        onColumnStateChange={onColumnStateChange}
+      />,
+    );
+    rerender(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        getRowKey={(r) => r.id}
+        columnState={columnState}
+        onColumnStateChange={onColumnStateChange}
+      />,
+    );
+
+    // A caller that persists on change and feeds the result back must not
+    // find itself in a loop.
+    expect(onColumnStateChange).not.toHaveBeenCalled();
   });
 
   // ---- Sorting: aria-sort -------------------------------------------------

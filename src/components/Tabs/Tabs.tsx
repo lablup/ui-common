@@ -25,41 +25,22 @@ import {
   type KeyboardEvent,
   type TouchEvent,
 } from "react";
-import { Badge } from "../Badge";
-import { type TabTagType, type TabTagLabels, TAG_CONFIG } from "./tabTags";
 import "./Tabs.css";
-
-// Re-export for consumers that import from Tabs.tsx directly
-export type { TabTagType, TabTagLabels } from "./tabTags";
-export { TAG_CONFIG } from "./tabTags";
-
-/** English default for every {@link TabTagType} badge label. */
-const DEFAULT_TAG_LABELS: TabTagLabels = {
-  required: "Required",
-  recommended: "Recommended",
-  beta: "Beta",
-  experimental: "Experimental",
-};
 
 export interface TabItem {
   id: string;
   label: string;
   content: ReactNode;
   /**
-   * Show a "Required" badge next to the tab label.
-   * @deprecated Use `tag="required"` instead. Kept for backward compatibility.
-   */
-  required?: boolean;
-  /**
-   * Guide tag displayed after the tab label as a small badge.
-   * When set, takes precedence over the `required` boolean.
-   */
-  tag?: TabTagType;
-  /**
-   * Optional extra trailing node rendered next to the tab label (e.g. a
-   * count badge). Distinct from `tag` (which uses a fixed preset). Use this
-   * when migrating segmented controls that rendered their own inline count
-   * pill alongside the label.
+   * Trailing node rendered next to the tab label: a count pill, a status
+   * badge, whatever the consumer's vocabulary calls for.
+   *
+   * This used to sit beside a `tag` prop that took one of four fixed names,
+   * required / recommended / beta / experimental, and rendered a Badge for
+   * it. Those are one product's guide vocabulary, and the arrangement had
+   * already split across the boundary: the badge variant lived here while the
+   * label text had to be passed in from the consumer's locale bundle. A
+   * consumer that wants that badge renders it here, and owns both halves.
    */
   labelExtra?: ReactNode;
   /**
@@ -141,11 +122,6 @@ export interface TabsProps {
   scrollLeftLabel?: string;
   /** Accessible label for the right scroll-arrow button. Default: "Scroll right" */
   scrollRightLabel?: string;
-  /**
-   * English defaults for every guide-tag badge label (required / recommended
-   * / beta / experimental). Override individual entries to translate them.
-   */
-  tagLabels?: TabTagLabels;
 }
 
 // ============================================================================
@@ -171,7 +147,6 @@ export function Tabs({
   selectTabLabel = "Select tab",
   scrollLeftLabel = "Scroll left",
   scrollRightLabel = "Scroll right",
-  tagLabels = DEFAULT_TAG_LABELS,
 }: TabsProps) {
   // Auto-detect overflow mode from groups presence
   const overflowMode =
@@ -564,20 +539,9 @@ export function Tabs({
   // Reset menu item refs array each render
   menuItemRefs.current = [];
 
-  /** Resolve the effective tag type for a tab (prefers `tag`, falls back to legacy `required`) */
-  const resolveTabTag = (tab: TabItem): TabTagType | null => {
-    if (tab.tag) return tab.tag;
-
-    if (tab.required) return "required";
-    return null;
-  };
-
   /** Render a single tab button */
   const renderTabButton = (tab: TabItem, globalIndex: number) => {
     const isActive = tab.id === activeTab;
-    const effectiveTag = resolveTabTag(tab);
-    const tagConfig = effectiveTag ? TAG_CONFIG[effectiveTag] : null;
-    const tagLabel = effectiveTag ? tagLabels[effectiveTag] : null;
 
     return (
       <button
@@ -611,11 +575,6 @@ export function Tabs({
       >
         {tab.labelPrefix}
         <span className="tabs__tab-label">{tab.label}</span>
-        {tagConfig && (
-          <Badge variant={tagConfig.variant} size="small" className="tabs__tag-badge">
-            {tagLabel}
-          </Badge>
-        )}
         {tab.labelExtra}
       </button>
     );
@@ -697,9 +656,6 @@ export function Tabs({
                 {groupTabs.map((tab) => {
                   const isActive = tab.id === activeTab;
                   const flatIndex = flattenedMenuTabs.findIndex((t) => t.id === tab.id);
-                  const effectiveTag = resolveTabTag(tab);
-                  const tagConfig = effectiveTag ? TAG_CONFIG[effectiveTag] : null;
-                  const tagLabel = effectiveTag ? tagLabels[effectiveTag] : null;
                   return (
                     <button
                       key={tab.id}
@@ -717,11 +673,6 @@ export function Tabs({
                     >
                       {tab.labelPrefix}
                       <span>{tab.label}</span>
-                      {tagConfig && (
-                        <Badge variant={tagConfig.variant} size="small">
-                          {tagLabel}
-                        </Badge>
-                      )}
                       {tab.labelExtra}
                     </button>
                   );
