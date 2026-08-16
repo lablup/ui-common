@@ -5,6 +5,72 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.7]
+
+### Fixed
+
+- **Focus indicators no longer paint from the bare `--token-colorPrimary`.**
+  That token is chosen for brand, not for contrast, and measured 2.37:1
+  against `--token-colorFillSecondary` in this package's own default palette,
+  under the 3:1 floor WCAG 2.2 SC 1.4.11 sets for the visual indicator of a
+  component state. Because the defect was in the package, every consumer
+  inherited it and none could fix it.
+
+  Thirteen `outline` declarations now resolve through
+  `var(--token-focusRingColor, var(--token-colorPrimary))`. Seven of them wrote
+  the accent directly and bypassed the ring token entirely, so a consumer that
+  corrected the token still got the failing colour. Two rings drawn as the
+  element's own `border-color` take
+  `color-mix(in srgb, var(--token-colorPrimary) 70%, var(--token-colorText))`;
+  `.base-card:focus-within` is the one that mattered most, since it sets
+  `outline: none` and its border was the whole indicator on the most-used
+  primitive in the package. Worst case across ten measured palettes moves from
+  2.37:1 to 4.21:1, and no palette regresses.
+
+- A focus indicator now carries no colour fallback literal. This is a narrow,
+  deliberate exception to the "always give a token a fallback" rule, recorded
+  in [CONTRIBUTING.md](CONTRIBUTING.md) and in the `styles/base.css` header: a
+  fixed literal cannot clear 3:1 against a surface it cannot know, so
+  "renders unthemed" and "meets the contrast floor" are not both achievable
+  from a constant. The decorative fallback literals are untouched, per the
+  decision already recorded at `base.css:27-37`.
+
+- The build copies only `.css` out of `src/styles`. It took the whole
+  directory, so any non-stylesheet that ever landed beside the tokens shipped
+  inside the tarball.
+
+### Changed
+
+- **`--token-focusRingColor` is `#b95b06` in `styles/base.css` and
+  `styles/themes/orange-light.css`**, the 70% text mix of the brand accent
+  resolved to a literal, raising the shipped default ring from 2.37:1 to
+  4.18:1. `orange-dark` keeps `#ff9729`: it already measures 7.00:1, and the
+  same mix would lower it to 6.42:1 for no benefit.
+
+  This alters rendering, which the versioning policy would make a major
+  release outside the alpha series. It lands here for the same reason
+  0.1.0-alpha.2 and 0.1.0-alpha.6 did: the package is still an alpha with one
+  consumer mid-migration, and a focus ring under the WCAG floor is not a
+  contract worth preserving.
+
+  The value is written resolved rather than as a `color-mix()` call because a
+  custom property holds an unparsed token stream: an unsupported `color-mix()`
+  substitutes successfully and only then invalidates the `outline` shorthand at
+  computed-value time, leaving `outline-style: none` and no ring at all, with
+  no `var()` fallback firing. In a `border-color` longhand the failure is the
+  opposite and benign, which is why the mix stays inline there.
+
+### Added
+
+- `src/styles/focusIndicator.test.ts`, a contrast gate. Nothing in
+  `pnpm verify` read a colour value, so a focus ring at 2.37:1 passed
+  typecheck, lint, format, boundary, build and pack without complaint, which
+  is how this shipped. The test resolves the token contract the way a browser
+  does, composites alpha over an opaque page base, and asserts 3:1 for every
+  sheet against all six surfaces a ring can land on. It also pins the two
+  indicator shapes, because the defect had two spellings and only one of them
+  contained the word `outline`.
+
 ## [0.1.0-alpha.6]
 
 Four places where one product's concepts had come across with the code, found
@@ -139,7 +205,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.6...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.7...HEAD
+[0.1.0-alpha.7]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.6...v0.1.0-alpha.7
 [0.1.0-alpha.6]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.5...v0.1.0-alpha.6
 [0.1.0-alpha.5]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.4...v0.1.0-alpha.5
 [0.1.0-alpha.4]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.3...v0.1.0-alpha.4
