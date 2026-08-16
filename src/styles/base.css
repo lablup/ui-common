@@ -22,19 +22,32 @@
  *
  * Every component also gives every token reference here its own inline
  * fallback, so a consumer that imports a component without this stylesheet
- * still gets a rendered (unthemed) result.
+ * still gets a rendered (unthemed) result. Focus indicators are the one
+ * exception, and deliberately so: see below.
  *
  * Those inline fallbacks are NOT all equal to the values above, and no single
- * theme would make them agree: of the 252 references to a theme-defined token,
- * the fallback matches orange-light in 135 and stained-light in 168, and
- * `--token-colorPrimary` alone is written as `#ff7a00` in some components and
- * `#8b5cf6` in others. They were inherited verbatim from the source product,
- * where they were already dead code, since the token is always defined and the
- * fallback never applies.
+ * theme would make them agree. The largest group is `--token-colorPrimary`,
+ * written as `#8b5cf6` at 28 call sites, which is a `stained-light` accent
+ * this package does not ship and does not agree with the `#ff7a00` declared
+ * below. They were inherited verbatim from the source product, where they were
+ * already dead code, since the token is always defined and the fallback never
+ * applies.
  *
  * Consequence: importing a component WITHOUT this stylesheet renders, but not
  * in the documented default palette. Import `styles/base.css`. Aligning the
  * fallbacks is a deliberate visual change and is still out of scope.
+ *
+ * The exception, added for issue #7: a declaration that paints a focus
+ * indicator carries NO colour literal. It reads
+ * `var(--token-focusRingColor, var(--token-colorPrimary))`, or mixes the
+ * accent with the text colour inline, and stops there. A fallback literal
+ * cannot serve a focus ring, because WCAG 2.2 SC 1.4.11 requires 3:1 against
+ * the surface the indicator lands on and a fixed value cannot know that
+ * surface: the `#8b5cf6` these sites used to carry measures 3.85:1 in one
+ * palette and the `#ff7a00` below measures 2.37:1. "Renders unthemed" and
+ * "meets the contrast floor" are not both achievable from a constant, and for
+ * an accessibility affordance the second one wins. Everywhere else the rule in
+ * CONTRIBUTING.md stands unchanged: give the token a fallback.
  */
 
 :root {
@@ -114,7 +127,16 @@
   --token-colorTextQuaternary: #bfbfbf;
   --token-colorTextSecondary: #595959;
   --token-colorTextTertiary: #737373;
-  --token-focusRingColor: #ff7a00;
+  /* Not --token-colorPrimary. That accent is chosen for brand and measures
+   * 2.37:1 against --token-colorFillSecondary here, under the 3:1 floor WCAG
+   * 2.2 SC 1.4.11 sets for the visual indicator of a component state. This is
+   * color-mix(in srgb, #ff7a00 70%, #141414) resolved to a literal, which
+   * measures 4.18:1 at its worst. It is written resolved rather than as a
+   * color-mix() call because a custom property holds an unparsed token stream:
+   * an unsupported color-mix() would substitute successfully and only then
+   * invalidate the outline shorthand at computed-value time, leaving
+   * outline-style: none and no ring at all, with no var() fallback firing. */
+  --token-focusRingColor: #b95b06;
   --token-focusRingOffset: 2px;
   --token-focusRingStyle: solid;
   --token-focusRingWidth: 2px;
