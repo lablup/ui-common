@@ -1,5 +1,5 @@
 import { cp, mkdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, isAbsolute, posix, relative, resolve, sep } from "node:path";
 
@@ -34,6 +34,11 @@ function entryPoints(): Record<string, string> {
  * Design tokens are standalone stylesheets that no component imports, so
  * Rollup never sees them. They are copied verbatim so the palette stays an
  * opt-in entry point rather than being folded into a single bundle.
+ *
+ * Stylesheets only. The copy used to take the whole directory, so anything
+ * that ever landed beside the tokens shipped inside the tarball: a test, a
+ * script, a note. `check:pack` catches the test case by name, but the general
+ * one is cheaper to prevent here than to enumerate there.
  */
 function copyStyles(): Plugin {
   return {
@@ -44,7 +49,10 @@ function copyStyles(): Plugin {
       if (!existsSync(from)) return;
       const to = resolve(root, "dist/styles");
       await mkdir(to, { recursive: true });
-      await cp(from, to, { recursive: true });
+      await cp(from, to, {
+        recursive: true,
+        filter: (source) => statSync(source).isDirectory() || source.endsWith(".css"),
+      });
     },
   };
 }

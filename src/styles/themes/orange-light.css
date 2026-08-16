@@ -60,7 +60,12 @@
   --token-colorTextSecondary: #595959;
   --token-colorTextTertiary: #737373;
   --token-colorWarning: #9a5d00;
-  --token-focusRingColor: #ff7a00;
+  /* color-mix(in srgb, #ff7a00 70%, #141414) resolved to a literal. The bare
+   * accent measures 2.37:1 against --token-colorFillSecondary, under the 3:1
+   * floor of WCAG 2.2 SC 1.4.11; this measures 4.18:1 at its worst. See the
+   * note on the same token in ../base.css for why it is resolved here rather
+   * than left as a color-mix() call. */
+  --token-focusRingColor: #b95b06;
   --token-focusRingOffset: 2px;
   --token-focusRingStyle: solid;
   --token-focusRingWidth: 2px;

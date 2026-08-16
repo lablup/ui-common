@@ -60,6 +60,9 @@
   --token-colorTextSecondary: #b3b3b3;
   --token-colorTextTertiary: #8c8c8c;
   --token-colorWarning: #d89614;
+  /* Left as the brand accent lightened for dark: it already measures 7.00:1 at
+   * its worst against this theme's six surfaces, so the 70% text mix its light
+   * counterpart needs would lower it to 6.42:1 for no benefit. */
   --token-focusRingColor: #ff9729;
   --token-focusRingOffset: 2px;
   --token-focusRingStyle: solid;

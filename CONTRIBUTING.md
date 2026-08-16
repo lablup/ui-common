@@ -73,6 +73,46 @@ the source product where they were already unreachable. Do not add new ones that
 disagree, and do not "fix" the inherited ones without treating it as the
 visual change it is.
 
+### Focus indicators take no fallback literal
+
+The one exception to the rule above. A declaration that paints a focus
+indicator carries no colour literal at all:
+
+```css
+/* An outline resolves through the ring token and stops there. */
+outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+  var(--token-focusRingColor, var(--token-colorPrimary));
+
+/* A ring drawn as the element's own border mixes the accent with the text
+ * colour, inline in the longhand. */
+border-color: color-mix(in srgb, var(--token-colorPrimary) 70%, var(--token-colorText));
+```
+
+WCAG 2.2 SC 1.4.11 requires the indicator of a component state to clear 3:1
+against the surface it lands on. A fixed literal cannot know that surface, so
+"renders without a theme" and "meets the contrast floor" are not both
+achievable from a constant, and for an accessibility affordance the second one
+wins. Never paint a focus indicator from the bare `--token-colorPrimary`
+either: that token is chosen for brand, and it measures as low as 2.37:1 in
+this package's own default palette.
+
+Two mechanical points that are easy to get backwards:
+
+- **`color-mix()` belongs in a longhand, never in a token that feeds a
+  shorthand.** A custom property holds an unparsed token stream, so on an
+  engine without `color-mix()` the property substitutes successfully and only
+  then invalidates its consumer at computed-value time. Feeding that to
+  `outline` yields `outline-style: none` and no ring at all, with the `var()`
+  fallback never firing because the property was never guaranteed-invalid. In a
+  longhand the failure is the opposite and benign: the declaration is dropped
+  at parse time and the cascade keeps the element's resting border. This is why
+  `--token-focusRingColor` is declared as a resolved literal in
+  `src/styles/base.css` rather than as a `color-mix()` call.
+- **A `border-color` plus `outline: none` in the same rule block is a focus
+  indicator**, even though the block never writes an `outline` colour. Grep for
+  `outline` alone will not find it; the two declarations have to be read
+  together.
+
 Never add a token to a component without adding it to `src/styles/base.css`.
 A token that only exists in a product's theme file makes the component render
 correctly there and nowhere else, which is the failure mode this package

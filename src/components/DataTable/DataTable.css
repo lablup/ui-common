@@ -54,7 +54,11 @@
 }
 
 .data-table__row--clickable:focus-visible {
-  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary));
+  /* Inset, not --token-focusRingOffset. A row sits flush against its
+   * neighbours, so an outward ring would be overlapped by the next row. This
+   * is a layout constraint of the table, not a theme preference. */
   outline-offset: -2px;
 }
 
@@ -127,7 +131,9 @@
 }
 
 .data-table__cell--sortable:focus-visible {
-  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary));
+  /* Inset for the same reason as the row ring above. */
   outline-offset: -2px;
 }
 

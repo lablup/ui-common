@@ -95,7 +95,7 @@
 
 .tabs__tab:focus-visible {
   outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
-    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+    var(--token-focusRingColor, var(--token-colorPrimary));
   outline-offset: var(--token-focusRingOffset, 2px);
 }
 
@@ -214,7 +214,7 @@
 
 .tabs__scroll-arrow:focus-visible {
   outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
-    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+    var(--token-focusRingColor, var(--token-colorPrimary));
   outline-offset: var(--token-focusRingOffset, 2px);
 }
 
@@ -282,8 +282,17 @@
   border-color: var(--token-colorBorder, #d9d9d9);
 }
 
+/* The border is the indicator a pointer-focused trigger gets, since the
+ * :focus:not(:focus-visible) rule below suppresses the outline. It uses the
+ * contrast-corrected accent for the reason recorded on
+ * `.base-card:focus-within` in ../BaseCard/BaseCard.css, including why the
+ * mix stays inline in the longhand instead of moving into a token. */
 .tabs__dropdown-trigger:focus {
-  border-color: var(--token-colorPrimary, #8b5cf6);
+  border-color: color-mix(
+    in srgb,
+    var(--token-colorPrimary) 70%,
+    var(--token-colorText)
+  );
   box-shadow: var(--token-tabFocusShadow, 0 0 0 3px rgba(139, 92, 246, 0.15));
 }
 
@@ -293,7 +302,7 @@
 
 .tabs__dropdown-trigger:focus-visible {
   outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
-    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+    var(--token-focusRingColor, var(--token-colorPrimary));
   outline-offset: var(--token-focusRingOffset, 2px);
 }
 
@@ -361,7 +370,7 @@
 
 .tabs__dropdown-item:focus-visible {
   outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
-    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+    var(--token-focusRingColor, var(--token-colorPrimary));
   outline-offset: -2px;
 }
 
@@ -423,7 +432,7 @@
 
 .tabs__overflow-btn:focus-visible {
   outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
-    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+    var(--token-focusRingColor, var(--token-colorPrimary));
   outline-offset: var(--token-focusRingOffset, 2px);
 }
 
@@ -492,7 +501,7 @@
 
 .tabs__overflow-item:focus-visible {
   outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
-    var(--token-focusRingColor, var(--token-colorPrimary, #8b5cf6));
+    var(--token-focusRingColor, var(--token-colorPrimary));
   outline-offset: -2px;
 }
 

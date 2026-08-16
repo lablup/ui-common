@@ -50,8 +50,9 @@
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
-  outline-offset: 2px;
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary));
+  outline-offset: var(--token-focusRingOffset, 2px);
 }
 
 /* Full width variant */

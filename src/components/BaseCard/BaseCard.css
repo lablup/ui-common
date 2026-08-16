@@ -54,15 +54,36 @@
   transform: translateY(-2px);
 }
 
-/* Focus within for accessibility */
+/* Focus within for accessibility.
+ *
+ * This block suppresses the outline, so the border is the whole indicator
+ * whenever focus lands on a descendant. It therefore cannot be the bare
+ * accent: --token-colorPrimary is chosen for brand and measures as low as
+ * 2.37:1 against this card's own --token-colorFillTertiary background, under
+ * the 3:1 floor WCAG 2.2 SC 1.4.11 sets for a component state indicator.
+ * Mixing 30% of the text colour into it clears 3:1 in every palette measured
+ * (4.21:1 at its worst) while keeping the accent's hue.
+ *
+ * The mix is written inline in the border-color longhand rather than hoisted
+ * into a token, and the difference matters. A custom property holds an
+ * unparsed token stream, so on an engine without color-mix() the property
+ * would substitute successfully and only then invalidate its consumer at
+ * computed-value time, with no var() fallback firing. In a longhand the
+ * failure is the opposite and benign: the declaration is dropped at parse
+ * time and the cascade keeps the card's resting border. */
 .base-card:focus-within {
-  border-color: var(--token-colorPrimary, #8b5cf6);
+  border-color: color-mix(
+    in srgb,
+    var(--token-colorPrimary) 70%,
+    var(--token-colorText)
+  );
   outline: none;
 }
 
 .base-card--clickable:focus {
-  outline: 2px solid var(--token-colorPrimary, #8b5cf6);
-  outline-offset: 2px;
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor, var(--token-colorPrimary));
+  outline-offset: var(--token-focusRingOffset, 2px);
 }
 
 /* ============================================
