@@ -1,9 +1,15 @@
 /**
  * @lablup/ui-common design tokens
  *
- * The 113 `--token-*` custom properties every component in this package
+ * The 115 `--token-*` custom properties every component in this package
  * reads. This file is the token contract: renaming or removing an entry is
  * a breaking change, exactly like renaming a prop (see CONTRIBUTING.md).
+ *
+ * It also carries one block of element rules, at the end: the scrollbar. A
+ * scrollbar is painted by the browser on a box this package does not own, so
+ * there is no component to hang the rules on and a consumer that wants a
+ * themed bar has nowhere to put one that every scrollable surface inherits.
+ * The rest of the file is custom properties only.
  *
  * Colour and button values are the Lablup brand default, theme family
  * "orange", colour scheme "light", which is also the one theme this package
@@ -16,7 +22,7 @@
  * call site.
  *
  * A product with its own visual identity defines its own `[data-theme]`
- * blocks over these 113 names and ships them itself, the way the source
+ * blocks over these 115 names and ships them itself, the way the source
  * product does with its five families. This package carries the mechanism and
  * one default, not a catalogue of somebody else's palettes.
  *
@@ -156,6 +162,13 @@
   --token-paddingXL: 2rem;
   --token-paddingXS: 0.25rem;
   --token-paddingXXS: 0.125rem;
+  /* One size for every theme. A theme family may restyle the track and the
+     thumb, but must not restate the size: `[data-theme="..."]
+     ::-webkit-scrollbar` outranks the global rule on specificity, so a wider
+     bar declared there cannot be corrected from here, and a sidebar rail is
+     the surface that pays for it. `scrollbar.test.ts` keeps it that way. */
+  --token-scrollbarSize: 0.5rem; /* 8px */
+  --token-scrollbarRadius: 0.25rem; /* 4px */
   --token-motionDurationFast: 0.1s;
   --token-motionDurationMid: 0.2s;
   --token-motionDurationSlow: 0.3s;
@@ -186,4 +199,38 @@
   --token-buttonSuccessShadowHover: var(--token-buttonSuccessShadow);
   --token-buttonSecondaryShadowHover:
     0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================
+   Scrollbar
+
+   The only element rules in this file. Both halves are needed because the two
+   engines expose different surfaces, and neither one alone themes a bar.
+   ============================================ */
+
+/* Firefox has no ::-webkit pseudo-elements. Both properties are inherited, so
+   declaring them once on the root themes every scrollable descendant, and a
+   surface that hides its own bar (see `Tabs.css`) still overrides them
+   locally. */
+:root {
+  scrollbar-width: thin;
+  scrollbar-color: var(--token-colorBorder, #d9d9d9) transparent;
+}
+
+::-webkit-scrollbar {
+  width: var(--token-scrollbarSize, 0.5rem);
+  height: var(--token-scrollbarSize, 0.5rem);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--token-colorBorder, #d9d9d9);
+  border-radius: var(--token-scrollbarRadius, 0.25rem);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--token-colorTextTertiary, #737373);
 }
