@@ -5,6 +5,43 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`--token-scrollbarSize` (`0.5rem`) and `--token-scrollbarRadius`
+  (`0.25rem`), and the scrollbar rules that read them.** `styles/base.css` had
+  no scrollbar styling of any kind, so a consumer got the operating system's
+  default bar on every scrollable surface and had no token to change it from.
+  The four `::-webkit-scrollbar` rules cover Chromium and Safari; a `:root`
+  pair of `scrollbar-width: thin` and `scrollbar-color` covers Firefox, which
+  exposes no `::-webkit` pseudo-elements and would otherwise keep the OS bar
+  no matter what the other four rules said. Both Firefox properties are
+  inherited, so one root declaration themes every descendant and a surface
+  that hides its own bar, as `Tabs.css` does, still overrides them locally.
+
+  New tokens are a minor release. The rendering change is the part to read
+  before upgrading: a consumer whose scrollbars were the OS default now gets an
+  8px themed bar. Outside the alpha series that would be a major under the
+  versioning policy, and it lands here for the reason `0.1.0-alpha.2`,
+  `alpha.6`, and `alpha.7` each did, that the package is still an alpha with
+  one consumer mid-migration.
+
+  `styles/base.css` was until now custom properties and nothing else. This is
+  the one exception, and the file header says so: a scrollbar is painted on a
+  box the package does not own, so there is no component to carry the rules
+  and no other place a consumer can put them once and have every scrollable
+  surface inherit them.
+
+- **`styles/scrollbar.test.ts`, a guard against a second source of truth for
+  the bar's size.** `[data-theme="x"] ::-webkit-scrollbar` outranks the global
+  rule on specificity, so a size declared in a theme file cannot be corrected
+  from `base.css` and has to be removed instead. The source product shipped
+  exactly that and paid for it on a 200px sidebar rail, where a 17px bar took
+  8.5% of the width. The guard reads theme and component stylesheets as source
+  text and fails on a `width` or `height` in a `::-webkit-scrollbar` rule that
+  does not resolve through `--token-scrollbarSize`. Hiding a bar with
+  `display: none` and scoping the shared size to one surface both stay legal,
+  because neither one introduces a second size.
+
 ## [0.1.0-alpha.7]
 
 ### Fixed
