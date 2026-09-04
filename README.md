@@ -74,7 +74,7 @@ import "@lablup/ui-common/styles/themes/orange-dark.css";
 
 The package ships the theming mechanism and one default palette, the Lablup
 brand orange. A product with its own visual identity defines its own
-`[data-theme]` blocks over the same 115 token names and ships them itself,
+`[data-theme]` blocks over the same 116 token names and ships them itself,
 rather than the package accumulating everyone's palettes. The source product
 does exactly that with its five families.
 
