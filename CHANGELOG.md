@@ -5,6 +5,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.8]
+
 ### Added
 
 - **`--token-scrollbarSize` (`0.5rem`) and `--token-scrollbarRadius`
@@ -270,7 +272,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.7...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.8...HEAD
+[0.1.0-alpha.8]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.7...v0.1.0-alpha.8
 [0.1.0-alpha.7]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.6...v0.1.0-alpha.7
 [0.1.0-alpha.6]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.5...v0.1.0-alpha.6
 [0.1.0-alpha.5]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.4...v0.1.0-alpha.5
