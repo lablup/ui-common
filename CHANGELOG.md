@@ -42,6 +42,34 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `display: none` and scoping the shared size to one surface both stay legal,
   because neither one introduces a second size.
 
+### Fixed
+
+- **`StatCard` no longer cuts a long value off without an ellipsis.**
+  `.stat-card` sets `overflow: hidden` so the corner accent follows the card's
+  rounded corner, and `.stat-card__value` declared no `overflow`,
+  `text-overflow`, `white-space`, or `min-width` of its own. A value wider than
+  the card was therefore clipped silently, with nothing on screen to say that
+  anything had been cut.
+
+  The card cannot grow out of it, which is what makes this the component's
+  defect rather than the consumer's: a grid track with a px floor, the usual
+  `repeat(auto-fit, minmax(180px, 1fr))`, keeps its floor no matter how long
+  the content is. The consumer supplies the constraint, but the component
+  supplies both the clip and the unprotected value element. `.stat-card__value`
+  now carries `min-width: 0`, `overflow: hidden`, `text-overflow: ellipsis`,
+  and `white-space: nowrap`, so it truncates itself. `min-width: 0` is the
+  load-bearing one: as a flex item the value's automatic minimum size is its
+  content, so without it the element refuses to shrink and overflows instead of
+  ellipsing.
+
+  Both `--emphasis` variants inherit the fix, since each changes only
+  `font-size`; `prominent` needed it most, because a larger value reaches the
+  card edge sooner.
+
+  A patch release. For a consumer whose values already fit, nothing changes.
+  For one whose value was being clipped, the rendering moves from a hard cut to
+  an ellipsis.
+
 ## [0.1.0-alpha.7]
 
 ### Fixed

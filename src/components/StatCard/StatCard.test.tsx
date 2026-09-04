@@ -126,6 +126,62 @@ describe("StatCard", () => {
     );
   });
 
+  describe("long value truncation", () => {
+    /**
+     * `.stat-card` sets `overflow: hidden` so the corner accent follows the
+     * rounded corner, which means a value wider than the card is cut off with
+     * no sign that anything was cut. The card cannot grow out of it either: a
+     * grid track with a px floor keeps its floor whatever the content length.
+     *
+     * jsdom does no layout, so there is no width to assert on. It does apply
+     * the stylesheet, though, which is enough: these read the value back
+     * through the cascade, so they fail if the declarations are removed from
+     * `StatCard.css` and also if a later rule overrides them. `overflow` is
+     * read as the shorthand deliberately, because jsdom does not expand it
+     * into `overflow-x` and `overflow-y`.
+     */
+    const TRUNCATION = {
+      minWidth: "0px",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    } as const;
+
+    function truncationOf(container: HTMLElement) {
+      const value = container.querySelector(".stat-card__value");
+      if (!(value instanceof HTMLElement)) {
+        throw new Error("no .stat-card__value rendered");
+      }
+      const style = getComputedStyle(value);
+      return {
+        minWidth: style.minWidth,
+        overflow: style.overflow,
+        textOverflow: style.textOverflow,
+        whiteSpace: style.whiteSpace,
+      };
+    }
+
+    it("ellipsises a value too long for its card", () => {
+      const { container } = render(
+        <StatCard label="Spend" value="$1,234,567,890.12" />,
+      );
+      expect(truncationOf(container)).toEqual(TRUNCATION);
+    });
+
+    // `prominent` enlarges the value, so it reaches the card edge sooner than
+    // the default does. Both variants change font-size and nothing else, and
+    // these fail if either ever grows a rule that drops the truncation.
+    it.each(["prominent", "compact"] as const)(
+      "keeps the truncation under emphasis=%s",
+      (emphasis) => {
+        const { container } = render(
+          <StatCard label="Spend" value="$1,234,567,890.12" emphasis={emphasis} />,
+        );
+        expect(truncationOf(container)).toEqual(TRUNCATION);
+      },
+    );
+  });
+
   describe("sparkline slot", () => {
     it("renders the provided node", () => {
       render(

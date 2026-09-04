@@ -81,6 +81,17 @@
   color: var(--token-colorText, #141414);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+  /* The card sets `overflow: hidden` above so the corner accent follows the
+     rounded corner, which means a value wider than the card is cut off with no
+     sign that anything was cut. The card cannot widen to fix it either: a grid
+     track with a px floor, `minmax(180px, 1fr)`, keeps its floor no matter how
+     long the content is. So the value truncates itself. `min-width: 0` is what
+     lets it: as a flex item its automatic minimum size is its content, and
+     without this it refuses to shrink and overflows instead of ellipsing. */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stat-card__value-suffix {
