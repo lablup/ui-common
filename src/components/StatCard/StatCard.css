@@ -76,7 +76,11 @@
 }
 
 .stat-card__value {
-  font-size: var(--token-fontSizeHeading2, 1.75rem);
+  /* A numeric display, not a heading. Reading a heading token made the value
+     follow whatever heading ladder the consuming product chose, so a product
+     with larger headings got a larger stat value it never asked for. The two
+     `--emphasis` variants below still read heading tokens; see the note there. */
+  font-size: var(--token-fontSizeXXL, 1.5rem);
   font-weight: 600;
   color: var(--token-colorText, #141414);
   line-height: 1.1;
@@ -151,6 +155,10 @@
   border-color: color-mix(in srgb, var(--token-colorPrimary, #8b5cf6) 30%, transparent);
 }
 
+/* The two emphasis variants still read heading tokens. Moving them needs a
+   numeric ladder above XXL that neither consuming product has agreed on yet,
+   and inventing one here would be a token contract nobody asked for. Tracked
+   rather than fixed. */
 .stat-card--prominent .stat-card__value {
   font-size: var(--token-fontSizeHeading1, 2.25rem);
 }

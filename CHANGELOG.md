@@ -5,6 +5,43 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`--token-fontSizeXXL` (`1.5rem`), the step above `XL` in the size ladder.**
+  The ladder had `XXS` but nothing above `XL`, so a component with a large
+  numeric readout had no token to reach for and took a heading token instead.
+  Both products that define this name already declare `1.5rem`, so introducing
+  it shifts nothing.
+
+- **`styles/tokenContract.test.ts`.** CONTRIBUTING has always said that a token
+  a component reads must be declared in `styles/base.css`, because one declared
+  only in a product's theme file makes the component render correctly there and
+  nowhere else. Nothing enforced it. The rule holds today, so this pins it as a
+  ratchet rather than fixing anything.
+
+### Fixed
+
+- **`StatCard` sizes its value from the numeric ladder, not from a heading
+  token.** `.stat-card__value` read `--token-fontSizeHeading2`, so the number
+  followed whatever heading ladder the consuming product had chosen. A stat
+  value is a numeric display rather than a heading, and the two are decisions
+  about different things: one is about data, the other about prose. A consumer
+  shipping the Ant Design v5 heading scale rendered the value at 30px where
+  this package intends 24px, without asking for it and with no way to correct
+  it that did not also move every heading in the product.
+
+  It now reads `var(--token-fontSizeXXL, 1.5rem)`. **This shifts nothing for
+  either existing consumer**: both declare `--token-fontSizeHeading2` and
+  `--token-fontSizeXXL` at the same `1.5rem`, and the package's own default
+  declared `1.5rem` for the heading token too. The change is worth making
+  anyway, because the two names were only equal by coincidence and the
+  coincidence had already broken for a third consumer.
+
+  The two `--emphasis` variants still read heading tokens. Moving them needs a
+  numeric ladder above `XXL` that no consuming product has agreed on, and
+  inventing one here would be a token contract nobody asked for. The reason is
+  recorded at the rule.
+
 ## [0.1.0-alpha.8]
 
 ### Added

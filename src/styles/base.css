@@ -1,7 +1,7 @@
 /**
  * @lablup/ui-common design tokens
  *
- * The 115 `--token-*` custom properties every component in this package
+ * The 116 `--token-*` custom properties every component in this package
  * reads. This file is the token contract: renaming or removing an entry is
  * a breaking change, exactly like renaming a prop (see CONTRIBUTING.md).
  *
@@ -22,7 +22,7 @@
  * call site.
  *
  * A product with its own visual identity defines its own `[data-theme]`
- * blocks over these 115 names and ships them itself, the way the source
+ * blocks over these 116 names and ships them itself, the way the source
  * product does with its five families. This package carries the mechanism and
  * one default, not a catalogue of somebody else's palettes.
  *
@@ -153,6 +153,11 @@
   --token-fontSizeLG: 1rem;
   --token-fontSizeSM: 0.75rem;
   --token-fontSizeXL: 1.25rem;
+  /* The step above XL, for a value that is displayed rather than read as a
+     heading. The ladder had XXS but no XXL, so a component with a large
+     numeric readout had nothing to reach for and took a heading token
+     instead. Both products that define this name already declare 1.5rem. */
+  --token-fontSizeXXL: 1.5rem;
   --token-fontSizeXXS: 0.5rem;
   --token-marginXXS: 4px;
   --token-padding: 0.75rem;
