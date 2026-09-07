@@ -5,6 +5,26 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **The control-height ladder: `--token-controlHeightSM` (`2rem`),
+  `--token-controlHeight` (`2.5rem`), and `--token-controlHeightLG`
+  (`2.75rem`).** `Button` carried two of those three as literals, so a text
+  field or a picker placed beside it had no shared value to match and had to
+  repeat the number by hand. That is how a filter row ends up with controls on
+  three different baselines.
+
+  `Button` now reads the SM and LG rungs. **Rendering is unchanged**: the token
+  values are the literals it already used, and each call site keeps that
+  literal as its inline fallback. The `1.75rem` on `.button--tiny` stays a
+  literal deliberately; it is a compact inline action rather than a rung of the
+  control ladder.
+
+  The middle rung has no consumer in this package yet. It is declared with the
+  other two because a ladder missing its default is not a ladder: the first
+  component that needs a 40px box would otherwise invent a literal, which is
+  the thing this replaces.
+
 ## [0.1.0-alpha.9]
 
 ### Added

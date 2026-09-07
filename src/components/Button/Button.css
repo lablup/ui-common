@@ -41,7 +41,10 @@
   white-space: nowrap;
   position: relative;
   /* Ensure minimum touch target size at any zoom level */
-  min-height: 2.75rem; /* 44px - WCAG 2.1 minimum touch target */
+  min-height: var(
+    --token-controlHeightLG,
+    2.75rem
+  ); /* 44px - WCAG 2.1 minimum touch target */
 }
 
 .button:disabled {
@@ -179,7 +182,10 @@
   padding: var(--token-paddingXS, 0.25rem) var(--token-paddingSM, 0.5rem);
   font-size: var(--token-fontSizeSM, 0.75rem);
   gap: 0.25rem; /* 4px */
-  min-height: 2rem; /* Allow smaller buttons when needed */
+  min-height: var(
+    --token-controlHeightSM,
+    2rem
+  ); /* Allow smaller buttons when needed */
 }
 
 .button--medium {

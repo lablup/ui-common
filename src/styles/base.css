@@ -1,7 +1,7 @@
 /**
  * @lablup/ui-common design tokens
  *
- * The 116 `--token-*` custom properties every component in this package
+ * The 119 `--token-*` custom properties every component in this package
  * reads. This file is the token contract: renaming or removing an entry is
  * a breaking change, exactly like renaming a prop (see CONTRIBUTING.md).
  *
@@ -22,7 +22,7 @@
  * call site.
  *
  * A product with its own visual identity defines its own `[data-theme]`
- * blocks over these 116 names and ships them itself, the way the source
+ * blocks over these 119 names and ships them itself, the way the source
  * product does with its five families. This package carries the mechanism and
  * one default, not a catalogue of somebody else's palettes.
  *
@@ -61,6 +61,16 @@
   --token-borderRadiusLG: 0.5rem;
   --token-borderRadiusSM: 0.25rem;
   --token-borderRadiusXL: 0.75rem;
+  /* One height ladder for every form control, so a text field, a picker and a
+     button standing next to each other in a filter row land on the same top
+     and bottom edge. Only `Button` reads it today, at SM and LG; the middle
+     rung is declared with them because a ladder missing its default is not a
+     ladder, and the first control that needs a 40px box would otherwise
+     invent a literal, which is the defect this replaces. rem-based like the
+     rest of the scale, so controls grow with browser zoom (WCAG 1.4.4). */
+  --token-controlHeightSM: 2rem; /* 32px */
+  --token-controlHeight: 2.5rem; /* 40px */
+  --token-controlHeightLG: 2.75rem; /* 44px, the WCAG 2.1 touch target */
   --token-boxShadow:
     0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02),
     0 2px 4px 0 rgba(0, 0, 0, 0.02);
