@@ -434,4 +434,97 @@ describe("Tooltip", () => {
       expect(tooltip).toHaveClass("tooltip__content--bottom");
     });
   });
+  /**
+   * A glossary term is the case `toggleable` exists for: the phrase carries a
+   * definition a reader summons deliberately, which makes the trigger a control
+   * and not incidental hover help. Two products had built that contract around
+   * one before this component existed, and both would have lost it here.
+   */
+  describe("toggleable trigger", () => {
+    beforeEach(() => {
+      vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
+        cb(0);
+        return 0;
+      });
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    function renderTrigger(toggleable: boolean) {
+      const { container } = render(
+        <Tooltip content="Helpful hint" toggleable={toggleable}>
+          <span>Trigger</span>
+        </Tooltip>,
+      );
+      const wrapper = container.querySelector(".tooltip__wrapper");
+      if (!(wrapper instanceof HTMLElement)) throw new Error("no wrapper");
+      return wrapper;
+    }
+
+    it("announces the trigger as a button and reports its state", () => {
+      const wrapper = renderTrigger(true);
+      expect(screen.getByRole("button", { name: "Trigger" })).toBe(wrapper);
+      expect(wrapper).toHaveAttribute("aria-expanded", "false");
+
+      fireEvent.mouseEnter(wrapper);
+
+      expect(wrapper).toHaveAttribute("aria-expanded", "true");
+    });
+
+    it("toggles on Enter and on Space", () => {
+      const wrapper = renderTrigger(true);
+
+      for (const key of ["Enter", " "]) {
+        fireEvent.keyDown(wrapper, { key });
+        expect(screen.getByRole("tooltip")).toBeInTheDocument();
+        expect(wrapper).toHaveAttribute("aria-expanded", "true");
+
+        fireEvent.keyDown(wrapper, { key });
+        expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+        expect(wrapper).toHaveAttribute("aria-expanded", "false");
+      }
+    });
+
+    it("prevents the default, since Space scrolls and Enter submits", () => {
+      const wrapper = renderTrigger(true);
+
+      for (const key of ["Enter", " "]) {
+        const notPrevented = fireEvent.keyDown(wrapper, { key });
+        expect(notPrevented).toBe(false);
+        fireEvent.keyDown(wrapper, { key });
+      }
+    });
+
+    it("leaves other keys to the page", () => {
+      const wrapper = renderTrigger(true);
+
+      const notPrevented = fireEvent.keyDown(wrapper, { key: "ArrowDown" });
+
+      expect(notPrevented).toBe(true);
+      expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    });
+
+    it("claims nothing by default", () => {
+      const wrapper = renderTrigger(false);
+      expect(wrapper).not.toHaveAttribute("role");
+      expect(wrapper).not.toHaveAttribute("aria-expanded");
+
+      const notPrevented = fireEvent.keyDown(wrapper, { key: " " });
+
+      expect(notPrevented).toBe(true);
+      expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    });
+
+    it("still reports expanded when opened by hover rather than by key", () => {
+      const wrapper = renderTrigger(true);
+
+      fireEvent.mouseEnter(wrapper);
+      expect(wrapper).toHaveAttribute("aria-expanded", "true");
+
+      fireEvent.keyDown(wrapper, { key: "Escape" });
+      expect(wrapper).toHaveAttribute("aria-expanded", "false");
+    });
+  });
 });

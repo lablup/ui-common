@@ -5,6 +5,22 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`Tooltip` takes `toggleable`, which makes the trigger a control.** With it,
+  the trigger carries `role="button"` and an `aria-expanded` that tracks the
+  content, and Enter and Space toggle it (both prevented from their defaults,
+  since Space scrolls the page and Enter submits an enclosing form). Off by
+  default, so no existing trigger changes: content that only supplements what is
+  already on screen is not a control and should not claim to be one.
+
+  It exists because a glossary term is the opposite case. The definition is
+  something a reader summons deliberately, and where there is no hover at all,
+  activation is how they get it. Two products had independently built exactly
+  this trigger contract around one, and both would have had to give it up to
+  adopt this component. Losing an affordance is not a reasonable price for
+  sharing code.
+
 ## [0.1.0-alpha.15]
 
 ### Fixed
