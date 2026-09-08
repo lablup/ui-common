@@ -12,10 +12,20 @@
  * - Persistent: it stays while the trigger is hovered or focused.
  *
  * Also uses role="tooltip" and aria-describedby so a screen reader announces
- * the content with the trigger.
+ * the content with the trigger. `toggleable` additionally makes the trigger a
+ * button with aria-expanded that Enter and Space operate, for content a reader
+ * summons rather than passes over.
  */
 
-import { useState, useRef, useEffect, useCallback, useId, type ReactNode } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useId,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactNode,
+} from "react";
 import { createPortal } from "react-dom";
 import "./Tooltip.css";
 
@@ -32,6 +42,20 @@ export interface TooltipProps {
   tooltipId?: string;
   /** Tab index for the wrapper. Use -1 when wrapping already-focusable elements like buttons. Defaults to 0. */
   tabIndex?: number;
+  /**
+   * Announce the trigger as a button carrying `aria-expanded`, and let Enter
+   * and Space toggle the content.
+   *
+   * Off by default: a trigger whose content only supplements what is already
+   * on screen is not a control and should not claim to be one. Turn it on
+   * where the content is something a reader summons deliberately. A glossary
+   * term is the case this exists for, and two products had independently built
+   * the same trigger contract around one.
+   *
+   * Do not combine with `tabIndex={-1}`, which is for wrapping an element that
+   * is already focusable and already owns its role.
+   */
+  toggleable?: boolean;
 }
 
 /** Long enough to cross the 8px gap to the tooltip, short enough not to linger. */
@@ -50,6 +74,7 @@ export function Tooltip({
   contentClassName,
   tooltipId,
   tabIndex = 0,
+  toggleable = false,
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState<TooltipPosition | null>(null);
@@ -217,6 +242,24 @@ export function Tooltip({
     };
   }, [isVisible, hideNow]);
 
+  /**
+   * Enter and Space toggle, for a trigger that is a control rather than
+   * incidental hover help. Both default to something else, Space scrolling the
+   * page and Enter submitting an enclosing form, so both are prevented.
+   */
+  const handleKeyDown = useCallback(
+    (e: ReactKeyboardEvent<HTMLDivElement>) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      if (isVisible) {
+        hideNow();
+      } else {
+        handleShow();
+      }
+    },
+    [isVisible, hideNow, handleShow],
+  );
+
   const tooltipElement = isVisible && (
     <div
       ref={tooltipRef}
@@ -246,7 +289,10 @@ export function Tooltip({
       className={`tooltip__wrapper ${className ?? ""}`}
       onMouseEnter={handleShow}
       onMouseLeave={handleHide}
+      onKeyDown={toggleable ? handleKeyDown : undefined}
       tabIndex={tabIndex}
+      role={toggleable ? "button" : undefined}
+      aria-expanded={toggleable ? isVisible : undefined}
       aria-describedby={isVisible ? effectiveTooltipId : undefined}
     >
       {children}
