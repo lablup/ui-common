@@ -337,4 +337,101 @@ describe("Tooltip", () => {
       expect(screen.getByRole("tooltip")).toBeInTheDocument();
     });
   });
+  /**
+   * The content is `position: fixed` in a portal, so it does not travel with
+   * the trigger the way an absolutely positioned child would. Anything that
+   * moves the trigger under the viewport has to be measured again, or the
+   * tooltip points at where the trigger used to be.
+   *
+   * The trigger's box is stubbed because jsdom lays nothing out: every real
+   * `getBoundingClientRect` here is zero, which makes every placement identical
+   * and every one of these assertions vacuous.
+   */
+  describe("anchoring", () => {
+    let triggerTop = 300;
+
+    function box(top: number, height: number, left: number, width: number): DOMRect {
+      return {
+        top,
+        bottom: top + height,
+        height,
+        left,
+        right: left + width,
+        width,
+        x: left,
+        y: top,
+        toJSON: () => ({}),
+      } as DOMRect;
+    }
+
+    beforeEach(() => {
+      triggerTop = 300;
+      vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
+        cb(0);
+        return 0;
+      });
+      vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (
+        this: Element,
+      ) {
+        return this.classList.contains("tooltip__content")
+          ? box(0, 40, 0, 120)
+          : box(triggerTop, 20, 100, 60);
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      vi.unstubAllGlobals();
+    });
+
+    function open() {
+      render(
+        <Tooltip content="Helpful hint">
+          <span>Trigger</span>
+        </Tooltip>,
+      );
+      fireEvent.mouseEnter(screen.getByText("Trigger").parentElement as HTMLElement);
+      return screen.getByRole("tooltip");
+    }
+
+    it("places the tooltip above the trigger when there is room", () => {
+      const tooltip = open();
+
+      // 300 (trigger top) - 40 (tooltip height) - 8 (gap)
+      expect(tooltip.style.top).toBe("252px");
+      expect(tooltip).toHaveClass("tooltip__content--top");
+    });
+
+    it("follows the trigger when the page scrolls under it", () => {
+      const tooltip = open();
+      expect(tooltip.style.top).toBe("252px");
+
+      triggerTop = 100;
+      fireEvent.scroll(window);
+
+      expect(tooltip.style.top).toBe("52px");
+    });
+
+    it("follows a scroll on a container between the two", () => {
+      const tooltip = open();
+      const trigger = screen.getByText("Trigger");
+
+      triggerTop = 500;
+      // Container scrolls do not bubble, so this only arrives in the capture phase.
+      fireEvent.scroll(trigger);
+
+      expect(tooltip.style.top).toBe("452px");
+    });
+
+    it("re-places on resize", () => {
+      const tooltip = open();
+
+      triggerTop = 20;
+      fireEvent(window, new Event("resize"));
+
+      // No room above for the tooltip plus its margin, so it flips below.
+      expect(tooltip.style.top).toBe("48px");
+      expect(tooltip).toHaveClass("tooltip__content--bottom");
+    });
+  });
 });
