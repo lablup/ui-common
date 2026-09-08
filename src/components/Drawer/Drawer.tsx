@@ -205,6 +205,10 @@ export function Drawer({
       onClick={handleBackdropClick}
       role="presentation"
       aria-hidden={!isOpen}
+      // `aria-hidden` takes the closed drawer out of the accessibility tree but
+      // leaves its focusable children in the tab sequence, so a keyboard user
+      // tabs into an invisible form. `inert` removes both.
+      inert={!isOpen}
     >
       <aside
         ref={drawerRef}

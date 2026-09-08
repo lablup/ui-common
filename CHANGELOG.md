@@ -5,6 +5,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A closed `Drawer` is now `inert`, not merely `aria-hidden`.** The backdrop
+  carried `aria-hidden` when closed, which takes the subtree out of the
+  accessibility tree but leaves its focusable children in the tab sequence. A
+  keyboard user tabbing past a closed drawer landed inside an invisible form,
+  with no way to tell where focus had gone. `inert` removes both, and the two
+  new tests fail without it: one asserts the attribute, the other tabs across a
+  closed drawer and checks focus lands on the control after it.
+
 ## [0.1.0-alpha.11]
 
 ### Added

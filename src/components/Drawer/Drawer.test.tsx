@@ -7,6 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Drawer } from "./Drawer";
 import type { DrawerProps } from "./Drawer";
 
@@ -368,5 +369,40 @@ describe("preventDismiss", () => {
       key: "Escape",
     });
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("closed drawer is inert", () => {
+  it("keeps its subtree out of the tab sequence", async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <button type="button">Before</button>
+        <Drawer isOpen={false} onClose={vi.fn()} title="Closed">
+          <input aria-label="hidden field" />
+        </Drawer>
+        <button type="button">After</button>
+      </>,
+    );
+
+    const backdrop = document.querySelector(".drawer__backdrop");
+    expect(backdrop).toHaveAttribute("inert");
+    expect(backdrop).toHaveAttribute("aria-hidden", "true");
+
+    // aria-hidden alone would leave the input reachable here.
+    screen.getByRole("button", { name: "Before" }).focus();
+    await user.tab();
+    expect(screen.getByRole("button", { name: "After" })).toHaveFocus();
+  });
+
+  it("drops inert once open", () => {
+    render(
+      <Drawer isOpen onClose={vi.fn()} title="Open">
+        <input aria-label="field" />
+      </Drawer>,
+    );
+    const backdrop = document.querySelector(".drawer__backdrop");
+    expect(backdrop).not.toHaveAttribute("inert");
+    expect(backdrop).toHaveAttribute("aria-hidden", "false");
   });
 });
