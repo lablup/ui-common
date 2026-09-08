@@ -23,6 +23,7 @@
  * - Original rows prop is not mutated by sorting
  */
 
+import type React from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { DataTable, type DataTableColumn, type SortDirection } from "./DataTable";
@@ -620,5 +621,66 @@ describe("isRowClickable and rowClassName", () => {
     ];
     expect(first).toHaveClass("row--flagged");
     expect(second?.className).toBe("data-table__row");
+  });
+});
+
+describe("secondary actions inside a clickable row", () => {
+  const rows = [{ id: "a", name: "Alpha" }];
+  const base = [
+    { id: "name", header: "Name", render: (r: (typeof rows)[number]) => r.name },
+  ];
+
+  function renderWithAction(control: React.ReactNode) {
+    const onRowClick = vi.fn();
+    const view = render(
+      <DataTable
+        rows={rows}
+        columns={[...base, { id: "act", header: "Act", render: () => control }]}
+        getRowKey={(r) => r.id}
+        onRowClick={onRowClick}
+      />,
+    );
+    return { ...view, onRowClick };
+  }
+
+  it("does not fire onRowClick when a nested button is clicked", () => {
+    const onEdit = vi.fn();
+    const { screen: _s, onRowClick } = {
+      ...renderWithAction(
+        <button type="button" onClick={onEdit}>
+          Edit
+        </button>,
+      ),
+      screen,
+    };
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onRowClick).not.toHaveBeenCalled();
+  });
+
+  it("does not fire onRowClick from a nested link or input", () => {
+    const { onRowClick } = renderWithAction(
+      <>
+        <a href="#x">Open</a>
+        <input aria-label="rename" />
+      </>,
+    );
+    fireEvent.click(screen.getByRole("link", { name: "Open" }));
+    fireEvent.click(screen.getByLabelText("rename"));
+    expect(onRowClick).not.toHaveBeenCalled();
+  });
+
+  it("still fires onRowClick from the row's own cells", () => {
+    const { onRowClick } = renderWithAction(<button type="button">Edit</button>);
+    fireEvent.click(screen.getByText("Alpha"));
+    expect(onRowClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fire onRowClick on Enter inside a nested control", () => {
+    const { onRowClick } = renderWithAction(<button type="button">Edit</button>);
+    fireEvent.keyDown(screen.getByRole("button", { name: "Edit" }), {
+      key: "Enter",
+    });
+    expect(onRowClick).not.toHaveBeenCalled();
   });
 });

@@ -126,6 +126,45 @@ export interface DataTablePersistedState {
   visibility: Record<string, boolean>;
 }
 
+/**
+ * The controls a row can contain that are actions in their own right. A click
+ * or an Enter on one of these is that control's business, not the row's.
+ */
+const INTERACTIVE_DESCENDANT_SELECTOR = [
+  "a",
+  "button",
+  "input",
+  "select",
+  "textarea",
+  "summary",
+  "label",
+  "[contenteditable='true']",
+  "[role='button']",
+  "[role='link']",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+/**
+ * Whether an event inside a clickable row came from a control nested in it.
+ *
+ * A row that is itself clickable and contains an Edit button has two actions
+ * competing for one click. Without this, both fire: the button edits and the
+ * row also navigates away from the thing just edited. The row is the fallback,
+ * so anything more specific wins.
+ */
+function fromInteractiveDescendant(
+  target: EventTarget | null,
+  currentTarget: EventTarget,
+): boolean {
+  if (!(target instanceof Element) || !(currentTarget instanceof Element)) {
+    return false;
+  }
+  const control = target.closest(INTERACTIVE_DESCENDANT_SELECTOR);
+  return (
+    control !== null && control !== currentTarget && currentTarget.contains(control)
+  );
+}
+
 export interface DataTableProps<T> {
   /** Column definitions, in display order. */
   columns: DataTableColumn<T>[];
@@ -573,7 +612,8 @@ function DataTableInner<T>({
             .join(" ")}
           onClick={
             clickable
-              ? () => {
+              ? (e) => {
+                  if (fromInteractiveDescendant(e.target, e.currentTarget)) return;
                   onRowClick?.(row);
                 }
               : undefined
@@ -581,10 +621,10 @@ function DataTableInner<T>({
           onKeyDown={
             clickable
               ? (e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onRowClick?.(row);
-                  }
+                  if (e.key !== "Enter" && e.key !== " ") return;
+                  if (fromInteractiveDescendant(e.target, e.currentTarget)) return;
+                  e.preventDefault();
+                  onRowClick?.(row);
                 }
               : undefined
           }
