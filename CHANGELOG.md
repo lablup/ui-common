@@ -5,6 +5,22 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`DataTable` takes `isRowClickable` and `rowClassName`.** A table that mixes
+  actionable and informational rows had no way to say so: `onRowClick` applied
+  to every row, which meant a row that could not act on a click still carried
+  the pointer affordance, a tab stop, and `role="button"`, announcing itself as
+  a button it was not. `isRowClickable` narrows it, and the affordance, the tab
+  stop and the role move together so the three cannot drift apart.
+
+  `rowClassName` gives one row an extra class, for flagging a specific row
+  without forking the table: a transient deep-link highlight, a stale entry, a
+  row being removed. A falsy return adds nothing.
+
+  Both are pure predicates over `(row, index)` and were contributed by a
+  consumer that had been carrying them locally.
+
 ## [0.1.0-alpha.12]
 
 ### Fixed
