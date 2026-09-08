@@ -84,3 +84,14 @@ if (!isUsableStorage(window.localStorage)) {
     writable: true,
   });
 }
+
+/**
+ * jsdom implements no layout, so it ships no `scrollIntoView`. A component that
+ * keeps the active option visible calls it, and would otherwise fail here for a
+ * reason that has nothing to do with the component.
+ */
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = function scrollIntoView() {
+    // Nothing to scroll: jsdom has no viewport.
+  };
+}

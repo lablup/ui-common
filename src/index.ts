@@ -25,6 +25,7 @@ export * from "./components/PageLayout";
 export * from "./components/ProgressBar";
 export * from "./components/Skeleton";
 export * from "./components/SmoothHeight";
+export * from "./components/Select";
 export * from "./components/StatCard";
 export * from "./components/StatusTag";
 export * from "./components/Tabs";
