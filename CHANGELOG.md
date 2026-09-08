@@ -5,6 +5,32 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A skeleton placeholder is one live region, not one per shape.** `role="status"`
+  is an implicit polite live region, and every composite here filled its own
+  region with `Skeleton` primitives that each carried their own. A
+  `SkeletonCard` mounted seven regions for one wait, a pie `SkeletonChart` ten,
+  a `SkeletonText` four.
+
+  `SkeletonCard`, `SkeletonRow` and `SkeletonText` had it backwards twice over:
+  the container carried `role="status"` with no accessible name, and
+  `loadingLabel` was forwarded to every decorative child instead. The region
+  that should have been announced was anonymous and the ones that should have
+  been silent all carried the caller's words.
+
+  `Skeleton` takes `decorative`, which drops the role and the label and marks
+  the shape `aria-hidden` while keeping its size and shimmer. The composites
+  pass it to their children and name their own container. A consumer's
+  `getByRole("status", { name })` now resolves to one node, which is what a
+  consumer in continuum-hub had already worked around with `getAllByRole`.
+
+### Added
+
+- **`Skeleton` takes `decorative`.** Off by default, so a standalone skeleton is
+  still its own live region, which is the one case where the primitive really is
+  the whole affordance.
+
 ## [0.1.0-alpha.18]
 
 ### Fixed

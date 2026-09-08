@@ -27,7 +27,7 @@ export interface SkeletonRowProps {
   className?: string;
   /** Test ID for testing */
   testId?: string;
-  /** Accessible name for each skeleton inside. Defaults to "Loading". */
+  /** Accessible name announced for the placeholder as a whole. Defaults to "Loading". */
   loadingLabel?: string;
 }
 
@@ -58,25 +58,21 @@ export function SkeletonRow({
           data-testid={testId ? `${testId}-${String(index)}` : undefined}
           role="status"
           aria-busy="true"
+          aria-label={loadingLabel ?? "Loading"}
         >
           {showAvatar && (
             <div className="skeleton-row__avatar">
-              <Skeleton
-                loadingLabel={loadingLabel}
-                width="40px"
-                height="40px"
-                variant="circle"
-              />
+              <Skeleton decorative width="40px" height="40px" variant="circle" />
             </div>
           )}
           <div className="skeleton-row__content">
-            <Skeleton loadingLabel={loadingLabel} width="25%" height="14px" />
-            <Skeleton loadingLabel={loadingLabel} width="100%" height="16px" />
+            <Skeleton decorative width="25%" height="14px" />
+            <Skeleton decorative width="100%" height="16px" />
           </div>
           {showActions && (
             <div className="skeleton-row__actions">
-              <Skeleton loadingLabel={loadingLabel} width="32px" height="32px" />
-              <Skeleton loadingLabel={loadingLabel} width="32px" height="32px" />
+              <Skeleton decorative width="32px" height="32px" />
+              <Skeleton decorative width="32px" height="32px" />
             </div>
           )}
         </div>

@@ -25,7 +25,7 @@ export interface SkeletonTextProps {
   className?: string;
   /** Test ID for testing */
   testId?: string;
-  /** Accessible name for each skeleton inside. Defaults to "Loading". */
+  /** Accessible name announced for the placeholder as a whole. Defaults to "Loading". */
   loadingLabel?: string;
 }
 
@@ -59,15 +59,15 @@ export function SkeletonText({
   });
 
   return (
-    <div className={classNames} data-testid={testId} role="status" aria-busy="true">
+    <div
+      className={classNames}
+      data-testid={testId}
+      role="status"
+      aria-busy="true"
+      aria-label={loadingLabel ?? "Loading"}
+    >
       {widths.map((width, index) => (
-        <Skeleton
-          loadingLabel={loadingLabel}
-          key={index}
-          width={width}
-          height="1em"
-          variant="text"
-        />
+        <Skeleton decorative key={index} width={width} height="1em" variant="text" />
       ))}
     </div>
   );
