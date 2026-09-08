@@ -90,6 +90,20 @@ describe("Select", () => {
     expect(screen.getByRole("option", { name: /Oregon/ })).toBeInTheDocument();
   });
 
+  it("skips a disabled option from the keyboard too", () => {
+    const { onChange, trigger } = renderSelect({
+      value: "eu",
+      options: [OPTIONS[0]!, { ...OPTIONS[1]!, disabled: true }, OPTIONS[2]!],
+    });
+
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    fireEvent.keyDown(trigger, { key: "Enter" });
+
+    // Past Oregon, which is disabled, and onto Seoul.
+    expect(onChange).toHaveBeenCalledWith("ap");
+  });
+
   it("stays closed and inert when disabled", async () => {
     const user = userEvent.setup();
     const { trigger } = renderSelect({ disabled: true });
@@ -204,5 +218,17 @@ describe("as a form field", () => {
     await user.tab();
 
     expect(onBlur).toHaveBeenCalled();
+  });
+});
+
+describe("without the filter", () => {
+  it("renders no search field and every option", async () => {
+    const user = userEvent.setup();
+    const { trigger } = renderSelect();
+
+    await user.click(trigger);
+
+    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+    expect(screen.getAllByRole("option")).toHaveLength(3);
   });
 });
