@@ -21,6 +21,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useLayoutEffect,
   useCallback,
   useId,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -176,18 +177,21 @@ export function Tooltip({
    * and a resize can leave it off the edge. Scroll events from a container do
    * not bubble, hence the capture phase.
    *
-   * The first measurement waits for a frame so the content has been laid out
-   * and has a height to place against.
+   * A layout effect, not an effect plus a frame. The content is in the DOM by
+   * the time this runs and can be measured, and the state it sets is flushed
+   * before the browser paints, so the tooltip is never painted unplaced. The
+   * frame it used to wait for was a frame the tooltip spent mounted and
+   * `visibility: hidden`, which is out of the accessibility tree: present but
+   * unreadable, and unfindable by any query that respects that tree.
    */
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isVisible) return;
 
-    const frame = requestAnimationFrame(measure);
+    measure();
     window.addEventListener("scroll", measure, { capture: true, passive: true });
     window.addEventListener("resize", measure);
 
     return () => {
-      cancelAnimationFrame(frame);
       window.removeEventListener("scroll", measure, { capture: true });
       window.removeEventListener("resize", measure);
     };

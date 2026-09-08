@@ -231,23 +231,15 @@ describe("Tooltip", () => {
    * and the pointer could not reach the content across the gap that separates
    * it from the trigger.
    *
-   * These use fake timers because the grace period is the thing under test, and
-   * a stubbed rAF because placement is measured in one: until it lands the
-   * content carries `visibility: hidden`, which keeps it out of the
-   * accessibility tree and so out of `getByRole`.
+   * These use fake timers because the grace period is the thing under test.
    */
   describe("WCAG 2.1 SC 1.4.13", () => {
     beforeEach(() => {
       vi.useFakeTimers();
-      vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
-        cb(0);
-        return 0;
-      });
     });
 
     afterEach(() => {
       vi.useRealTimers();
-      vi.unstubAllGlobals();
     });
 
     function open() {
@@ -366,10 +358,6 @@ describe("Tooltip", () => {
 
     beforeEach(() => {
       triggerTop = 300;
-      vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
-        cb(0);
-        return 0;
-      });
       vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (
         this: Element,
       ) {
@@ -381,7 +369,6 @@ describe("Tooltip", () => {
 
     afterEach(() => {
       vi.restoreAllMocks();
-      vi.unstubAllGlobals();
     });
 
     function open() {
@@ -441,16 +428,7 @@ describe("Tooltip", () => {
    * one before this component existed, and both would have lost it here.
    */
   describe("toggleable trigger", () => {
-    beforeEach(() => {
-      vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
-        cb(0);
-        return 0;
-      });
-    });
-
-    afterEach(() => {
-      vi.unstubAllGlobals();
-    });
+    beforeEach(() => {});
 
     function renderTrigger(toggleable: boolean) {
       const { container } = render(
@@ -526,5 +504,25 @@ describe("Tooltip", () => {
       fireEvent.keyDown(wrapper, { key: "Escape" });
       expect(wrapper).toHaveAttribute("aria-expanded", "false");
     });
+  });
+  /**
+   * Placement is a layout effect, so the content is placed in the same commit
+   * that mounts it and is never in the accessibility tree unplaced. Measuring a
+   * frame later, as this used to, left it mounted and `visibility: hidden` for
+   * that frame: present in the DOM, absent from the tree, and unfindable by any
+   * query that respects the tree until the frame ran. Every test above would
+   * pass either way given a stubbed frame; this one is the difference.
+   */
+  it("is in the accessibility tree in the same tick it opens", () => {
+    const { container } = render(
+      <Tooltip content="Helpful hint">
+        <span>Trigger</span>
+      </Tooltip>,
+    );
+
+    fireEvent.mouseEnter(container.querySelector(".tooltip__wrapper") as HTMLElement);
+
+    expect(screen.getByRole("tooltip")).toBeInTheDocument();
+    expect(screen.getByRole("tooltip").style.visibility).not.toBe("hidden");
   });
 });
