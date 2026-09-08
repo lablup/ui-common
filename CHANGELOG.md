@@ -5,6 +5,27 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`Tooltip` now satisfies all three parts of the WCAG criterion it cites.**
+  The docblock claimed WCAG 2.1 SC 1.4.13, which requires the content to be
+  dismissible, hoverable and persistent. Two of the three were missing.
+
+  Escape now closes it, without moving the pointer or focus. Before, a tooltip
+  opened by hover could only be closed by moving the pointer away, so content
+  that covered what the reader was looking at had to be walked off.
+
+  Leaving the trigger now defers the hide by a grace period instead of hiding at
+  once, so the pointer can cross the 8px gap and reach the content. A direct hop
+  from the trigger onto the content was already fine, because React propagates
+  enter and leave through the portal, but nobody moves a pointer along that
+  path: crossing the gap put the pointer over the body, which hid the tooltip
+  before it could be reached. Anything the tooltip holds that is longer than a
+  glance, or that has to be selected, was unreachable.
+
+  The existing tests covered rendering, hover, focus and the ARIA wiring, none
+  of which exercised either gap.
+
 ## [0.1.0-alpha.14]
 
 ### Fixed

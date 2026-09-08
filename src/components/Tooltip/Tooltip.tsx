@@ -4,10 +4,15 @@
  * A reusable tooltip component that displays content on hover.
  * Supports both simple text and complex ReactNode content.
  *
- * Accessibility:
- * - Shows on mouse hover and keyboard focus (WCAG 1.4.13)
- * - Uses role="tooltip" for screen readers
- * - Accessible via keyboard navigation
+ * Accessibility, against the three parts of WCAG 2.1 SC 1.4.13:
+ * - Hoverable: the pointer can move onto the tooltip itself without it
+ *   disappearing. The content sits 8px away from the trigger, so the pointer
+ *   crosses a gap to get there and the hide is deferred over that crossing.
+ * - Dismissible: Escape closes it without moving the pointer or focus.
+ * - Persistent: it stays while the trigger is hovered or focused.
+ *
+ * Also uses role="tooltip" and aria-describedby so a screen reader announces
+ * the content with the trigger.
  */
 
 import { useState, useRef, useEffect, useCallback, useId, type ReactNode } from "react";
@@ -29,6 +34,9 @@ export interface TooltipProps {
   tabIndex?: number;
 }
 
+/** Long enough to cross the 8px gap to the tooltip, short enough not to linger. */
+const HIDE_GRACE_MS = 120;
+
 interface TooltipPosition {
   top: number;
   left: number;
@@ -48,6 +56,7 @@ export function Tooltip({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const isMountedRef = useRef(true);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const generatedId = useId();
   const effectiveTooltipId = tooltipId ?? `tooltip-${generatedId}`;
 
@@ -56,6 +65,7 @@ export function Tooltip({
     isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
+      if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
     };
   }, []);
 
@@ -139,13 +149,53 @@ export function Tooltip({
   }, [isVisible]);
 
   const handleShow = useCallback(() => {
+    if (hideTimerRef.current !== null) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
     setIsVisible(true);
   }, []);
 
-  const handleHide = useCallback(() => {
+  const hideNow = useCallback(() => {
+    if (hideTimerRef.current !== null) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
     setIsVisible(false);
     setTooltipPosition(null);
   }, []);
+
+  /**
+   * Deferred so the pointer can cross the 8px gap between the trigger and the
+   * tooltip. React propagates enter and leave through the portal, so a direct
+   * hop onto the content never fires this; the gap does, because the pointer
+   * passes over a node that belongs to neither element. Hiding on that would
+   * put the content out of reach (WCAG 2.1 SC 1.4.13, Hoverable). Arriving on
+   * either element cancels the pending hide.
+   */
+  const handleHide = useCallback(() => {
+    if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      hideTimerRef.current = null;
+      if (!isMountedRef.current) return;
+      setIsVisible(false);
+      setTooltipPosition(null);
+    }, HIDE_GRACE_MS);
+  }, []);
+
+  // Dismissible: Escape closes without moving the pointer or focus. Bound to
+  // the document because focus may sit on a child of the trigger, or nowhere
+  // at all when the tooltip was opened by hover.
+  useEffect(() => {
+    if (!isVisible) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") hideNow();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isVisible, hideNow]);
 
   const tooltipElement = isVisible && (
     <div
