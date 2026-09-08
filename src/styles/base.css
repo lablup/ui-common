@@ -131,6 +131,7 @@
   --token-colorPrimary: #ff7a00;
   --token-colorPrimaryActive: #cc6200;
   --token-colorPrimaryBg: rgba(255, 122, 0, 0.1);
+  --token-colorPrimaryBgHover: rgba(255, 122, 0, 0.16);
   --token-colorPrimaryBorder: rgba(255, 122, 0, 0.2);
   --token-colorSuccess: #007a63;
   --token-colorSuccessActive: #005244;
@@ -140,6 +141,12 @@
   --token-colorSuccessBoxShadow: 0 4px 12px rgba(0, 189, 155, 0.15);
   --token-colorWarning: #9a5d00;
   --token-colorText: #141414;
+  /* Both #767676 rather than the #bfbfbf a disabled or placeholder value is
+   * usually given: that measures 2.2:1 on white, and text a reader is expected
+   * to read (a placeholder naming the field, a disabled value explaining why it
+   * cannot be changed) is not exempt from the 4.5:1 floor. */
+  --token-colorTextDisabled: #767676;
+  --token-colorTextPlaceholder: #767676;
   --token-colorTextQuaternary: #bfbfbf;
   --token-colorTextSecondary: #595959;
   --token-colorTextTertiary: #737373;

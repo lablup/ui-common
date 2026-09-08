@@ -27,6 +27,31 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
+- **`Select`**, admitted through the proposal in #16: a single-select listbox
+  with an optional search filter, icons, descriptions, a disabled-but-visible
+  option state, a field label, and the `invalid` and `aria-describedby` props a
+  form needs. The listbox is portalled, so a select near the bottom of a
+  scrolling panel is not clipped by it.
+
+  Rule 2 is what made it admissible: `backend.ai-go` and `continuum-hub` both
+  ship this component with the same `SelectOption` shape and the same core
+  props, and the hub's is the superset. That is why `MultiSelect` and
+  `TextInput` are not here; the same check disqualified both.
+
+  Two things changed on the way in. The empty-search line was a product locale
+  key and is now `noOptionsLabel`, with an English default, the shape
+  `closeLabel` and `moreTabsLabel` already use. And the focus border was drawn
+  from the bare accent, which measures 2.61:1 on white in one shipped family;
+  it now mixes the accent with the text colour, as this package requires of any
+  border-drawn focus ring.
+
+  Fifteen tests, which is fifteen more than either product had.
+
+- **`--token-colorTextDisabled`, `--token-colorTextPlaceholder` and
+  `--token-colorPrimaryBgHover`** in `styles/base.css`, which `Select` reads.
+  The first two are `#767676` rather than the usual `#bfbfbf`: text a reader is
+  expected to read is not exempt from 4.5:1, and `#bfbfbf` measures 2.2:1.
+
 - **`Skeleton` takes `decorative`.** Off by default, so a standalone skeleton is
   still its own live region, which is the one case where the primitive really is
   the whole affordance.
