@@ -7,6 +7,19 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`Tooltip` stays anchored to its trigger while the page scrolls.** Placement
+  was measured once when the tooltip opened. The content is `position: fixed`
+  in a portal, so nothing moved it afterwards: scrolling with the pointer still
+  on the trigger, or with focus still on it, left the tooltip sitting where the
+  trigger used to be, pointing at whatever had scrolled into that spot. A
+  window resize left it off the edge the same way.
+
+  It now re-measures on scroll and on resize while it is open. Scroll listening
+  is in the capture phase, since a scroll inside a container does not bubble and
+  a trigger inside a scrolling panel is the common case.
+
+### Fixed
+
 - **`Tooltip` now satisfies all three parts of the WCAG criterion it cites.**
   The docblock claimed WCAG 2.1 SC 1.4.13, which requires the content to be
   dismissible, hoverable and persistent. Two of the three were missing.

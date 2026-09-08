@@ -98,55 +98,75 @@ export function Tooltip({
     };
   }, []);
 
-  // Calculate tooltip position based on available space using fixed positioning
+  /**
+   * Place the tooltip beside the trigger, in whichever direction has room.
+   *
+   * Reads both boxes at call time rather than closing over them, because this
+   * runs again every time the trigger moves under the viewport.
+   */
+  const measure = useCallback(() => {
+    const wrapper = wrapperRef.current;
+    const tooltip = tooltipRef.current;
+    if (!isMountedRef.current || !wrapper || !tooltip) return;
+
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const spaceAbove = wrapperRect.top;
+    const spaceBelow = window.innerHeight - wrapperRect.bottom;
+
+    const tooltipHeight = tooltipRect.height;
+    const margin = 10;
+
+    // Determine placement
+    const placement: "top" | "bottom" =
+      spaceAbove < tooltipHeight + margin && spaceBelow > spaceAbove ? "bottom" : "top";
+
+    // Calculate left position (center on wrapper, but ensure it stays within viewport)
+    const wrapperCenter = wrapperRect.left + wrapperRect.width / 2;
+    const tooltipWidth = tooltipRect.width;
+    let left = wrapperCenter - tooltipWidth / 2;
+    const viewportWidth = window.innerWidth;
+
+    // Keep tooltip within viewport bounds
+    if (left + tooltipWidth > viewportWidth - 16) {
+      left = viewportWidth - tooltipWidth - 16;
+    }
+    if (left < 16) {
+      left = 16;
+    }
+
+    // Calculate top position
+    const top =
+      placement === "top"
+        ? wrapperRect.top - tooltipHeight - 8
+        : wrapperRect.bottom + 8;
+
+    setTooltipPosition({ top, left, placement });
+  }, []);
+
+  /**
+   * The content is `position: fixed` and lives in a portal, so nothing moves it
+   * when the trigger moves. Any scroll between the two, on the page or on a
+   * container in between, leaves it pointing at where the trigger used to be,
+   * and a resize can leave it off the edge. Scroll events from a container do
+   * not bubble, hence the capture phase.
+   *
+   * The first measurement waits for a frame so the content has been laid out
+   * and has a height to place against.
+   */
   useEffect(() => {
-    if (!isVisible || !wrapperRef.current) return;
-    if (!isMountedRef.current) return;
+    if (!isVisible) return;
 
-    const wrapperRect = wrapperRef.current.getBoundingClientRect();
+    const frame = requestAnimationFrame(measure);
+    window.addEventListener("scroll", measure, { capture: true, passive: true });
+    window.addEventListener("resize", measure);
 
-    // Use requestAnimationFrame to ensure DOM is updated
-    requestAnimationFrame(() => {
-      if (!isMountedRef.current || !tooltipRef.current) return;
-
-      const tooltipRect = tooltipRef.current.getBoundingClientRect();
-      const spaceAbove = wrapperRect.top;
-      const spaceBelow = window.innerHeight - wrapperRect.bottom;
-
-      const tooltipHeight = tooltipRect.height;
-      const margin = 10;
-
-      // Determine placement
-      const placement: "top" | "bottom" =
-        spaceAbove < tooltipHeight + margin && spaceBelow > spaceAbove
-          ? "bottom"
-          : "top";
-
-      // Calculate left position (center on wrapper, but ensure it stays within viewport)
-      const wrapperCenter = wrapperRect.left + wrapperRect.width / 2;
-      const tooltipWidth = tooltipRect.width;
-      let left = wrapperCenter - tooltipWidth / 2;
-      const viewportWidth = window.innerWidth;
-
-      // Keep tooltip within viewport bounds
-      if (left + tooltipWidth > viewportWidth - 16) {
-        left = viewportWidth - tooltipWidth - 16;
-      }
-      if (left < 16) {
-        left = 16;
-      }
-
-      // Calculate top position
-      let top: number;
-      if (placement === "top") {
-        top = wrapperRect.top - tooltipHeight - 8;
-      } else {
-        top = wrapperRect.bottom + 8;
-      }
-
-      setTooltipPosition({ top, left, placement });
-    });
-  }, [isVisible]);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", measure, { capture: true });
+      window.removeEventListener("resize", measure);
+    };
+  }, [isVisible, measure]);
 
   const handleShow = useCallback(() => {
     if (hideTimerRef.current !== null) {
