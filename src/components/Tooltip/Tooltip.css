@@ -32,7 +32,6 @@
   font-size: var(--token-fontSize, 0.875rem);
   line-height: 1.4;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  pointer-events: none;
 }
 
 .tooltip__content p,
