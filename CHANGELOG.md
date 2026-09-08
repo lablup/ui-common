@@ -23,8 +23,14 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   before it could be reached. Anything the tooltip holds that is longer than a
   glance, or that has to be selected, was unreachable.
 
+  The content also carried `pointer-events: none`, which made it unreachable
+  from CSS whatever the component did: never the target of a pointer event, so
+  arriving on it fired nothing and it could not be selected either. That is
+  gone, and a guard keeps it gone, since jsdom does not implement the property
+  and every behaviour test passes with it in place.
+
   The existing tests covered rendering, hover, focus and the ARIA wiring, none
-  of which exercised either gap.
+  of which exercised any of this.
 
 ## [0.1.0-alpha.14]
 
