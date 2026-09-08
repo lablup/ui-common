@@ -5,6 +5,18 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **A control inside a clickable `DataTable` row no longer also activates the
+  row.** A row with `onRowClick` that contains an Edit button had two actions
+  competing for one click, and both fired: the button edited and the row also
+  navigated away from the thing just edited. The same held for a nested link,
+  input, or anything else focusable, and on Enter as well as click.
+
+  The row is the fallback now, so anything more specific inside it wins. Every
+  consumer had this and none could fix it from outside, since the handlers are
+  the component's own.
+
 ## [0.1.0-alpha.13]
 
 ### Added
