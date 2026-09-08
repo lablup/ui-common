@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PageHeader } from "./PageHeader";
 
@@ -127,5 +127,65 @@ describe("PageHeader", () => {
       expect(header).toHaveClass("page-header");
       expect(header).toHaveClass("custom-header");
     });
+  });
+});
+
+describe("error detail and retry", () => {
+  it("renders the detail as a second line under the message", () => {
+    render(
+      <PageHeader
+        title="Fleet"
+        error="Could not load routers"
+        errorDetail="upstream timed out after 30s"
+      />,
+    );
+    expect(screen.getByText("Could not load routers")).toBeInTheDocument();
+    expect(screen.getByText("upstream timed out after 30s")).toBeInTheDocument();
+  });
+
+  it("renders no detail line when none is given", () => {
+    const { container } = render(<PageHeader title="Fleet" error="Boom" />);
+    expect(container.querySelector(".page-header__error-detail")).toBeNull();
+  });
+
+  it("calls onRetry from the retry button, with a default label", () => {
+    const onRetry = vi.fn();
+    render(<PageHeader title="Fleet" error="Boom" onRetry={onRetry} />);
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it("takes a translated retry label", () => {
+    render(
+      <PageHeader
+        title="Fleet"
+        error="Boom"
+        onRetry={() => undefined}
+        retryLabel="다시 시도"
+      />,
+    );
+    expect(screen.getByRole("button", { name: "다시 시도" })).toBeInTheDocument();
+  });
+
+  // Two props rather than one on purpose: dismissing must not fire a request.
+  it("keeps retry and dismiss separate", () => {
+    const onRetry = vi.fn();
+    const onErrorDismiss = vi.fn();
+    render(
+      <PageHeader
+        title="Fleet"
+        error="Boom"
+        onRetry={onRetry}
+        onErrorDismiss={onErrorDismiss}
+      />,
+    );
+    fireEvent.click(screen.getByLabelText("Dismiss error"));
+    expect(onErrorDismiss).toHaveBeenCalledTimes(1);
+    expect(onRetry).not.toHaveBeenCalled();
+  });
+
+  it("renders no action row when neither callback is given", () => {
+    const { container } = render(<PageHeader title="Fleet" error="Boom" />);
+    expect(container.querySelector(".page-header__error-actions")).toBeNull();
   });
 });

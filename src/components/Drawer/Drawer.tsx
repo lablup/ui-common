@@ -31,6 +31,17 @@ export interface DrawerProps {
   ariaDescribedBy?: string;
   /** Accessible label for the close button. Default: "Close" */
   closeLabel?: string;
+  /**
+   * Refuse dismissal by Escape or a backdrop click, shaking the panel instead.
+   * The close button and any footer control still call `onClose` directly, so
+   * route those through the same guard when they also need confirming.
+   */
+  preventDismiss?: boolean;
+  /**
+   * Called when `preventDismiss` blocked a dismissal, so the consumer can offer
+   * an explicit way out (a discard confirmation, for instance).
+   */
+  onDismissAttempt?: () => void;
 }
 
 const WIDTH_PRESETS = {
@@ -51,8 +62,35 @@ export function Drawer({
   ariaLabelledBy,
   ariaDescribedBy,
   closeLabel = "Close",
+  preventDismiss = false,
+  onDismissAttempt,
 }: DrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
+
+  const [isShaking, setIsShaking] = useState(false);
+
+  // Read the guard through refs so `blockDismiss` keeps a stable identity. The
+  // focus-management effect depends on it, and if the identity changed the
+  // moment the consumer marks the drawer dirty, that effect would re-run on the
+  // first keystroke and steal focus from the field being typed into.
+  const preventDismissRef = useRef(preventDismiss);
+  preventDismissRef.current = preventDismiss;
+  const onDismissAttemptRef = useRef(onDismissAttempt);
+  onDismissAttemptRef.current = onDismissAttempt;
+
+  /** Blocks a dismissal when the guard is on. Returns whether it blocked. */
+  const blockDismiss = useCallback(() => {
+    if (!preventDismissRef.current) return false;
+    setIsShaking(true);
+    onDismissAttemptRef.current?.();
+    return true;
+  }, []);
+
+  // Guarded on the animation name so an unrelated animation on the panel does
+  // not clear the flag early.
+  const handleAnimationEnd = useCallback((e: React.AnimationEvent) => {
+    if (e.animationName === "drawer-shake") setIsShaking(false);
+  }, []);
   const previousActiveElementRef = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -114,8 +152,9 @@ export function Drawer({
     const lastFocusable = focusableElements[focusableElements.length - 1];
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape to close
+      // Escape to close, unless the guard blocks it
       if (e.key === "Escape") {
+        if (blockDismiss()) return;
         onClose();
         return;
       }
@@ -147,16 +186,17 @@ export function Drawer({
         previousActiveElementRef.current.focus();
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, blockDismiss]);
 
   // Handle backdrop click
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) {
+        if (blockDismiss()) return;
         onClose();
       }
     },
-    [onClose],
+    [onClose, blockDismiss],
   );
 
   return (
@@ -168,12 +208,15 @@ export function Drawer({
     >
       <aside
         ref={drawerRef}
-        className={`drawer ${isVisuallyOpen ? "drawer--open" : ""} ${className}`}
+        className={`drawer ${isVisuallyOpen ? "drawer--open" : ""} ${
+          isShaking ? "drawer--shaking" : ""
+        } ${className}`}
         style={{ width: widthValue, maxWidth: "100vw" }}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={subtitleId}
+        onAnimationEnd={handleAnimationEnd}
       >
         {/* Header */}
         <header className="drawer__header">

@@ -8,6 +8,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { Drawer } from "./Drawer";
+import type { DrawerProps } from "./Drawer";
 
 const defaultProps = {
   isOpen: false,
@@ -302,5 +303,70 @@ describe("Drawer", () => {
 
       expect(onClose).toHaveBeenCalledTimes(1);
     });
+  });
+});
+
+describe("preventDismiss", () => {
+  function open(props: Partial<DrawerProps> = {}) {
+    const onClose = vi.fn();
+    const onDismissAttempt = vi.fn();
+    const view = render(
+      <Drawer
+        isOpen
+        onClose={onClose}
+        title="Edit router"
+        preventDismiss
+        onDismissAttempt={onDismissAttempt}
+        {...props}
+      >
+        <p>body</p>
+      </Drawer>,
+    );
+    return { ...view, onClose, onDismissAttempt };
+  }
+
+  it("refuses Escape and reports the attempt instead", () => {
+    const { container, onClose, onDismissAttempt } = open();
+    fireEvent.keyDown(container.querySelector(".drawer") as Element, {
+      key: "Escape",
+    });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onDismissAttempt).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a backdrop click and reports the attempt instead", () => {
+    const { container, onClose, onDismissAttempt } = open();
+    const backdrop = container.querySelector(".drawer__backdrop");
+    fireEvent.click(backdrop as Element);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onDismissAttempt).toHaveBeenCalledTimes(1);
+  });
+
+  it("shakes the panel", () => {
+    const { container } = open();
+    const panel = container.querySelector(".drawer") as Element;
+    fireEvent.keyDown(panel, { key: "Escape" });
+    expect(panel).toHaveClass("drawer--shaking");
+  });
+
+  // The class is cleared by `onAnimationEnd`, which jsdom cannot drive: it has
+  // no `AnimationEvent` constructor, and a synthesised `animationend` never
+  // reaches React's handler. Asserting it here would mean asserting a mock, so
+  // the reset is left to a real browser.
+
+  // The close button is documented as bypassing the guard, so a consumer can
+  // route it through its own confirmation rather than being unable to close.
+  it("leaves the close button calling onClose", () => {
+    const { onClose } = open();
+    fireEvent.click(screen.getByLabelText("Close"));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes normally when the guard is off", () => {
+    const { container, onClose } = open({ preventDismiss: false });
+    fireEvent.keyDown(container.querySelector(".drawer") as Element, {
+      key: "Escape",
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

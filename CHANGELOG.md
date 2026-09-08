@@ -5,6 +5,34 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`Drawer` takes a dismissal guard: `preventDismiss` and `onDismissAttempt`.**
+  A drawer holding an unsaved form has to refuse Escape and a backdrop click
+  without simply disabling them, or the user loses work with no signal. When
+  `preventDismiss` is set, both paths shake the panel and call
+  `onDismissAttempt` instead of `onClose`, so the consumer can offer an explicit
+  discard. The close button and any footer control still call `onClose`
+  directly, which lets a consumer route those through its own confirmation
+  rather than being unable to close at all.
+
+  The guard is read through refs so the callback keeps a stable identity. That
+  matters: the focus-management effect depends on it, and if the identity
+  changed the moment a form became dirty, the effect would re-run on the first
+  keystroke and steal focus from the field being typed into.
+
+  `.drawer--shaking` carries the animation and is suppressed under
+  `prefers-reduced-motion`.
+
+- **`PageHeader` takes `errorDetail`, `onRetry`, and `retryLabel`.** An error
+  banner that can only be dismissed makes a transient failure look permanent.
+  `onRetry` renders a Retry button before the dismiss control, and `errorDetail`
+  puts the raw server text on a muted second line so a long detail does not
+  crowd the message. Retry and dismiss stay two props on purpose: dismissing
+  must not fire a request.
+
+  Both were contributed by a consumer that had been carrying them locally.
+
 ## [0.1.0-alpha.10]
 
 ### Added

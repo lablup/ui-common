@@ -124,3 +124,26 @@
     justify-content: flex-end;
   }
 }
+
+/* The message and its optional detail stack; the actions sit beside them. */
+.page-header__error-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--token-paddingXXS, 0.125rem);
+}
+
+.page-header__error-detail {
+  font-size: var(--token-fontSizeSM, 0.75rem);
+  color: var(--token-colorTextTertiary, #737373);
+  word-break: break-word;
+}
+
+.page-header__error-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--token-paddingSM, 0.5rem);
+  flex-shrink: 0;
+  padding-left: var(--token-paddingXS, 0.25rem);
+}
