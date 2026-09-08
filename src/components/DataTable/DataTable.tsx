@@ -170,6 +170,19 @@ export interface DataTableProps<T> {
    * with a clickable affordance (cursor: pointer + keyboard binding).
    */
   onRowClick?: (row: T) => void;
+  /**
+   * Narrows `onRowClick` to the rows that can actually act on it, for a table
+   * that mixes actionable and informational rows. A row this returns `false`
+   * for gets no pointer affordance, no tab stop, and no keyboard binding, so it
+   * is not announced as a button it cannot be.
+   */
+  isRowClickable?: (row: T, index: number) => boolean;
+  /**
+   * Extra class for one row, for flagging a specific row without forking the
+   * table: a transient deep-link highlight, a stale entry, a row being removed.
+   * A falsy return adds nothing.
+   */
+  rowClassName?: (row: T, index: number) => string | undefined | false | null;
 
   // ---- Sorting props (added epic #2859 / issue #2861) -----------------------
 
@@ -355,6 +368,8 @@ function DataTableInner<T>({
   ariaLabel = "Data table",
   testId,
   onRowClick,
+  isRowClickable,
+  rowClassName,
   // Sorting (controlled)
   sortColumnId: controlledSortColumnId,
   sortDirection: controlledSortDirection,
@@ -541,31 +556,40 @@ function DataTableInner<T>({
     }
     return sortedRows.map((row, index) => {
       const key = getRowKey(row, index);
+      // A row is interactive only if the table has a handler AND this row is
+      // not excluded, so the affordance, the tab stop and the role move
+      // together. Splitting them would announce a button that does nothing.
+      const clickable = Boolean(onRowClick && (isRowClickable?.(row, index) ?? true));
+      const extraClass = rowClassName?.(row, index);
       return (
         <tr
           key={key}
-          className={["data-table__row", onRowClick && "data-table__row--clickable"]
+          className={[
+            "data-table__row",
+            clickable && "data-table__row--clickable",
+            extraClass,
+          ]
             .filter(Boolean)
             .join(" ")}
           onClick={
-            onRowClick
+            clickable
               ? () => {
-                  onRowClick(row);
+                  onRowClick?.(row);
                 }
               : undefined
           }
           onKeyDown={
-            onRowClick
+            clickable
               ? (e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    onRowClick(row);
+                    onRowClick?.(row);
                   }
                 }
               : undefined
           }
-          tabIndex={onRowClick ? 0 : undefined}
-          role={onRowClick ? "button" : undefined}
+          tabIndex={clickable ? 0 : undefined}
+          role={clickable ? "button" : undefined}
         >
           {visibleColumns.map((col) => (
             <td

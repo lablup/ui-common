@@ -535,3 +535,90 @@ describe("DataTable", () => {
     expect(nameHeader.getAttribute("aria-sort")).toBe("ascending");
   });
 });
+
+describe("isRowClickable and rowClassName", () => {
+  const rows = [
+    { id: "a", name: "Alpha" },
+    { id: "b", name: "Beta" },
+  ];
+  const columns = [
+    { id: "name", header: "Name", render: (r: (typeof rows)[number]) => r.name },
+  ];
+
+  it("gives an excluded row no affordance, no tab stop, and no role", () => {
+    const onRowClick = vi.fn();
+    const { container } = render(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        getRowKey={(r) => r.id}
+        onRowClick={onRowClick}
+        isRowClickable={(r) => r.id === "a"}
+      />,
+    );
+    const [first, second] = [
+      ...container.querySelectorAll(".data-table__row:not(.data-table__row--head)"),
+    ];
+
+    expect(first).toHaveClass("data-table__row--clickable");
+    expect(first).toHaveAttribute("tabindex", "0");
+    expect(first).toHaveAttribute("role", "button");
+
+    expect(second).not.toHaveClass("data-table__row--clickable");
+    expect(second).not.toHaveAttribute("tabindex");
+    expect(second).not.toHaveAttribute("role");
+  });
+
+  it("does not invoke onRowClick for an excluded row", () => {
+    const onRowClick = vi.fn();
+    const { container } = render(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        getRowKey={(r) => r.id}
+        onRowClick={onRowClick}
+        isRowClickable={(r) => r.id === "a"}
+      />,
+    );
+    const [first, second] = [
+      ...container.querySelectorAll(".data-table__row:not(.data-table__row--head)"),
+    ];
+    fireEvent.click(second as Element);
+    expect(onRowClick).not.toHaveBeenCalled();
+    fireEvent.click(first as Element);
+    expect(onRowClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("treats every row as clickable when the predicate is absent", () => {
+    const { container } = render(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        getRowKey={(r) => r.id}
+        onRowClick={vi.fn()}
+      />,
+    );
+    const body = container.querySelectorAll(
+      ".data-table__row:not(.data-table__row--head)",
+    );
+    expect(
+      [...body].every((r) => r.classList.contains("data-table__row--clickable")),
+    ).toBe(true);
+  });
+
+  it("adds a per-row class, and adds nothing for a falsy return", () => {
+    const { container } = render(
+      <DataTable
+        rows={rows}
+        columns={columns}
+        getRowKey={(r) => r.id}
+        rowClassName={(r) => (r.id === "a" ? "row--flagged" : undefined)}
+      />,
+    );
+    const [first, second] = [
+      ...container.querySelectorAll(".data-table__row:not(.data-table__row--head)"),
+    ];
+    expect(first).toHaveClass("row--flagged");
+    expect(second?.className).toBe("data-table__row");
+  });
+});
