@@ -28,6 +28,16 @@ export interface SkeletonProps {
   testId?: string;
   /** Accessible label announced while the skeleton is visible. Default: "Loading" */
   loadingLabel?: string;
+  /**
+   * Render as decoration: `aria-hidden`, with no role, no `aria-busy` and no
+   * label.
+   *
+   * For a shape inside a composite that announces the wait itself. `role="status"`
+   * is an implicit polite live region, so a composite that fills its own region
+   * with named primitives mounts one live region per shape and announces the
+   * same wait once per shape.
+   */
+  decorative?: boolean;
 }
 
 /**
@@ -46,18 +56,29 @@ export function Skeleton({
   className = "",
   testId,
   loadingLabel = "Loading",
+  decorative = false,
 }: SkeletonProps) {
   const classNames = ["skeleton", `skeleton--${variant}`, className]
     .filter(Boolean)
     .join(" ");
 
+  // A decorative shape is one of several inside a composite that already
+  // announces the wait. It keeps its size and its shimmer and leaves the
+  // accessibility tree, so a card built from seven of these is one live region
+  // rather than seven.
+  const announcement = decorative
+    ? ({ "aria-hidden": true } as const)
+    : ({
+        role: "status",
+        "aria-busy": true,
+        "aria-label": loadingLabel,
+      } as const);
+
   return (
     <div
       className={classNames}
       style={{ width, height }}
-      role="status"
-      aria-busy="true"
-      aria-label={loadingLabel}
+      {...announcement}
       data-testid={testId}
     >
       <span className="skeleton__shimmer" />

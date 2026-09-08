@@ -60,12 +60,12 @@ export function SkeletonChart({
     >
       {variant === "pie" ? (
         <div className="skeleton-chart__pie">
-          <Skeleton width="100%" height="100%" variant="circle" />
+          <Skeleton decorative width="100%" height="100%" variant="circle" />
           <div className="skeleton-chart__legend">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="skeleton-chart__legend-item">
-                <Skeleton width="16px" height="16px" variant="circle" />
-                <Skeleton width="80px" height="14px" />
+                <Skeleton decorative width="16px" height="16px" variant="circle" />
+                <Skeleton decorative width="80px" height="14px" />
               </div>
             ))}
           </div>
@@ -74,6 +74,7 @@ export function SkeletonChart({
         <div className="skeleton-chart__bars">
           {[60, 80, 45, 90, 70, 55, 85, 65].map((barHeight, i) => (
             <Skeleton
+              decorative
               key={i}
               width="100%"
               height={`${String(barHeight)}%`}
@@ -83,7 +84,7 @@ export function SkeletonChart({
         </div>
       ) : (
         <div className="skeleton-chart__line">
-          <Skeleton width="100%" height="100%" />
+          <Skeleton decorative width="100%" height="100%" />
         </div>
       )}
     </div>
