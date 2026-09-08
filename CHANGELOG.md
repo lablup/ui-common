@@ -5,6 +5,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.19]
+
 ### Fixed
 
 - **A skeleton placeholder is one live region, not one per shape.** `role="status"`
@@ -545,7 +547,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.18...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.19...HEAD
+[0.1.0-alpha.19]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.18...v0.1.0-alpha.19
 [0.1.0-alpha.18]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.17...v0.1.0-alpha.18
 [0.1.0-alpha.17]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.16...v0.1.0-alpha.17
 [0.1.0-alpha.16]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.15...v0.1.0-alpha.16
