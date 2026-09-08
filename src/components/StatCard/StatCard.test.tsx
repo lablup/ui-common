@@ -238,4 +238,44 @@ describe("StatCard", () => {
       expect(screen.getByLabelText("Calls: 4,200")).toBeInTheDocument();
     });
   });
+  /**
+   * A stat label is not always plain text. The case this exists for is a
+   * glossary term: the label carries its own definition on hover and focus,
+   * which is a node, while the card's accessible name has to stay a string.
+   */
+  describe("labelNode", () => {
+    it("renders the node in place of the label text", () => {
+      render(
+        <StatCard
+          label="TTFT p50"
+          labelNode={<abbr title="Time to first token">TTFT p50</abbr>}
+          value={128}
+        />,
+      );
+
+      const label = document.querySelector(".stat-card__label");
+      expect(label?.querySelector("abbr")).toHaveAttribute(
+        "title",
+        "Time to first token",
+      );
+    });
+
+    it("still takes the accessible name from the label string", () => {
+      render(
+        <StatCard
+          label="TTFT p50"
+          labelNode={<span>ignored for naming</span>}
+          value={128}
+        />,
+      );
+
+      expect(screen.getByLabelText("TTFT p50: 128")).toBeInTheDocument();
+    });
+
+    it("falls back to the label text when no node is given", () => {
+      render(<StatCard label="TTFT p50" value={128} />);
+
+      expect(screen.getByText("TTFT p50")).toHaveClass("stat-card__label");
+    });
+  });
 });

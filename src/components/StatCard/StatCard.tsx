@@ -3,7 +3,8 @@
  *
  * Compact metric card for dashboards. Renders a label, a large numeric
  * value (with optional unit/suffix), and optional icon, hint, trend, or
- * accent tone. Wraps `BaseCard` so it inherits hover/focus/click affordances
+ * accent tone. The label can be a node (`labelNode`) while the accessible name
+ * stays the plain `label` string. Wraps `BaseCard` so it inherits hover/focus/click affordances
  * and design tokens consistently with the rest of the common library.
  *
  * Designed for cross-page reuse: Squad dashboard, Statistics page, Cowork
@@ -34,6 +35,15 @@ export interface StatCardTrend {
 export interface StatCardProps {
   /** Short label rendered above the value (UPPERCASE styled) */
   label: string;
+  /**
+   * Rendered in place of `label` when the label is not plain text: a glossary
+   * term carrying its definition, a unit badge, an info affordance.
+   *
+   * `label` stays required and stays the accessible name, so the name is a
+   * string the consumer wrote rather than whatever text happens to fall out of
+   * a node. Pass the same words in both.
+   */
+  labelNode?: ReactNode;
   /** Primary metric value (number is coerced to localised string) */
   value: string | number;
   /** Optional suffix appended to the value (e.g. "/ 4", "GB") */
@@ -140,6 +150,7 @@ function formatValue(
 
 function StatCardComponent({
   label,
+  labelNode,
   value,
   valueSuffix,
   hint,
@@ -191,7 +202,7 @@ function StatCardComponent({
       testId={testId}
     >
       <div className="stat-card__header">
-        <span className="stat-card__label">{label}</span>
+        <span className="stat-card__label">{labelNode ?? label}</span>
         {icon && (
           <span className="stat-card__icon" aria-hidden="true">
             {icon}

@@ -5,6 +5,18 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`StatCard` takes `labelNode`.** A stat label is not always plain text. It
+  may be a glossary term carrying its own definition, a unit badge, an info
+  affordance. `label` is typed `string` and is also what composes the card's
+  accessible name, so a consumer that needed a node there had no way in, and
+  one of them kept a 339-line copy of this component to change one element.
+
+  `labelNode` renders in place of the label text. `label` stays required and
+  stays the accessible name, because a name derived from a node is whatever
+  text happens to fall out of it rather than something the consumer wrote.
+
 ## [0.1.0-alpha.16]
 
 ### Added
