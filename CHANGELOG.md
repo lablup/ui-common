@@ -5,6 +5,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.15]
+
 ### Fixed
 
 - **`Tooltip` stays anchored to its trigger while the page scrolls.** Placement
@@ -17,8 +19,6 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   It now re-measures on scroll and on resize while it is open. Scroll listening
   is in the capture phase, since a scroll inside a container does not bubble and
   a trigger inside a scrolling panel is the common case.
-
-### Fixed
 
 - **`Tooltip` now satisfies all three parts of the WCAG criterion it cites.**
   The docblock claimed WCAG 2.1 SC 1.4.13, which requires the content to be
@@ -447,7 +447,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.14...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.15...HEAD
+[0.1.0-alpha.15]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.14...v0.1.0-alpha.15
 [0.1.0-alpha.14]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.13...v0.1.0-alpha.14
 [0.1.0-alpha.13]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.12...v0.1.0-alpha.13
 [0.1.0-alpha.12]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.11...v0.1.0-alpha.12
