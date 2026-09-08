@@ -5,6 +5,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.12]
+
 ### Fixed
 
 - **A closed `Drawer` is now `inert`, not merely `aria-hidden`.** The backdrop
@@ -373,7 +375,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.11...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.12...HEAD
+[0.1.0-alpha.12]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.11...v0.1.0-alpha.12
 [0.1.0-alpha.11]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.10...v0.1.0-alpha.11
 [0.1.0-alpha.10]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.9...v0.1.0-alpha.10
 [0.1.0-alpha.9]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.8...v0.1.0-alpha.9
