@@ -35,6 +35,7 @@
  */
 
 import type { ReactNode } from "react";
+import { Button } from "../Button";
 import "./PageHeader.css";
 
 export interface PageHeaderProps {
@@ -46,6 +47,19 @@ export interface PageHeaderProps {
   actions?: ReactNode;
   /** Error message to display below the header */
   error?: string | null;
+  /**
+   * Secondary line under the message, for the raw detail a server returned.
+   * Kept separate so the message stays readable when the detail is long.
+   */
+  errorDetail?: string | null;
+  /**
+   * Callback for the Retry button, rendered before the dismiss control when
+   * set. Dismissal is a pure dismissal and must not retry, which is why these
+   * are two props rather than one.
+   */
+  onRetry?: () => void;
+  /** Label for the Retry button. Default: "Retry" */
+  retryLabel?: string;
   /** Callback when error is dismissed */
   onErrorDismiss?: () => void;
   /** Additional CSS class names */
@@ -61,6 +75,9 @@ export function PageHeader({
   error,
   onErrorDismiss,
   className = "",
+  errorDetail,
+  onRetry,
+  retryLabel = "Retry",
   dismissErrorLabel = "Dismiss error",
 }: PageHeaderProps) {
   const classes = ["page-header", className].filter(Boolean).join(" ");
@@ -76,16 +93,35 @@ export function PageHeader({
       </div>
       {error && (
         <div className="page-header__error" role="alert">
-          <span className="page-header__error-text">{error}</span>
-          {onErrorDismiss && (
-            <button
-              type="button"
-              className="page-header__error-dismiss"
-              onClick={onErrorDismiss}
-              aria-label={dismissErrorLabel}
-            >
-              ×
-            </button>
+          <div className="page-header__error-body">
+            <span className="page-header__error-text">{error}</span>
+            {errorDetail && (
+              <span className="page-header__error-detail">{errorDetail}</span>
+            )}
+          </div>
+          {(onRetry || onErrorDismiss) && (
+            <div className="page-header__error-actions">
+              {onRetry && (
+                <Button
+                  variant="secondary"
+                  size="small"
+                  className="page-header__error-retry"
+                  onClick={onRetry}
+                >
+                  {retryLabel}
+                </Button>
+              )}
+              {onErrorDismiss && (
+                <button
+                  type="button"
+                  className="page-header__error-dismiss"
+                  onClick={onErrorDismiss}
+                  aria-label={dismissErrorLabel}
+                >
+                  ×
+                </button>
+              )}
+            </div>
           )}
         </div>
       )}
