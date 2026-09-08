@@ -5,6 +5,19 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **The tooltip is placed in the same commit that opens it.** Placement was
+  measured a frame after mount, and until it landed the content sat in the DOM
+  with `visibility: hidden`: painted nowhere, absent from the accessibility
+  tree, and unfindable by any query that respects that tree. A consumer's test
+  that focused a trigger and looked for the tooltip was racing a frame, and lost
+  under load.
+
+  It measures in a layout effect now, so the position is set before the browser
+  paints and the content is never in the tree unplaced. The scroll and resize
+  re-measurement moved with it.
+
 ## [0.1.0-alpha.17]
 
 ### Added
