@@ -67,11 +67,16 @@
   font-size: var(--token-fontSize, 0.875rem);
   color: var(--token-colorText, #141414);
   vertical-align: middle;
+  text-align: start;
   /*
    * Allow long text (model paths, agent ids) to wrap so a single long
    * cell does not blow the table out horizontally.
    */
   word-break: break-word;
+}
+
+.data-table__cell--align-left {
+  text-align: left;
 }
 
 .data-table__cell--align-right {

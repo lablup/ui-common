@@ -5,7 +5,7 @@
  * Consolidates common patterns from all drawer implementations.
  */
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useCallback, useId, useState } from "react";
 import "./Drawer.css";
 
 export interface DrawerProps {
@@ -66,6 +66,7 @@ export function Drawer({
   onDismissAttempt,
 }: DrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
+  const generatedId = useId();
 
   const [isShaking, setIsShaking] = useState(false);
 
@@ -77,6 +78,12 @@ export function Drawer({
   preventDismissRef.current = preventDismiss;
   const onDismissAttemptRef = useRef(onDismissAttempt);
   onDismissAttemptRef.current = onDismissAttempt;
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  const requestClose = useCallback(() => {
+    onCloseRef.current();
+  }, []);
 
   /** Blocks a dismissal when the guard is on. Returns whether it blocked. */
   const blockDismiss = useCallback(() => {
@@ -125,12 +132,15 @@ export function Drawer({
     width in WIDTH_PRESETS ? WIDTH_PRESETS[width as keyof typeof WIDTH_PRESETS] : width;
 
   // Internal IDs for ARIA
-  const titleId = ariaLabelledBy || "drawer-title";
-  const subtitleId = ariaDescribedBy || (subtitle ? "drawer-subtitle" : undefined);
+  const titleId = ariaLabelledBy ?? `${generatedId}-title`;
+  const subtitleId =
+    ariaDescribedBy ?? (subtitle ? `${generatedId}-subtitle` : undefined);
 
   // Focus management and trap
   useEffect(() => {
-    if (!isOpen) return;
+    // Wait until the open classes have committed so focus never enters a
+    // backdrop that is still hidden and non-interactive.
+    if (!isVisuallyOpen) return;
 
     // Store previously focused element
     previousActiveElementRef.current = document.activeElement as HTMLElement;
@@ -139,9 +149,7 @@ export function Drawer({
     if (!drawer) return;
 
     // Focus close button when drawer opens
-    requestAnimationFrame(() => {
-      closeButtonRef.current?.focus();
-    });
+    closeButtonRef.current?.focus();
 
     // Setup focus trap
     const focusableElements = drawer.querySelectorAll<HTMLElement>(
@@ -155,7 +163,7 @@ export function Drawer({
       // Escape to close, unless the guard blocks it
       if (e.key === "Escape") {
         if (blockDismiss()) return;
-        onClose();
+        requestClose();
         return;
       }
 
@@ -186,17 +194,17 @@ export function Drawer({
         previousActiveElementRef.current.focus();
       }
     };
-  }, [isOpen, onClose, blockDismiss]);
+  }, [isVisuallyOpen, requestClose, blockDismiss]);
 
   // Handle backdrop click
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) {
         if (blockDismiss()) return;
-        onClose();
+        requestClose();
       }
     },
-    [onClose, blockDismiss],
+    [requestClose, blockDismiss],
   );
 
   return (
@@ -232,7 +240,7 @@ export function Drawer({
               ref={closeButtonRef}
               type="button"
               className="drawer__close-btn"
-              onClick={onClose}
+              onClick={requestClose}
               aria-label={closeLabel}
             >
               <svg

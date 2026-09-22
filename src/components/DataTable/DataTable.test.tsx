@@ -142,11 +142,64 @@ describe("DataTable", () => {
         columns={COLUMNS}
         rows={ROWS}
         getRowKey={(r) => r.id}
-        columnState={{ widths: { name: 333 }, visibility: {} }}
+        columnState={{ widths: { name: 60 }, visibility: {} }}
       />,
     );
     const headers = container.querySelectorAll("th");
-    expect(headers[0]?.getAttribute("style")).toContain("width: 333px");
+    const cells = container.querySelectorAll("tbody td");
+    expect(headers[0]).toHaveStyle({ width: "100px", minWidth: "100px" });
+    expect(cells[0]).toHaveStyle({ minWidth: "100px" });
+  });
+
+  it("clamps initial widths while leaving unconstrained columns fluid", () => {
+    const columns: DataTableColumn<Row>[] = [
+      {
+        id: "name",
+        header: "Name",
+        initialWidth: 40,
+        minWidth: 100,
+        render: (row) => row.name,
+      },
+      { id: "id", header: "ID", render: (row) => row.id },
+    ];
+    const { container } = render(
+      <DataTable columns={columns} rows={ROWS} getRowKey={(row) => row.id} />,
+    );
+    const headers = container.querySelectorAll("th");
+    const cells = container.querySelectorAll("tbody tr:first-child td");
+
+    expect(headers[0]).toHaveStyle({ width: "100px", minWidth: "100px" });
+    expect(cells[0]).toHaveStyle({ minWidth: "100px" });
+    expect((headers[1] as HTMLElement).style.width).toBe("");
+    expect((headers[1] as HTMLElement).style.minWidth).toBe("");
+    expect((cells[1] as HTMLElement).style.minWidth).toBe("");
+  });
+
+  it("keeps default logical alignment and explicit physical alignment", () => {
+    const columns: DataTableColumn<Row>[] = [
+      { id: "default", header: "Default", render: (row) => row.name },
+      { id: "left", header: "Left", align: "left", render: (row) => row.name },
+      { id: "right", header: "Right", align: "right", render: (row) => row.name },
+      { id: "center", header: "Center", align: "center", render: (row) => row.name },
+    ];
+    const { container } = render(
+      <DataTable
+        columns={columns}
+        rows={ROWS.slice(0, 1)}
+        getRowKey={(row) => row.id}
+      />,
+    );
+    const headers = [...container.querySelectorAll("th")];
+    const cells = [...container.querySelectorAll("tbody td")];
+
+    expect(getComputedStyle(headers[0]!).textAlign).toBe("start");
+    expect(getComputedStyle(cells[0]!).textAlign).toBe("start");
+    expect(getComputedStyle(headers[1]!).textAlign).toBe("left");
+    expect(getComputedStyle(cells[1]!).textAlign).toBe("left");
+    expect(getComputedStyle(headers[2]!).textAlign).toBe("right");
+    expect(getComputedStyle(cells[2]!).textAlign).toBe("right");
+    expect(getComputedStyle(headers[3]!).textAlign).toBe("center");
+    expect(getComputedStyle(cells[3]!).textAlign).toBe("center");
   });
 
   it("hides columns whose visibility flag is false unless alwaysVisible", () => {
@@ -534,6 +587,32 @@ describe("DataTable", () => {
 
     // Sort should still be active
     expect(nameHeader.getAttribute("aria-sort")).toBe("ascending");
+  });
+
+  it("does not resize a column below its explicit minimum", () => {
+    const onColumnStateChange = vi.fn();
+    const { container } = render(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        getRowKey={(row) => row.id}
+        onColumnStateChange={onColumnStateChange}
+      />,
+    );
+    const nameHeader = container.querySelector("th") as HTMLElement;
+    const resizeHandle = nameHeader.querySelector(
+      ".data-table__resize-handle",
+    ) as HTMLElement;
+
+    fireEvent.mouseDown(resizeHandle, { clientX: 200 });
+    fireEvent.mouseMove(window, { clientX: 0 });
+    fireEvent.mouseUp(window);
+
+    expect(nameHeader).toHaveStyle({ width: "100px", minWidth: "100px" });
+    expect(onColumnStateChange).toHaveBeenLastCalledWith({
+      widths: { name: 100 },
+      visibility: {},
+    });
   });
 });
 

@@ -5,6 +5,7 @@
  * and interaction behavior of the shared Drawer component.
  */
 
+import { useState } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -17,6 +18,16 @@ const defaultProps = {
   title: "Test Drawer",
   children: <div>Drawer Content</div>,
 };
+
+async function flushDrawerOpenAnimation(): Promise<void> {
+  await act(async () => {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => resolve());
+      });
+    });
+  });
+}
 
 describe("Drawer", () => {
   beforeEach(() => {
@@ -250,6 +261,50 @@ describe("Drawer", () => {
       const titleEl = container.querySelector(`#${labelId}`);
       expect(titleEl).toHaveTextContent("Test Drawer");
     });
+
+    it("gives mounted drawers distinct accessible names and descriptions", async () => {
+      render(
+        <>
+          <Drawer {...defaultProps} title="First drawer" subtitle="First description" />
+          <Drawer
+            {...defaultProps}
+            isOpen
+            title="Second drawer"
+            subtitle="Second description"
+          />
+        </>,
+      );
+      await flushDrawerOpenAnimation();
+
+      const dialogs = document.querySelectorAll("[role='dialog']");
+      expect(dialogs[0]?.getAttribute("aria-labelledby")).not.toBe(
+        dialogs[1]?.getAttribute("aria-labelledby"),
+      );
+      expect(dialogs[0]?.getAttribute("aria-describedby")).not.toBe(
+        dialogs[1]?.getAttribute("aria-describedby"),
+      );
+      const openDialog = screen.getByRole("dialog", { name: "Second drawer" });
+      expect(openDialog).toHaveAccessibleDescription("Second description");
+    });
+
+    it("preserves supplied IDs and omits a default description without a subtitle", async () => {
+      const { rerender } = render(
+        <Drawer
+          {...defaultProps}
+          isOpen
+          subtitle="Details"
+          ariaLabelledBy="custom-title"
+          ariaDescribedBy="custom-description"
+        />,
+      );
+      await flushDrawerOpenAnimation();
+      const dialog = screen.getByRole("dialog");
+      expect(dialog).toHaveAttribute("aria-labelledby", "custom-title");
+      expect(dialog).toHaveAttribute("aria-describedby", "custom-description");
+
+      rerender(<Drawer {...defaultProps} isOpen />);
+      expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-describedby");
+    });
   });
 
   describe("Close behavior", () => {
@@ -293,11 +348,13 @@ describe("Drawer", () => {
       expect(onClose).not.toHaveBeenCalled();
     });
 
-    it("calls onClose when Escape key is pressed", () => {
+    it("calls onClose when Escape key is pressed", async () => {
       const onClose = vi.fn();
       const { container } = render(
         <Drawer {...defaultProps} isOpen={true} onClose={onClose} />,
       );
+
+      await flushDrawerOpenAnimation();
 
       const aside = container.querySelector("aside")!;
       fireEvent.keyDown(aside, { key: "Escape" });
@@ -326,8 +383,9 @@ describe("preventDismiss", () => {
     return { ...view, onClose, onDismissAttempt };
   }
 
-  it("refuses Escape and reports the attempt instead", () => {
+  it("refuses Escape and reports the attempt instead", async () => {
     const { container, onClose, onDismissAttempt } = open();
+    await flushDrawerOpenAnimation();
     fireEvent.keyDown(container.querySelector(".drawer") as Element, {
       key: "Escape",
     });
@@ -343,8 +401,9 @@ describe("preventDismiss", () => {
     expect(onDismissAttempt).toHaveBeenCalledTimes(1);
   });
 
-  it("shakes the panel", () => {
+  it("shakes the panel", async () => {
     const { container } = open();
+    await flushDrawerOpenAnimation();
     const panel = container.querySelector(".drawer") as Element;
     fireEvent.keyDown(panel, { key: "Escape" });
     expect(panel).toHaveClass("drawer--shaking");
@@ -363,12 +422,103 @@ describe("preventDismiss", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("closes normally when the guard is off", () => {
+  it("closes normally when the guard is off", async () => {
     const { container, onClose } = open({ preventDismiss: false });
+    await flushDrawerOpenAnimation();
     fireEvent.keyDown(container.querySelector(".drawer") as Element, {
       key: "Escape",
     });
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("focus management", () => {
+  it("focuses after the drawer becomes visibly open and restores the trigger", async () => {
+    const visibleWhenFocused: boolean[] = [];
+    const originalFocus = HTMLElement.prototype.focus;
+    const focusSpy = vi
+      .spyOn(HTMLElement.prototype, "focus")
+      .mockImplementation(function (this: HTMLElement, options?: FocusOptions) {
+        if (this.classList.contains("drawer__close-btn")) {
+          visibleWhenFocused.push(Boolean(this.closest(".drawer__backdrop--open")));
+        }
+        originalFocus.call(this, options);
+      });
+
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Open drawer
+          </button>
+          <Drawer isOpen={open} onClose={() => setOpen(false)} title="Detail">
+            <input aria-label="Detail field" />
+          </Drawer>
+        </>
+      );
+    }
+
+    try {
+      render(<Harness />);
+      const trigger = screen.getByRole("button", { name: "Open drawer" });
+      trigger.focus();
+      fireEvent.click(trigger);
+      await flushDrawerOpenAnimation();
+
+      expect(visibleWhenFocused).toEqual([true]);
+      expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
+      fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+      expect(trigger).toHaveFocus();
+    } finally {
+      focusSpy.mockRestore();
+    }
+  });
+
+  it("keeps focus in place when onClose changes and invokes its latest value", async () => {
+    const previousClose = vi.fn();
+    const latestClose = vi.fn();
+    const { rerender } = render(
+      <Drawer isOpen onClose={previousClose} title="Detail">
+        <input aria-label="Detail field" />
+      </Drawer>,
+    );
+    await flushDrawerOpenAnimation();
+    const field = screen.getByRole("textbox", { name: "Detail field" });
+    field.focus();
+
+    rerender(
+      <Drawer isOpen onClose={latestClose} title="Detail">
+        <input aria-label="Detail field" />
+      </Drawer>,
+    );
+
+    expect(field).toHaveFocus();
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    expect(previousClose).not.toHaveBeenCalled();
+    expect(latestClose).toHaveBeenCalledOnce();
+  });
+
+  it("wraps Tab and Shift+Tab across the initial focusable controls", async () => {
+    render(
+      <Drawer
+        isOpen
+        onClose={vi.fn()}
+        title="Detail"
+        footer={<button type="button">Save</button>}
+      >
+        <input aria-label="Detail field" />
+      </Drawer>,
+    );
+    await flushDrawerOpenAnimation();
+    const closeButton = screen.getByRole("button", { name: "Close" });
+    const saveButton = screen.getByRole("button", { name: "Save" });
+
+    expect(closeButton).toHaveFocus();
+    fireEvent.keyDown(closeButton, { key: "Tab", shiftKey: true });
+    expect(saveButton).toHaveFocus();
+    fireEvent.keyDown(saveButton, { key: "Tab" });
+    expect(closeButton).toHaveFocus();
   });
 });
 
