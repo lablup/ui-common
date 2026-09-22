@@ -5,6 +5,23 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.20]
+
+### Fixed
+
+- **Applied an explicit `minWidth` consistently in `DataTable` (#43).** Initial and
+  restored widths are clamped before rendering, resize keeps the same floor,
+  and header and body cells both carry it. Columns without a minimum retain
+  their existing fluid sizing. Header and body cells also share logical start
+  alignment by default while explicit left, right, and center values remain
+  physical.
+
+- **Moved `Drawer` focus after its visible open state commits (#43).** Changing
+  an inline close callback no longer tears down focus management, while Escape
+  still invokes the latest callback and focus returns to the opening control.
+  Default title and description IDs are unique per mounted drawer; caller IDs
+  and drawers without subtitles retain their existing contracts.
+
 ## [0.1.0-alpha.19]
 
 ### Fixed

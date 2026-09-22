@@ -61,7 +61,7 @@ export interface DataTableColumn<T> {
    * functions are encouraged so memoization stays effective.
    */
   render: (row: T, index: number) => ReactNode;
-  /** Optional minimum column width in pixels. Defaults to 80. */
+  /** Optional minimum column width in pixels. */
   minWidth?: number;
   /** Optional initial width in pixels (only honored on the first paint). */
   initialWidth?: number;
@@ -500,10 +500,11 @@ function DataTableInner<T>({
   const resolveWidth = useCallback(
     (col: DataTableColumn<T>): number | undefined => {
       const persistedWidth = persisted.widths[col.id];
-      if (typeof persistedWidth === "number" && persistedWidth > 0) {
-        return persistedWidth;
-      }
-      return col.initialWidth;
+      const width =
+        typeof persistedWidth === "number" && persistedWidth > 0
+          ? persistedWidth
+          : col.initialWidth;
+      return width === undefined ? undefined : Math.max(width, col.minWidth ?? 0);
     },
     [persisted.widths],
   );
@@ -641,6 +642,7 @@ function DataTableInner<T>({
               ]
                 .filter(Boolean)
                 .join(" ")}
+              style={{ minWidth: col.minWidth }}
             >
               {col.render(row, index)}
             </td>
@@ -673,7 +675,10 @@ function DataTableInner<T>({
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  style={width ? { width: `${String(width)}px` } : undefined}
+                  style={{
+                    width: width === undefined ? undefined : `${String(width)}px`,
+                    minWidth: col.minWidth,
+                  }}
                   aria-sort={ariaSortValue(
                     col as DataTableColumn<unknown>,
                     activeSortColumnId,
