@@ -98,6 +98,14 @@
   white-space: nowrap;
 }
 
+/* `animate="digits"`: the characters rise into place from below the line
+   (DigitPopIn), so the value clips only sideways here. A vertical clip would
+   cut them off as they come up. */
+.stat-card__value--digits {
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
 .stat-card__value-suffix {
   font-size: var(--token-fontSize, 0.875rem);
   font-weight: 400;

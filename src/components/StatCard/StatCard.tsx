@@ -14,6 +14,7 @@
 import { memo, useEffect, useRef, useState, type ReactNode, type JSX } from "react";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { BaseCard } from "../BaseCard";
+import { DigitPopIn } from "../DigitPopIn";
 import { Skeleton } from "../Skeleton";
 import "./StatCard.css";
 
@@ -22,6 +23,13 @@ export type StatCardEmphasis = "compact" | "default" | "prominent";
 export type StatCardTone = "default" | "success" | "warning" | "danger" | "info";
 
 export type StatCardTrendDirection = "up" | "down" | "flat";
+
+/**
+ * How a numeric value arrives. `count` counts up from the previous value;
+ * `digits` pops each character of the formatted value in, staggered, and
+ * replays when the value changes.
+ */
+export type StatCardAnimation = "count" | "digits";
 
 export interface StatCardTrend {
   /** Direction indicator (up / down / flat) */
@@ -72,11 +80,14 @@ export interface StatCardProps {
    */
   format?: (value: number) => string;
   /**
-   * Count up to a numeric value on mount and on change. Off by default so
+   * Animate a numeric value on mount and on change. `true` or `"count"`
+   * counts up to it; `"digits"` pops each character of the formatted value
+   * in, staggered, rising into place from a light blur. Off by default so
    * existing consumers render the final value immediately; opt in for
-   * dashboard hero metrics. Suppressed under `prefers-reduced-motion`.
+   * dashboard metrics. Suppressed under `prefers-reduced-motion`, and ignored
+   * for string values and while loading.
    */
-  animate?: boolean;
+  animate?: boolean | StatCardAnimation;
   /**
    * Optional trailing visual on the value line (e.g. a sparkline). Kept as a
    * slot so the card does not depend on any particular chart component.
@@ -169,13 +180,25 @@ function StatCardComponent({
 }: StatCardProps): JSX.Element {
   const prefersReducedMotion = usePrefersReducedMotion();
   const isNumeric = typeof value === "number";
-  const shouldAnimate = animate && isNumeric && !loading && !prefersReducedMotion;
-  const animatedValue = useAnimatedValue(isNumeric ? value : 0, shouldAnimate);
+  const animation: StatCardAnimation | null =
+    animate === true ? "count" : animate === false ? null : animate;
+  const canAnimate = isNumeric && !loading && !prefersReducedMotion;
+  const shouldCount = animation === "count" && canAnimate;
+  const shouldPopDigits = animation === "digits" && canAnimate;
+  const animatedValue = useAnimatedValue(isNumeric ? value : 0, shouldCount);
 
   const displayValue = formatValue(
-    isNumeric && shouldAnimate ? animatedValue : value,
+    isNumeric && shouldCount ? animatedValue : value,
     format,
   );
+  const valueContent = shouldPopDigits ? (
+    <DigitPopIn text={displayValue} />
+  ) : (
+    displayValue
+  );
+  const valueClass = shouldPopDigits
+    ? "stat-card__value stat-card__value--digits"
+    : "stat-card__value";
 
   // The aria-label always describes the settled value, never an in-flight
   // animation frame, so assistive tech is not read a counting-up number.
@@ -218,7 +241,7 @@ function StatCardComponent({
           // the exact DOM they had before the slot existed.
           <span className="stat-card__value-line">
             <span className="stat-card__value-row">
-              <span className="stat-card__value">{displayValue}</span>
+              <span className={valueClass}>{valueContent}</span>
               {valueSuffix && (
                 <span className="stat-card__value-suffix">{valueSuffix}</span>
               )}
@@ -227,7 +250,7 @@ function StatCardComponent({
           </span>
         ) : (
           <span className="stat-card__value-row">
-            <span className="stat-card__value">{displayValue}</span>
+            <span className={valueClass}>{valueContent}</span>
             {valueSuffix && (
               <span className="stat-card__value-suffix">{valueSuffix}</span>
             )}

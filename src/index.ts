@@ -17,6 +17,7 @@ export * from "./components/BaseCard";
 export * from "./components/Badge";
 export * from "./components/Button";
 export * from "./components/DataTable";
+export * from "./components/DigitPopIn";
 export * from "./components/Drawer";
 export * from "./components/EmptyState";
 export * from "./components/ErrorState";

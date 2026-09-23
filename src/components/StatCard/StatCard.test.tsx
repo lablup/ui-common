@@ -238,6 +238,43 @@ describe("StatCard", () => {
       expect(screen.getByLabelText("Calls: 4,200")).toBeInTheDocument();
     });
   });
+  describe('animate="digits"', () => {
+    function digits(container: HTMLElement): string[] {
+      return Array.from(container.querySelectorAll(".digit-pop-in__digit")).map(
+        (digit) => digit.textContent ?? "",
+      );
+    }
+
+    it("pops the formatted value in, one element per character", () => {
+      const { container } = render(
+        <StatCard
+          label="Rate"
+          value={98.5}
+          format={(v) => `${v.toFixed(1)}%`}
+          animate="digits"
+        />,
+      );
+      expect(digits(container)).toEqual(["9", "8", ".", "5", "%"]);
+      expect(container.querySelector(".stat-card__value")).toHaveClass(
+        "stat-card__value--digits",
+      );
+      expect(screen.getByLabelText("Rate: 98.5%")).toBeInTheDocument();
+    });
+
+    it("renders plain text for a string value", () => {
+      const { container } = render(
+        <StatCard label="State" value="Idle" animate="digits" />,
+      );
+      expect(container.querySelector(".digit-pop-in")).toBeNull();
+      expect(screen.getByText("Idle")).toBeInTheDocument();
+    });
+
+    it("keeps `animate` as the count-up it always was", () => {
+      const { container } = render(<StatCard label="Calls" value={4200} animate />);
+      expect(container.querySelector(".digit-pop-in")).toBeNull();
+    });
+  });
+
   /**
    * A stat label is not always plain text. The case this exists for is a
    * glossary term: the label carries its own definition on hover and focus,

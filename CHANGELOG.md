@@ -5,6 +5,31 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.23]
+
+### Added
+
+- **`DigitPopIn`, text that arrives one character at a time.** Each character
+  of a formatted number rises into place from a light blur after the one
+  before it, and a new `text` plays it again. The characters are hidden from
+  assistive tech and a plain copy of the text is read instead, so a screen
+  reader hears "1,234" rather than five glyphs. Under `prefers-reduced-motion`
+  it renders the plain text. Duration, distance, stagger, blur and easing are
+  custom properties on the root, so one use can retune the motion without a
+  new prop.
+
+  It is exported rather than kept inside `StatCard` because the numbers that
+  want it are not all in cards: the Statistics page in `backend.ai-go` shows
+  latency percentiles and cowork metrics beside its stat cards, and is the
+  consumer taking it up in both places.
+
+- **`StatCard` takes `animate="digits"`.** `animate` now also accepts
+  `"count"` and `"digits"`; `true` still means the count-up it always did, so
+  no existing call changes. `"digits"` renders the formatted value through
+  `DigitPopIn`, and the value then clips only sideways, since a vertical clip
+  would cut the characters off as they rise. String values and the loading
+  state render as before.
+
 ## [0.1.0-alpha.22]
 
 ### Fixed
