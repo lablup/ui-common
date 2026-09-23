@@ -5,6 +5,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.22]
+
+### Fixed
+
+- **Preserved declared and resized `DataTable` column widths in the rendered
+  layout (#48).** Tables now use their content width while retaining a 100%
+  minimum, so short tables still fill their container and wide tables keep
+  overflow inside the existing local scroll region.
+
 ## [0.1.0-alpha.21]
 
 ### Added
