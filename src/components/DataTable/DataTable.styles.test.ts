@@ -67,6 +67,14 @@ function contrast(a: Rgba, b: Rgba): number {
 }
 
 describe("DataTable resize grip styles", () => {
+  it("keeps declared column widths when the table overflows its local scroll container", () => {
+    expect(COMPONENT_CSS).toMatch(
+      /\.data-table__table\s*{[\s\S]*width:\s*max-content;/,
+    );
+    expect(COMPONENT_CSS).toMatch(/\.data-table__table\s*{[\s\S]*min-width:\s*100%;/);
+    expect(COMPONENT_CSS).toMatch(/\.data-table\s*{[\s\S]*overflow-x:\s*auto;/);
+  });
+
   it("reserves a token-sized 24px-or-larger target outside header content", () => {
     expect(COMPONENT_CSS).toMatch(
       /\.data-table__cell--resizable\s*{[\s\S]*padding-inline-end/,
