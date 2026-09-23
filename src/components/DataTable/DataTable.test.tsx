@@ -207,6 +207,36 @@ describe("DataTable", () => {
     expect((cells[1] as HTMLElement).style.minWidth).toBe("");
   });
 
+  it("preserves wide noResize widths unless a maximum is explicitly declared", () => {
+    const columns: DataTableColumn<Row>[] = [
+      {
+        id: "legacy",
+        header: "Legacy",
+        initialWidth: 1600,
+        noResize: true,
+        render: (row) => row.name,
+      },
+      {
+        id: "bounded",
+        header: "Bounded",
+        initialWidth: 1600,
+        maxWidth: 900,
+        noResize: true,
+        render: (row) => row.id,
+      },
+    ];
+    const { container } = render(
+      <DataTable columns={columns} rows={ROWS} getRowKey={(row) => row.id} />,
+    );
+    const headers = container.querySelectorAll("th");
+
+    expect(headers[0]).toHaveStyle({ width: "1600px" });
+    expect(headers[0]).not.toHaveStyle({ maxWidth: "1200px" });
+    expect(headers[1]).toHaveStyle({ width: "900px", maxWidth: "900px" });
+    expect(headers[0]?.querySelector("[role='separator']")).toBeNull();
+    expect(headers[1]?.querySelector("[role='separator']")).toBeNull();
+  });
+
   it("keeps default logical alignment and explicit physical alignment", () => {
     const columns: DataTableColumn<Row>[] = [
       { id: "default", header: "Default", render: (row) => row.name },

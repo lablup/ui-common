@@ -68,8 +68,10 @@ export interface DataTableColumn<T> {
   minWidth?: number;
   /**
    * Optional maximum column width in pixels. Values above this limit are
-   * clamped for pointer and keyboard resizing. Defaults to 1200 pixels so
-   * every resizable column exposes and enforces a finite ARIA maximum.
+   * clamped for pointer and keyboard resizing. Resizable columns default to
+   * 1200 pixels so every separator exposes a finite ARIA maximum. A
+   * `noResize` column keeps its existing unbounded width unless it explicitly
+   * supplies this property.
    */
   maxWidth?: number;
   /** Optional initial width in pixels (only honored on the first paint). */
@@ -552,7 +554,11 @@ function DataTableInner<T>({
         typeof persistedWidth === "number" && persistedWidth > 0
           ? persistedWidth
           : col.initialWidth;
-      return width === undefined ? undefined : clampColumnWidth(col, width);
+      if (width === undefined) return undefined;
+      if (col.noResize && col.maxWidth === undefined) {
+        return Math.max(width, col.minWidth ?? 0);
+      }
+      return clampColumnWidth(col, width);
     },
     [persisted.widths],
   );
