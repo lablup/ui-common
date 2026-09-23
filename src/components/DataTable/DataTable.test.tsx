@@ -566,30 +566,99 @@ describe("DataTable", () => {
 
   // ---- Sorting: resizing compatibility ----------------------------------
 
-  it("resizing a sortable column does not affect sort state", () => {
+  it("keeps resize pointer, click, and keyboard events isolated from sorting", () => {
     const { container } = render(
       <DataTable columns={SORTABLE_COLUMNS} rows={ROWS} getRowKey={(r) => r.id} />,
     );
-    // Activate sort on name
     const nameHeader = Array.from(container.querySelectorAll("th")).find((h) =>
       h.textContent?.includes("Name"),
     )!;
-    fireEvent.click(nameHeader);
-    expect(nameHeader.getAttribute("aria-sort")).toBe("ascending");
-
-    // Simulate a resize drag on the same column's resize handle
     const resizeHandle = nameHeader.querySelector(
       ".data-table__resize-handle",
     ) as HTMLElement;
-    fireEvent.mouseDown(resizeHandle, { clientX: 200 });
-    fireEvent.mouseMove(window, { clientX: 250 });
-    fireEvent.mouseUp(window);
 
-    // Sort should still be active
-    expect(nameHeader.getAttribute("aria-sort")).toBe("ascending");
+    fireEvent.click(resizeHandle);
+    fireEvent.keyDown(resizeHandle, { key: "ArrowRight" });
+    fireEvent.pointerDown(resizeHandle, { pointerId: 1, clientX: 200 });
+    fireEvent.pointerUp(resizeHandle, { pointerId: 1, clientX: 200 });
+
+    expect(nameHeader.getAttribute("aria-sort")).toBe("none");
   });
 
-  it("does not resize a column below its explicit minimum", () => {
+  it("starts pointer resizing from the rendered header width", () => {
+    const onColumnStateChange = vi.fn();
+    const { container } = render(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        getRowKey={(row) => row.id}
+        onColumnStateChange={onColumnStateChange}
+      />,
+    );
+    const nameHeader = container.querySelector("th") as HTMLElement;
+    const resizeHandle = nameHeader.querySelector(
+      ".data-table__resize-handle",
+    ) as HTMLElement;
+    Object.defineProperty(nameHeader, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ width: 240 }),
+    });
+
+    fireEvent.pointerDown(resizeHandle, { pointerId: 4, clientX: 200 });
+    fireEvent.pointerMove(resizeHandle, { pointerId: 4, clientX: 210 });
+    fireEvent.pointerUp(resizeHandle, { pointerId: 4, clientX: 210 });
+
+    expect(nameHeader).toHaveStyle({ width: "250px", minWidth: "100px" });
+    expect(onColumnStateChange).toHaveBeenLastCalledWith({
+      widths: { name: 250 },
+      visibility: {},
+    });
+  });
+
+  it("exposes a labelled vertical separator and updates its value from the keyboard", () => {
+    const onColumnStateChange = vi.fn();
+    render(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        getRowKey={(row) => row.id}
+        onColumnStateChange={onColumnStateChange}
+      />,
+    );
+    const resizeHandle = screen.getByRole("separator", {
+      name: "Resize name column",
+    });
+
+    expect(resizeHandle).toHaveAttribute("aria-orientation", "vertical");
+    expect(resizeHandle).toHaveAttribute("aria-valuemin", "100");
+    expect(resizeHandle).toHaveAttribute("aria-valuenow", "200");
+    expect(resizeHandle).toHaveAttribute("aria-valuetext", "200 pixels");
+
+    fireEvent.keyDown(resizeHandle, { key: "ArrowRight" });
+    expect(resizeHandle).toHaveAttribute("aria-valuenow", "216");
+    fireEvent.keyDown(resizeHandle, { key: "ArrowLeft" });
+    fireEvent.keyDown(resizeHandle, { key: "Home" });
+
+    expect(resizeHandle).toHaveAttribute("aria-valuenow", "100");
+    expect(onColumnStateChange).toHaveBeenLastCalledWith({
+      widths: { name: 100 },
+      visibility: {},
+    });
+  });
+
+  it("uses a consumer-provided resize handle label", () => {
+    render(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        getRowKey={(row) => row.id}
+        resizeHandleLabel={(column) => `Adjust ${column.id}`}
+      />,
+    );
+    expect(screen.getByRole("separator", { name: "Adjust name" })).toBeInTheDocument();
+  });
+
+  it("does not resize a column below its explicit minimum with pointer input", () => {
     const onColumnStateChange = vi.fn();
     const { container } = render(
       <DataTable
@@ -604,15 +673,67 @@ describe("DataTable", () => {
       ".data-table__resize-handle",
     ) as HTMLElement;
 
-    fireEvent.mouseDown(resizeHandle, { clientX: 200 });
-    fireEvent.mouseMove(window, { clientX: 0 });
-    fireEvent.mouseUp(window);
+    fireEvent.pointerDown(resizeHandle, { pointerId: 3, clientX: 200 });
+    fireEvent.pointerMove(resizeHandle, { pointerId: 3, clientX: 0 });
+    fireEvent.pointerUp(resizeHandle, { pointerId: 3, clientX: 0 });
 
     expect(nameHeader).toHaveStyle({ width: "100px", minWidth: "100px" });
     expect(onColumnStateChange).toHaveBeenLastCalledWith({
       widths: { name: 100 },
       visibility: {},
     });
+  });
+
+  it("captures the active pointer and releases it on cancellation", () => {
+    const { container } = render(
+      <DataTable columns={COLUMNS} rows={ROWS} getRowKey={(row) => row.id} />,
+    );
+    const resizeHandle = container.querySelector(
+      ".data-table__resize-handle",
+    ) as HTMLDivElement;
+    const setPointerCapture = vi.fn();
+    const releasePointerCapture = vi.fn();
+    Object.assign(resizeHandle, {
+      setPointerCapture,
+      hasPointerCapture: vi.fn(() => true),
+      releasePointerCapture,
+    });
+
+    fireEvent.pointerDown(resizeHandle, { pointerId: 8, clientX: 200 });
+    fireEvent.pointerCancel(resizeHandle, { pointerId: 8, clientX: 200 });
+
+    expect(setPointerCapture).toHaveBeenCalledWith(8);
+    expect(releasePointerCapture).toHaveBeenCalledWith(8);
+  });
+
+  it("stops resizing after lost pointer capture and releases a capture on unmount", () => {
+    const onColumnStateChange = vi.fn();
+    const { container, unmount } = render(
+      <DataTable
+        columns={COLUMNS}
+        rows={ROWS}
+        getRowKey={(row) => row.id}
+        onColumnStateChange={onColumnStateChange}
+      />,
+    );
+    const resizeHandle = container.querySelector(
+      ".data-table__resize-handle",
+    ) as HTMLDivElement;
+    const releasePointerCapture = vi.fn();
+    Object.assign(resizeHandle, {
+      setPointerCapture: vi.fn(),
+      hasPointerCapture: vi.fn(() => true),
+      releasePointerCapture,
+    });
+
+    fireEvent.pointerDown(resizeHandle, { pointerId: 9, clientX: 200 });
+    fireEvent.lostPointerCapture(resizeHandle, { pointerId: 9 });
+    fireEvent.pointerMove(resizeHandle, { pointerId: 9, clientX: 250 });
+    expect(onColumnStateChange).not.toHaveBeenCalled();
+
+    fireEvent.pointerDown(resizeHandle, { pointerId: 10, clientX: 200 });
+    unmount();
+    expect(releasePointerCapture).toHaveBeenCalledWith(10);
   });
 });
 

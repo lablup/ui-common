@@ -40,6 +40,8 @@ import {
   useMemo,
   useRef,
   useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import "./DataTable.css";
@@ -202,6 +204,12 @@ export interface DataTableProps<T> {
   className?: string;
   /** ARIA label for the table. Defaults to "Data table". */
   ariaLabel?: string;
+  /**
+   * Produces the accessible name for a resizable column's separator. The
+   * default is `Resize <column id> column`; pass a product's translated label
+   * when column ids are not suitable for people to hear.
+   */
+  resizeHandleLabel?: (column: DataTableColumn<T>) => string;
   /** Test ID for testing harnesses. */
   testId?: string;
   /**
@@ -254,6 +262,9 @@ export interface DataTableProps<T> {
 }
 
 const EMPTY_COLUMN_STATE: DataTablePersistedState = { widths: {}, visibility: {} };
+
+/** Keyboard increment, in CSS pixels, for a column resize separator. */
+const KEYBOARD_RESIZE_STEP = 16;
 
 // ============================================================================
 // Sorting helpers
@@ -405,6 +416,7 @@ function DataTableInner<T>({
   onColumnStateChange,
   className = "",
   ariaLabel = "Data table",
+  resizeHandleLabel = (column) => `Resize ${column.id} column`,
   testId,
   onRowClick,
   isRowClickable,
@@ -515,43 +527,103 @@ function DataTableInner<T>({
     startX: number;
     startWidth: number;
     minWidth: number;
+    pointerId: number;
+    handle: HTMLDivElement;
   } | null>(null);
 
+  const updateColumnWidth = useCallback((columnId: string, width: number) => {
+    setPersisted((prev) => ({
+      ...prev,
+      widths: { ...prev.widths, [columnId]: width },
+    }));
+  }, []);
+
+  const clearResize = useCallback(() => {
+    const resize = resizeRef.current;
+    if (!resize) return;
+    if (resize.handle.hasPointerCapture?.(resize.pointerId)) {
+      resize.handle.releasePointerCapture?.(resize.pointerId);
+    }
+    resizeRef.current = null;
+  }, []);
+
+  useEffect(() => clearResize, [clearResize]);
+
+  const measuredWidth = useCallback(
+    (handle: HTMLDivElement, col: DataTableColumn<T>): number => {
+      const renderedWidth = handle.parentElement?.getBoundingClientRect().width ?? 0;
+      const fallbackWidth = resolveWidth(col) ?? col.minWidth ?? 80;
+      return Math.max(col.minWidth ?? 80, Math.round(renderedWidth) || fallbackWidth);
+    },
+    [resolveWidth],
+  );
+
   const beginResize = useCallback(
-    (
-      ev: React.MouseEvent<HTMLDivElement>,
-      col: DataTableColumn<T>,
-      currentWidth: number,
-    ) => {
+    (ev: ReactPointerEvent<HTMLDivElement>, col: DataTableColumn<T>) => {
       if (col.noResize) return;
       ev.preventDefault();
       ev.stopPropagation();
+      const handle = ev.currentTarget;
       resizeRef.current = {
         columnId: col.id,
         startX: ev.clientX,
-        startWidth: currentWidth,
+        startWidth: measuredWidth(handle, col),
         minWidth: col.minWidth ?? 80,
+        pointerId: ev.pointerId,
+        handle,
       };
-
-      const onMove = (e: MouseEvent) => {
-        const ref = resizeRef.current;
-        if (!ref) return;
-        const delta = e.clientX - ref.startX;
-        const next = Math.max(ref.minWidth, ref.startWidth + delta);
-        setPersisted((prev) => ({
-          ...prev,
-          widths: { ...prev.widths, [ref.columnId]: next },
-        }));
-      };
-      const onUp = () => {
-        resizeRef.current = null;
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mouseup", onUp);
-      };
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mouseup", onUp);
+      handle.setPointerCapture?.(ev.pointerId);
     },
-    [],
+    [measuredWidth],
+  );
+
+  const moveResize = useCallback(
+    (ev: ReactPointerEvent<HTMLDivElement>) => {
+      const resize = resizeRef.current;
+      if (!resize || resize.pointerId !== ev.pointerId) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      const nextWidth = Math.max(
+        resize.minWidth,
+        resize.startWidth + ev.clientX - resize.startX,
+      );
+      updateColumnWidth(resize.columnId, nextWidth);
+    },
+    [updateColumnWidth],
+  );
+
+  const endResize = useCallback(
+    (ev: ReactPointerEvent<HTMLDivElement>) => {
+      if (resizeRef.current?.pointerId !== ev.pointerId) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      clearResize();
+    },
+    [clearResize],
+  );
+
+  const handleResizeKeyDown = useCallback(
+    (ev: ReactKeyboardEvent<HTMLDivElement>, col: DataTableColumn<T>) => {
+      if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight" && ev.key !== "Home") {
+        return;
+      }
+      ev.preventDefault();
+      ev.stopPropagation();
+      const minimum = col.minWidth ?? 80;
+      const current = measuredWidth(ev.currentTarget, col);
+      const nextWidth =
+        ev.key === "Home"
+          ? minimum
+          : Math.max(
+              minimum,
+              current +
+                (ev.key === "ArrowRight"
+                  ? KEYBOARD_RESIZE_STEP
+                  : -KEYBOARD_RESIZE_STEP),
+            );
+      updateColumnWidth(col.id, nextWidth);
+    },
+    [measuredWidth, updateColumnWidth],
   );
 
   // Report changes so the caller can persist them. Skipped while `persisted`
@@ -717,10 +789,19 @@ function DataTableInner<T>({
                     <div
                       role="separator"
                       aria-orientation="vertical"
+                      aria-label={resizeHandleLabel(col)}
+                      aria-valuemin={col.minWidth ?? 80}
+                      aria-valuenow={width ?? col.minWidth ?? 80}
+                      aria-valuetext={`${String(width ?? col.minWidth ?? 80)} pixels`}
+                      tabIndex={0}
                       className="data-table__resize-handle"
-                      onMouseDown={(e) => {
-                        beginResize(e, col, width ?? col.minWidth ?? 120);
-                      }}
+                      onClick={(event) => event.stopPropagation()}
+                      onPointerDown={(event) => beginResize(event, col)}
+                      onPointerMove={moveResize}
+                      onPointerUp={endResize}
+                      onPointerCancel={endResize}
+                      onLostPointerCapture={clearResize}
+                      onKeyDown={(event) => handleResizeKeyDown(event, col)}
                     />
                   )}
                 </th>

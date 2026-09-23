@@ -171,15 +171,40 @@
   right: 0;
   top: 0;
   bottom: 0;
-  width: 6px;
+  width: 12px;
   cursor: col-resize;
-  background-color: transparent;
-  transition: background-color var(--token-motionDurationFast, 0.12s) ease;
+  touch-action: none;
+  outline: none;
 }
 
-.data-table__resize-handle:hover {
+.data-table__resize-handle::before {
+  position: absolute;
+  top: var(--token-paddingXS, 0.25rem);
+  right: calc(50% - 1px);
+  bottom: var(--token-paddingXS, 0.25rem);
+  width: 2px;
+  content: "";
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+  background-color: var(
+    --token-colorBorderSecondary,
+    var(--token-colorBorder, #d9d9d9)
+  );
+  opacity: 0.8;
+  transition:
+    background-color var(--token-motionDurationFast, 0.12s) ease,
+    opacity var(--token-motionDurationFast, 0.12s) ease;
+}
+
+.data-table__resize-handle:hover::before,
+.data-table__resize-handle:focus-visible::before {
   background-color: var(--token-colorPrimaryBorder, var(--token-colorPrimary, #8b5cf6));
-  opacity: 0.5;
+  opacity: 1;
+}
+
+.data-table__resize-handle:focus-visible {
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor);
+  outline-offset: -2px;
 }
 
 .data-table__row--state {
@@ -218,5 +243,9 @@
 @media (prefers-reduced-motion: reduce) {
   .data-table__loading {
     animation: none;
+  }
+
+  .data-table__resize-handle::before {
+    transition: none;
   }
 }
