@@ -113,6 +113,14 @@
   overflow-wrap: normal;
 }
 
+.data-table__cell--resizable {
+  /* Reserve the whole touch target so the grip cannot sit over a label or a
+   * sortable header's icon. */
+  padding-inline-end: calc(
+    var(--token-paddingMD, 1rem) + var(--token-controlHeightSM, 2rem)
+  );
+}
+
 .data-table__head-label {
   display: inline-block;
   vertical-align: middle;
@@ -171,15 +179,40 @@
   right: 0;
   top: 0;
   bottom: 0;
-  width: 6px;
+  width: var(--token-controlHeightSM, 2rem);
   cursor: col-resize;
-  background-color: transparent;
-  transition: background-color var(--token-motionDurationFast, 0.12s) ease;
+  touch-action: none;
+  outline: none;
 }
 
-.data-table__resize-handle:hover {
-  background-color: var(--token-colorPrimaryBorder, var(--token-colorPrimary, #8b5cf6));
-  opacity: 0.5;
+.data-table__resize-handle::before {
+  position: absolute;
+  top: var(--token-paddingXS, 0.25rem);
+  right: calc(50% - 1px);
+  bottom: var(--token-paddingXS, 0.25rem);
+  width: 2px;
+  content: "";
+  border-radius: var(--token-borderRadiusSM, 0.25rem);
+  /* Text tertiary clears 3:1 against the shipped light and dark header
+   * surfaces. Border tokens are deliberately too quiet for a discoverable
+   * separator. */
+  background-color: var(--token-colorTextTertiary, #737373);
+  opacity: 1;
+  transition:
+    background-color var(--token-motionDurationFast, 0.12s) ease,
+    opacity var(--token-motionDurationFast, 0.12s) ease;
+}
+
+.data-table__resize-handle:hover::before,
+.data-table__resize-handle:focus-visible::before {
+  background-color: var(--token-focusRingColor);
+  opacity: 1;
+}
+
+.data-table__resize-handle:focus-visible {
+  outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
+    var(--token-focusRingColor);
+  outline-offset: -2px;
 }
 
 .data-table__row--state {
@@ -218,5 +251,9 @@
 @media (prefers-reduced-motion: reduce) {
   .data-table__loading {
     animation: none;
+  }
+
+  .data-table__resize-handle::before {
+    transition: none;
   }
 }

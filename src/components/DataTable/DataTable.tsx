@@ -37,9 +37,12 @@ import {
   memo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import "./DataTable.css";
@@ -63,6 +66,14 @@ export interface DataTableColumn<T> {
   render: (row: T, index: number) => ReactNode;
   /** Optional minimum column width in pixels. */
   minWidth?: number;
+  /**
+   * Optional maximum column width in pixels. Values above this limit are
+   * clamped for pointer and keyboard resizing. Resizable columns default to
+   * 1200 pixels so every separator exposes a finite ARIA maximum. A
+   * `noResize` column keeps its existing unbounded width unless it explicitly
+   * supplies this property.
+   */
+  maxWidth?: number;
   /** Optional initial width in pixels (only honored on the first paint). */
   initialWidth?: number;
   /** When `true`, the column cannot be resized. Defaults to `false`. */
@@ -202,6 +213,18 @@ export interface DataTableProps<T> {
   className?: string;
   /** ARIA label for the table. Defaults to "Data table". */
   ariaLabel?: string;
+  /**
+   * Produces the accessible name for a resizable column's separator. The
+   * default is `Resize <column id> column`; pass a product's translated label
+   * when column ids are not suitable for people to hear.
+   */
+  resizeHandleLabel?: (column: DataTableColumn<T>) => string;
+  /**
+   * Produces the human-readable current width announced by a resize
+   * separator. The default is `<width> pixels`; pass a translated formatter
+   * when the host localizes measurements.
+   */
+  resizeValueText?: (width: number, column: DataTableColumn<T>) => string;
   /** Test ID for testing harnesses. */
   testId?: string;
   /**
@@ -254,6 +277,31 @@ export interface DataTableProps<T> {
 }
 
 const EMPTY_COLUMN_STATE: DataTablePersistedState = { widths: {}, visibility: {} };
+
+/** Keyboard increment, in CSS pixels, for a column resize separator. */
+const KEYBOARD_RESIZE_STEP = 16;
+
+/** Product-neutral finite ceiling for a column without an explicit maximum. */
+const DEFAULT_MAX_COLUMN_WIDTH = 1200;
+
+interface ColumnWidthBounds {
+  min: number;
+  max: number;
+}
+
+function columnWidthBounds<T>(column: DataTableColumn<T>): ColumnWidthBounds {
+  const min = Math.max(0, column.minWidth ?? 80);
+  const requestedMax = column.maxWidth ?? DEFAULT_MAX_COLUMN_WIDTH;
+  const max = Number.isFinite(requestedMax)
+    ? Math.max(min, requestedMax)
+    : DEFAULT_MAX_COLUMN_WIDTH;
+  return { min, max: Math.max(min, max) };
+}
+
+function clampColumnWidth<T>(column: DataTableColumn<T>, width: number): number {
+  const { min, max } = columnWidthBounds(column);
+  return Math.min(max, Math.max(min, Math.round(width)));
+}
 
 // ============================================================================
 // Sorting helpers
@@ -405,6 +453,8 @@ function DataTableInner<T>({
   onColumnStateChange,
   className = "",
   ariaLabel = "Data table",
+  resizeHandleLabel = (column) => `Resize ${column.id} column`,
+  resizeValueText = (width) => `${String(width)} pixels`,
   testId,
   onRowClick,
   isRowClickable,
@@ -504,54 +554,183 @@ function DataTableInner<T>({
         typeof persistedWidth === "number" && persistedWidth > 0
           ? persistedWidth
           : col.initialWidth;
-      return width === undefined ? undefined : Math.max(width, col.minWidth ?? 0);
+      if (width === undefined) return undefined;
+      if (col.noResize && col.maxWidth === undefined) {
+        return Math.max(width, col.minWidth ?? 0);
+      }
+      return clampColumnWidth(col, width);
     },
     [persisted.widths],
   );
 
   // ---- Resize handling -----------------------------------------------------
+  const headerRefs = useRef(new Map<string, HTMLTableCellElement>());
+  const [renderedWidths, setRenderedWidths] = useState<Record<string, number>>({});
+
+  const updateRenderedWidth = useCallback(
+    (column: DataTableColumn<T>, width: number) => {
+      const nextWidth = clampColumnWidth(column, width);
+      setRenderedWidths((previous) =>
+        previous[column.id] === nextWidth
+          ? previous
+          : { ...previous, [column.id]: nextWidth },
+      );
+    },
+    [],
+  );
+
+  const setHeaderRef = useCallback(
+    (columnId: string, element: HTMLTableCellElement | null) => {
+      if (element) headerRefs.current.set(columnId, element);
+      else headerRefs.current.delete(columnId);
+    },
+    [],
+  );
+
+  useLayoutEffect(() => {
+    const updateFromElement = (column: DataTableColumn<T>, element: Element) => {
+      const nextWidth = element.getBoundingClientRect().width;
+      if (nextWidth > 0) updateRenderedWidth(column, nextWidth);
+    };
+
+    for (const column of visibleColumns) {
+      const header = headerRefs.current.get(column.id);
+      if (header) updateFromElement(column, header);
+    }
+
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const columnId = (entry.target as HTMLElement).dataset.columnId;
+        const column = visibleColumns.find((candidate) => candidate.id === columnId);
+        if (column) updateFromElement(column, entry.target);
+      }
+    });
+    for (const column of visibleColumns) {
+      const header = headerRefs.current.get(column.id);
+      if (header) observer.observe(header);
+    }
+    return () => observer.disconnect();
+  }, [updateRenderedWidth, visibleColumns]);
+
   const resizeRef = useRef<{
     columnId: string;
     startX: number;
     startWidth: number;
     minWidth: number;
+    maxWidth: number;
+    pointerId: number;
+    handle: HTMLDivElement;
   } | null>(null);
 
+  const updateColumnWidth = useCallback(
+    (column: DataTableColumn<T>, width: number) => {
+      const nextWidth = clampColumnWidth(column, width);
+      setPersisted((previous) => ({
+        ...previous,
+        widths: { ...previous.widths, [column.id]: nextWidth },
+      }));
+      updateRenderedWidth(column, nextWidth);
+    },
+    [updateRenderedWidth],
+  );
+
+  const clearResize = useCallback((pointerId?: number) => {
+    const resize = resizeRef.current;
+    if (!resize || (pointerId !== undefined && resize.pointerId !== pointerId)) return;
+    // Clear the state before releasing capture: releasePointerCapture can
+    // synchronously dispatch lostpointercapture in some browsers.
+    resizeRef.current = null;
+    if (resize.handle.hasPointerCapture?.(resize.pointerId)) {
+      resize.handle.releasePointerCapture?.(resize.pointerId);
+    }
+  }, []);
+
+  useEffect(() => clearResize, [clearResize]);
+
+  const measuredWidth = useCallback(
+    (handle: HTMLDivElement, col: DataTableColumn<T>): number => {
+      const renderedWidth = handle.parentElement?.getBoundingClientRect().width ?? 0;
+      const fallbackWidth =
+        renderedWidths[col.id] ?? resolveWidth(col) ?? columnWidthBounds(col).min;
+      return clampColumnWidth(col, Math.round(renderedWidth) || fallbackWidth);
+    },
+    [renderedWidths, resolveWidth],
+  );
+
   const beginResize = useCallback(
-    (
-      ev: React.MouseEvent<HTMLDivElement>,
-      col: DataTableColumn<T>,
-      currentWidth: number,
-    ) => {
-      if (col.noResize) return;
+    (ev: ReactPointerEvent<HTMLDivElement>, col: DataTableColumn<T>) => {
+      if (col.noResize || !ev.isPrimary || ev.button !== 0 || resizeRef.current) {
+        return;
+      }
       ev.preventDefault();
       ev.stopPropagation();
+      const handle = ev.currentTarget;
       resizeRef.current = {
         columnId: col.id,
         startX: ev.clientX,
-        startWidth: currentWidth,
-        minWidth: col.minWidth ?? 80,
+        startWidth: measuredWidth(handle, col),
+        minWidth: columnWidthBounds(col).min,
+        maxWidth: columnWidthBounds(col).max,
+        pointerId: ev.pointerId,
+        handle,
       };
-
-      const onMove = (e: MouseEvent) => {
-        const ref = resizeRef.current;
-        if (!ref) return;
-        const delta = e.clientX - ref.startX;
-        const next = Math.max(ref.minWidth, ref.startWidth + delta);
-        setPersisted((prev) => ({
-          ...prev,
-          widths: { ...prev.widths, [ref.columnId]: next },
-        }));
-      };
-      const onUp = () => {
-        resizeRef.current = null;
-        window.removeEventListener("mousemove", onMove);
-        window.removeEventListener("mouseup", onUp);
-      };
-      window.addEventListener("mousemove", onMove);
-      window.addEventListener("mouseup", onUp);
+      handle.setPointerCapture?.(ev.pointerId);
     },
-    [],
+    [measuredWidth],
+  );
+
+  const moveResize = useCallback(
+    (ev: ReactPointerEvent<HTMLDivElement>) => {
+      const resize = resizeRef.current;
+      if (!resize || resize.pointerId !== ev.pointerId) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      const nextWidth = Math.max(
+        resize.minWidth,
+        Math.min(resize.maxWidth, resize.startWidth + ev.clientX - resize.startX),
+      );
+      const column = columns.find((candidate) => candidate.id === resize.columnId);
+      if (column) updateColumnWidth(column, nextWidth);
+    },
+    [columns, updateColumnWidth],
+  );
+
+  const endResize = useCallback(
+    (ev: ReactPointerEvent<HTMLDivElement>) => {
+      if (resizeRef.current?.pointerId !== ev.pointerId) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      clearResize(ev.pointerId);
+    },
+    [clearResize],
+  );
+
+  const handleResizeKeyDown = useCallback(
+    (ev: ReactKeyboardEvent<HTMLDivElement>, col: DataTableColumn<T>) => {
+      if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight" && ev.key !== "Home") {
+        return;
+      }
+      ev.preventDefault();
+      ev.stopPropagation();
+      const { min: minimum, max: maximum } = columnWidthBounds(col);
+      const current = measuredWidth(ev.currentTarget, col);
+      const nextWidth =
+        ev.key === "Home"
+          ? minimum
+          : Math.min(
+              maximum,
+              Math.max(
+                minimum,
+                current +
+                  (ev.key === "ArrowRight"
+                    ? KEYBOARD_RESIZE_STEP
+                    : -KEYBOARD_RESIZE_STEP),
+              ),
+            );
+      updateColumnWidth(col, nextWidth);
+    },
+    [measuredWidth, updateColumnWidth],
   );
 
   // Report changes so the caller can persist them. Skipped while `persisted`
@@ -642,7 +821,10 @@ function DataTableInner<T>({
               ]
                 .filter(Boolean)
                 .join(" ")}
-              style={{ minWidth: col.minWidth }}
+              style={{
+                minWidth: col.minWidth,
+                maxWidth: col.noResize ? col.maxWidth : columnWidthBounds(col).max,
+              }}
             >
               {col.render(row, index)}
             </td>
@@ -659,15 +841,23 @@ function DataTableInner<T>({
           <tr className="data-table__row data-table__row--head">
             {visibleColumns.map((col) => {
               const width = resolveWidth(col);
+              const currentWidth = clampColumnWidth(
+                col,
+                renderedWidths[col.id] ?? width ?? columnWidthBounds(col).min,
+              );
+              const bounds = columnWidthBounds(col);
               const isSortActive = col.sortable && col.id === activeSortColumnId;
 
               return (
                 <th
                   key={col.id}
+                  ref={(element) => setHeaderRef(col.id, element)}
+                  data-column-id={col.id}
                   scope="col"
                   className={[
                     "data-table__cell",
                     "data-table__cell--head",
+                    !col.noResize && "data-table__cell--resizable",
                     col.sortable && "data-table__cell--sortable",
                     isSortActive && "data-table__cell--sort-active",
                     col.className,
@@ -678,6 +868,7 @@ function DataTableInner<T>({
                   style={{
                     width: width === undefined ? undefined : `${String(width)}px`,
                     minWidth: col.minWidth,
+                    maxWidth: col.noResize ? col.maxWidth : bounds.max,
                   }}
                   aria-sort={ariaSortValue(
                     col as DataTableColumn<unknown>,
@@ -717,10 +908,20 @@ function DataTableInner<T>({
                     <div
                       role="separator"
                       aria-orientation="vertical"
+                      aria-label={resizeHandleLabel(col)}
+                      aria-valuemin={bounds.min}
+                      aria-valuemax={bounds.max}
+                      aria-valuenow={currentWidth}
+                      aria-valuetext={resizeValueText(currentWidth, col)}
+                      tabIndex={0}
                       className="data-table__resize-handle"
-                      onMouseDown={(e) => {
-                        beginResize(e, col, width ?? col.minWidth ?? 120);
-                      }}
+                      onClick={(event) => event.stopPropagation()}
+                      onPointerDown={(event) => beginResize(event, col)}
+                      onPointerMove={moveResize}
+                      onPointerUp={endResize}
+                      onPointerCancel={endResize}
+                      onLostPointerCapture={(event) => clearResize(event.pointerId)}
+                      onKeyDown={(event) => handleResizeKeyDown(event, col)}
                     />
                   )}
                 </th>
