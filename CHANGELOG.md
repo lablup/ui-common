@@ -5,6 +5,27 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.1.0-alpha.21]
+
+### Added
+
+- **Made `DataTable` column resizing accessible to pointer and keyboard users
+  (#45).** Resizable headers expose focusable separators with localized labels,
+  measured current widths, finite minimum and maximum values, Arrow-key steps,
+  and Home-key reset. Pointer resizing starts from the rendered header width,
+  rejects secondary pointers, and safely handles cancellation and lost capture.
+
+- **Added optional `maxWidth` and `resizeValueText` contracts to `DataTable`.**
+  Consumers can set column-specific resize ceilings and localize announced pixel
+  values. Existing non-resizable columns remain unbounded unless they opt into
+  an explicit maximum.
+
+### Fixed
+
+- **Reserved a token-sized resize target without covering header content.** The
+  grip now has a 32px hit area and at least 3:1 contrast in the shipped light
+  and dark themes while sortable labels and controls keep their own space.
+
 ## [0.1.0-alpha.20]
 
 ### Fixed
