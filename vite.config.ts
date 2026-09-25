@@ -45,7 +45,8 @@ const cssOnly = (source: string) =>
 /**
  * Files no module imports, so Rollup never sees them, copied verbatim.
  *
- * - `styles/`: the deprecated 0.1 token sheets.
+ * - `ui-common.css`: the global sheet, in `@layer ui-common`.
+ * - `legacy-tokens.css` and `styles/`: the deprecated 0.1 token sheets.
  * - `astryx/**.css`: the generated one-line `@import` mirrors of the Astryx
  *   stylesheets. They stay `@import`s so the consumer's bundler resolves the
  *   Astryx sheet from this package's install location.
@@ -63,6 +64,8 @@ const cssOnly = (source: string) =>
  */
 function copyAssets(): Plugin {
   const copies: { from: string; to: string; filter: (source: string) => boolean }[] = [
+    { from: "src/ui-common.css", to: "dist/ui-common.css", filter: cssOnly },
+    { from: "src/legacy-tokens.css", to: "dist/legacy-tokens.css", filter: cssOnly },
     { from: "src/styles", to: "dist/styles", filter: cssOnly },
     { from: "src/astryx", to: "dist/astryx", filter: cssOnly },
     {
@@ -84,7 +87,7 @@ function copyAssets(): Plugin {
         const source = resolve(root, from);
         if (!existsSync(source)) continue;
         const target = resolve(root, to);
-        await mkdir(target, { recursive: true });
+        await mkdir(dirname(target), { recursive: true });
         await cp(source, target, { recursive: true, dereference: true, filter });
       }
     },

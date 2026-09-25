@@ -1,6 +1,9 @@
 /**
  * @lablup/ui-common theme tokens: orange-light
  *
+ * DEPRECATED since 0.2, removed in 0.3. Use the Astryx theme
+ * `@lablup/ui-common/theme/lablup`, which carries light and dark.
+ *
  * Overrides for the subset of the 104-token contract (see
  * ../base.css) that this theme customizes. Import at most one
  * theme file alongside base.css; components never import a

@@ -1,0 +1,48 @@
+/**
+ * @lablup/ui-common/ui-common.css
+ *
+ * ui-common's global stylesheet, in `@layer ui-common`. Component styles do
+ * not live here: each component imports its own stylesheet. This file holds
+ * only rules that have no component to hang on.
+ *
+ * Declare the layer order once in your app, before any of these imports:
+ *
+ *   @layer reset, theme, base, astryx-base, astryx-theme, ui-common,
+ *     components, utilities;
+ *
+ * `ui-common` sits after Astryx's layers, so ui-common's composite styles beat
+ * Astryx's base and theme rules for the primitives they wrap, and before
+ * `components`, so your own component styles beat ui-common.
+ *
+ * Rules read Astryx tokens only.
+ */
+@layer ui-common {
+  /*
+   * Scrollbar. A scrollbar is painted on a box no component owns, so a themed
+   * bar needs a global rule. Carried over from the 0.1 `styles/base.css`.
+   * Firefox reads the two inherited properties on the root; WebKit and Blink
+   * read the pseudo-elements.
+   */
+  :root {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-emphasized) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-emphasized);
+    border-radius: var(--radius-full);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-text-secondary);
+  }
+}

@@ -1,0 +1,176 @@
+/**
+ * @lablup/ui-common/legacy-tokens.css
+ *
+ * DEPRECATED. Removed in 0.3.
+ *
+ * The 0.1 contract was 122 `--token-*` custom properties. From 0.2 the
+ * contract is Astryx's own token set. This sheet keeps code that still reads
+ * a `--token-*` name resolving while it moves: every old name is declared
+ * here as the matching Astryx `var(--...)`, or as its old literal from
+ * `styles/base.css` where Astryx has no counterpart.
+ *
+ * Everything is inside `@layer ui-common`, so a product's own unlayered
+ * `--token-*` definitions still win. The values follow the active Astryx
+ * theme wherever they map to a token, and stay light-mode literals where they
+ * do not, as the 0.1 `base.css` did.
+ *
+ * `legacyTokens.test.ts` asserts that all 122 names are declared and that
+ * every `var()` here names a real Astryx token or another name in this file.
+ */
+@layer ui-common {
+  :root {
+    /* Radius. Astryx has no 4px rung (`--radius-none` is 0). */
+    --token-borderRadius: var(--radius-inner);
+    --token-borderRadiusLG: var(--radius-element);
+    --token-borderRadiusSM: 0.25rem;
+    --token-borderRadiusXL: var(--radius-container);
+
+    /* Control heights. Only the 32px rung has an Astryx size. */
+    --token-controlHeightSM: var(--size-element-md);
+    --token-controlHeight: 2.5rem;
+    --token-controlHeightLG: 2.75rem;
+
+    /* Elevation. */
+    --token-boxShadow: var(--shadow-low);
+    --token-boxShadowSecondary: var(--shadow-med);
+    --token-boxShadowTertiary: var(--shadow-low);
+    --token-boxShadowDrawerRight: var(--shadow-high);
+
+    /* Buttons. Fills and text map to the accent and status tokens; hover and
+       active fills that Astryx derives inside its own Button stay literal. */
+    --token-buttonActiveTransform: scale(0.97);
+    --token-buttonBorderRadius: var(--radius-inner);
+    --token-buttonHoverTransform: translateY(-1px);
+    --token-buttonDangerBg: transparent;
+    --token-buttonDangerBgActive: var(--color-error-muted);
+    --token-buttonDangerBgHover: var(--color-error-muted);
+    --token-buttonDangerBorder: 1px solid var(--color-error);
+    --token-buttonDangerShadow: none;
+    --token-buttonDangerShadowHover: var(--token-buttonDangerShadow);
+    --token-buttonDangerText: var(--color-error);
+    --token-buttonGhostBackdrop: none;
+    --token-buttonGhostBg: transparent;
+    --token-buttonGhostBgActive: var(--color-overlay-pressed);
+    --token-buttonGhostBgHover: var(--color-overlay-hover);
+    --token-buttonGhostBorder: 1px solid transparent;
+    --token-buttonGhostBorderHover: 1px solid transparent;
+    --token-buttonGhostShadow: none;
+    --token-buttonGhostShadowHover: none;
+    --token-buttonPrimaryBackdrop: none;
+    --token-buttonPrimaryBg: var(--color-accent);
+    --token-buttonPrimaryBgActive: var(--token-colorPrimaryActive);
+    --token-buttonPrimaryBgHover: #e86e00;
+    --token-buttonPrimaryBorder: none;
+    --token-buttonPrimaryShadow: 0 2px 4px rgba(255, 122, 0, 0.2);
+    --token-buttonPrimaryShadowHover: 0 4px 8px rgba(255, 122, 0, 0.25);
+    --token-buttonSecondaryBackdrop: none;
+    --token-buttonSecondaryBg: transparent;
+    --token-buttonSecondaryBgActive: var(--color-overlay-pressed);
+    --token-buttonSecondaryBgHover: var(--color-overlay-hover);
+    --token-buttonSecondaryBorder: 1px solid var(--color-border-emphasized);
+    --token-buttonSecondaryBorderHover: 1px solid rgba(255, 122, 0, 0.3);
+    --token-buttonSecondaryShadow: none;
+    --token-buttonSecondaryShadowHover:
+      0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --token-buttonSuccessBackdrop: none;
+    --token-buttonSuccessBg: var(--color-success);
+    --token-buttonSuccessBgActive: var(--token-colorSuccessActive);
+    --token-buttonSuccessBgHover: #006654;
+    --token-buttonSuccessBorder: none;
+    --token-buttonSuccessShadow: 0 2px 4px rgba(0, 189, 155, 0.2);
+    --token-buttonSuccessShadowHover: var(--token-buttonSuccessShadow);
+
+    /* Surfaces. */
+    --token-colorBgContainer: var(--color-background-surface);
+    --token-colorBgElevated: var(--color-background-popover);
+    --token-colorBgLayout: var(--color-background-body);
+    --token-colorBgMask: var(--color-overlay);
+    --token-colorBgTextActive: var(--color-overlay-pressed);
+    --token-colorBgTextHover: var(--color-overlay-hover);
+    --token-colorBorder: var(--color-border-emphasized);
+    --token-colorBorderSecondary: var(--color-border);
+    --token-colorFillQuaternary: #fafafa;
+    --token-colorFillSecondary: var(--color-background-muted);
+    --token-colorFillTertiary: #f9fafb;
+
+    /* Accent and status. Astryx has no info token; the Lablup theme declares
+       one as `--uic-color-info`, and other themes fall back to the literal. */
+    --token-colorError: var(--color-error);
+    --token-colorInfo: var(--uic-color-info, #0066cc);
+    --token-colorLink: var(--color-text-accent);
+    --token-colorLinkHover: #7c3aed;
+    --token-colorPrimary: var(--color-accent);
+    --token-colorPrimaryActive: #cc6200;
+    --token-colorPrimaryBg: var(--color-accent-muted);
+    --token-colorPrimaryBgHover: rgba(255, 122, 0, 0.16);
+    --token-colorPrimaryBorder: rgba(255, 122, 0, 0.2);
+    --token-colorSuccess: var(--color-success);
+    --token-colorSuccessActive: #005244;
+    --token-colorSuccessBg: var(--color-success-muted);
+    --token-colorSuccessBorder: rgba(0, 189, 155, 0.4);
+    --token-colorSuccessBorderHover: rgba(0, 189, 155, 0.6);
+    --token-colorSuccessBoxShadow: 0 4px 12px rgba(0, 189, 155, 0.15);
+    --token-colorWarning: var(--color-warning);
+
+    /* Text. Astryx's text tiers stop at secondary and disabled. */
+    --token-colorText: var(--color-text-primary);
+    --token-colorTextDisabled: var(--color-text-disabled);
+    --token-colorTextPlaceholder: #767676;
+    --token-colorTextQuaternary: #bfbfbf;
+    --token-colorTextSecondary: var(--color-text-secondary);
+    --token-colorTextTertiary: #737373;
+
+    /* Focus ring. */
+    --token-focusRingColor: var(--focus-outline-color);
+    --token-focusRingOffset: var(--focus-outline-offset);
+    --token-focusRingStyle: var(--focus-outline-style);
+    --token-focusRingWidth: var(--focus-outline-width);
+
+    /* Type. */
+    --token-fontFamily: var(--font-family-body);
+    --token-fontSize: var(--font-size-base);
+    --token-fontSizeLG: var(--font-size-lg);
+    --token-fontSizeSM: var(--font-size-sm);
+    --token-fontSizeXL: var(--font-size-xl);
+    --token-fontSizeXXL: var(--font-size-2xl);
+    --token-fontSizeXXS: var(--font-size-2xs);
+    --token-fontSizeHeading1: var(--text-heading-1-size);
+    --token-fontSizeHeading2: var(--text-heading-2-size);
+    --token-fontSizeHeading3: var(--text-heading-3-size);
+    --token-fontSizeHeading4: var(--text-heading-4-size);
+    --token-fontSizeDisplay4: 1.75rem;
+
+    /* Spacing. The 0.1 ladder is a subset of Astryx's 4px ladder. */
+    --token-marginXXS: var(--spacing-1);
+    --token-padding: var(--spacing-3);
+    --token-paddingLG: var(--spacing-6);
+    --token-paddingMD: var(--spacing-4);
+    --token-paddingSM: var(--spacing-2);
+    --token-paddingXL: var(--spacing-8);
+    --token-paddingXS: var(--spacing-1);
+    --token-paddingXXS: var(--spacing-0-5);
+
+    /* Scrollbar. */
+    --token-scrollbarSize: 0.5rem;
+    --token-scrollbarRadius: 0.25rem;
+
+    /* Motion. Each maps to the nearest Astryx duration: 100ms, 200ms and
+       300ms land on 95ms, 225ms and 300ms in the neutral scale. */
+    --token-motionDurationFast: var(--duration-fast-min);
+    --token-motionDurationMid: var(--duration-medium-min);
+    --token-motionDurationSlow: var(--duration-medium);
+    --token-themeTransitionDuration: 0.25s;
+    --token-themeTransitionTiming: ease-in-out;
+
+    /* Tabs. */
+    --token-tabActiveBg: var(--color-accent-muted);
+    --token-tabFocusShadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
+    --token-tabHoverBg: var(--token-colorFillSecondary);
+
+    /* Stacking. Astryx layering is owned by its layer stack, not z-index. */
+    --token-zIndexDrawer: 1100;
+    --token-zIndexDrawerContent: 1101;
+    --token-zIndexPopover: 1150;
+    --token-zIndexTooltip: 1300;
+  }
+}
