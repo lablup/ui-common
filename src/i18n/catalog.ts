@@ -27,7 +27,9 @@ import type { Catalog, MessageEntry } from "@astryxdesign/core/i18n";
 import { booleanTokenMessages } from "../components/BooleanToken/BooleanToken.messages";
 import { notificationStackMessages } from "../components/NotificationStack/NotificationStack.messages";
 import { pageHeaderMessages } from "../components/PageHeader/PageHeader.messages";
+import { selectionLabelMessages } from "../components/SelectionLabel/SelectionLabel.messages";
 import { skeletonMessages } from "../components/Skeleton/Skeleton.messages";
+import { uncontrolledInputMessages } from "../components/UncontrolledInput/UncontrolledInput.messages";
 import { commonMessages } from "./common.messages";
 
 /**
@@ -51,5 +53,7 @@ export const uiCommonCatalog: Catalog = {
   ...booleanTokenMessages,
   ...notificationStackMessages,
   ...pageHeaderMessages,
+  ...selectionLabelMessages,
   ...skeletonMessages,
+  ...uncontrolledInputMessages,
 };

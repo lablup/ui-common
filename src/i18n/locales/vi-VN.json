@@ -1,0 +1,22 @@
+{
+  "uic.common.cancel": {
+    "defaultMessage": "Hủy bỏ",
+    "description": "Generic label of a button that backs out of an action or stops a task"
+  },
+  "uic.common.confirm": {
+    "defaultMessage": "Xác nhận",
+    "description": "Generic label of a button that confirms an action"
+  },
+  "uic.SelectionLabel.selectedCount": {
+    "defaultMessage": "{count} Đã chọn",
+    "description": "How many items are selected, e.g. rows of a table; {count} is the number"
+  },
+  "uic.SelectionLabel.clear": {
+    "defaultMessage": "Bỏ chọn tất cả",
+    "description": "Button that clears the whole selection"
+  },
+  "uic.UncontrolledInput.label": {
+    "defaultMessage": "Chọn",
+    "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  }
+}

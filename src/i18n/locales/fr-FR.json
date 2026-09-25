@@ -1,0 +1,22 @@
+{
+  "uic.common.cancel": {
+    "defaultMessage": "Annuler",
+    "description": "Generic label of a button that backs out of an action or stops a task"
+  },
+  "uic.common.confirm": {
+    "defaultMessage": "Confirmer",
+    "description": "Generic label of a button that confirms an action"
+  },
+  "uic.SelectionLabel.selectedCount": {
+    "defaultMessage": "{count} sélectionné",
+    "description": "How many items are selected, e.g. rows of a table; {count} is the number"
+  },
+  "uic.SelectionLabel.clear": {
+    "defaultMessage": "Tout désélectionner",
+    "description": "Button that clears the whole selection"
+  },
+  "uic.UncontrolledInput.label": {
+    "defaultMessage": "Sélectionner",
+    "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  }
+}

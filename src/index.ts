@@ -1316,6 +1316,10 @@ export type {
 export { BooleanToken } from "./components/BooleanToken";
 export type { BooleanTokenProps } from "./components/BooleanToken";
 
+// ConfirmPopover
+export { ConfirmPopover } from "./components/ConfirmPopover";
+export type { ConfirmPopoverProps } from "./components/ConfirmPopover";
+
 // CountBadge
 export { CountBadge } from "./components/CountBadge";
 export type { CountBadgeProps } from "./components/CountBadge";
@@ -1386,6 +1390,10 @@ export type { PageHeaderProps } from "./components/PageHeader";
 export { PageLayout } from "./components/PageLayout";
 export type { PageLayoutProps, PageLayoutVariant } from "./components/PageLayout";
 
+// SelectionLabel
+export { SelectionLabel } from "./components/SelectionLabel";
+export type { SelectionLabelProps } from "./components/SelectionLabel";
+
 // Skeleton composites
 export {
   SkeletonCard,
@@ -1414,6 +1422,10 @@ export type {
   StatCardTrend,
   StatCardTrendDirection,
 } from "./components/StatCard";
+
+// UncontrolledInput
+export { UncontrolledInput } from "./components/UncontrolledInput";
+export type { UncontrolledInputProps } from "./components/UncontrolledInput";
 
 // usePrefersReducedMotion
 export { usePrefersReducedMotion } from "./hooks";

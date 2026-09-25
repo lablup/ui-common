@@ -31,6 +31,14 @@
     "defaultMessage": "오류 닫기",
     "description": "Accessible name of the icon button that closes the error banner"
   },
+  "uic.SelectionLabel.selectedCount": {
+    "defaultMessage": "{count}개 선택됨",
+    "description": "How many items are selected, e.g. rows of a table; {count} is the number"
+  },
+  "uic.SelectionLabel.clear": {
+    "defaultMessage": "선택 취소",
+    "description": "Button that clears the whole selection"
+  },
   "uic.SkeletonCard.loading": {
     "defaultMessage": "불러오는 중",
     "description": "Accessible name of a card-shaped loading placeholder"
@@ -46,5 +54,9 @@
   "uic.SkeletonText.loading": {
     "defaultMessage": "불러오는 중",
     "description": "Accessible name of a text-block loading placeholder"
+  },
+  "uic.UncontrolledInput.label": {
+    "defaultMessage": "선택",
+    "description": "Hidden accessible name of an input whose caller gave it no label of its own"
   }
 }

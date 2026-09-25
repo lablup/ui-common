@@ -1,0 +1,22 @@
+{
+  "uic.common.cancel": {
+    "defaultMessage": "Цуаах",
+    "description": "Generic label of a button that backs out of an action or stops a task"
+  },
+  "uic.common.confirm": {
+    "defaultMessage": "Баталгаажуулах",
+    "description": "Generic label of a button that confirms an action"
+  },
+  "uic.SelectionLabel.selectedCount": {
+    "defaultMessage": "{count} сонгогдсон",
+    "description": "How many items are selected, e.g. rows of a table; {count} is the number"
+  },
+  "uic.SelectionLabel.clear": {
+    "defaultMessage": "Бүгдийг сонголтоос хасах",
+    "description": "Button that clears the whole selection"
+  },
+  "uic.UncontrolledInput.label": {
+    "defaultMessage": "Сонгох",
+    "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  }
+}

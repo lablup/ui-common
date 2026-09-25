@@ -5,6 +5,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderHook } from "@testing-library/react";
+import IntlMessageFormat from "intl-messageformat";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 import {
@@ -91,6 +92,52 @@ describe("useUicTranslator", () => {
   });
 });
 
+/**
+ * Locales ui-common ships a translation for although Astryx core has no
+ * catalog of that name: the names backend.ai-ui hands Astryx's provider for
+ * Indonesian, Mongolian, Malay and Thai.
+ */
+const EXTRA_LOCALES = ["id-ID", "mn-MN", "ms-MY", "th-TH"];
+
+/**
+ * Keys with no translation yet in the `UNTRANSLATED_IN` locales: their
+ * components' origin had no translated string for them. Every other key is
+ * translated in every shipped locale file. An allowlisted pair that is
+ * translated fails, so the list only shrinks.
+ */
+const UNTRANSLATED_KEYS = [
+  "uic.common.ok",
+  "uic.common.retry",
+  "uic.BooleanToken.true",
+  "uic.BooleanToken.false",
+  "uic.NotificationStack.progress",
+  "uic.PageHeader.dismissError",
+  "uic.SkeletonCard.loading",
+  "uic.SkeletonChart.loading",
+  "uic.SkeletonRow.loading",
+  "uic.SkeletonText.loading",
+];
+const UNTRANSLATED_IN = [
+  "de-DE",
+  "el-GR",
+  "es-ES",
+  "fi-FI",
+  "fr-FR",
+  "id-ID",
+  "it-IT",
+  "mn-MN",
+  "ms-MY",
+  "pl-PL",
+  "pt-BR",
+  "pt-PT",
+  "ru-RU",
+  "th-TH",
+  "tr-TR",
+  "vi-VN",
+  "zh-CN",
+  "zh-TW",
+];
+
 describe("ui-common catalog", () => {
   const LOCALES_DIR = join(__dirname, "locales");
   const ASTRYX_LOCALES = new Set(
@@ -103,6 +150,9 @@ describe("ui-common catalog", () => {
       return [];
     }
   })();
+  const localeOf = (file: string) => file.replace(/\.json$/, "");
+  const readLocale = (file: string) =>
+    JSON.parse(readFileSync(join(LOCALES_DIR, file), "utf8")) as Catalog;
 
   it("keys are uic.<Component>.<key> or uic.common.<key>", () => {
     for (const key of Object.keys(uiCommonCatalog)) {
@@ -112,24 +162,56 @@ describe("ui-common catalog", () => {
 
   it("translation files use Astryx locale file names and only known keys", () => {
     for (const file of translationFiles) {
-      expect(ASTRYX_LOCALES.has(file), file).toBe(true);
+      expect(
+        ASTRYX_LOCALES.has(file) || EXTRA_LOCALES.includes(localeOf(file)),
+        file,
+      ).toBe(true);
       expect(file, "English comes from the code catalog").not.toBe("en.json");
-      const catalog = JSON.parse(
-        readFileSync(join(LOCALES_DIR, file), "utf8"),
-      ) as Catalog;
-      const unknown = Object.keys(catalog).filter((k) => !(k in uiCommonCatalog));
+      const unknown = Object.keys(readLocale(file)).filter(
+        (k) => !(k in uiCommonCatalog),
+      );
       expect(unknown, file).toEqual([]);
     }
   });
 
-  it.each(["ko-KR.json", "ja-JP.json"])("%s translates every key", (file) => {
-    const catalog = JSON.parse(
-      readFileSync(join(LOCALES_DIR, file), "utf8"),
-    ) as Catalog;
-    const missing = Object.keys(uiCommonCatalog).filter(
-      (k) => !catalog[k]?.defaultMessage,
+  it("ships a file for every locale it translates", () => {
+    expect(translationFiles.map(localeOf).sort()).toEqual(
+      ["ja-JP", "ko-KR", ...UNTRANSLATED_IN].sort(),
     );
-    expect(missing).toEqual([]);
+  });
+
+  it("translates every key in every file, but for the allowlist", () => {
+    const isAllowed = (locale: string, key: string) =>
+      UNTRANSLATED_IN.includes(locale) && UNTRANSLATED_KEYS.includes(key);
+    for (const file of translationFiles) {
+      const locale = localeOf(file);
+      const catalog = readLocale(file);
+      const isTranslated = (key: string) => !!catalog[key]?.defaultMessage;
+      const missing = Object.keys(uiCommonCatalog).filter(
+        (key) => !isTranslated(key) && !isAllowed(locale, key),
+      );
+      const stale = UNTRANSLATED_KEYS.filter(
+        (key) => isAllowed(locale, key) && isTranslated(key),
+      );
+      expect({ locale, missing, stale }).toEqual({ locale, missing: [], stale: [] });
+    }
+  });
+
+  it("keeps the English placeholders and parses as ICU MessageFormat", () => {
+    const argumentsOf = (message: string) =>
+      [...message.matchAll(/\{(\w+)/g)].map((m) => m[1]).sort();
+    for (const file of translationFiles) {
+      for (const [key, entry] of Object.entries(readLocale(file))) {
+        const message = entry.defaultMessage ?? "";
+        expect(
+          () => new IntlMessageFormat(message, "en"),
+          `${file} ${key}`,
+        ).not.toThrow();
+        expect(argumentsOf(message), `${file} ${key}`).toEqual(
+          argumentsOf(uiCommonCatalog[key]?.defaultMessage ?? ""),
+        );
+      }
+    }
   });
 
   it("uiCommonMessages carries English plus every translation file", () => {
