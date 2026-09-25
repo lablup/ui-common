@@ -10,11 +10,9 @@
  * DialogPurpose, DialogVariant, DialogVariantMap, ImperativeDialogReturn,
  * useImperativeDialog.
  *
- * Deprecated customs whose names Astryx owns. The Astryx export wins
- * here; the custom stays at @lablup/ui-common/components/<Name> until 0.3:
- * Badge, BadgeProps, Button, ButtonProps, EmptyState, EmptyStateProps,
- * ProgressBar, ProgressBarProps, ProgressBarVariant, Skeleton, SkeletonProps,
- * Tooltip, TooltipProps.
+ * Excluded Astryx names re-exported unchanged by their replacement:
+ * DialogHeader, DialogHeaderProps, DialogPosition, DialogPurpose,
+ * DialogVariant.
  */
 
 export {
@@ -1314,44 +1312,37 @@ export type {
   WordBreak,
 } from "@astryxdesign/core";
 
-// BaseCard
-// Deprecated, removed in 0.3: this module. Replaced by Card.
-export { BaseCard } from "./components/BaseCard";
-export type {
-  BaseCardProps,
-  BaseCardState,
-  BaseCardVariant,
-} from "./components/BaseCard";
-
-// DataTable
-// Deprecated, removed in 0.3: this module. Replaced by Table.
-export { DataTable } from "./components/DataTable";
-export type {
-  DataTableColumn,
-  DataTablePersistedState,
-  DataTableProps,
-  SortDirection,
-} from "./components/DataTable";
-
 // DigitPopIn
 export { DigitPopIn } from "./components/DigitPopIn";
 export type { DigitPopInProps } from "./components/DigitPopIn";
 
-// Drawer
-// Deprecated, removed in 0.3: this module. Replaced by lab/Drawer.
-export { Drawer } from "./components/Drawer";
-export type { DrawerProps } from "./components/Drawer";
-
-// EmptyState
-// Deprecated, removed in 0.3: this module. Replaced by EmptyState.
-export type {
-  EmptyStateAction,
-  EmptyStateSecondaryAction,
-} from "./components/EmptyState";
-
 // ErrorState
 export { ErrorState } from "./components/ErrorState";
 export type { ErrorAction, ErrorStateProps, ErrorTone } from "./components/ErrorState";
+
+// Modal
+export {
+  DialogHeader,
+  MAX_MODAL_LEVEL,
+  MODAL_OPEN_ATTRIBUTE,
+  Modal,
+  ModalHeader,
+  configureModalZIndex,
+  useModalLevel,
+} from "./components/Modal";
+export type {
+  DialogHeaderProps,
+  DialogPosition,
+  DialogPurpose,
+  DialogVariant,
+  ModalActionButtonProps,
+  ModalHeaderProps,
+  ModalPosition,
+  ModalProps,
+  ModalPurpose,
+  ModalVariant,
+  ModalZIndexBand,
+} from "./components/Modal";
 
 // PageHeader
 export { PageHeader } from "./components/PageHeader";
@@ -1361,12 +1352,7 @@ export type { PageHeaderProps } from "./components/PageHeader";
 export { PageLayout } from "./components/PageLayout";
 export type { PageLayoutProps, PageLayoutVariant } from "./components/PageLayout";
 
-// ProgressBar
-// Deprecated, removed in 0.3: this module. Replaced by ProgressBar.
-export type { ProgressBarSize } from "./components/ProgressBar";
-
-// Skeleton
-// Deprecated, removed in 0.3: Skeleton, SkeletonProps. Replaced by Skeleton.
+// Skeleton composites
 export {
   SkeletonCard,
   SkeletonChart,
@@ -1384,11 +1370,6 @@ export type {
 export { SmoothHeight } from "./components/SmoothHeight";
 export type { SmoothHeightProps } from "./components/SmoothHeight";
 
-// Select
-// Deprecated, removed in 0.3: this module. Replaced by Selector.
-export { Select } from "./components/Select";
-export type { SelectOption, SelectProps } from "./components/Select";
-
 // StatCard
 export { StatCard, formatCompactNumber } from "./components/StatCard";
 export type {
@@ -1399,22 +1380,6 @@ export type {
   StatCardTrend,
   StatCardTrendDirection,
 } from "./components/StatCard";
-
-// StatusTag
-// Deprecated, removed in 0.3: this module. Replaced by StatusDot.
-export { StatusTag } from "./components/StatusTag";
-export type { StatusKind, StatusTagProps } from "./components/StatusTag";
-
-// Tabs
-// Deprecated, removed in 0.3: this module. Replaced by TabList.
-export { Tabs } from "./components/Tabs";
-export type {
-  TabGroupMeta,
-  TabItem,
-  TabOverflowMode,
-  TabVariant,
-  TabsProps,
-} from "./components/Tabs";
 
 // usePrefersReducedMotion
 export { usePrefersReducedMotion } from "./hooks";

@@ -1,51 +1,39 @@
 /**
- * PageHeader Component
+ * PageHeader
  *
- * Standardized page header with title, description, and optional action buttons.
- * Provides consistent styling and layout across all pages.
- *
- * @example
- * // Basic usage
- * <PageHeader
- *   title="Models"
- *   description="Manage and browse your local models"
- * />
+ * A page's title, description and actions, with an optional error banner
+ * under them. Built on Astryx `Heading`, `Text`, `Button` and `IconButton`.
  *
  * @example
- * // With action buttons
+ * <PageHeader title="Models" description="Manage and browse your local models" />
+ *
+ * @example
  * <PageHeader
  *   title="Settings"
- *   description="Configure application settings"
- *   actions={
- *     <>
- *       <Button variant="secondary">Import</Button>
- *       <Button variant="primary">Save</Button>
- *     </>
- *   }
+ *   actions={<Button variant="primary" label="Save" onClick={save} />}
  * />
  *
  * @example
- * // With error display
- * <PageHeader
- *   title="Engines"
- *   description="Manage runtime engines"
- *   error={error}
- *   onErrorDismiss={() => clearError()}
- * />
+ * <PageHeader title="Engines" error={error} onRetry={reload} onErrorDismiss={clear} />
  */
-
 import type { ReactNode } from "react";
-import { Button } from "../Button";
+import { Button } from "@astryxdesign/core/Button";
+import { Heading } from "@astryxdesign/core/Heading";
+import { Icon } from "@astryxdesign/core/Icon";
+import { IconButton } from "@astryxdesign/core/IconButton";
+import { Text } from "@astryxdesign/core/Text";
+
+import { useUicTranslator } from "../../i18n/useUicTranslator";
 import "./PageHeader.css";
 
 export interface PageHeaderProps {
-  /** Page title - displayed as h1 */
+  /** Page title, rendered as the page's `h1` */
   title: string;
-  /** Page description - displayed below title */
+  /** Page description, below the title */
   description?: string;
-  /** Optional action buttons or elements on the right side */
+  /** Actions on the trailing side; they wrap below the title when crowded */
   actions?: ReactNode;
-  /** Error message to display below the header */
+  /** Error message shown in a banner below the header */
   error?: string | null;
   /**
    * Secondary line under the message, for the raw detail a server returned.
@@ -58,13 +46,16 @@ export interface PageHeaderProps {
    * are two props rather than one.
    */
   onRetry?: () => void;
-  /** Label for the Retry button. Default: "Retry" */
+  /** Label for the Retry button. Default: the catalog's `uic.PageHeader.retry` */
   retryLabel?: string;
-  /** Callback when error is dismissed */
+  /** Callback when the error is dismissed; renders the dismiss button */
   onErrorDismiss?: () => void;
-  /** Additional CSS class names */
+  /** Additional CSS class names on the `header` element */
   className?: string;
-  /** Accessible label for the error-dismiss button. Default: "Dismiss error" */
+  /**
+   * Accessible label for the dismiss button. Default: the catalog's
+   * `uic.PageHeader.dismissError` ("Dismiss error")
+   */
   dismissErrorLabel?: string;
 }
 
@@ -77,49 +68,59 @@ export function PageHeader({
   className = "",
   errorDetail,
   onRetry,
-  retryLabel = "Retry",
-  dismissErrorLabel = "Dismiss error",
+  retryLabel,
+  dismissErrorLabel,
 }: PageHeaderProps) {
-  const classes = ["page-header", className].filter(Boolean).join(" ");
+  const t = useUicTranslator();
+  const classes = ["uic-page-header", className].filter(Boolean).join(" ");
 
   return (
     <header className={classes}>
-      <div className="page-header__content">
-        <div className="page-header__text">
-          <h1 className="page-header__title">{title}</h1>
-          {description && <p className="page-header__description">{description}</p>}
+      <div className="uic-page-header__content">
+        <div className="uic-page-header__text">
+          <Heading level={1} className="uic-page-header__title">
+            {title}
+          </Heading>
+          {description && (
+            <Text as="p" color="secondary" className="uic-page-header__description">
+              {description}
+            </Text>
+          )}
         </div>
-        {actions && <div className="page-header__actions">{actions}</div>}
+        {actions && <div className="uic-page-header__actions">{actions}</div>}
       </div>
       {error && (
-        <div className="page-header__error" role="alert">
-          <div className="page-header__error-body">
-            <span className="page-header__error-text">{error}</span>
+        <div className="uic-page-header__error" role="alert">
+          <div className="uic-page-header__error-body">
+            <Text className="uic-page-header__error-text" color="inherit">
+              {error}
+            </Text>
             {errorDetail && (
-              <span className="page-header__error-detail">{errorDetail}</span>
+              <Text type="supporting" className="uic-page-header__error-detail">
+                {errorDetail}
+              </Text>
             )}
           </div>
           {(onRetry || onErrorDismiss) && (
-            <div className="page-header__error-actions">
+            <div className="uic-page-header__error-actions">
               {onRetry && (
                 <Button
                   variant="secondary"
-                  size="small"
-                  className="page-header__error-retry"
+                  size="sm"
+                  className="uic-page-header__error-retry"
+                  label={retryLabel ?? t("uic.PageHeader.retry")}
                   onClick={onRetry}
-                >
-                  {retryLabel}
-                </Button>
+                />
               )}
               {onErrorDismiss && (
-                <button
-                  type="button"
-                  className="page-header__error-dismiss"
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  className="uic-page-header__error-dismiss"
+                  label={dismissErrorLabel ?? t("uic.PageHeader.dismissError")}
+                  icon={<Icon icon="close" />}
                   onClick={onErrorDismiss}
-                  aria-label={dismissErrorLabel}
-                >
-                  ×
-                </button>
+                />
               )}
             </div>
           )}

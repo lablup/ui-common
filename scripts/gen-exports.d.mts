@@ -18,6 +18,8 @@ export interface GenerateResult {
     droppedFromRoot: string[];
     /** Deprecated custom names left out because Astryx owns the name. */
     legacyCollisions: string[];
+    /** Excluded Astryx names a replacement custom re-exports unchanged. */
+    reinstated: string[];
   };
 }
 

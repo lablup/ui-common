@@ -79,7 +79,12 @@ Product palettes stay in the products, as their own `defineTheme` over
 ### 3. ui-common's own
 
 - **Custom components**, listed in `exports.customs.json`. They are built on
-  Astryx primitives and tokens and never share a name with Astryx.
+  Astryx primitives and tokens and never share a name with Astryx. Each is in
+  the root barrel and at `@lablup/ui-common/components/<Name>`; `Modal` also
+  has a top-level subpath, `@lablup/ui-common/Modal`, because it stands where
+  the hidden `@lablup/ui-common/Dialog` would. The excluded subpath's own
+  names that `Modal` re-exports unchanged (`DialogHeader` and the Dialog
+  types) are the one sanctioned overlap with Astryx: they are Astryx's.
 - **`ui-common.css`**, the global sheet. It holds rules with no component to
   hang on, today only the scrollbar.
 - **`i18n-catalog`** and **`ui-common-locales/*.json`**, ui-common's strings.
@@ -134,12 +139,14 @@ with Astryx's own: `mergeMessages({ "ko-KR": astryxKo }, uiCommonMessages)`.
 
 `astryx.integration.mjs` registers ui-common with the Astryx CLI. A project
 that depends on ui-common loads it implicitly. Today it contributes the
-`astryx docs ui-common` topic and four lines for the managed agent block,
-including "Use Modal, not Dialog".
+`astryx docs ui-common` topic, which lists ui-common's components and shows
+`Modal`, and four lines for the managed agent block, including "Use Modal,
+not Dialog".
 
-It contributes no component docs yet. The CLI requires each
-`{Name}.doc.mjs` to sit beside a same-stem `{Name}.tsx`, and the tarball ships
-no source. That decision comes with the rebuilt customs.
+It contributes no per-component docs (`astryx component Modal`). The CLI
+requires each `{Name}.doc.mjs` to sit beside a same-stem `{Name}.tsx`, and the
+tarball ships no source. Shipping a `.tsx` stub per component only for the
+CLI, or shipping source, is still an open decision.
 
 The CLI cannot hide a core component, and `astryx component` and
 `astryx search` need `@astryxdesign/core` resolvable from the consumer's
@@ -148,11 +155,13 @@ for tooling only.
 
 ## Checks
 
-| Command                      | What it guards                                                                                            |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `src/exports.test.ts`        | generated surface matches the installed Astryx                                                            |
-| `pnpm run theme:check`       | built Lablup theme matches its source                                                                     |
-| `src/globalStyles.test.ts`   | legacy tokens cover all 122 names; layers; real tokens                                                    |
-| `pnpm run check:pack`        | every export target is packed; every bare import is a dependency or peer; every Astryx locale is mirrored |
-| `pnpm run check:integration` | the CLI accepts the manifest, and the tarball carries it                                                  |
-| CI `external-install`        | the tarball installs, type-checks and builds in a clean project, with Astryx's sheets in the bundle       |
+| Command                                  | What it guards                                                                                                 |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `src/exports.test.ts`                    | generated surface matches the installed Astryx                                                                 |
+| `pnpm run theme:check`                   | built Lablup theme matches its source                                                                          |
+| `src/globalStyles.test.ts`               | legacy tokens cover all 122 names; layers; real tokens                                                         |
+| `src/components/componentStyles.test.ts` | every component sheet: one `@layer ui-common`, `uic-` classes, Astryx tokens, no colour literal, no focus rule |
+| `src/migrationMap.test.ts`               | `migration/0.1-to-0.2.json` matches what was removed, what replaces it, and the renamed classes                |
+| `pnpm run check:pack`                    | every export target is packed; every bare import is a dependency or peer; every Astryx locale is mirrored      |
+| `pnpm run check:integration`             | the CLI accepts the manifest, and the tarball carries it                                                       |
+| CI `external-install`                    | the tarball installs, type-checks and builds in a clean project, with Astryx's sheets in the bundle            |

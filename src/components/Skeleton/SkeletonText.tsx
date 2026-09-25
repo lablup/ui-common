@@ -1,19 +1,15 @@
 /**
- * SkeletonText Component
+ * SkeletonText
  *
- * Skeleton placeholder for text content.
- * Provides multiple lines with varying widths for natural appearance.
+ * Loading placeholder for a block of text: `lines` lines, alternating full and
+ * slightly short, with a shorter last line.
  *
  * @example
- * // Basic usage (3 lines)
  * <SkeletonText />
- *
- * @example
- * // Custom number of lines
- * <SkeletonText lines={5} />
+ * <SkeletonText lines={5} spacing="compact" />
  */
-
-import { Skeleton } from "./Skeleton";
+import { useUicTranslator } from "../../i18n/useUicTranslator";
+import { SkeletonShape } from "./SkeletonShape";
 import "./SkeletonText.css";
 
 export interface SkeletonTextProps {
@@ -25,18 +21,19 @@ export interface SkeletonTextProps {
   className?: string;
   /** Test ID for testing */
   testId?: string;
-  /** Accessible name announced for the placeholder as a whole. Defaults to "Loading". */
+  /**
+   * Accessible name announced for the placeholder as a whole. Defaults to the
+   * catalog's `uic.SkeletonText.loading` ("Loading").
+   */
   loadingLabel?: string;
 }
 
-/**
- * SkeletonText provides a loading placeholder for text content.
- *
- * Features:
- * - Multiple lines with varying widths
- * - Configurable line spacing
- * - Accessible via aria-busy
- */
+/** The width of line `i` of `lines`: the last is short, the rest alternate. */
+function lineWidth(i: number, lines: number): string {
+  if (i === lines - 1) return "60%";
+  return i % 2 === 0 ? "100%" : "95%";
+}
+
 export function SkeletonText({
   lines = 3,
   spacing = "normal",
@@ -44,19 +41,10 @@ export function SkeletonText({
   testId,
   loadingLabel,
 }: SkeletonTextProps) {
-  const classNames = ["skeleton-text", `skeleton-text--${spacing}`, className]
+  const t = useUicTranslator();
+  const classNames = ["uic-skeleton-text", `uic-skeleton-text--${spacing}`, className]
     .filter(Boolean)
     .join(" ");
-
-  // Generate varying widths for natural appearance
-  const widths = Array.from({ length: lines }, (_, i) => {
-    if (i === lines - 1) {
-      // Last line is shorter
-      return "60%";
-    }
-    // Alternate between full and slightly shorter widths
-    return i % 2 === 0 ? "100%" : "95%";
-  });
 
   return (
     <div
@@ -64,10 +52,16 @@ export function SkeletonText({
       data-testid={testId}
       role="status"
       aria-busy="true"
-      aria-label={loadingLabel ?? "Loading"}
+      aria-label={loadingLabel ?? t("uic.SkeletonText.loading")}
     >
-      {widths.map((width, index) => (
-        <Skeleton decorative key={index} width={width} height="1em" variant="text" />
+      {Array.from({ length: Math.max(0, lines) }, (_, index) => (
+        <SkeletonShape
+          key={index}
+          width={lineWidth(index, lines)}
+          height="1em"
+          shape="text"
+          index={index}
+        />
       ))}
     </div>
   );

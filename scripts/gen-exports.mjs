@@ -203,6 +203,19 @@ function moduleExports(checker, sourceFile) {
   return { values: values.sort(), types: types.sort() };
 }
 
+/** The declaration symbol a module's export `name` finally points at. */
+function exportTarget(checker, sourceFile, name) {
+  const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
+  if (!moduleSymbol) return undefined;
+  const symbol = checker
+    .getExportsOfModule(moduleSymbol)
+    .find((s) => s.getName() === name);
+  if (!symbol) return undefined;
+  return symbol.flags & ts.SymbolFlags.Alias
+    ? checker.getAliasedSymbol(symbol)
+    : symbol;
+}
+
 function hasDefaultExport(checker, sourceFile) {
   const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
   if (!moduleSymbol) return false;
@@ -388,21 +401,60 @@ export async function generate() {
   }
 
   const droppedFromRoot = new Set();
+  // name -> the exclusion that dropped it, and the declaration it names.
+  const droppedBy = new Map();
   for (const s of excluded.filter(
     (e) => e.kind === "js" && e.package === "@astryxdesign/core",
   )) {
     const types = typesPath(s);
     if (!types) continue;
+    const exclusion = exclusions.find((e) => e.name === s.subpath);
     const names = moduleExports(checker, sourceOf(types));
-    for (const n of [...names.values, ...names.types]) droppedFromRoot.add(n);
+    for (const n of [...names.values, ...names.types]) {
+      droppedFromRoot.add(n);
+      droppedBy.set(n, {
+        exclusion,
+        target: exportTarget(checker, sourceOf(types), n),
+      });
+    }
   }
+
+  // A replacement has to exist: a custom, or a subpath that is still mirrored.
+  const customNames = new Set(customs.map((c) => c.name));
+  const mirroredSubpaths = new Set(mirrored.map((s) => s.subpath));
+  for (const e of exclusions) {
+    if (e.replacedBy === null) continue;
+    if (!customNames.has(e.replacedBy) && !mirroredSubpaths.has(e.replacedBy)) {
+      throw new Error(
+        `exports.exclude.json: "${e.name}" is replacedBy "${e.replacedBy}", which is ` +
+          `neither a custom in exports.customs.json nor a mirrored subpath.`,
+      );
+    }
+  }
+
+  /**
+   * The replacement of an excluded subpath may re-export that subpath's own
+   * names unchanged (Modal re-exports `DialogHeader`), so moving an import to
+   * it is a rename of the specifier only. Only the identical declaration
+   * qualifies: a name that means something else still breaks the name rule.
+   */
+  const isReinstated = (custom, n) => {
+    const dropped = droppedBy.get(n);
+    if (!dropped || dropped.exclusion?.replacedBy !== custom.name) return false;
+    const own = exportTarget(checker, sourceOf(join(root, "src", custom.source)), n);
+    return own !== undefined && own === dropped.target;
+  };
 
   const coreValues = coreRoot.values.filter((n) => !droppedFromRoot.has(n));
   const coreTypes = coreRoot.types.filter((n) => !droppedFromRoot.has(n));
   const coreNames = new Set([...coreRoot.values, ...coreRoot.types]);
   const labNames = new Set([...labRoot.values, ...labRoot.types]);
 
-  const report = { droppedFromRoot: [...droppedFromRoot].sort(), legacyCollisions: [] };
+  const report = {
+    droppedFromRoot: [...droppedFromRoot].sort(),
+    legacyCollisions: [],
+    reinstated: [],
+  };
   const customBlocks = [];
   const rootNames = new Set([...coreValues, ...coreTypes]);
 
@@ -419,6 +471,17 @@ export async function generate() {
       ["types", names.types],
     ]) {
       for (const n of list) {
+        if (isReinstated(custom, n)) {
+          if (rootNames.has(n)) {
+            throw new Error(
+              `exports.customs.json: "${n}" is exported twice from the root barrel.`,
+            );
+          }
+          report.reinstated.push(n);
+          rootNames.add(n);
+          keep[bucket].push(n);
+          continue;
+        }
         const clashCore = coreNames.has(n);
         const clashLab = labNames.has(n);
         if ((clashCore || clashLab) && !deprecated(n)) {
@@ -467,6 +530,10 @@ export async function generate() {
       ? ` *\n * Deprecated customs whose names Astryx owns. The Astryx export wins\n` +
         ` * here; the custom stays at @lablup/ui-common/components/<Name> until 0.3:\n` +
         wrapComment(report.legacyCollisions)
+      : "") +
+    (report.reinstated.length > 0
+      ? ` *\n * Excluded Astryx names re-exported unchanged by their replacement:\n` +
+        wrapComment(report.reinstated)
       : "") +
     ` */\n\n` +
     exportList("export", coreValues, "@astryxdesign/core") +
@@ -550,6 +617,11 @@ async function main() {
   if (report.legacyCollisions.length > 0) {
     console.log(
       `Deprecated custom names Astryx owns: ${report.legacyCollisions.join("; ")}`,
+    );
+  }
+  if (report.reinstated.length > 0) {
+    console.log(
+      `Excluded names re-exported unchanged by their replacement: ${report.reinstated.join(", ")}`,
     );
   }
 }

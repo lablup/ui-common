@@ -134,10 +134,66 @@ import { colorVars, spacingVars } from "@lablup/ui-common/theme/tokens.stylex";
 
 Lab components live at `@lablup/ui-common/lab`.
 
-ui-common's own components come from the root:
+ui-common's own components come from the root, and from the subpaths below:
 
 ```tsx
 import { PageHeader, PageLayout, StatCard } from "@lablup/ui-common";
+import { Modal } from "@lablup/ui-common/Modal";
+```
+
+| Component                                                      | What it is                                            | Subpath                    |
+| -------------------------------------------------------------- | ----------------------------------------------------- | -------------------------- |
+| `Modal`                                                        | The dialog, in place of Astryx `Dialog`. See below.   | `/Modal`                   |
+| `PageLayout`                                                   | A page's width clamp (`standard`, `wide`, `full`)     | `/components/PageLayout`   |
+| `PageHeader`                                                   | A page's title, description, actions and error banner | `/components/PageHeader`   |
+| `StatCard`                                                     | A dashboard metric, on Astryx `Card`                  | `/components/StatCard`     |
+| `ErrorState`                                                   | A full-area error with recovery actions               | `/components/ErrorState`   |
+| `SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow` | Loading placeholders drawn with Astryx `Skeleton`     | `/components/Skeleton`     |
+| `SmoothHeight`                                                 | Animates a container toward its content's height      | `/components/SmoothHeight` |
+| `DigitPopIn`                                                   | A number whose characters pop in, one after another   | `/components/DigitPopIn`   |
+| `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook   | root only                  |
+
+Their styles live in `@layer ui-common`, under `uic-` class names.
+
+### Modal
+
+`Modal` takes every prop Astryx `Dialog` takes, so a `Dialog` call site moves
+over by renaming the import: `@astryxdesign/core/Dialog` becomes
+`@lablup/ui-common/Modal`, `Dialog` becomes `Modal`, `DialogProps` becomes
+`ModalProps`. `DialogHeader`, `DialogPosition`, `DialogPurpose` and
+`DialogVariant` are re-exported unchanged, and as `ModalHeader`,
+`ModalPosition`, `ModalPurpose` and `ModalVariant`. One difference is visible
+to a caller: `ref` reaches the `div` that carries `role="dialog"`, not a
+`<dialog>` element.
+
+What it adds:
+
+- It renders into a `document.body` portal instead of the browser's top layer,
+  so whatever the app layers above the modal band, such as a notification
+  stack, stays visible and clickable. The band is `z-index` 1100 to 10999 by
+  default; `configureModalZIndex({ base, step, max })` moves it.
+- A modal opened from inside another paints above it. Only the topmost one
+  traps focus and takes Escape; covered ones are `inert`. Other portalled
+  surfaces can join the same stack with `useModalLevel`.
+- Content mounts on first open and stays mounted while closed.
+  `unmountOnClose` drops it. `afterOpenChange` reports each open and close.
+- With `title`, `onAction` or `footer`, it lays out a header, the body and a
+  footer with a primary action and Cancel. `onAction` may return a promise; the
+  button stays pending until it settles. It does not close the modal.
+
+```tsx
+<Modal
+  isOpen={isOpen}
+  onOpenChange={setIsOpen}
+  title="Rename folder"
+  actionLabel="Rename"
+  onAction={async () => {
+    await rename(name);
+    setIsOpen(false);
+  }}
+>
+  <TextInput label="Name" value={name} onChange={setName} />
+</Modal>
 ```
 
 ### What is hidden
@@ -149,7 +205,8 @@ Today that is `Dialog` (use `Modal`) and two Astryx CLI data files.
 ### Name rule
 
 A ui-common component never shares a name with an Astryx core or lab export.
-If a name is `Button`, it is Astryx's `Button`.
+If a name is `Button`, it is Astryx's `Button`. The same holds the other way:
+`DialogHeader` from `@lablup/ui-common/Modal` is Astryx's own `DialogHeader`.
 
 ## Strings
 
@@ -178,19 +235,40 @@ import astryxKo from "@lablup/ui-common/locales/ko-KR.json";
 
 ui-common never uses a product i18n runtime.
 
-## Deprecated in 0.2, removed in 0.3
+## Upgrading from 0.1
+
+Removed in 0.2, each replaced by Astryx:
+
+| 0.1           | 0.2                                   |
+| ------------- | ------------------------------------- |
+| `Badge`       | `Badge`, or `Token` for a chip        |
+| `BaseCard`    | `Card`, or `ClickableCard`            |
+| `Button`      | `Button`, or `IconButton`             |
+| `DataTable`   | `Table`                               |
+| `Drawer`      | `Drawer` from `@lablup/ui-common/lab` |
+| `EmptyState`  | `EmptyState`                          |
+| `ProgressBar` | `ProgressBar`                         |
+| `Select`      | `Selector`                            |
+| `Skeleton`    | `Skeleton` (the composites stay)      |
+| `StatusTag`   | `StatusDot`                           |
+| `Tabs`        | `TabList`                             |
+| `Tooltip`     | `Tooltip`                             |
+
+The kept components keep their 0.1 props. Their class names moved to `uic-`
+(`page-header` is `uic-page-header`), so CSS or tests that select the old
+names need updating. [`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json)
+lists every import, prop, class and stylesheet change in a form the upgrade
+tool reads.
+
+Deprecated in 0.2, removed in 0.3:
 
 - **`--token-*` custom properties.** Astryx's token set is the contract now.
   `@lablup/ui-common/legacy-tokens.css` declares every old name as the matching
   Astryx token, inside `@layer ui-common`, so code that reads them keeps
   working while it moves.
-- **`styles/base.css` and `styles/themes/*.css`.** Use the Lablup theme.
-- **Customs that Astryx now covers**: `Badge`, `BaseCard`, `Button`,
-  `DataTable`, `Drawer`, `EmptyState`, `ProgressBar`, `Select`, `Skeleton`,
-  `StatusTag`, `Tabs`, `Tooltip`. Where Astryx owns the name, the root export
-  is already Astryx's. The old component stays at
-  `@lablup/ui-common/components/<Name>` until 0.3. See
-  [CHANGELOG.md](CHANGELOG.md) for what replaces each one.
+- **`styles/base.css` and `styles/themes/*.css`.** Use the Lablup theme. No
+  ui-common component reads them any more; they stay one release so existing
+  imports keep resolving while the upgrade tool rewrites them.
 
 ## What is deliberately absent
 

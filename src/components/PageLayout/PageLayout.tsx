@@ -49,7 +49,7 @@ export function PageLayout({
   className = "",
   ...props
 }: PageLayoutProps) {
-  const classes = ["page-layout", `page-layout--${variant}`, className]
+  const classes = ["uic-page-layout", `uic-page-layout--${variant}`, className]
     .filter(Boolean)
     .join(" ");
 

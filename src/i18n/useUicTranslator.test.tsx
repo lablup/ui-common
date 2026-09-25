@@ -122,6 +122,16 @@ describe("ui-common catalog", () => {
     }
   });
 
+  it.each(["ko-KR.json", "ja-JP.json"])("%s translates every key", (file) => {
+    const catalog = JSON.parse(
+      readFileSync(join(LOCALES_DIR, file), "utf8"),
+    ) as Catalog;
+    const missing = Object.keys(uiCommonCatalog).filter(
+      (k) => !catalog[k]?.defaultMessage,
+    );
+    expect(missing).toEqual([]);
+  });
+
   it("uiCommonMessages carries English plus every translation file", () => {
     expect(uiCommonMessages.en).toBe(uiCommonCatalog);
     expect(Object.keys(uiCommonMessages).sort()).toEqual(

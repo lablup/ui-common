@@ -7,9 +7,11 @@
  * the tarball and imports a component ends up with that component's rules in
  * its own bundle. Run against the built install fixture, after `vite build`.
  *
- * Two components, because there are two import shapes and each could break on
- * its own: `PageHeader` arrives through the package root, `Drawer` through a
- * component subpath.
+ * One component per import shape, because each could break on its own:
+ * `PageHeader` and `StatCard` arrive through the package root, `Modal` through
+ * its own top-level subpath (`@lablup/ui-common/Modal`). StatCard is also the
+ * one that wraps an Astryx primitive, so its sheet must reach the bundle next
+ * to Astryx's.
  *
  * Markers are read out of the packed stylesheet rather than written down here,
  * so renaming a class is not a false failure.
@@ -26,7 +28,7 @@ import { dirname, join, resolve } from "node:path";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const fixtureDist = resolve(root, process.argv[2] ?? "fixture/dist");
 
-const COMPONENTS = ["PageHeader", "Drawer"];
+const COMPONENTS = ["PageHeader", "StatCard", "Modal"];
 
 /** Evidence that each Astryx sheet the fixture imports reached its bundle. */
 const SHEETS = [

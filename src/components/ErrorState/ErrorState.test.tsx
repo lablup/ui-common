@@ -21,14 +21,14 @@ describe("ErrorState", () => {
     it("renders with icon by default", () => {
       render(<ErrorState title="Error" message="Message" />);
 
-      const iconContainer = document.querySelector(".error-state__icon");
+      const iconContainer = document.querySelector(".uic-error-state__icon");
       expect(iconContainer).toBeInTheDocument();
     });
 
     it("hides icon when showIcon is false", () => {
       render(<ErrorState title="Error" message="Message" showIcon={false} />);
 
-      const iconContainer = document.querySelector(".error-state__icon");
+      const iconContainer = document.querySelector(".uic-error-state__icon");
       expect(iconContainer).not.toBeInTheDocument();
     });
   });
@@ -37,35 +37,35 @@ describe("ErrorState", () => {
     it("applies network error type class", () => {
       render(<ErrorState tone="warning" title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--warning");
+      const container = document.querySelector(".uic-error-state--warning");
       expect(container).toBeInTheDocument();
     });
 
     it("applies configuration error type class", () => {
       render(<ErrorState tone="accent" title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--accent");
+      const container = document.querySelector(".uic-error-state--accent");
       expect(container).toBeInTheDocument();
     });
 
     it("applies model error type class", () => {
       render(<ErrorState tone="danger" title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--danger");
+      const container = document.querySelector(".uic-error-state--danger");
       expect(container).toBeInTheDocument();
     });
 
     it("applies permission error type class", () => {
       render(<ErrorState tone="warning" title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--warning");
+      const container = document.querySelector(".uic-error-state--warning");
       expect(container).toBeInTheDocument();
     });
 
     it("applies generic error type class by default", () => {
       render(<ErrorState title="Error" message="Message" />);
 
-      const container = document.querySelector(".error-state--danger");
+      const container = document.querySelector(".uic-error-state--danger");
       expect(container).toBeInTheDocument();
     });
   });
@@ -162,7 +162,7 @@ describe("ErrorState", () => {
     it("icon has aria-hidden attribute", () => {
       render(<ErrorState title="Error" message="Message" />);
 
-      const iconContainer = document.querySelector(".error-state__icon");
+      const iconContainer = document.querySelector(".uic-error-state__icon");
       expect(iconContainer).toHaveAttribute("aria-hidden", "true");
     });
   });
@@ -185,7 +185,9 @@ describe("ErrorState", () => {
         />,
       );
 
-      const container = document.querySelector(".error-state--warning.custom-error");
+      const container = document.querySelector(
+        ".uic-error-state--warning.custom-error",
+      );
       expect(container).toBeInTheDocument();
     });
   });

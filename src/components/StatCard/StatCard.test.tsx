@@ -6,6 +6,8 @@
  * the public contract used by SquadDashboardStats and other dashboards.
  */
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
@@ -36,7 +38,7 @@ describe("StatCard", () => {
       <StatCard label="Approvals" value={3} tone="warning" testId="approvals" />,
     );
     const root = container.querySelector('[data-testid="approvals"]');
-    expect(root).toHaveClass("stat-card--tone-warning");
+    expect(root).toHaveClass("uic-stat-card--tone-warning");
   });
 
   it("renders a trend indicator with direction-specific class", () => {
@@ -46,14 +48,14 @@ describe("StatCard", () => {
     expect(screen.getByText("+12%")).toBeInTheDocument();
     // Trend wrapper has direction class
     const trend = screen.getByText("+12%").parentElement;
-    expect(trend).toHaveClass("stat-card__trend--up");
+    expect(trend).toHaveClass("uic-stat-card__trend--up");
   });
 
   it("renders a skeleton placeholder when loading", () => {
     const { container } = render(<StatCard label="Loading" value={99} loading />);
     expect(screen.queryByText("99")).not.toBeInTheDocument();
-    // Skeleton component renders a div with class "skeleton"
-    expect(container.querySelector(".skeleton")).toBeInTheDocument();
+    // Astryx Skeleton renders a div with class "astryx-skeleton"
+    expect(container.querySelector(".astryx-skeleton")).toBeInTheDocument();
     expect(screen.getByRole("group", { name: "Loading" })).toBeInTheDocument();
     expect(screen.queryByLabelText("Loading: 99")).not.toBeInTheDocument();
   });
@@ -108,9 +110,9 @@ describe("StatCard", () => {
   describe("emphasis", () => {
     it("adds no modifier class for the default emphasis", () => {
       const { container } = render(<StatCard label="A" value={1} />);
-      const card = container.querySelector(".stat-card");
-      expect(card).not.toHaveClass("stat-card--prominent");
-      expect(card).not.toHaveClass("stat-card--compact");
+      const card = container.querySelector(".uic-stat-card");
+      expect(card).not.toHaveClass("uic-stat-card--prominent");
+      expect(card).not.toHaveClass("uic-stat-card--compact");
     });
 
     it.each(["prominent", "compact"] as const)(
@@ -119,8 +121,8 @@ describe("StatCard", () => {
         const { container } = render(
           <StatCard label="A" value={1} emphasis={emphasis} />,
         );
-        expect(container.querySelector(".stat-card")).toHaveClass(
-          `stat-card--${emphasis}`,
+        expect(container.querySelector(".uic-stat-card")).toHaveClass(
+          `uic-stat-card--${emphasis}`,
         );
       },
     );
@@ -128,44 +130,42 @@ describe("StatCard", () => {
 
   describe("long value truncation", () => {
     /**
-     * `.stat-card` sets `overflow: hidden` so the corner accent follows the
+     * `.uic-stat-card` sets `overflow: hidden` so the corner accent follows the
      * rounded corner, which means a value wider than the card is cut off with
      * no sign that anything was cut. The card cannot grow out of it either: a
      * grid track with a px floor keeps its floor whatever the content length.
      *
-     * jsdom does no layout, so there is no width to assert on. It does apply
-     * the stylesheet, though, which is enough: these read the value back
-     * through the cascade, so they fail if the declarations are removed from
-     * `StatCard.css` and also if a later rule overrides them. `overflow` is
-     * read as the shorthand deliberately, because jsdom does not expand it
-     * into `overflow-x` and `overflow-y`.
+     * jsdom does no layout, and its CSS parser drops `@layer` blocks, so the
+     * cascade cannot be read back here. These read `StatCard.css` itself: the
+     * value rule must truncate, and no emphasis rule may touch those
+     * properties.
      */
-    const TRUNCATION = {
-      minWidth: "0px",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap",
-    } as const;
+    const TRUNCATION = [
+      "min-width: 0",
+      "overflow: hidden",
+      "text-overflow: ellipsis",
+      "white-space: nowrap",
+    ];
+    const CSS = readFileSync(join(__dirname, "StatCard.css"), "utf8").replace(
+      /\/\*[\s\S]*?\*\//g,
+      "",
+    );
 
-    function truncationOf(container: HTMLElement) {
-      const value = container.querySelector(".stat-card__value");
-      if (!(value instanceof HTMLElement)) {
-        throw new Error("no .stat-card__value rendered");
-      }
-      const style = getComputedStyle(value);
-      return {
-        minWidth: style.minWidth,
-        overflow: style.overflow,
-        textOverflow: style.textOverflow,
-        whiteSpace: style.whiteSpace,
-      };
+    /** Declarations of every rule whose selector list matches `test`. */
+    function declarationsFor(test: (selector: string) => boolean): string[] {
+      return [...CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+        .filter((m) => test((m[1] ?? "").trim()))
+        .flatMap((m) =>
+          (m[2] ?? "")
+            .split(";")
+            .map((d) => d.trim().replace(/\s+/g, " "))
+            .filter(Boolean),
+        );
     }
 
     it("ellipsises a value too long for its card", () => {
-      const { container } = render(
-        <StatCard label="Spend" value="$1,234,567,890.12" />,
-      );
-      expect(truncationOf(container)).toEqual(TRUNCATION);
+      const own = declarationsFor((s) => s === ".uic-stat-card__value");
+      for (const declaration of TRUNCATION) expect(own).toContain(declaration);
     });
 
     // `prominent` enlarges the value, so it reaches the card edge sooner than
@@ -174,10 +174,15 @@ describe("StatCard", () => {
     it.each(["prominent", "compact"] as const)(
       "keeps the truncation under emphasis=%s",
       (emphasis) => {
-        const { container } = render(
-          <StatCard label="Spend" value="$1,234,567,890.12" emphasis={emphasis} />,
+        const overrides = declarationsFor(
+          (s) =>
+            s.includes(`.uic-stat-card--${emphasis}`) &&
+            s.includes(".uic-stat-card__value"),
         );
-        expect(truncationOf(container)).toEqual(TRUNCATION);
+        expect(overrides.length).toBeGreaterThan(0);
+        for (const declaration of overrides) {
+          expect(declaration).toMatch(/^font-size:/);
+        }
       },
     );
   });
@@ -192,7 +197,9 @@ describe("StatCard", () => {
 
     it("omits the wrapper entirely when no sparkline is passed", () => {
       const { container } = render(<StatCard label="Calls" value={10} />);
-      expect(container.querySelector(".stat-card__value-line")).not.toBeInTheDocument();
+      expect(
+        container.querySelector(".uic-stat-card__value-line"),
+      ).not.toBeInTheDocument();
     });
 
     it("is not rendered while loading", () => {
@@ -240,7 +247,7 @@ describe("StatCard", () => {
   });
   describe('animate="digits"', () => {
     function digits(container: HTMLElement): string[] {
-      return Array.from(container.querySelectorAll(".digit-pop-in__digit")).map(
+      return Array.from(container.querySelectorAll(".uic-digit-pop-in__digit")).map(
         (digit) => digit.textContent ?? "",
       );
     }
@@ -255,8 +262,8 @@ describe("StatCard", () => {
         />,
       );
       expect(digits(container)).toEqual(["9", "8", ".", "5", "%"]);
-      expect(container.querySelector(".stat-card__value")).toHaveClass(
-        "stat-card__value--digits",
+      expect(container.querySelector(".uic-stat-card__value")).toHaveClass(
+        "uic-stat-card__value--digits",
       );
       expect(screen.getByLabelText("Rate: 98.5%")).toBeInTheDocument();
     });
@@ -265,13 +272,13 @@ describe("StatCard", () => {
       const { container } = render(
         <StatCard label="State" value="Idle" animate="digits" />,
       );
-      expect(container.querySelector(".digit-pop-in")).toBeNull();
+      expect(container.querySelector(".uic-digit-pop-in")).toBeNull();
       expect(screen.getByText("Idle")).toBeInTheDocument();
     });
 
     it("keeps `animate` as the count-up it always was", () => {
       const { container } = render(<StatCard label="Calls" value={4200} animate />);
-      expect(container.querySelector(".digit-pop-in")).toBeNull();
+      expect(container.querySelector(".uic-digit-pop-in")).toBeNull();
     });
   });
 
@@ -290,7 +297,7 @@ describe("StatCard", () => {
         />,
       );
 
-      const label = document.querySelector(".stat-card__label");
+      const label = document.querySelector(".uic-stat-card__label");
       expect(label?.querySelector("abbr")).toHaveAttribute(
         "title",
         "Time to first token",
@@ -312,7 +319,7 @@ describe("StatCard", () => {
     it("falls back to the label text when no node is given", () => {
       render(<StatCard label="TTFT p50" value={128} />);
 
-      expect(screen.getByText("TTFT p50")).toHaveClass("stat-card__label");
+      expect(screen.getByText("TTFT p50")).toHaveClass("uic-stat-card__label");
     });
   });
 });

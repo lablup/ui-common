@@ -560,6 +560,10 @@
       "import": "./dist/astryx/theme/neutral/built.js"
     },
     "./theme/neutral/theme.css": "./dist/astryx/theme/neutral/theme.css",
+    "./Modal": {
+      "types": "./dist/components/Modal/index.d.ts",
+      "import": "./dist/components/Modal/index.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
