@@ -8,11 +8,16 @@
  * its own bundle. Run against the built install fixture, after `vite build`.
  *
  * Two components, because there are two import shapes and each could break on
- * its own: `Button` arrives through the package root, `Drawer` through a
+ * its own: `PageHeader` arrives through the package root, `Drawer` through a
  * component subpath.
  *
  * Markers are read out of the packed stylesheet rather than written down here,
  * so renaming a class is not a false failure.
+ *
+ * It also asserts that the Astryx sheets arrived. The fixture imports them
+ * through ui-common's one-line `@import` mirrors and has no @astryxdesign/*
+ * dependency of its own, so their presence proves the mirror resolved the
+ * Astryx sheet from ui-common's install location.
  */
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -21,7 +26,18 @@ import { dirname, join, resolve } from "node:path";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const fixtureDist = resolve(root, process.argv[2] ?? "fixture/dist");
 
-const COMPONENTS = ["Button", "Drawer"];
+const COMPONENTS = ["PageHeader", "Drawer"];
+
+/** Evidence that each Astryx sheet the fixture imports reached its bundle. */
+const SHEETS = [
+  { name: "@lablup/ui-common/reset.css", marker: /@layer reset\b/ },
+  { name: "@lablup/ui-common/astryx.css", marker: /@layer astryx-base\b/ },
+  {
+    name: "@lablup/ui-common/theme/lablup/theme.css",
+    marker: /data-astryx-theme="?lablup"?/,
+  },
+  { name: "@lablup/ui-common/ui-common.css", marker: /@layer ui-common\b/ },
+];
 
 async function collectCss(dir) {
   const out = [];
@@ -62,10 +78,20 @@ for (const component of COMPONENTS) {
   }
 }
 
+for (const { name, marker } of SHEETS) {
+  if (!marker.test(bundled)) {
+    missing.push(
+      `the fixture imports ${name} but its bundle carries no ${marker} rule`,
+    );
+  }
+}
+
 if (missing.length > 0) {
   console.error(`Consumer stylesheet check failed (${missing.length}):\n`);
   for (const line of missing) console.error(`  ${line}`);
   process.exit(1);
 }
 
-console.log(`Consumer stylesheets present: ${COMPONENTS.join(", ")}.`);
+console.log(
+  `Consumer stylesheets present: ${[...COMPONENTS, ...SHEETS.map((s) => s.name)].join(", ")}.`,
+);

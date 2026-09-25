@@ -1,0 +1,12 @@
+/*
+ * The consumer's layer order, declared once and first. Everything below is
+ * imported through @lablup/ui-common; this project has no @astryxdesign/*
+ * dependency of its own, so each @import proves ui-common's one-line mirror
+ * resolves the Astryx sheet from ui-common's install location.
+ */
+@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
+
+@import "@lablup/ui-common/reset.css";
+@import "@lablup/ui-common/astryx.css";
+@import "@lablup/ui-common/theme/lablup/theme.css";
+@import "@lablup/ui-common/ui-common.css";
