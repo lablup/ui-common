@@ -1313,6 +1313,10 @@ export type {
 export { AlertModal } from "./components/AlertModal";
 export type { AlertModalProps } from "./components/AlertModal";
 
+// BoardItemTitle
+export { BoardItemTitle } from "./components/BoardItemTitle";
+export type { BoardItemTitleProps } from "./components/BoardItemTitle";
+
 // BooleanToken
 export { BooleanToken } from "./components/BooleanToken";
 export type { BooleanTokenProps } from "./components/BooleanToken";
@@ -1335,6 +1339,10 @@ export type {
 // DigitPopIn
 export { DigitPopIn } from "./components/DigitPopIn";
 export type { DigitPopInProps } from "./components/DigitPopIn";
+
+// DividedRow
+export { DividedRow } from "./components/DividedRow";
+export type { DividedRowProps } from "./components/DividedRow";
 
 // DoubleBadge
 export { DoubleBadge } from "./components/DoubleBadge";
@@ -1375,6 +1383,10 @@ export type {
   ModalVariant,
   ModalZIndexBand,
 } from "./components/Modal";
+
+// NotificationItem
+export { NotificationItem } from "./components/NotificationItem";
+export type { NotificationItemProps } from "./components/NotificationItem";
 
 // NotificationStack
 export { NotificationStack } from "./components/NotificationStack";
@@ -1431,6 +1443,10 @@ export type {
   StatCardTrendDirection,
 } from "./components/StatCard";
 
+// Statistic
+export { Statistic } from "./components/Statistic";
+export type { StatisticProps } from "./components/Statistic";
+
 // StepNumberInput
 export {
   NumberStepper,
@@ -1442,6 +1458,14 @@ export type {
   StepDirection,
   StepNumberInputProps,
 } from "./components/StepNumberInput";
+
+// TokenList
+export { TokenList } from "./components/TokenList";
+export type { TokenListItem, TokenListProps } from "./components/TokenList";
+
+// TokenRow
+export { TokenRow } from "./components/TokenRow";
+export type { TokenRowItem, TokenRowProps } from "./components/TokenRow";
 
 // UncontrolledInput
 export { UncontrolledInput } from "./components/UncontrolledInput";

@@ -95,6 +95,14 @@
     "defaultMessage": "読み込み中",
     "description": "Accessible name of a text-block loading placeholder"
   },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "無制限",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "他 {count} 件",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
   "uic.UncontrolledInput.label": {
     "defaultMessage": "選択",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"

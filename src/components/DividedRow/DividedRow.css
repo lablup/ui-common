@@ -1,0 +1,24 @@
+/*
+ * DividedRow: the divider overlays the column gap, shifted half a gap past
+ * its item's end edge, so items keep their width and the line sits centred
+ * between neighbours.
+ */
+@layer ui-common {
+  .uic-divided-row {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .uic-divided-row__item {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .uic-divided-row__divider {
+    position: absolute;
+    right: calc(-0.5 * var(--uic-divided-row-column-gap, 0px));
+    background: var(--color-border);
+    pointer-events: none;
+  }
+}

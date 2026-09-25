@@ -55,6 +55,14 @@
     "defaultMessage": "取消全選",
     "description": "Button that clears the whole selection"
   },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "無限",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "另有 {count} 項",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
   "uic.UncontrolledInput.label": {
     "defaultMessage": "選擇",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"

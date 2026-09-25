@@ -98,6 +98,12 @@ Pick a different name, or use the Astryx component.
 | `AlertModal`                                                   | `src/components/AlertModal/`         | `Modal`, `Heading`, `Text`, `Button`, `Layout`     |
 | `DeleteConfirmModal`                                           | `src/components/DeleteConfirmModal/` | `Modal`, `TextInput`, `Token`, `Banner`, `Text`    |
 | `StepNumberInput`, `NumberStepper`                             | `src/components/StepNumberInput/`    | `InputGroup`, `NumberInput`, `Icon`                |
+| `BoardItemTitle`                                               | `src/components/BoardItemTitle/`     | `HStack`, `Heading`, `Icon`, `IconWithTooltip`     |
+| `Statistic`                                                    | `src/components/Statistic/`          | `Stack`, `Text`, `Tooltip`                         |
+| `DividedRow`                                                   | `src/components/DividedRow/`         | plain CSS                                          |
+| `TokenList`                                                    | `src/components/TokenList/`          | `Token`, `Badge`, `Link`, `HoverCard`, `Popover`   |
+| `TokenRow`                                                     | `src/components/TokenRow/`           | `Token`, `HStack`                                  |
+| `NotificationItem`                                             | `src/components/NotificationItem/`   | `Stack`, `Text`                                    |
 
 Each has tests beside it. `src/components/componentStyles.test.ts` holds every
 stylesheet to the styling rules below.

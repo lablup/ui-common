@@ -42,7 +42,7 @@ export const docs = {
       content: [
         {
           type: "prose",
-          text: "ui-common's own components are built on Astryx primitives and never share a name with an Astryx export. Each is exported from the package root; Modal also has its own subpath.",
+          text: "ui-common's own components are built on Astryx primitives and never share a name with an Astryx export. Each is exported from the package root; Modal and AlertModal also have their own subpaths.",
         },
         {
           type: "list",
@@ -64,6 +64,10 @@ export const docs = {
             "`AlertModal`: the alert-dialog pattern on Modal, in its level stack. ui-common hides AlertDialog; use this.",
             "`DeleteConfirmModal`: confirms a deletion on Modal; typed confirmation for irreversible ones.",
             "`StepNumberInput`: a number field that steps along a list of values (1, 2, 4, 8); `NumberStepper` is its stepper column.",
+            "`BoardItemTitle`: a dashboard panel's sticky title row, with a help tooltip and actions at the end.",
+            "`Statistic`: a metric with a caption, a large value and a notched usage bar. `DividedRow`: a wrapping row with dividers between neighbours on a line.",
+            '`TokenList`: values inline, the rest behind +N on hover. `TokenRow`: tokens cut off with "and N more".',
+            "`NotificationItem`: the title, description, actions and footer of one notice.",
           ],
         },
         {

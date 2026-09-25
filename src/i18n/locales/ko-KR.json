@@ -95,6 +95,14 @@
     "defaultMessage": "불러오는 중",
     "description": "Accessible name of a text-block loading placeholder"
   },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "제한없음",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "외 {count}개",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
   "uic.UncontrolledInput.label": {
     "defaultMessage": "선택",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"

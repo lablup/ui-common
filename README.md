@@ -164,6 +164,12 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `AlertModal`                                                   | An alert dialog, in place of Astryx `AlertDialog`           | `/AlertModal`                    |
 | `DeleteConfirmModal`                                           | Confirms a deletion, with typed confirmation when needed    | `/components/DeleteConfirmModal` |
 | `StepNumberInput`, `NumberStepper`                             | A number field that steps along a list of values            | `/components/StepNumberInput`    |
+| `BoardItemTitle`                                               | A dashboard panel's sticky title row                        | `/components/BoardItemTitle`     |
+| `Statistic`                                                    | A metric with a caption, a large value and a notched bar    | `/components/Statistic`          |
+| `DividedRow`                                                   | A wrapping row with dividers between neighbours on a line   | `/components/DividedRow`         |
+| `TokenList`                                                    | Values inline, the rest behind `+N` on hover                | `/components/TokenList`          |
+| `TokenRow`                                                     | Tokens cut off with "and N more"                            | `/components/TokenRow`           |
+| `NotificationItem`                                             | The title, description, actions and footer of one notice    | `/components/NotificationItem`   |
 | `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook         | root only                        |
 
 Their styles live in `@layer ui-common`, under `uic-` class names.

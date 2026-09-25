@@ -30,7 +30,9 @@ import { notificationStackMessages } from "../components/NotificationStack/Notif
 import { pageHeaderMessages } from "../components/PageHeader/PageHeader.messages";
 import { selectionLabelMessages } from "../components/SelectionLabel/SelectionLabel.messages";
 import { skeletonMessages } from "../components/Skeleton/Skeleton.messages";
+import { statisticMessages } from "../components/Statistic/Statistic.messages";
 import { numberStepperMessages } from "../components/StepNumberInput/NumberStepper.messages";
+import { tokenRowMessages } from "../components/TokenRow/TokenRow.messages";
 import { uncontrolledInputMessages } from "../components/UncontrolledInput/UncontrolledInput.messages";
 import { commonMessages } from "./common.messages";
 
@@ -59,5 +61,7 @@ export const uiCommonCatalog: Catalog = {
   ...pageHeaderMessages,
   ...selectionLabelMessages,
   ...skeletonMessages,
+  ...statisticMessages,
+  ...tokenRowMessages,
   ...uncontrolledInputMessages,
 };

@@ -1,0 +1,23 @@
+/*
+ * NotificationItem: the title keeps 22px clear at its end, the width of the
+ * notice's close button.
+ */
+@layer ui-common {
+  .uic-notification-item__stack,
+  .uic-notification-item__action {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .uic-notification-item__title {
+    margin-inline-end: 22px;
+    margin-bottom: var(--spacing-3);
+    font-weight: 500;
+  }
+
+  .uic-notification-item__footer {
+    align-self: flex-end;
+    color: var(--color-text-secondary);
+  }
+}

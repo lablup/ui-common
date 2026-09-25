@@ -55,6 +55,14 @@
     "defaultMessage": "Снять выделение",
     "description": "Button that clears the whole selection"
   },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "Неограниченный",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "и ещё {count}",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
   "uic.UncontrolledInput.label": {
     "defaultMessage": "Выбрать",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"

@@ -55,6 +55,14 @@
     "defaultMessage": "Tüm seçimi kaldır",
     "description": "Button that clears the whole selection"
   },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "Sınırsız",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "ve {count} tane daha",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
   "uic.UncontrolledInput.label": {
     "defaultMessage": "Seç",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"

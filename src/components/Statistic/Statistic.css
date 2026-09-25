@@ -1,0 +1,48 @@
+/*
+ * Statistic: the value is set at 32px, above Text's largest body step, on a
+ * 1em leading so the unit sits on its baseline. The bar is a strip of 3x10px
+ * notches: ProgressBar is a continuous track with no steps.
+ */
+@layer ui-common {
+  .uic-statistic,
+  .uic-statistic__row {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .uic-statistic__label {
+    margin-bottom: var(--spacing-4);
+    line-height: 1em;
+  }
+
+  .uic-statistic__row {
+    margin-bottom: var(--spacing-2);
+  }
+
+  .uic-statistic__value {
+    font-size: 32px;
+    line-height: 1em;
+  }
+
+  .uic-statistic__steps {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-0-5);
+  }
+
+  .uic-statistic__step {
+    width: 3px;
+    height: 10px;
+    flex-shrink: 0;
+    background-color: var(--color-track);
+  }
+
+  .uic-statistic__step--filled {
+    background-color: var(--color-text-disabled);
+  }
+
+  .uic-statistic__step--placeholder {
+    background-color: transparent;
+  }
+}

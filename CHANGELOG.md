@@ -5,6 +5,32 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`. Their layout is Astryx
+  `Stack`/`HStack`/`VStack` and `@layer ui-common` CSS on Astryx tokens:
+  - `BoardItemTitle`: a dashboard panel's sticky title row (`title`,
+    `tooltip`, `tooltipIcon`, `endContent`); `--uic-board-item-title-z`
+    sets its z-index (default 50).
+  - `Statistic`: a metric with a caption, a large value and a notched usage
+    bar (`label`, `value`, `total`, `unit`, `precision`, `progressMode`
+    `hidden`/`placeholder`/`visible`, `progressSteps`, `color`,
+    `unlimitedLabel`, `infinityLabel`).
+  - `DividedRow`: a wrapping row that draws a divider between neighbours on
+    the same line only (`wrap`, `rowGap`, `columnGap`, `dividerWidth`,
+    `dividerColor`, `dividerInset`, `itemStyle`).
+  - `TokenList`: values inline, the rest behind `+N` on hover or click
+    (`items`, `maxInline`, `emptyText`, `variant`, `trigger`).
+  - `TokenRow`: tokens cut off with "and N more" (`items`, `maxCount`,
+    `totalCount`, `color`, `emptyText`, `moreLabel`).
+  - `NotificationItem`: the title, description, actions and footer of one
+    notice.
+- Catalog keys `uic.Statistic.unlimited` and `uic.TokenRow.more` (ICU
+  `{count}`), translated in every shipped locale from backend.ai-ui's locale
+  files.
+
 ### Removed
 
 - **Breaking:** `AlertDialog` is no longer mirrored. The

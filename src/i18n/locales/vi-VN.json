@@ -55,6 +55,14 @@
     "defaultMessage": "Bỏ chọn tất cả",
     "description": "Button that clears the whole selection"
   },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "Không giới hạn",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "và {count} mục khác",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
   "uic.UncontrolledInput.label": {
     "defaultMessage": "Chọn",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"

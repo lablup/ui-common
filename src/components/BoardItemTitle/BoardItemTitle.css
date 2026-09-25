@@ -1,0 +1,26 @@
+/*
+ * BoardItemTitle: the sticky title row. --uic-board-item-title-z lifts it
+ * over the panel's own content (sticky table headers and fixed columns);
+ * a product with a z-index ladder sets it from there.
+ */
+@layer ui-common {
+  .uic-board-item-title {
+    position: sticky;
+    top: 0;
+    z-index: var(--uic-board-item-title-z, 50);
+    flex-shrink: 0;
+    min-width: 0;
+    padding-block: var(--spacing-5);
+    background-color: var(--color-background-surface);
+  }
+
+  .uic-board-item-title__group {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .uic-board-item-title__end {
+    margin-inline-start: auto;
+  }
+}
