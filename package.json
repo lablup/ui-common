@@ -24,11 +24,19 @@
   "engines": {
     "node": ">=20"
   },
+  "bin": {
+    "ui-common": "./bin/ui-common.mjs"
+  },
   "packageManager": "pnpm@11.19.0",
   "files": [
     "dist",
     "astryx",
     "astryx.integration.mjs",
+    "bin",
+    "cli",
+    "codemods",
+    "exports.exclude.json",
+    "exports.customs.json",
     "NOTICE"
   ],
   "exports": {
