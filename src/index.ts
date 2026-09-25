@@ -1312,13 +1312,33 @@ export type {
   WordBreak,
 } from "@astryxdesign/core";
 
+// BooleanToken
+export { BooleanToken } from "./components/BooleanToken";
+export type { BooleanTokenProps } from "./components/BooleanToken";
+
+// CountBadge
+export { CountBadge } from "./components/CountBadge";
+export type { CountBadgeProps } from "./components/CountBadge";
+
 // DigitPopIn
 export { DigitPopIn } from "./components/DigitPopIn";
 export type { DigitPopInProps } from "./components/DigitPopIn";
 
+// DoubleBadge
+export { DoubleBadge } from "./components/DoubleBadge";
+export type { DoubleBadgeProps, DoubleBadgeValue } from "./components/DoubleBadge";
+
 // ErrorState
 export { ErrorState } from "./components/ErrorState";
 export type { ErrorAction, ErrorStateProps, ErrorTone } from "./components/ErrorState";
+
+// IconWithTooltip
+export { IconWithTooltip } from "./components/IconWithTooltip";
+export type { IconWithTooltipProps } from "./components/IconWithTooltip";
+
+// ImageWithFallback
+export { ImageWithFallback } from "./components/ImageWithFallback";
+export type { ImageWithFallbackProps } from "./components/ImageWithFallback";
 
 // Modal
 export {
@@ -1343,6 +1363,20 @@ export type {
   ModalVariant,
   ModalZIndexBand,
 } from "./components/Modal";
+
+// NotificationStack
+export { NotificationStack } from "./components/NotificationStack";
+export type {
+  NotificationStackItem,
+  NotificationStackProps,
+} from "./components/NotificationStack";
+
+// OverlayScrollbar
+export {
+  OVERLAY_SCROLLBAR_ATTRIBUTE,
+  OverlayScrollbar,
+} from "./components/OverlayScrollbar";
+export type { OverlayScrollbarProps } from "./components/OverlayScrollbar";
 
 // PageHeader
 export { PageHeader } from "./components/PageHeader";

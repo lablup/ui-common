@@ -1,0 +1,89 @@
+/*
+ * CountBadge: an absolutely positioned Badge in a position: relative wrapper.
+ * Astryx has no count overlay, so this is the one place it is drawn.
+ */
+@layer ui-common {
+  .uic-count-badge {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .uic-count-badge__overlay {
+    position: absolute;
+    top: 0;
+    /* The corner is logical, the 50% pull-out is not: in an RTL document the
+       overlay hangs off the wrong edge. */
+    inset-inline-end: 0;
+    transform: translate(
+      calc(50% + var(--uic-count-badge-offset-x)),
+      calc(-50% + var(--uic-count-badge-offset-y))
+    );
+    display: inline-flex;
+    align-items: center;
+    /* Above the anchored child, below any popover or dialog layer. */
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Badge has no size prop. */
+  .uic-count-badge__overlay--sm .uic-count-badge__pill {
+    font-size: var(--font-size-2xs);
+    padding-block: 0;
+    padding-inline: var(--spacing-1);
+    min-height: var(--spacing-4);
+  }
+
+  .uic-count-badge__dot {
+    display: block;
+    width: var(--spacing-2);
+    height: var(--spacing-2);
+    border-radius: var(--radius-full);
+    /* A ring in the surface colour keeps the dot legible over the child's edge. */
+    box-shadow: 0 0 0 var(--border-width) var(--color-background-surface);
+    background: var(--color-neutral);
+  }
+
+  .uic-count-badge__overlay--sm .uic-count-badge__dot {
+    width: var(--spacing-1-5);
+    height: var(--spacing-1-5);
+  }
+
+  /* Badge's variants, resolved to their solid colours. */
+  .uic-count-badge__dot[data-variant="info"],
+  .uic-count-badge__dot[data-variant="blue"] {
+    background: var(--color-icon-blue);
+  }
+  .uic-count-badge__dot[data-variant="success"] {
+    background: var(--color-success);
+  }
+  .uic-count-badge__dot[data-variant="warning"] {
+    background: var(--color-warning);
+  }
+  .uic-count-badge__dot[data-variant="error"] {
+    background: var(--color-error);
+  }
+  .uic-count-badge__dot[data-variant="cyan"] {
+    background: var(--color-icon-cyan);
+  }
+  .uic-count-badge__dot[data-variant="green"] {
+    background: var(--color-icon-green);
+  }
+  .uic-count-badge__dot[data-variant="orange"] {
+    background: var(--color-icon-orange);
+  }
+  .uic-count-badge__dot[data-variant="pink"] {
+    background: var(--color-icon-pink);
+  }
+  .uic-count-badge__dot[data-variant="purple"] {
+    background: var(--color-icon-purple);
+  }
+  .uic-count-badge__dot[data-variant="red"] {
+    background: var(--color-icon-red);
+  }
+  .uic-count-badge__dot[data-variant="teal"] {
+    background: var(--color-icon-teal);
+  }
+  .uic-count-badge__dot[data-variant="yellow"] {
+    background: var(--color-icon-yellow);
+  }
+}

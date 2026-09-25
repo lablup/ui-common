@@ -1,0 +1,91 @@
+/*
+ * NotificationStack: a fixed column of notices in the bottom-end corner,
+ * newest nearest the corner, with enter and exit slides.
+ */
+@layer ui-common {
+  .uic-notification-stack {
+    position: fixed;
+    /* The inset is padding, not `inset`: `overflow` clips to the padding box,
+       and both the slide and the notices' shadow need room inside it.
+       `content-box` keeps `width` and `max-height` the visible figures. */
+    inset-block-end: 0;
+    inset-inline-end: 0;
+    padding: var(--spacing-6);
+    box-sizing: content-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    /* A notice's readable width. Not a spacing step, and no token names it. */
+    width: 384px;
+    max-width: calc(100vw - var(--spacing-6) * 2);
+    /* Stops below the reserved top inset (an app header), so what is there
+       stays reachable however many notices are open. */
+    max-height: calc(
+      100dvh - var(--uic-notification-stack-inset-top, 0px) - var(--spacing-6) * 2
+    );
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    /* One above the top of Modal's default z-index band (1100..10999), so a
+       notice stays visible and clickable over an open modal. */
+    z-index: var(--uic-notification-stack-z, 11000);
+    pointer-events: none;
+  }
+
+  .uic-notification-stack > * {
+    pointer-events: auto;
+  }
+
+  @keyframes uic-notification-stack-enter {
+    from {
+      opacity: 0;
+      transform: translateX(var(--spacing-6));
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes uic-notification-stack-exit {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+      max-height: 40vh;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(var(--spacing-6));
+      max-height: 0;
+    }
+  }
+
+  .uic-notification-stack__item {
+    animation-name: uic-notification-stack-enter;
+    animation-duration: var(--duration-fast);
+    animation-timing-function: var(--ease-standard);
+    animation-fill-mode: both;
+  }
+
+  .uic-notification-stack__item[data-exiting="true"] {
+    animation-name: uic-notification-stack-exit;
+    overflow: hidden;
+  }
+
+  /* A long text scrolls inside the notice instead of pushing its header, and
+     the dismiss button in it, off screen. Not on the item: the exit animation
+     drives the item's own `max-height`. */
+  .uic-notification-stack__body {
+    max-height: var(--uic-notification-body-max-height, 30vh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .uic-notification-stack__item,
+    .uic-notification-stack__item[data-exiting="true"] {
+      animation-name: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

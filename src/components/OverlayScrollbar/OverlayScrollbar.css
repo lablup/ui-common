@@ -1,0 +1,55 @@
+/*
+ * OverlayScrollbar: the hidden native bar, and the track and thumb drawn over
+ * the content in its place.
+ */
+@layer ui-common {
+  /* The component sets the attribute only where it draws a thumb. The
+     `!important` is load-bearing: an app's unlayered global scrollbar rule
+     (`* { scrollbar-width: thin }`) outranks any layered normal declaration,
+     but a layered important one beats unlayered CSS of every kind. */
+  [data-uic-overlay-scrollbar="true"] {
+    scrollbar-width: none !important;
+  }
+
+  [data-uic-overlay-scrollbar="true"]::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .uic-overlay-scrollbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: var(--spacing-2);
+    /* The thumb is placed by transform from integer scroll metrics; a
+       sub-pixel overshoot must not become the host's overflow. */
+    overflow: clip;
+    /* Only the thumb takes pointer events; content under the track stays
+       clickable. */
+    pointer-events: none;
+    z-index: var(--uic-overlay-scrollbar-z, 1);
+  }
+
+  /* Presence is the scrollability cue: the thumb stays while the content
+     overflows instead of fading out when scrolling stops. */
+  .uic-overlay-scrollbar[data-scrollable="false"] {
+    display: none;
+  }
+
+  .uic-overlay-scrollbar__thumb {
+    position: absolute;
+    top: 0;
+    right: var(--spacing-0-5);
+    width: var(--spacing-1-5);
+    border-radius: var(--radius-full);
+    background-color: var(--color-border-emphasized);
+    pointer-events: auto;
+    cursor: default;
+    transition: background-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .uic-overlay-scrollbar__thumb:hover,
+  .uic-overlay-scrollbar[data-dragging="true"] .uic-overlay-scrollbar__thumb {
+    background-color: var(--color-text-disabled);
+  }
+}
