@@ -5,6 +5,39 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.4]
+
+Three more components move in from backend.ai-ui: the rest of its dialog
+family and its list-stepped number field.
+
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `AlertModal`: the WAI-ARIA alert-dialog pattern on `Modal`'s portalled
+    surface and level stack (`title`, `description`, `actionLabel`,
+    `onAction`, `actionVariant`, `isActionLoading`, `isActionDisabled`,
+    `cancelLabel`, `isCancelDisabled`, plus `Modal`'s own props). Cancel
+    takes focus first; Escape cancels, the backdrop does not. Use it instead
+    of `AlertDialog` beside `Modal`.
+  - `DeleteConfirmModal`: confirms a deletion on `Modal` (`items`, `target`,
+    `description`, `title`, `titleIcon`, `onAction`, `actionLabel`), with a
+    typed confirmation (`isConfirmInputRequired`, `confirmText`,
+    `inputLabel`, `inputPlaceholder`, `isInputDisabled`) for irreversible
+    deletions and `isReversible` for undoable ones. `inputLabel` takes a node
+    or a function that places the confirm-text token.
+  - `StepNumberInput`: a number field that steps along `steps` on its
+    stepper and on ArrowUp/ArrowDown. `NumberStepper` (the stepper column for
+    an `InputGroup`) and `getNextStepIndex` are exported with it.
+- Catalog keys `uic.common.delete`, `uic.DeleteConfirmModal.{title,
+titleMany,description,targetDescription,typeToConfirm,confirmText,
+cannotBeUndone}` and `uic.NumberStepper.{increase,decrease}`, translated
+  in every shipped locale from backend.ai-ui's locale files.
+  `uic.DeleteConfirmModal.titleMany` is an ICU plural.
+- `Modal`: `headerClassName` and `footerClassName`, class names on the
+  header and footer it generates.
+
 ## [0.2.0-alpha.3]
 
 Three more components move in from backend.ai-ui, and ui-common's strings
