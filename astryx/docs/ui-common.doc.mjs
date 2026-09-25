@@ -58,6 +58,9 @@ export const docs = {
             "`IconWithTooltip`: a focusable glyph with a Tooltip. `ImageWithFallback`: an image that falls back to a node.",
             "`NotificationStack`: floating notices with task progress, Cancel/Retry and an action; the caller owns the list.",
             "`OverlayScrollbar`: a persistent scroll thumb over a scroll container, in place of its native bar.",
+            "`ConfirmPopover`: a one-click confirmation on Popover, for reversible actions.",
+            '`SelectionLabel`: "3 selected" with a button that clears the selection.',
+            "`UncontrolledInput`: a text or number field that reports its value on Enter or blur.",
           ],
         },
         {

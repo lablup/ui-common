@@ -158,6 +158,9 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `ImageWithFallback`                                            | An image that renders a fallback node when it fails to load | `/components/ImageWithFallback` |
 | `NotificationStack`                                            | Floating notices with task progress and actions             | `/components/NotificationStack` |
 | `OverlayScrollbar`                                             | A persistent scroll thumb drawn over a scroll container     | `/components/OverlayScrollbar`  |
+| `ConfirmPopover`                                               | A one-click confirmation anchored to its trigger            | `/components/ConfirmPopover`    |
+| `SelectionLabel`                                               | "3 selected", with a button that clears the selection       | `/components/SelectionLabel`    |
+| `UncontrolledInput`                                            | A field that reports its value on Enter or blur             | `/components/UncontrolledInput` |
 | `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook         | root only                       |
 
 Their styles live in `@layer ui-common`, under `uic-` class names.
