@@ -89,6 +89,20 @@ Pick a different name, or use the Astryx component.
 Each has tests beside it. `src/components/componentStyles.test.ts` holds every
 stylesheet to the styling rules below.
 
+### Component docs for the CLI
+
+`ui-common component <Name>` reads `astryx/components/<Name>.doc.mjs` (the
+`components` root in `astryx.integration.mjs`). The Astryx CLI pairs every
+doc with a same-stem `<Name>.tsx` and fails validation without one; ui-common
+ships no source, so that file is one line re-exporting the component:
+
+```tsx
+export { PageHeader } from "@lablup/ui-common";
+```
+
+`src/astryxIntegration.test.ts` checks the pairing. Add a doc when you add or
+change a component's props; `pnpm run check:integration` validates it.
+
 ## Component admission
 
 Most reusable-looking components should not be here. Once a component is here,
@@ -206,14 +220,56 @@ pre-built CSS at runtime.
 move together, exact-pinned. `@astryxdesign/lab` is an exact canary pin, as
 both a devDependency and an optional peer.
 
-1. Change the pins in `package.json` and run `pnpm install`.
-2. `pnpm run gen:exports`, and read the diff.
-3. `pnpm run theme:build`.
-4. Update `exports.exclude.json` if the generator reports a stale entry or a
-   new data export.
-5. `pnpm run verify`.
-6. Note new and removed subpaths in `CHANGELOG.md`. A removed subpath is a
+`ui-common sync-astryx` does the bump:
+
+```
+node bin/ui-common.mjs sync-astryx 0.6.3 --dry-run   # plan, and Astryx's codemods on src/ as a dry run
+node bin/ui-common.mjs sync-astryx 0.6.3 --lab 0.6.3-canary.abc1234
+```
+
+It moves the pins, runs `pnpm install`, `pnpm run gen:exports` and
+`pnpm run theme:build`, runs Astryx's own codemods on `src/` (a dry run, then
+applied), runs the tests, and records the Astryx codemods consumers need in
+`codemods/<next version>/upstream.json` (`--as <version>` picks the version;
+release under that version). `ui-common upgrade` runs them for a consumer that
+crosses it, with the `@lablup/ui-common` specifiers swapped for Astryx's so
+Astryx's codemods recognise them. It runs Astryx's codemods before the tests,
+since a rename Astryx ships a codemod for would otherwise fail them first.
+
+Then, by hand:
+
+1. Read the `gen:exports` diff. Update `exports.exclude.json` if the generator
+   reports a stale entry or a new data export.
+2. `pnpm run verify`.
+3. Note new and removed subpaths in `CHANGELOG.md`. A removed subpath is a
    breaking change.
+
+## The upgrade tool
+
+`ui-common upgrade` runs the steps in `codemods/registry.mjs`, keyed by the
+ui-common version that made the change, over a consumer's source.
+
+- **0.1 → 0.2** (`codemods/0.2/`) takes all of its data from
+  [`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json): replacement
+  imports, prop renames, value maps, required packages, stylesheet entry
+  points, class renames and the manual notes its TODO markers quote. Change
+  the map, not the codemods, when the migration changes.
+  `codemods/0.2/legacy-classes.json` lists the 0.1 class names; regenerate it
+  from a 0.1 checkout with `scripts/extract-legacy-classes.mjs`.
+- **Upstream steps** are `codemods/<version>/upstream.json`, written by
+  `sync-astryx`.
+
+A codemod that cannot prove a rewrite safe leaves the code as it was, with a
+`TODO(ui-common-upgrade):` comment and a report entry. `test/upgrade/` runs
+every step over fixture projects and compares the result with `expected/`,
+report included. After an intended change:
+
+```
+UPDATE_FIXTURES=1 pnpm vitest run test/upgrade
+```
+
+and read the diff. Fixtures are consumer code: keep them free of product
+names, like the rest of this repository.
 
 ## Versioning
 
