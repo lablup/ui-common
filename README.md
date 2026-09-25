@@ -141,27 +141,30 @@ import { PageHeader, PageLayout, StatCard } from "@lablup/ui-common";
 import { Modal } from "@lablup/ui-common/Modal";
 ```
 
-| Component                                                      | What it is                                                  | Subpath                         |
-| -------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------- |
-| `Modal`                                                        | The dialog, in place of Astryx `Dialog`. See below.         | `/Modal`                        |
-| `PageLayout`                                                   | A page's width clamp (`standard`, `wide`, `full`)           | `/components/PageLayout`        |
-| `PageHeader`                                                   | A page's title, description, actions and error banner       | `/components/PageHeader`        |
-| `StatCard`                                                     | A dashboard metric, on Astryx `Card`                        | `/components/StatCard`          |
-| `ErrorState`                                                   | A full-area error with recovery actions                     | `/components/ErrorState`        |
-| `SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow` | Loading placeholders drawn with Astryx `Skeleton`           | `/components/Skeleton`          |
-| `SmoothHeight`                                                 | Animates a container toward its content's height            | `/components/SmoothHeight`      |
-| `DigitPopIn`                                                   | A number whose characters pop in, one after another         | `/components/DigitPopIn`        |
-| `CountBadge`                                                   | A count or dot overlaid on its child's corner               | `/components/CountBadge`        |
-| `DoubleBadge`                                                  | A run of Badges welded into one chip                        | `/components/DoubleBadge`       |
-| `BooleanToken`                                                 | An on/off value as a Token                                  | `/components/BooleanToken`      |
-| `IconWithTooltip`                                              | A focusable glyph that explains itself in a Tooltip         | `/components/IconWithTooltip`   |
-| `ImageWithFallback`                                            | An image that renders a fallback node when it fails to load | `/components/ImageWithFallback` |
-| `NotificationStack`                                            | Floating notices with task progress and actions             | `/components/NotificationStack` |
-| `OverlayScrollbar`                                             | A persistent scroll thumb drawn over a scroll container     | `/components/OverlayScrollbar`  |
-| `ConfirmPopover`                                               | A one-click confirmation anchored to its trigger            | `/components/ConfirmPopover`    |
-| `SelectionLabel`                                               | "3 selected", with a button that clears the selection       | `/components/SelectionLabel`    |
-| `UncontrolledInput`                                            | A field that reports its value on Enter or blur             | `/components/UncontrolledInput` |
-| `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook         | root only                       |
+| Component                                                      | What it is                                                  | Subpath                          |
+| -------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------- |
+| `Modal`                                                        | The dialog, in place of Astryx `Dialog`. See below.         | `/Modal`                         |
+| `PageLayout`                                                   | A page's width clamp (`standard`, `wide`, `full`)           | `/components/PageLayout`         |
+| `PageHeader`                                                   | A page's title, description, actions and error banner       | `/components/PageHeader`         |
+| `StatCard`                                                     | A dashboard metric, on Astryx `Card`                        | `/components/StatCard`           |
+| `ErrorState`                                                   | A full-area error with recovery actions                     | `/components/ErrorState`         |
+| `SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow` | Loading placeholders drawn with Astryx `Skeleton`           | `/components/Skeleton`           |
+| `SmoothHeight`                                                 | Animates a container toward its content's height            | `/components/SmoothHeight`       |
+| `DigitPopIn`                                                   | A number whose characters pop in, one after another         | `/components/DigitPopIn`         |
+| `CountBadge`                                                   | A count or dot overlaid on its child's corner               | `/components/CountBadge`         |
+| `DoubleBadge`                                                  | A run of Badges welded into one chip                        | `/components/DoubleBadge`        |
+| `BooleanToken`                                                 | An on/off value as a Token                                  | `/components/BooleanToken`       |
+| `IconWithTooltip`                                              | A focusable glyph that explains itself in a Tooltip         | `/components/IconWithTooltip`    |
+| `ImageWithFallback`                                            | An image that renders a fallback node when it fails to load | `/components/ImageWithFallback`  |
+| `NotificationStack`                                            | Floating notices with task progress and actions             | `/components/NotificationStack`  |
+| `OverlayScrollbar`                                             | A persistent scroll thumb drawn over a scroll container     | `/components/OverlayScrollbar`   |
+| `ConfirmPopover`                                               | A one-click confirmation anchored to its trigger            | `/components/ConfirmPopover`     |
+| `SelectionLabel`                                               | "3 selected", with a button that clears the selection       | `/components/SelectionLabel`     |
+| `UncontrolledInput`                                            | A field that reports its value on Enter or blur             | `/components/UncontrolledInput`  |
+| `AlertModal`                                                   | An alert dialog on `Modal`'s surface, in its level stack    | `/components/AlertModal`         |
+| `DeleteConfirmModal`                                           | Confirms a deletion, with typed confirmation when needed    | `/components/DeleteConfirmModal` |
+| `StepNumberInput`, `NumberStepper`                             | A number field that steps along a list of values            | `/components/StepNumberInput`    |
+| `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook         | root only                        |
 
 Their styles live in `@layer ui-common`, under `uic-` class names.
 

@@ -61,6 +61,9 @@ export const docs = {
             "`ConfirmPopover`: a one-click confirmation on Popover, for reversible actions.",
             '`SelectionLabel`: "3 selected" with a button that clears the selection.',
             "`UncontrolledInput`: a text or number field that reports its value on Enter or blur.",
+            "`AlertModal`: the alert-dialog pattern on Modal, in its level stack. Use it instead of AlertDialog.",
+            "`DeleteConfirmModal`: confirms a deletion on Modal; typed confirmation for irreversible ones.",
+            "`StepNumberInput`: a number field that steps along a list of values (1, 2, 4, 8); `NumberStepper` is its stepper column.",
           ],
         },
         {
