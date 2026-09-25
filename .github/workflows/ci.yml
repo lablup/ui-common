@@ -40,6 +40,9 @@ jobs:
       - name: Public boundary
         run: pnpm run check:boundary
 
+      - name: Built Lablup theme is up to date
+        run: pnpm run theme:check
+
       - name: Test
         run: pnpm run test
 
@@ -48,6 +51,9 @@ jobs:
 
       - name: Packed artifact and export paths
         run: pnpm run check:pack
+
+      - name: Astryx CLI integration
+        run: pnpm run check:integration
 
   external-install:
     # Building green is not the same as being installable. This consumes the

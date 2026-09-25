@@ -27,6 +27,8 @@
   "packageManager": "pnpm@11.19.0",
   "files": [
     "dist",
+    "astryx",
+    "astryx.integration.mjs",
     "NOTICE"
   ],
   "exports": {
@@ -565,7 +567,8 @@
     "theme:check": "astryx theme build -c src/theme/lablup/lablupTheme.ts -o src/theme/lablup/built/theme.css --icons-specifier @astryxdesign/theme-neutral",
     "check:pack": "node scripts/check-pack.mjs",
     "check:boundary": "node scripts/check-boundary.mjs",
-    "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run theme:check && pnpm run test && pnpm run build && pnpm run check:pack"
+    "check:integration": "astryx doctor integration validate && astryx integration pack --check",
+    "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run theme:check && pnpm run test && pnpm run build && pnpm run check:pack && pnpm run check:integration"
   },
   "dependencies": {
     "@astryxdesign/cli": "0.6.2",
