@@ -11,6 +11,10 @@
     "defaultMessage": "確認",
     "description": "Generic label of a button that confirms an action"
   },
+  "uic.common.delete": {
+    "defaultMessage": "消去",
+    "description": "Generic label of a button that deletes something"
+  },
   "uic.common.retry": {
     "defaultMessage": "再試行",
     "description": "Generic label of a button that retries a failed action or load"
@@ -23,9 +27,45 @@
     "defaultMessage": "いいえ",
     "description": "Default label of a token showing a boolean value that is false"
   },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "削除",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {# 件を削除}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "本当に削除しますか？",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "{target}を完全に削除してもよろしいですか？",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "{confirmText} と入力して確認してください。",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "消去",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "この操作は元に戻せません。",
+    "description": "Warning that the deletion is permanent"
+  },
   "uic.NotificationStack.progress": {
     "defaultMessage": "タスクの進行状況",
     "description": "Accessible name of a notice's progress bar when the notice title is not plain text"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "増やす",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "減らす",
+    "description": "Accessible name of the button that steps a number field down"
   },
   "uic.PageHeader.dismissError": {
     "defaultMessage": "エラーを閉じる",

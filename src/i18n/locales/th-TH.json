@@ -7,6 +7,46 @@
     "defaultMessage": "ยืนยัน",
     "description": "Generic label of a button that confirms an action"
   },
+  "uic.common.delete": {
+    "defaultMessage": "ลบ",
+    "description": "Generic label of a button that deletes something"
+  },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "ลบ",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {ลบ # รายการ}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "คุณแน่ใจหรือไม่ว่าต้องการลบ?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "คุณแน่ใจหรือไม่ว่าต้องการลบ {target} อย่างถาวร?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "พิมพ์ {confirmText} เพื่อยืนยัน",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "ลบ",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "การกระทำนี้ไม่สามารถยกเลิกได้",
+    "description": "Warning that the deletion is permanent"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "เพิ่ม",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "ลด",
+    "description": "Accessible name of the button that steps a number field down"
+  },
   "uic.SelectionLabel.selectedCount": {
     "defaultMessage": "{count} เลือก",
     "description": "How many items are selected, e.g. rows of a table; {count} is the number"

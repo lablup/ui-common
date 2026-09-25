@@ -1,0 +1,73 @@
+/*
+ * NumberStepper, drawn as Astryx's NumberInput draws its own stepper, from
+ * the same tokens:
+ *
+ *   .uic-number-stepper          <- NumberInput styles.numberSteppers
+ *   .uic-number-stepper__button  <- styles.numberStepperButton
+ *   ...--decrease                <- styles.decrementButton
+ *   ...--increase > *            <- styles.incrementIcon
+ *
+ * Astryx's column sits inside the input box and draws one leading hairline.
+ * This one is an InputGroup segment, so InputGroupText's border draws that
+ * hairline and collapses with its neighbours.
+ */
+@layer ui-common {
+  /* The addon slot becomes the column: no text padding, no muted addon fill. */
+  .uic-number-stepper {
+    flex-direction: column;
+    align-items: stretch;
+    padding-inline: 0;
+    width: var(--spacing-4);
+    overflow: hidden;
+    background-color: var(--color-background-surface);
+  }
+
+  .uic-number-stepper__button {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    cursor: pointer;
+    color: var(--color-icon-secondary);
+    background-color: var(--color-background-surface);
+  }
+
+  /* Astryx paints hover and press as a gradient over the surface. */
+  @media (hover: hover) {
+    .uic-number-stepper__button:not(:disabled):hover {
+      background-image: linear-gradient(
+        var(--color-overlay-hover),
+        var(--color-overlay-hover)
+      );
+    }
+  }
+
+  .uic-number-stepper__button:not(:disabled):active {
+    background-image: linear-gradient(
+      var(--color-overlay-pressed),
+      var(--color-overlay-pressed)
+    );
+  }
+
+  .uic-number-stepper__button:disabled {
+    color: var(--color-icon-disabled);
+    cursor: default;
+    background-image: none;
+  }
+
+  /* The hairline between the halves. */
+  .uic-number-stepper__button--decrease {
+    border-block-start: var(--border-width) solid var(--color-border-emphasized);
+  }
+
+  /* One chevron, rotated for the upper half. Astryx rotates the Icon root,
+     which is the button's only child. */
+  .uic-number-stepper__button--increase > * {
+    transform: rotate(180deg);
+  }
+}

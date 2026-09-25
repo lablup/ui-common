@@ -7,6 +7,46 @@
     "defaultMessage": "Vahvista",
     "description": "Generic label of a button that confirms an action"
   },
+  "uic.common.delete": {
+    "defaultMessage": "Poistaa",
+    "description": "Generic label of a button that deletes something"
+  },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "Poista",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {Poista # kohdetta}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "Haluatko varmasti poistaa?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "Haluatko varmasti poistaa {target} pysyvästi?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "Kirjoita {confirmText} vahvistaaksesi.",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "Poistaa",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "Tätä toimintoa ei voi peruuttaa.",
+    "description": "Warning that the deletion is permanent"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "Lisää",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "Vähennä",
+    "description": "Accessible name of the button that steps a number field down"
+  },
   "uic.SelectionLabel.selectedCount": {
     "defaultMessage": "{count} valittu",
     "description": "How many items are selected, e.g. rows of a table; {count} is the number"

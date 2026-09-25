@@ -11,6 +11,10 @@
     "defaultMessage": "확인",
     "description": "Generic label of a button that confirms an action"
   },
+  "uic.common.delete": {
+    "defaultMessage": "삭제",
+    "description": "Generic label of a button that deletes something"
+  },
   "uic.common.retry": {
     "defaultMessage": "다시 시도",
     "description": "Generic label of a button that retries a failed action or load"
@@ -23,9 +27,45 @@
     "defaultMessage": "아니요",
     "description": "Default label of a token showing a boolean value that is false"
   },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "삭제",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {#개 항목 삭제}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "정말 삭제하시겠습니까?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "{target}을(를) 영구 삭제하시겠습니까?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "{confirmText}을(를) 입력해주세요.",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "삭제",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "이 작업은 되돌릴 수 없습니다.",
+    "description": "Warning that the deletion is permanent"
+  },
   "uic.NotificationStack.progress": {
     "defaultMessage": "작업 진행률",
     "description": "Accessible name of a notice's progress bar when the notice title is not plain text"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "증가",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "감소",
+    "description": "Accessible name of the button that steps a number field down"
   },
   "uic.PageHeader.dismissError": {
     "defaultMessage": "오류 닫기",

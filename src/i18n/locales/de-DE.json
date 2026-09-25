@@ -7,6 +7,46 @@
     "defaultMessage": "Bestätigen",
     "description": "Generic label of a button that confirms an action"
   },
+  "uic.common.delete": {
+    "defaultMessage": "Löschen",
+    "description": "Generic label of a button that deletes something"
+  },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "Löschen",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {# Elemente löschen}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "Sind Sie sicher, dass Sie löschen möchten?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "Möchten Sie {target} wirklich dauerhaft löschen?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "Geben Sie {confirmText} ein, um zu bestätigen.",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "Löschen",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "description": "Warning that the deletion is permanent"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "Erhöhen",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "Verringern",
+    "description": "Accessible name of the button that steps a number field down"
+  },
   "uic.SelectionLabel.selectedCount": {
     "defaultMessage": "{count} ausgewählt",
     "description": "How many items are selected, e.g. rows of a table; {count} is the number"

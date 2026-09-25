@@ -1312,6 +1312,10 @@ export type {
   WordBreak,
 } from "@astryxdesign/core";
 
+// AlertModal
+export { AlertModal } from "./components/AlertModal";
+export type { AlertModalProps } from "./components/AlertModal";
+
 // BooleanToken
 export { BooleanToken } from "./components/BooleanToken";
 export type { BooleanTokenProps } from "./components/BooleanToken";
@@ -1323,6 +1327,13 @@ export type { ConfirmPopoverProps } from "./components/ConfirmPopover";
 // CountBadge
 export { CountBadge } from "./components/CountBadge";
 export type { CountBadgeProps } from "./components/CountBadge";
+
+// DeleteConfirmModal
+export { DeleteConfirmModal } from "./components/DeleteConfirmModal";
+export type {
+  DeleteConfirmModalItem,
+  DeleteConfirmModalProps,
+} from "./components/DeleteConfirmModal";
 
 // DigitPopIn
 export { DigitPopIn } from "./components/DigitPopIn";
@@ -1422,6 +1433,18 @@ export type {
   StatCardTrend,
   StatCardTrendDirection,
 } from "./components/StatCard";
+
+// StepNumberInput
+export {
+  NumberStepper,
+  StepNumberInput,
+  getNextStepIndex,
+} from "./components/StepNumberInput";
+export type {
+  NumberStepperProps,
+  StepDirection,
+  StepNumberInputProps,
+} from "./components/StepNumberInput";
 
 // UncontrolledInput
 export { UncontrolledInput } from "./components/UncontrolledInput";

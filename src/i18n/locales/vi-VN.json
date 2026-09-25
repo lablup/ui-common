@@ -7,6 +7,46 @@
     "defaultMessage": "Xác nhận",
     "description": "Generic label of a button that confirms an action"
   },
+  "uic.common.delete": {
+    "defaultMessage": "Xóa bỏ",
+    "description": "Generic label of a button that deletes something"
+  },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "Xóa",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {Xóa # mục}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "Bạn có chắc chắn muốn xóa không?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "Bạn có chắc muốn xóa vĩnh viễn {target} không?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "Nhập {confirmText} để xác nhận.",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "Xóa bỏ",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "Hành động này không thể hoàn tác.",
+    "description": "Warning that the deletion is permanent"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "Tăng",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "Giảm",
+    "description": "Accessible name of the button that steps a number field down"
+  },
   "uic.SelectionLabel.selectedCount": {
     "defaultMessage": "{count} Đã chọn",
     "description": "How many items are selected, e.g. rows of a table; {count} is the number"

@@ -19,6 +19,10 @@ export const commonMessages = defineMessages({
     defaultMessage: "Confirm",
     description: "Generic label of a button that confirms an action",
   },
+  "uic.common.delete": {
+    defaultMessage: "Delete",
+    description: "Generic label of a button that deletes something",
+  },
   "uic.common.retry": {
     defaultMessage: "Retry",
     description: "Generic label of a button that retries a failed action or load",

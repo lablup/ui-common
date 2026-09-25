@@ -7,6 +7,46 @@
     "defaultMessage": "Confirmar",
     "description": "Generic label of a button that confirms an action"
   },
+  "uic.common.delete": {
+    "defaultMessage": "Excluir",
+    "description": "Generic label of a button that deletes something"
+  },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "Eliminar",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {Eliminar # itens}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "Tem a certeza de que pretende eliminar?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "Tem certeza de que deseja excluir permanentemente {target}?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "Escreva {confirmText} para confirmar.",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "Excluir",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "Esta ação não pode ser anulada.",
+    "description": "Warning that the deletion is permanent"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "Aumentar",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "Diminuir",
+    "description": "Accessible name of the button that steps a number field down"
+  },
   "uic.SelectionLabel.selectedCount": {
     "defaultMessage": "{count} selecionado",
     "description": "How many items are selected, e.g. rows of a table; {count} is the number"

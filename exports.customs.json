@@ -1,7 +1,9 @@
 [
+  { "name": "AlertModal", "source": "components/AlertModal/index.ts" },
   { "name": "BooleanToken", "source": "components/BooleanToken/index.ts" },
   { "name": "ConfirmPopover", "source": "components/ConfirmPopover/index.ts" },
   { "name": "CountBadge", "source": "components/CountBadge/index.ts" },
+  { "name": "DeleteConfirmModal", "source": "components/DeleteConfirmModal/index.ts" },
   { "name": "DigitPopIn", "source": "components/DigitPopIn/index.ts" },
   { "name": "DoubleBadge", "source": "components/DoubleBadge/index.ts" },
   { "name": "ErrorState", "source": "components/ErrorState/index.ts" },
@@ -16,6 +18,7 @@
   { "name": "Skeleton composites", "source": "components/Skeleton/index.ts" },
   { "name": "SmoothHeight", "source": "components/SmoothHeight/index.ts" },
   { "name": "StatCard", "source": "components/StatCard/index.ts" },
+  { "name": "StepNumberInput", "source": "components/StepNumberInput/index.ts" },
   { "name": "UncontrolledInput", "source": "components/UncontrolledInput/index.ts" },
   { "name": "usePrefersReducedMotion", "source": "hooks/index.ts" }
 ]
