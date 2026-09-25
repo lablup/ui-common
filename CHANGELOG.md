@@ -5,6 +5,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.1]
+
 The component layer moves onto Astryx: the 0.1 look-alikes are gone, the
 components Astryx has no counterpart for are rebuilt on it with their 0.1
 props, and `Modal` takes the place of the hidden `Dialog`.
