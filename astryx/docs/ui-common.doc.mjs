@@ -54,6 +54,10 @@ export const docs = {
             "`ErrorState`: a full-area error with recovery actions.",
             "`SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow`: loading placeholders drawn with Astryx Skeleton.",
             "`SmoothHeight`, `DigitPopIn`: height and number motion.",
+            "`CountBadge`, `DoubleBadge`, `BooleanToken`: a count overlaid on a child, welded Badges, and an on/off Token.",
+            "`IconWithTooltip`: a focusable glyph with a Tooltip. `ImageWithFallback`: an image that falls back to a node.",
+            "`NotificationStack`: floating notices with task progress, Cancel/Retry and an action; the caller owns the list.",
+            "`OverlayScrollbar`: a persistent scroll thumb over a scroll container, in place of its native bar.",
           ],
         },
         {

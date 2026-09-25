@@ -75,16 +75,23 @@ Pick a different name, or use the Astryx component.
 
 ## Components
 
-| Component                                                      | Source                         | Built on                                    |
-| -------------------------------------------------------------- | ------------------------------ | ------------------------------------------- |
-| `Modal`                                                        | `src/components/Modal/`        | `Dialog` (inline), `DialogHeader`, `Layout` |
-| `PageLayout`                                                   | `src/components/PageLayout/`   | plain CSS                                   |
-| `PageHeader`                                                   | `src/components/PageHeader/`   | `Heading`, `Text`, `Button`, `IconButton`   |
-| `StatCard`                                                     | `src/components/StatCard/`     | `Card`, `ClickableCard`, `Text`, `Skeleton` |
-| `ErrorState`                                                   | `src/components/ErrorState/`   | `Icon`, `Heading`, `Text`, `Button`         |
-| `SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow` | `src/components/Skeleton/`     | `Skeleton`                                  |
-| `SmoothHeight`                                                 | `src/components/SmoothHeight/` | plain CSS                                   |
-| `DigitPopIn`                                                   | `src/components/DigitPopIn/`   | plain CSS                                   |
+| Component                                                      | Source                              | Built on                                           |
+| -------------------------------------------------------------- | ----------------------------------- | -------------------------------------------------- |
+| `Modal`                                                        | `src/components/Modal/`             | `Dialog` (inline), `DialogHeader`, `Layout`        |
+| `PageLayout`                                                   | `src/components/PageLayout/`        | plain CSS                                          |
+| `PageHeader`                                                   | `src/components/PageHeader/`        | `Heading`, `Text`, `Button`, `IconButton`          |
+| `StatCard`                                                     | `src/components/StatCard/`          | `Card`, `ClickableCard`, `Text`, `Skeleton`        |
+| `ErrorState`                                                   | `src/components/ErrorState/`        | `Icon`, `Heading`, `Text`, `Button`                |
+| `SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow` | `src/components/Skeleton/`          | `Skeleton`                                         |
+| `SmoothHeight`                                                 | `src/components/SmoothHeight/`      | plain CSS                                          |
+| `DigitPopIn`                                                   | `src/components/DigitPopIn/`        | plain CSS                                          |
+| `CountBadge`                                                   | `src/components/CountBadge/`        | `Badge`                                            |
+| `DoubleBadge`                                                  | `src/components/DoubleBadge/`       | `Badge`, `HStack`                                  |
+| `BooleanToken`                                                 | `src/components/BooleanToken/`      | `Token`                                            |
+| `IconWithTooltip`                                              | `src/components/IconWithTooltip/`   | `Tooltip`, `Text`                                  |
+| `ImageWithFallback`                                            | `src/components/ImageWithFallback/` | plain `<img>`                                      |
+| `NotificationStack`                                            | `src/components/NotificationStack/` | `Banner`, `Button`, `ProgressBar`, `Stack`, `Text` |
+| `OverlayScrollbar`                                             | `src/components/OverlayScrollbar/`  | plain CSS                                          |
 
 Each has tests beside it. `src/components/componentStyles.test.ts` holds every
 stylesheet to the styling rules below.
