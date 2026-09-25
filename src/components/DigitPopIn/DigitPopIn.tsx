@@ -26,7 +26,7 @@ export interface DigitPopInProps {
 
 export function DigitPopIn({ text, className = "" }: DigitPopInProps): JSX.Element {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const rootClass = ["digit-pop-in", className].filter(Boolean).join(" ");
+  const rootClass = ["uic-digit-pop-in", className].filter(Boolean).join(" ");
 
   if (prefersReducedMotion) {
     return <span className={rootClass}>{text}</span>;
@@ -34,17 +34,17 @@ export function DigitPopIn({ text, className = "" }: DigitPopInProps): JSX.Eleme
 
   return (
     <span className={rootClass}>
-      <span className="digit-pop-in__text">{text}</span>
+      <span className="uic-digit-pop-in__text">{text}</span>
       {/* Keyed on the text, so a new value remounts the characters and the
           animation plays again. */}
-      <span key={text} className="digit-pop-in__digits" aria-hidden="true">
+      <span key={text} className="uic-digit-pop-in__digits" aria-hidden="true">
         {Array.from(text).map((char, index) => (
           <span
             // Position is the identity: the list is rebuilt whole whenever
             // the text changes.
             key={index}
-            className="digit-pop-in__digit"
-            style={{ "--digit-pop-in-index": index } as CSSProperties}
+            className="uic-digit-pop-in__digit"
+            style={{ "--uic-digit-pop-in-index": index } as CSSProperties}
           >
             {char === " " ? " " : char}
           </span>

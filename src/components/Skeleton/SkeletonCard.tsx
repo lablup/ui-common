@@ -1,19 +1,19 @@
 /**
- * SkeletonCard Component
+ * SkeletonCard
  *
- * Skeleton placeholder for card components (model cards, stat cards, etc.).
- * Mimics the structure of a typical card with header, content, and footer areas.
+ * Loading placeholder shaped like a card: a header line, three body lines and
+ * two footer buttons. `compact` drops the footer; `stat` is an avatar beside
+ * two lines, the shape of a `StatCard`.
+ *
+ * One live region: the container is `role="status"` with the name, and every
+ * shape inside is Astryx's decorative `Skeleton`.
  *
  * @example
- * // Basic usage
  * <SkeletonCard />
- *
- * @example
- * // Compact variant
  * <SkeletonCard variant="compact" />
  */
-
-import { Skeleton } from "./Skeleton";
+import { useUicTranslator } from "../../i18n/useUicTranslator";
+import { SkeletonShape } from "./SkeletonShape";
 import "./SkeletonCard.css";
 
 export interface SkeletonCardProps {
@@ -23,25 +23,21 @@ export interface SkeletonCardProps {
   className?: string;
   /** Test ID for testing */
   testId?: string;
-  /** Accessible name announced for the placeholder as a whole. Defaults to "Loading". */
+  /**
+   * Accessible name announced for the placeholder as a whole. Defaults to the
+   * catalog's `uic.SkeletonCard.loading` ("Loading").
+   */
   loadingLabel?: string;
 }
 
-/**
- * SkeletonCard provides a loading placeholder for card components.
- *
- * Variants:
- * - default: Full card with header, content, and footer
- * - compact: Smaller card with reduced padding
- * - stat: Statistics card layout
- */
 export function SkeletonCard({
   variant = "default",
   className = "",
   testId,
   loadingLabel,
 }: SkeletonCardProps) {
-  const classNames = ["skeleton-card", `skeleton-card--${variant}`, className]
+  const t = useUicTranslator();
+  const classNames = ["uic-skeleton-card", `uic-skeleton-card--${variant}`, className]
     .filter(Boolean)
     .join(" ");
 
@@ -51,32 +47,30 @@ export function SkeletonCard({
       data-testid={testId}
       role="status"
       aria-busy="true"
-      aria-label={loadingLabel ?? "Loading"}
+      aria-label={loadingLabel ?? t("uic.SkeletonCard.loading")}
     >
       {variant === "stat" ? (
-        <>
-          <div className="skeleton-card__header">
-            <Skeleton decorative width="48px" height="48px" variant="circle" />
-            <div className="skeleton-card__header-text">
-              <Skeleton decorative width="60%" height="16px" />
-              <Skeleton decorative width="40%" height="24px" />
-            </div>
+        <div className="uic-skeleton-card__header">
+          <SkeletonShape width="3rem" height="3rem" shape="circle" />
+          <div className="uic-skeleton-card__header-text">
+            <SkeletonShape width="60%" height="1rem" index={1} />
+            <SkeletonShape width="40%" height="1.5rem" index={2} />
           </div>
-        </>
+        </div>
       ) : (
         <>
-          <div className="skeleton-card__header">
-            <Skeleton decorative width="70%" height="20px" />
+          <div className="uic-skeleton-card__header">
+            <SkeletonShape width="70%" height="1.25rem" />
           </div>
-          <div className="skeleton-card__content">
-            <Skeleton decorative width="100%" height="16px" />
-            <Skeleton decorative width="90%" height="16px" />
-            <Skeleton decorative width="80%" height="16px" />
+          <div className="uic-skeleton-card__content">
+            <SkeletonShape width="100%" height="1rem" index={1} />
+            <SkeletonShape width="90%" height="1rem" index={2} />
+            <SkeletonShape width="80%" height="1rem" index={3} />
           </div>
           {variant !== "compact" && (
-            <div className="skeleton-card__footer">
-              <Skeleton decorative width="80px" height="32px" />
-              <Skeleton decorative width="80px" height="32px" />
+            <div className="uic-skeleton-card__footer">
+              <SkeletonShape width="5rem" height="2rem" index={4} />
+              <SkeletonShape width="5rem" height="2rem" index={5} />
             </div>
           )}
         </>

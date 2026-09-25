@@ -1,31 +1,28 @@
 /**
- * ErrorState Component
+ * ErrorState
  *
- * Unified error state component with recovery actions.
- * Provides consistent error presentation across all pages with actionable buttons.
+ * A full-area error with a title, a message and up to two recovery actions.
+ * Built on Astryx `Icon`, `Heading`, `Text` and `Button`.
  *
- * Features:
- * - Three visual tones
- * - Primary and secondary action buttons
- * - Accessible (ARIA attributes, focus management)
- * - Dark/light theme support
+ * @example
+ * <ErrorState
+ *   tone="warning"
+ *   title="Connection error"
+ *   message="Could not reach the server."
+ *   primaryAction={{ label: "Retry", onClick: retry }}
+ * />
  */
-
 import type { ReactNode } from "react";
-import { useCallback } from "react";
-import { AlertCircleIcon } from "../../icons/AlertCircleIcon";
-import { Button } from "../Button";
+import { Button } from "@astryxdesign/core/Button";
+import { Heading } from "@astryxdesign/core/Heading";
+import { Icon } from "@astryxdesign/core/Icon";
+import { Text } from "@astryxdesign/core/Text";
+
 import "./ErrorState.css";
 
 /**
- * How the error reads, not what it is about.
- *
- * This prop used to be a union of five names: network, configuration, model,
- * permission, generic. Two of those, and "model" in particular, are one
- * product's categories rather than anything a shared component can reason
- * about, and all five resolved to three colours anyway: network and permission
- * were the same amber, model and generic the same red. A consumer decides
- * which of its own error categories reads as which tone.
+ * How the error reads, not what it is about. A consumer maps its own error
+ * categories onto these three.
  */
 export type ErrorTone = "danger" | "warning" | "accent";
 
@@ -37,25 +34,22 @@ export interface ErrorAction {
 export interface ErrorStateProps {
   /** How the error reads. Defaults to `danger`. */
   tone?: ErrorTone;
-  /** Replaces the default alert icon. */
+  /** Replaces the default icon (Astryx's `error` glyph). */
   icon?: ReactNode;
-  /** Error title - main heading */
+  /** Error title, the region's heading */
   title: string;
   /** Detailed error message */
   message: string;
-  /** Primary action button (e.g., Retry, Go to Settings) */
+  /** Primary action button (e.g. Retry, Go to settings) */
   primaryAction?: ErrorAction;
-  /** Secondary action button (e.g., View Logs, Report Issue) */
+  /** Secondary action button (e.g. View logs, Report issue) */
   secondaryAction?: ErrorAction;
   /** Additional CSS classes */
   className?: string;
-  /** Whether to show error icon */
+  /** Whether to show the icon. Default: true */
   showIcon?: boolean;
 }
 
-/**
- * ErrorState Component
- */
 export function ErrorState({
   tone = "danger",
   icon,
@@ -66,50 +60,43 @@ export function ErrorState({
   className = "",
   showIcon = true,
 }: ErrorStateProps) {
-  const handlePrimaryAction = useCallback(() => {
-    primaryAction?.onClick();
-  }, [primaryAction]);
-
-  const handleSecondaryAction = useCallback(() => {
-    secondaryAction?.onClick();
-  }, [secondaryAction]);
-
-  const containerClass = ["error-state", `error-state--${tone}`, className]
+  const containerClass = ["uic-error-state", `uic-error-state--${tone}`, className]
     .filter(Boolean)
     .join(" ");
 
   return (
     <div className={containerClass} role="alert" aria-live="polite">
       {showIcon && (
-        <div className="error-state__icon" aria-hidden="true">
-          {icon ?? <AlertCircleIcon size={48} />}
+        <div className="uic-error-state__icon" aria-hidden="true">
+          {icon ?? <Icon icon="error" />}
         </div>
       )}
 
-      <h2 className="error-state__title">{title}</h2>
+      <Heading level={2} className="uic-error-state__title">
+        {title}
+      </Heading>
 
-      <p className="error-state__message">{message}</p>
+      <Text as="p" color="secondary" className="uic-error-state__message">
+        {message}
+      </Text>
 
       {(primaryAction || secondaryAction) && (
-        <div className="error-state__actions">
+        <div className="uic-error-state__actions">
           {primaryAction && (
             <Button
               variant="primary"
-              onClick={handlePrimaryAction}
-              className="error-state__action-btn error-state__action-btn--primary"
-            >
-              {primaryAction.label}
-            </Button>
+              label={primaryAction.label}
+              onClick={() => primaryAction.onClick()}
+              className="uic-error-state__action uic-error-state__action--primary"
+            />
           )}
-
           {secondaryAction && (
             <Button
               variant="secondary"
-              onClick={handleSecondaryAction}
-              className="error-state__action-btn error-state__action-btn--secondary"
-            >
-              {secondaryAction.label}
-            </Button>
+              label={secondaryAction.label}
+              onClick={() => secondaryAction.onClick()}
+              className="uic-error-state__action uic-error-state__action--secondary"
+            />
           )}
         </div>
       )}

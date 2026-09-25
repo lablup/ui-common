@@ -1,7 +1,8 @@
 /**
  * Skeleton Components
  *
- * Loading state components with shimmer animations.
+ * Loading state components. The composites are drawn with Astryx `Skeleton`;
+ * the 0.1 base `Skeleton` is deprecated.
  */
 
 export { Skeleton } from "./Skeleton";

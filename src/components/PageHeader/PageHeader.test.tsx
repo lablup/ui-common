@@ -33,7 +33,7 @@ describe("PageHeader", () => {
       const { container } = render(<PageHeader title="Models" />);
 
       expect(
-        container.querySelector(".page-header__description"),
+        container.querySelector(".uic-page-header__description"),
       ).not.toBeInTheDocument();
     });
 
@@ -48,7 +48,9 @@ describe("PageHeader", () => {
     it("does not render an actions wrapper when omitted", () => {
       const { container } = render(<PageHeader title="Settings" />);
 
-      expect(container.querySelector(".page-header__actions")).not.toBeInTheDocument();
+      expect(
+        container.querySelector(".uic-page-header__actions"),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -124,7 +126,7 @@ describe("PageHeader", () => {
       );
 
       const header = container.querySelector("header");
-      expect(header).toHaveClass("page-header");
+      expect(header).toHaveClass("uic-page-header");
       expect(header).toHaveClass("custom-header");
     });
   });
@@ -145,7 +147,7 @@ describe("error detail and retry", () => {
 
   it("renders no detail line when none is given", () => {
     const { container } = render(<PageHeader title="Fleet" error="Boom" />);
-    expect(container.querySelector(".page-header__error-detail")).toBeNull();
+    expect(container.querySelector(".uic-page-header__error-detail")).toBeNull();
   });
 
   it("calls onRetry from the retry button, with a default label", () => {
@@ -186,6 +188,6 @@ describe("error detail and retry", () => {
 
   it("renders no action row when neither callback is given", () => {
     const { container } = render(<PageHeader title="Fleet" error="Boom" />);
-    expect(container.querySelector(".page-header__error-actions")).toBeNull();
+    expect(container.querySelector(".uic-page-header__error-actions")).toBeNull();
   });
 });
