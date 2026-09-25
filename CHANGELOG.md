@@ -5,6 +5,52 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.3]
+
+Three more components move in from backend.ai-ui, and ui-common's strings
+are translated into every language backend.ai-ui ships.
+
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `ConfirmPopover`: a one-click confirmation on `Popover` for reversible
+    actions: `title`, `description`, `icon`, `onAction` (may be async; the
+    popover closes when it resolves), `actionLabel`, `actionVariant`,
+    `isActionDisabled`, `onCancel`, `cancelLabel`. Cancel takes focus first
+    and focus returns to the trigger on close. Every other `Popover` prop,
+    the render-prop trigger included, passes through.
+  - `SelectionLabel`: "3 selected" with an optional clear button (`count`,
+    `onClear`, `label`, `clearLabel`, `clearIcon`).
+  - `UncontrolledInput`: a `TextInput`, or a `NumberInput` for
+    `type="number"`, that calls `onCommit` on Enter and on blur only.
+- Shared catalog keys `uic.common.{ok,cancel,confirm,retry}` for the generic
+  action labels, and `uic.SelectionLabel.{selectedCount,clear}` and
+  `uic.UncontrolledInput.label`.
+- Translations for every language backend.ai-ui ships, carried over from its
+  locale files: `de-DE`, `el-GR`, `es-ES`, `fi-FI`, `fr-FR`, `id-ID`,
+  `it-IT`, `mn-MN`, `ms-MY`, `pl-PL`, `pt-BR`, `pt-PT`, `ru-RU`, `th-TH`,
+  `tr-TR`, `vi-VN`, `zh-CN` and `zh-TW`, next to `ko-KR` and `ja-JP`.
+  `id-ID`, `mn-MN`, `ms-MY` and `th-TH` have no Astryx catalog; they are the
+  names backend.ai-ui gives Astryx's provider. Strings those languages have
+  no translation for yet are an explicit allowlist in the catalog test.
+
+### Changed
+
+- **Catalog keys renamed** to the shared keys. A consumer that overrides one
+  under its old name must use the new one:
+  `uic.Modal.ok` → `uic.common.ok`; `uic.Modal.cancel` and
+  `uic.NotificationStack.cancel` → `uic.common.cancel`;
+  `uic.NotificationStack.retry` and `uic.PageHeader.retry` →
+  `uic.common.retry`. The English and the `ko-KR`/`ja-JP` text are unchanged.
+
+### Fixed
+
+- `UncontrolledInput` with `type="number"` commits the value just entered.
+  The backend.ai-ui original committed the previous one, because
+  `NumberInput` reports the new value in the same event as Enter or blur.
+
 ## [0.2.0-alpha.2]
 
 Seven components move in from backend.ai-ui, and the `ui-common` bin ships:
