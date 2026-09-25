@@ -198,8 +198,25 @@ describe("ui-common catalog", () => {
   });
 
   it("keeps the English placeholders and parses as ICU MessageFormat", () => {
-    const argumentsOf = (message: string) =>
-      [...message.matchAll(/\{(\w+)/g)].map((m) => m[1]).sort();
+    // Argument names from the parsed message, so a plural's branches count as
+    // text. Literal (0) and `#` (7) nodes carry no argument.
+    type AstNode = {
+      type: number;
+      value?: unknown;
+      options?: Record<string, { value: AstNode[] }>;
+    };
+    const argumentsOf = (message: string) => {
+      const names = new Set<string>();
+      const walk = (nodes: AstNode[]) => {
+        for (const node of nodes) {
+          if (node.type !== 0 && node.type !== 7 && typeof node.value === "string")
+            names.add(node.value);
+          for (const option of Object.values(node.options ?? {})) walk(option.value);
+        }
+      };
+      walk(new IntlMessageFormat(message, "en").getAst() as AstNode[]);
+      return [...names].sort();
+    };
     for (const file of translationFiles) {
       for (const [key, entry] of Object.entries(readLocale(file))) {
         const message = entry.defaultMessage ?? "";
