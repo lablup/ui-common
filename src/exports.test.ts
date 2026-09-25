@@ -113,4 +113,40 @@ describe("export surface rules", () => {
       );
     }
   });
+
+  it("gives Modal its own subpath and keeps it in the root barrel", () => {
+    expect(result.exports["./Modal"]).toEqual({
+      types: "./dist/components/Modal/index.d.ts",
+      import: "./dist/components/Modal/index.js",
+    });
+    const barrel = result.files.get("src/index.ts") ?? "";
+    expect(barrel).toMatch(
+      /export \{[^}]*\bModal,[^}]*\} from "\.\/components\/Modal"/,
+    );
+  });
+
+  it("lets Modal re-export Dialog's own parts unchanged, and nothing else of Dialog", () => {
+    expect([...result.report.reinstated].sort()).toEqual([
+      "DialogHeader",
+      "DialogHeaderProps",
+      "DialogPosition",
+      "DialogPurpose",
+      "DialogVariant",
+    ]);
+    const barrel = result.files.get("src/index.ts") ?? "";
+    expect(barrel).not.toMatch(/^\s+Dialog,$/m);
+    expect(barrel).not.toMatch(/^\s+DialogProps,$/m);
+  });
+
+  it("names a replacement that exists for every exclusion", () => {
+    const exclusions = JSON.parse(
+      readFileSync(join(ROOT, "exports.exclude.json"), "utf8"),
+    ) as { name: string; replacedBy: string | null }[];
+    const customs = JSON.parse(
+      readFileSync(join(ROOT, "exports.customs.json"), "utf8"),
+    ) as { name: string }[];
+    const dialog = exclusions.find((e) => e.name === "Dialog");
+    expect(dialog?.replacedBy).toBe("Modal");
+    expect(customs.map((c) => c.name)).toContain("Modal");
+  });
 });

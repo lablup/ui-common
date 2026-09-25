@@ -9,6 +9,10 @@
  * Dialog, DialogHeader, DialogHeaderProps, DialogPosition, DialogProps,
  * DialogPurpose, DialogVariant, DialogVariantMap, ImperativeDialogReturn,
  * useImperativeDialog.
+ *
+ * Excluded Astryx names re-exported unchanged by their replacement:
+ * DialogHeader, DialogHeaderProps, DialogPosition, DialogPurpose,
+ * DialogVariant.
  */
 
 export {
@@ -1315,6 +1319,30 @@ export type { DigitPopInProps } from "./components/DigitPopIn";
 // ErrorState
 export { ErrorState } from "./components/ErrorState";
 export type { ErrorAction, ErrorStateProps, ErrorTone } from "./components/ErrorState";
+
+// Modal
+export {
+  DialogHeader,
+  MAX_MODAL_LEVEL,
+  MODAL_OPEN_ATTRIBUTE,
+  Modal,
+  ModalHeader,
+  configureModalZIndex,
+  useModalLevel,
+} from "./components/Modal";
+export type {
+  DialogHeaderProps,
+  DialogPosition,
+  DialogPurpose,
+  DialogVariant,
+  ModalActionButtonProps,
+  ModalHeaderProps,
+  ModalPosition,
+  ModalProps,
+  ModalPurpose,
+  ModalVariant,
+  ModalZIndexBand,
+} from "./components/Modal";
 
 // PageHeader
 export { PageHeader } from "./components/PageHeader";

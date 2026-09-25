@@ -1,0 +1,71 @@
+/*
+ * Modal: the mask, centering and entry motion Astryx `Dialog` gets from the
+ * top layer and `::backdrop`, restated for a portalled tree.
+ */
+@layer ui-common {
+  /* The stack writes `--uic-modal-z` on open (modalStack.ts). The literal is
+     only the fallback for a root that has not claimed a level yet: the
+     default band's base. */
+  .uic-modal {
+    position: fixed;
+    inset: 0;
+    z-index: var(--uic-modal-z, 1100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* A closed modal keeps its children mounted, as a native `<dialog>` does. */
+  .uic-modal--closed {
+    display: none;
+  }
+
+  /* Dialog's backdrop wash, without its blur: the tint separates the
+     surfaces, and the blur is the costliest repaint on screen. */
+  .uic-modal__mask {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-overlay);
+  }
+
+  /* The animated element, apart from the mask, so only this subtree becomes
+     a containing block while the keyframe's transform runs. */
+  .uic-modal__wrap {
+    --uic-modal-dir-x: 0px;
+    --uic-modal-dir-y: var(--spacing-4);
+    position: relative;
+    display: flex;
+    /* The surface can be narrower than the wrap (Dialog caps it), so the
+       gutter is centred and clicks in it reach the mask. */
+    justify-content: center;
+    pointer-events: none;
+    animation: uic-modal-enter var(--duration-medium-max) var(--ease-standard) backwards;
+  }
+
+  .uic-modal__wrap > * {
+    pointer-events: auto;
+  }
+
+  /* `position`: statically placed instead of centred. */
+  .uic-modal__wrap--positioned {
+    position: absolute;
+  }
+
+  @keyframes uic-modal-enter {
+    from {
+      opacity: 0;
+      transform: translate(var(--uic-modal-dir-x), var(--uic-modal-dir-y)) scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .uic-modal__wrap {
+      animation-name: none;
+    }
+  }
+}

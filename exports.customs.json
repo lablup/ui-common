@@ -1,6 +1,7 @@
 [
   { "name": "DigitPopIn", "source": "components/DigitPopIn/index.ts" },
   { "name": "ErrorState", "source": "components/ErrorState/index.ts" },
+  { "name": "Modal", "source": "components/Modal/index.ts", "subpath": "Modal" },
   { "name": "PageHeader", "source": "components/PageHeader/index.ts" },
   { "name": "PageLayout", "source": "components/PageLayout/index.ts" },
   { "name": "Skeleton composites", "source": "components/Skeleton/index.ts" },
