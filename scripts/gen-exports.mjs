@@ -55,6 +55,15 @@ export const OWN_EXPORTS = {
     types: "./dist/components/*/index.d.ts",
     import: "./dist/components/*/index.js",
   },
+  "./theme/lablup": {
+    types: "./dist/theme/lablup/index.d.ts",
+    import: "./dist/theme/lablup/index.js",
+  },
+  "./theme/lablup/built": {
+    types: "./dist/theme/lablup/built/lablup.d.ts",
+    import: "./dist/theme/lablup/built/lablup.js",
+  },
+  "./theme/lablup/theme.css": "./dist/theme/lablup/built/theme.css",
   "./styles/base.css": "./dist/styles/base.css",
   "./styles/themes/*.css": "./dist/styles/themes/*.css",
 };

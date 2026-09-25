@@ -28,6 +28,8 @@ function entryPoints(): Record<string, string> {
     // one-line re-export that stays a one-line re-export in dist, because
     // every @astryxdesign/* specifier is external.
     "src/astryx/**/*.ts",
+    // The Lablup brand theme, as source. Its pre-built form is copied below.
+    "src/theme/*/index.ts",
   ];
   for (const file of globSync(patterns, { cwd: root, ignore: ["**/*.test.*"] })) {
     entries[file.replace(/^src\//, "").replace(/\.ts$/, "")] = resolve(root, file);
@@ -51,6 +53,9 @@ const cssOnly = (source: string) =>
  *   `@lablup/ui-common/locales/<locale>.json`. JSON cannot re-export, so this
  *   is the one mirror that is a copy. It is taken from the installed, pinned
  *   core at build time, so it cannot drift from the JS.
+ * - `theme/lablup/built/`: the output of `astryx theme build`, committed and
+ *   shipped as is (JS, declarations and `theme.css`). Its staleness gate is
+ *   `pnpm run theme:check`.
  *
  * Stylesheets only where the source is a source directory. The copy used to
  * take the whole of `styles/`, so anything that ever landed beside the tokens
@@ -60,6 +65,11 @@ function copyAssets(): Plugin {
   const copies: { from: string; to: string; filter: (source: string) => boolean }[] = [
     { from: "src/styles", to: "dist/styles", filter: cssOnly },
     { from: "src/astryx", to: "dist/astryx", filter: cssOnly },
+    {
+      from: "src/theme/lablup/built",
+      to: "dist/theme/lablup/built",
+      filter: (source) => !/\.test\./.test(source),
+    },
     {
       from: "node_modules/@astryxdesign/core/locales",
       to: "dist/locales",
@@ -181,7 +191,10 @@ function linkComponentStyles(): Plugin {
 export default defineConfig({
   plugins: [
     react(),
-    dts({ include: ["src"], exclude: ["src/**/*.test.*", "src/test/**"] }),
+    dts({
+      include: ["src"],
+      exclude: ["src/**/*.test.*", "src/test/**", "src/theme/*/built/**"],
+    }),
     copyAssets(),
     linkComponentStyles(),
   ],

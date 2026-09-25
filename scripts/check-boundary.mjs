@@ -96,8 +96,10 @@ const ALLOWED_LABLUP_REFERENCES = ["all-smi", "backend.ai", "ui-common", "ui-ai"
 
 const DISCLOSURE = [
   {
+    // `theme/lablup/...` is this package's own brand-theme path (source dir
+    // and subpath), not a repository, so a `theme/` prefix is not a match.
     pattern: new RegExp(
-      String.raw`lablup/(?!(?:${ALLOWED_LABLUP_REFERENCES.join("|").replace(/\./g, String.raw`\.`)})(?![\w.-]))[\w.-]+`,
+      String.raw`(?<!theme/)lablup/(?!(?:${ALLOWED_LABLUP_REFERENCES.join("|").replace(/\./g, String.raw`\.`)})(?![\w.-]))[\w.-]+`,
       "i",
     ),
     reason: "references a Lablup repository that is not public",

@@ -4,7 +4,16 @@ import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "coverage", "fixture/node_modules", "fixture/dist"] },
+  {
+    ignores: [
+      "dist",
+      "coverage",
+      "fixture/node_modules",
+      "fixture/dist",
+      // `astryx theme build` output, committed as generated.
+      "src/theme/*/built/**",
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

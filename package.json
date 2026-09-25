@@ -38,6 +38,15 @@
       "types": "./dist/components/*/index.d.ts",
       "import": "./dist/components/*/index.js"
     },
+    "./theme/lablup": {
+      "types": "./dist/theme/lablup/index.d.ts",
+      "import": "./dist/theme/lablup/index.js"
+    },
+    "./theme/lablup/built": {
+      "types": "./dist/theme/lablup/built/lablup.d.ts",
+      "import": "./dist/theme/lablup/built/lablup.js"
+    },
+    "./theme/lablup/theme.css": "./dist/theme/lablup/built/theme.css",
     "./styles/base.css": "./dist/styles/base.css",
     "./styles/themes/*.css": "./dist/styles/themes/*.css",
     "./reset.css": "./dist/astryx/reset.css",
@@ -545,9 +554,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "gen:exports": "node scripts/gen-exports.mjs",
+    "theme:build": "astryx theme build src/theme/lablup/lablupTheme.ts -o src/theme/lablup/built/theme.css --icons-specifier @astryxdesign/theme-neutral",
+    "theme:check": "astryx theme build -c src/theme/lablup/lablupTheme.ts -o src/theme/lablup/built/theme.css --icons-specifier @astryxdesign/theme-neutral",
     "check:pack": "node scripts/check-pack.mjs",
     "check:boundary": "node scripts/check-boundary.mjs",
-    "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run test && pnpm run build && pnpm run check:pack"
+    "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run theme:check && pnpm run test && pnpm run build && pnpm run check:pack"
   },
   "dependencies": {
     "@astryxdesign/cli": "0.6.2",
