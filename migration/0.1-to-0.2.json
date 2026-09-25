@@ -119,7 +119,8 @@
         { "from": "loading", "to": "isLoading" },
         { "from": "iconOnly", "to": "isIconOnly" },
         { "from": "ariaLabel", "to": "aria-label" },
-        { "from": "fullWidth", "to": "width", "value": "100%" }
+        { "from": "fullWidth", "to": "width", "value": "100%" },
+        { "from": "title", "to": "tooltip" }
       ],
       "valueMaps": {
         "variant": {
@@ -333,7 +334,7 @@
         "names": {
           "Select": "Selector",
           "SelectProps": "SelectorProps",
-          "SelectOption": "SelectorOption"
+          "SelectOption": "SelectorOptionData"
         }
       },
       "alternatives": [],
@@ -580,6 +581,14 @@
       "propChanges": [],
       "classRenames": { "skeleton-row": "uic-skeleton-row" },
       "notes": []
+    }
+  ],
+  "movedExports": [
+    {
+      "name": "usePrefersReducedMotion",
+      "from": "@lablup/ui-common/hooks",
+      "to": "@lablup/ui-common",
+      "note": "From 0.2 @lablup/ui-common/hooks mirrors Astryx's hooks barrel; ui-common's own hook is at the root."
     }
   ],
   "classRenameRule": "Each keptComponents classRenames key is a BEM block: `.<block>`, `.<block>__<element>` and `.<block>--<modifier>` all move to the value with the same suffix. Explicit full-name keys win over the block rule.",
