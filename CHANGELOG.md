@@ -5,6 +5,12 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.5]
+
+Six more components move in from backend.ai-ui, the ones its theme shim
+and its flex primitive held back, and Astryx `AlertDialog` is hidden behind
+`AlertModal`.
+
 ### Added
 
 - **Components moved from backend.ai-ui**, with Astryx-shaped props and
