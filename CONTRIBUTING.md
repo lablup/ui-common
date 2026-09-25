@@ -1,159 +1,211 @@
 # Contributing to @lablup/ui-common
 
+Read [docs/astryx.md](docs/astryx.md) first. It explains how the package is put
+together. This file lists the rules.
+
+## What ui-common is
+
+Astryx, mirrored 1:1, plus the Lablup theme, plus a small set of components of
+its own. Astryx is the component system. ui-common adds only what Astryx does
+not have.
+
+## The Astryx surface is generated
+
+Never hand-edit these. `scripts/gen-exports.mjs` writes them:
+
+- `src/astryx/**`, one re-export file per Astryx subpath
+- `src/index.ts`, the root barrel
+- `exports` in `package.json`
+
+Run `pnpm run gen:exports` after any of these changes:
+
+- an `@astryxdesign/*` version bump
+- an edit to `exports.exclude.json`
+- an edit to `exports.customs.json`
+
+`src/exports.test.ts` regenerates in memory and fails on any difference. So a
+bump fails CI until the generator has run and someone has read the diff.
+
+### Hiding an Astryx subpath
+
+Add an entry to `exports.exclude.json`:
+
+```json
+{ "name": "Dialog", "replacedBy": "Modal", "reason": "..." }
+```
+
+`name` is the ui-common subpath (`Dialog`, `lab/lab.css`). `replacedBy` is what
+to use instead, or `null`. The subpath disappears from the exports map, and its
+names disappear from the root barrel. An entry that no longer matches an Astryx
+subpath fails the generator, so stale entries get removed.
+
+There is no other way to hide something. Do not curate the export map by hand.
+
+### Adding a custom export
+
+1. Build the component under `src/components/<Name>/`, with an `index.ts`.
+2. Add it to `exports.customs.json`:
+
+   ```json
+   { "name": "Modal", "source": "components/Modal/index.ts", "subpath": "Modal" }
+   ```
+
+   `subpath` is optional. With it, the component also gets its own top-level
+   subpath, `@lablup/ui-common/Modal`.
+
+3. Run `pnpm run gen:exports`.
+
+The generator refuses a custom that exports a name Astryx core or lab also
+exports. Only entries marked `legacy` may collide. Those are the 0.1 customs
+on their way out, and Astryx's export wins in the root barrel.
+
+## Name rule
+
+A ui-common component never shares a name with an Astryx core or lab export.
+Pick a different name, or use the Astryx component.
+
 ## Component admission
 
-Most reusable-looking components should not be here. A component that lives in
-one product can be changed by the team that owns it in an afternoon. Once it is
-here, changing it means a version bump, a compatibility range, and four
-consumers who did not ask for the change. That cost is worth paying only when
-the component is genuinely shared.
+Most reusable-looking components should not be here. Once a component is here,
+changing it means a version bump and every consumer upgrading. That cost is
+worth paying only when the component is genuinely shared.
 
-A component is admitted when all three hold:
+A custom component is admitted when all of these hold:
 
-1. **Product-neutral.** Its props are generic view models and callbacks. If a
-   prop type would have to be imported from a product API, the component is not
-   ready. Reshape the props, or leave it where it is.
-2. **A real second consumer.** Not "another product could use this." A specific
-   product that will consume it, with someone committed to doing that. One
-   consumer plus a hypothetical is one consumer.
-3. **Tests travel with it.** Accessibility and behavior tests come in the same
-   change. A component without tests is a component whose behavior nobody can
-   safely change later, which defeats the point of sharing it.
+1. **Astryx does not already do it.** Check with `astryx search` first.
+2. **Product-neutral, Astryx-shaped props.** Generic view models and callbacks,
+   and prop names in Astryx's vocabulary (`label`, `variant`, `isOpen`...). If
+   a prop type would come from a product API, the component is not ready.
+3. **Built on Astryx.** Astryx primitives and Astryx tokens. No second styling
+   system.
+4. **An origin consumer ships it today**, with no product dependency. Moves can
+   happen in bulk, one dependency cluster at a time.
+5. **Tests travel with it.** Accessibility and behavior tests come in the same
+   change. A candidate without tests gets them written in the move.
+6. **The name rule holds.**
 
-Failing any one of these is a normal outcome. Say so in the pull request and
-leave the component with its product.
+Failing one of these is a normal outcome. Say so in the pull request and leave
+the component with its product.
 
 ### Things that are never admitted
 
 API clients, endpoints, authentication, application state, stores, routing,
-Tauri APIs, licensing, permissions, product-specific feature panels, and
-anything that reads a product locale key.
+Tauri APIs, licensing, permissions, and product-specific feature panels.
 
 ## The boundary
 
 `pnpm run check:boundary` fails the build on imports of the private AI package,
-product path aliases, `react-i18next`, `@tauri-apps/*`, `zustand`, and relative
-imports that escape `src/`. ESLint enforces the same set at the resolver level.
+product path aliases, `react-i18next` and similar product i18n runtimes,
+`@tauri-apps/*`, `zustand`, and relative imports that escape `src/`. ESLint
+enforces the same set at the resolver level.
 
-These are not style rules. Each one, if it lands, makes the package
-uninstallable or unusable for at least one consumer, and it usually lands by
-accident during a copy from a product repository.
+ui-common's own source may import `@astryxdesign/*`. Its consumers may not:
+they import Astryx through ui-common. Consumers enforce that with an ESLint
+`no-restricted-imports` rule on `@astryxdesign/*`.
 
-## Text and labels
+## Strings
 
-Never call a translation function. Every user-facing string is a prop with an
-English default:
+Every user-facing string is a prop. Its default comes from ui-common's catalog,
+through Astryx's translator:
 
 ```tsx
-interface DrawerProps {
-  /** Accessible label for the close control. */
-  closeLabel?: string; // default: "Close"
-}
+// src/components/Modal/Modal.messages.ts
+export const modalMessages = defineMessages({
+  "uic.Modal.close": { defaultMessage: "Close", description: "Close button label" },
+});
+
+// src/components/Modal/Modal.tsx
+const t = useUicTranslator();
+const label = closeLabel ?? t("uic.Modal.close");
 ```
 
-The default keeps an untranslated consumer working and accessible. The prop
-lets a translated consumer pass its own string. Adding a hard-coded English
-string with no prop is a bug; so is adding a prop with no default.
+- Keys are `uic.<Component>.<key>`.
+- English lives in code, in the `.messages.ts` file. Spread it into
+  `uiCommonCatalog` in `src/i18n/catalog.ts`.
+- Keep `.messages.ts` files free of React and CSS imports. The build reads the
+  catalog.
+- Translations go in `src/i18n/locales/<locale>.json`, named like Astryx's own
+  locale files (`ko-KR.json`, `ja-JP.json`). Tests reject unknown keys and
+  unknown locale names.
+- Never import a product i18n runtime.
 
-## Design tokens
-
-Tokens are API. Adding one is a minor release. Renaming or removing one is a
-major release, and needs the same migration note a renamed prop would get.
-
-Always give a token a fallback so a consumer that has not adopted a theme still
-renders:
-
-```css
-color: var(--token-colorText, #1a1a1a);
-```
-
-A token's inline fallback should equal its value in `src/styles/base.css`.
-About 143 inherited fallbacks do not, because they came over verbatim from
-the source product where they were already unreachable. Do not add new ones that
-disagree, and do not "fix" the inherited ones without treating it as the
-visual change it is.
-
-### Focus indicators take no fallback literal
-
-The one exception to the rule above. A declaration that paints a focus
-indicator carries no colour literal at all:
-
-```css
-/* An outline resolves through the ring token and stops there. */
-outline: var(--token-focusRingWidth, 2px) var(--token-focusRingStyle, solid)
-  var(--token-focusRingColor, var(--token-colorPrimary));
-
-/* A ring drawn as the element's own border mixes the accent with the text
- * colour, inline in the longhand. */
-border-color: color-mix(in srgb, var(--token-colorPrimary) 70%, var(--token-colorText));
-```
-
-WCAG 2.2 SC 1.4.11 requires the indicator of a component state to clear 3:1
-against the surface it lands on. A fixed literal cannot know that surface, so
-"renders without a theme" and "meets the contrast floor" are not both
-achievable from a constant, and for an accessibility affordance the second one
-wins. Never paint a focus indicator from the bare `--token-colorPrimary`
-either: that token is chosen for brand, and it measures as low as 2.37:1 in
-this package's own default palette.
-
-Two mechanical points that are easy to get backwards:
-
-- **`color-mix()` belongs in a longhand, never in a token that feeds a
-  shorthand.** A custom property holds an unparsed token stream, so on an
-  engine without `color-mix()` the property substitutes successfully and only
-  then invalidates its consumer at computed-value time. Feeding that to
-  `outline` yields `outline-style: none` and no ring at all, with the `var()`
-  fallback never firing because the property was never guaranteed-invalid. In a
-  longhand the failure is the opposite and benign: the declaration is dropped
-  at parse time and the cascade keeps the element's resting border. This is why
-  `--token-focusRingColor` is declared as a resolved literal in
-  `src/styles/base.css` rather than as a `color-mix()` call.
-- **A `border-color` plus `outline: none` in the same rule block is a focus
-  indicator**, even though the block never writes an `outline` colour. Grep for
-  `outline` alone will not find it; the two declarations have to be read
-  together.
-
-Never add a token to a component without adding it to `src/styles/base.css`.
-A token that only exists in a product's theme file makes the component render
-correctly there and nowhere else, which is the failure mode this package
-exists to prevent.
+A string with no prop is a bug. So is a prop with no catalog default.
 
 ## Styling
 
-Component CSS lives next to the component and is imported by it, so a subpath
-import pulls only that component's styles. Theme families under
-`src/styles/themes/` are standalone entry points that no component imports.
-Do not add an import that pulls a theme file into a component; it would make
-every consumer ship every theme.
+- Plain CSS, co-located with the component and imported by it.
+- Every rule inside `@layer ui-common`.
+- Class names are BEM with a `uic-` prefix: `uic-page-header__title`.
+- Values come from Astryx tokens, `var(--color-...)`, `var(--spacing-...)`.
+  No new `--token-*` names.
+- No StyleX compile step for now. If one is added, it uses
+  `classNamePrefix: "uic"`, and any exported `defineVars` uses keys that start
+  with `--`. A hashed key never matches the name a consumer's compiler derives.
+
+The 0.1 components still use `--token-*` names and unlayered CSS. They are
+rebuilt or removed; do not copy their style.
+
+## Tokens
+
+Astryx's token set is the contract. It is versioned with the Astryx pin.
+
+`src/legacy-tokens.css` maps the 122 old `--token-*` names onto Astryx tokens
+for consumers that still read them. It is deprecated and is removed in 0.3. Do
+not add names to it.
+
+## The Lablup theme
+
+The source is `src/theme/lablup/lablupTheme.ts`. After changing it, rebuild the
+committed artifacts:
+
+```
+pnpm run theme:build
+```
+
+`pnpm run theme:check` fails when `src/theme/lablup/built/` is stale. It runs
+in `verify`. Rebuild after every Astryx bump too: Astryx does not repair stale
+pre-built CSS at runtime.
+
+## Bumping Astryx
+
+`@astryxdesign/core`, `@astryxdesign/theme-neutral` and `@astryxdesign/cli`
+move together, exact-pinned. `@astryxdesign/lab` is an exact canary pin, as
+both a devDependency and an optional peer.
+
+1. Change the pins in `package.json` and run `pnpm install`.
+2. `pnpm run gen:exports`, and read the diff.
+3. `pnpm run theme:build`.
+4. Update `exports.exclude.json` if the generator reports a stale entry or a
+   new data export.
+5. `pnpm run verify`.
+6. Note new and removed subpaths in `CHANGELOG.md`. A removed subpath is a
+   breaking change.
 
 ## Versioning
 
-Semver, with the public surface defined as: exported components and their
-props, exported hooks, exported types, the `exports` map, the `--token-*`
-contract, and the CSS entry point paths.
+Semver. The public surface is: exported components and their props, exported
+hooks and types, the `exports` map, the Astryx version (it defines the token
+contract), and the CSS entry point paths.
 
-| Change                                                    | Release |
-| --------------------------------------------------------- | ------- |
-| New component, new optional prop, new token               | Minor   |
-| Bug fix that keeps the rendered contract                  | Patch   |
-| Removed or renamed prop, component, token, or export path | Major   |
-| Changed default value that alters rendering               | Major   |
-| Raised React peer range floor                             | Major   |
+| Change                                                 | Release |
+| ------------------------------------------------------ | ------- |
+| New component, new optional prop, new mirrored subpath | Minor   |
+| Bug fix that keeps the rendered contract               | Patch   |
+| Removed or renamed prop, component, or export path     | Major   |
+| Astryx bump that removes or renames anything           | Major   |
+| Changed default value that alters rendering            | Major   |
+| Raised React or StyleX peer floor                      | Major   |
 
-While the API is migrating across products, releases are prereleases
-(`0.1.0-alpha.N`). Stable `1.0.0` waits until the first consumer and at least
-one other have validated the contracts in a shipped build. Publishing
-`1.0.0` before a second consumer exists would freeze props that only one
-product has ever exercised.
+While the API is migrating, releases are prereleases (`0.2.0-alpha.N`).
+Before 1.0, a breaking change bumps the minor version.
 
 ## Pull requests
 
-Run `pnpm run verify` before pushing. It is what CI runs, and it ends with
-packing the real tarball and installing it into the clean external project
-under `fixture/`.
+Run `pnpm run verify` before pushing. It is what CI runs. CI also installs the
+packed tarball into the clean project under `fixture/` and builds it.
 
-For a component admission, say in the description which product is the second
-consumer and who is doing that migration.
+For a component admission, say in the description which product ships it
+today and who does the move.
 
 ## Releasing
 
@@ -166,9 +218,7 @@ consumer and who is doing that migration.
 
 ## Pre-public review
 
-This repository is Internal now and becomes public once the initial import has
-been reviewed. Until then, every change is held to a public bar: no internal
-hostnames, credentials, customer names, unreviewed fixtures, or assets whose
-redistribution rights under Apache-2.0 have not been confirmed. Check comments
-and test fixtures too, not just the implementation. Those are where internal
-details survive a copy.
+This repository is held to a public bar: no internal hostnames, credentials,
+customer names, unreviewed fixtures, or assets whose redistribution rights
+under Apache-2.0 have not been confirmed. Check comments and test fixtures too,
+not just the implementation. Those are where internal details survive a copy.

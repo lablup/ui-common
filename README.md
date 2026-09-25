@@ -1,34 +1,50 @@
 # @lablup/ui-common
 
-Product-neutral UI components and design tokens shared across Lablup products.
+Lablup's UI layer on top of [Astryx](https://github.com/facebook/astryx).
+
+It gives Lablup products three things through one dependency:
+
+- **Astryx itself**, re-exported 1:1. Every Astryx subpath exists here under the
+  same name.
+- **The Lablup brand theme**, as an Astryx theme.
+- **A few components of its own**, built on Astryx, for patterns Astryx does not
+  cover.
 
 Consumers are Lablup product frontends, including
 [all-smi](https://github.com/lablup/all-smi). The package holds presentation
 only. It has no API client, no application state, no router, and no
-desktop-shell integration, because those differ per product and are what makes
-a component impossible to share.
+desktop-shell integration.
 
 ## Install
 
 ```
-pnpm add @lablup/ui-common
+pnpm add @lablup/ui-common @stylexjs/stylex
 ```
 
-That is npmjs, which needs no authentication and is the right route for
-essentially everyone, including open-source consumers and forked CI.
+That is npmjs, which needs no authentication.
 
-`react` and `react-dom` are peer dependencies. Version 18 and 19 are both
-supported.
+Peer dependencies:
+
+- `react` and `react-dom` 19.
+- `@stylexjs/stylex` ^0.19. It is the one runtime copy that Astryx, ui-common
+  and your own StyleX code share.
+- `@astryxdesign/lab`, optional. Install it only if you use
+  `@lablup/ui-common/lab`. It is pinned to the exact canary ui-common is built
+  against.
+
+Astryx itself (`@astryxdesign/core`, `@astryxdesign/theme-neutral`,
+`@astryxdesign/cli`) comes in as ui-common's own dependencies, pinned exactly.
+Do not add them to your project. ui-common owns the Astryx version. Two copies
+of Astryx means two copies of its React contexts, and components stop seeing
+the theme.
 
 ### The GitHub Packages mirror
 
 The same versions are also published to GitHub Packages for projects that
-already authenticate to GitHub. It is a mirror, not a different package, so
-there is no reason to prefer it unless your organization requires it.
+already authenticate to GitHub. It is a mirror, not a different package.
 
-GitHub Packages requires authentication **even for public packages**, which is
-why it is not the default route here. To use it, point the scope at that
-registry:
+GitHub Packages requires authentication **even for public packages**. To use
+it, point the scope at that registry:
 
 ```
 # .npmrc
@@ -50,106 +66,166 @@ env:
 Locally, use a personal access token with `read:packages`, in your user
 `~/.npmrc` and never in a project file.
 
+## Set up
+
+Declare the layer order once, first, in your app's entry stylesheet. Then load
+the stylesheets:
+
+```css
+@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
+
+@import "@lablup/ui-common/reset.css";
+@import "@lablup/ui-common/astryx.css";
+@import "@lablup/ui-common/theme/lablup/theme.css";
+@import "@lablup/ui-common/ui-common.css";
+/* Only if you use @lablup/ui-common/lab: */
+@import "@lablup/ui-common/lab/lab.css";
+```
+
+Wrap the app in the theme:
+
+```tsx
+import { Theme } from "@lablup/ui-common";
+import { lablupTheme } from "@lablup/ui-common/theme/lablup/built";
+
+<Theme theme={lablupTheme}>
+  <App />
+</Theme>;
+```
+
+`/theme/lablup/built` pairs with `theme.css` and injects nothing at runtime.
+`@lablup/ui-common/theme/lablup` is the same theme as source, for runtime
+injection or for extending it with `defineTheme`. Use one or the other.
+Astryx's neutral theme is mirrored the same way at `/theme/neutral`.
+
+The theme names its font family (Ubuntu Sans, then Pretendard Variable) but
+does not load it. Loading fonts is the app's job.
+
+### Layers
+
+| Layer                     | Owner                               |
+| ------------------------- | ----------------------------------- |
+| `reset`, `theme`, `base`  | Astryx reset, your own base rules   |
+| `astryx-base`             | Astryx component styles             |
+| `astryx-theme`            | theme overrides, including Lablup's |
+| `ui-common`               | ui-common's own styles              |
+| `components`, `utilities` | yours                               |
+
+ui-common's styles beat Astryx's base and theme styles for the primitives they
+wrap. Your `components` layer beats ui-common. Unlayered rules beat all of it.
+
 ## Use
 
-Import from the root, or from a component subpath when you want the smallest
-possible graph:
+Astryx components come from the root or from their own subpath, exactly as in
+Astryx:
 
 ```tsx
-import { Button, StatusTag } from "@lablup/ui-common";
-import { Drawer } from "@lablup/ui-common/components/Drawer";
+import { Button, Text } from "@lablup/ui-common";
+import { Table } from "@lablup/ui-common/Table";
+import { useClipboard } from "@lablup/ui-common/hooks";
 ```
 
-Styling is opt-in and split so that importing a component never drags in every
-theme:
+StyleX users import tokens from the `.stylex` subpath. The StyleX compiler
+recognises a theme import by that suffix, so the root barrel will not do:
 
 ```ts
-// The token contract the components resolve against. Required.
-// It also carries the default palette, so this alone is a working theme.
-import "@lablup/ui-common/styles/base.css";
-
-// Optional, and only if you switch themes at runtime through [data-theme].
-import "@lablup/ui-common/styles/themes/orange-dark.css";
+import { colorVars, spacingVars } from "@lablup/ui-common/theme/tokens.stylex";
 ```
 
-The package ships the theming mechanism and one default palette, the Lablup
-brand orange. A product with its own visual identity defines its own
-`[data-theme]` blocks over the same 119 token names and ships them itself,
-rather than the package accumulating everyone's palettes. The source product
-does exactly that with its five families.
+Lab components live at `@lablup/ui-common/lab`.
 
-Component CSS travels with the component: importing `Button` brings
-`Button.css` with it, so a subpath import pulls that component's styles and no
-others. The two entry points above are the only stylesheets you import by hand,
-and `base.css` is the one you must not skip, since it carries the tokens every
-component resolves against.
-
-## Text is yours, not ours
-
-No component calls a translation function or reads a locale key. Every
-user-facing string is a prop with an English default:
+ui-common's own components come from the root:
 
 ```tsx
-<Drawer isOpen={open} onClose={close} closeLabel={t("common.closeDrawer")}>
-  ...
-</Drawer>
+import { PageHeader, PageLayout, StatCard } from "@lablup/ui-common";
 ```
 
-A consumer with no i18n setup gets working, accessible English. A consumer with
-translations passes them in. Neither ends up depending on the other's locale
-bundle.
+### What is hidden
 
-## Design tokens are API
+A few Astryx subpaths are deliberately not re-exported. They are listed, with
+the reason and the replacement, in [`exports.exclude.json`](exports.exclude.json).
+Today that is `Dialog` (use `Modal`) and two Astryx CLI data files.
 
-Components resolve their colors, spacing, motion, radii, and shadows from
-`--token-*` custom properties. Those properties are a versioned part of the
-public surface: renaming or removing one is a breaking change, exactly like
-renaming a prop. Every token a component reads has a fallback, so a consumer
-that adopts a component without adopting a theme still renders.
+### Name rule
 
-## What gets in
+A ui-common component never shares a name with an Astryx core or lab export.
+If a name is `Button`, it is Astryx's `Button`.
 
-The package is not a home for every reusable-looking component. A component is
-admitted when all three hold:
+## Strings
 
-1. It is product-neutral, taking generic view models and callbacks rather than
-   any product's API types.
-2. It has a concrete consumer in more than one product, present or committed.
-3. It brings its accessibility and behavior tests with it.
+ui-common's components show a few built-in strings. Every one of them is also a
+prop, and an explicit prop always wins.
 
-Anything that fails one of these stays with the product that needs it. See
-[CONTRIBUTING.md](CONTRIBUTING.md).
+The defaults resolve through Astryx's own `InternationalizationProvider`.
+Supply translations once, at the provider:
+
+```tsx
+import { InternationalizationProvider } from "@lablup/ui-common/i18n";
+import { mergeMessages, uiCommonMessages } from "@lablup/ui-common/i18n-catalog";
+import astryxKo from "@lablup/ui-common/locales/ko-KR.json";
+
+<InternationalizationProvider
+  locale="ko-KR"
+  messages={mergeMessages({ "ko-KR": astryxKo }, uiCommonMessages)}
+>
+  <App />
+</InternationalizationProvider>;
+```
+
+- `@lablup/ui-common/locales/<locale>.json` is Astryx's own catalog.
+- `@lablup/ui-common/ui-common-locales/<locale>.json` is ui-common's.
+- Without a provider, everything renders in English.
+
+ui-common never uses a product i18n runtime.
+
+## Deprecated in 0.2, removed in 0.3
+
+- **`--token-*` custom properties.** Astryx's token set is the contract now.
+  `@lablup/ui-common/legacy-tokens.css` declares every old name as the matching
+  Astryx token, inside `@layer ui-common`, so code that reads them keeps
+  working while it moves.
+- **`styles/base.css` and `styles/themes/*.css`.** Use the Lablup theme.
+- **Customs that Astryx now covers**: `Badge`, `BaseCard`, `Button`,
+  `DataTable`, `Drawer`, `EmptyState`, `ProgressBar`, `Select`, `Skeleton`,
+  `StatusTag`, `Tabs`, `Tooltip`. Where Astryx owns the name, the root export
+  is already Astryx's. The old component stays at
+  `@lablup/ui-common/components/<Name>` until 0.3. See
+  [CHANGELOG.md](CHANGELOG.md) for what replaces each one.
 
 ## What is deliberately absent
 
 - API clients, endpoints, and authentication.
 - Application state, stores, and routing.
 - Tauri APIs and plugins, and any desktop-shell assumption.
-- Product locale keys and any application-global i18n instance.
+- Product i18n runtimes and product locale keys.
 - Anything from the private AI companion package. The dependency runs the
   other way, and CI fails if it ever reverses.
+
+## Astryx CLI
+
+ui-common is an Astryx CLI integration. A project that depends on it gets
+`astryx docs ui-common`, and ui-common's guidance lines in the agent block that
+`astryx init --features agents` writes. `astryx component` and `astryx search`
+still need `@astryxdesign/core` resolvable from your project. If you use them,
+keep core as a devDependency for tooling only.
 
 ## Development
 
 ```
 pnpm install
-pnpm run verify      # typecheck, lint, format, boundary, test, build, pack
+pnpm run verify      # typecheck, lint, format, boundary, theme, test, build, pack, integration
 pnpm run test:watch
 ```
 
-`pnpm run verify` is what CI runs. It ends by packing the real tarball and
-asserting that every path in the exports map resolves inside it, then a
-separate job installs that tarball into a clean external React project under
-`fixture/`. Building green and being installable are different claims, and the
-second is the one consumers depend on.
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/astryx.md](docs/astryx.md).
 
 ## Provenance
 
 The initial component and token slice was extracted from an existing Lablup
 product frontend. The import is clean: no upstream git history was published
-here. The detailed migration record, including the source commit for each
-imported file, lives in that product's own repository.
+here.
 
 ## License
 
-[Apache-2.0](LICENSE). See [NOTICE](NOTICE).
+[Apache-2.0](LICENSE). See [NOTICE](NOTICE). Astryx is MIT-licensed by Meta
+Platforms, Inc. It is a dependency, not vendored.

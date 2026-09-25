@@ -1,7 +1,7 @@
 {
   "name": "@lablup/ui-common",
   "version": "0.2.0-alpha.0",
-  "description": "Shared, product-neutral UI components and design tokens for Lablup products",
+  "description": "Lablup's UI layer on Astryx: the Astryx surface re-exported 1:1, the Lablup theme, and shared components",
   "license": "Apache-2.0",
   "author": "Lablup Inc.",
   "type": "module",
