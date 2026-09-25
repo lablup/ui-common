@@ -1,6 +1,6 @@
 {
   "name": "@lablup/ui-common",
-  "version": "0.2.0-alpha.1",
+  "version": "0.2.0-alpha.2",
   "description": "Lablup's UI layer on Astryx: the Astryx surface re-exported 1:1, the Lablup theme, and shared components",
   "license": "Apache-2.0",
   "author": "Lablup Inc.",
