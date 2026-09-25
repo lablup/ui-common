@@ -38,6 +38,37 @@ export const docs = {
       ],
     },
     {
+      title: "ui-common components",
+      content: [
+        {
+          type: "prose",
+          text: "ui-common's own components are built on Astryx primitives and never share a name with an Astryx export. Each is exported from the package root; Modal also has its own subpath.",
+        },
+        {
+          type: "list",
+          style: "unordered",
+          items: [
+            "`Modal` (`@lablup/ui-common/Modal`): the dialog. Takes every Dialog prop; adds nesting, notices above the modal, `title`/`onAction`/`footer` conventions and `unmountOnClose`.",
+            "`PageLayout`, `PageHeader`: a page's width clamp, and its title, actions and error banner.",
+            "`StatCard`: a dashboard metric on Astryx Card.",
+            "`ErrorState`: a full-area error with recovery actions.",
+            "`SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow`: loading placeholders drawn with Astryx Skeleton.",
+            "`SmoothHeight`, `DigitPopIn`: height and number motion.",
+          ],
+        },
+        {
+          type: "code",
+          lang: "tsx",
+          label: "Modal",
+          code: 'import { Modal } from "@lablup/ui-common/Modal";\n\n<Modal\n  isOpen={isOpen}\n  onOpenChange={setIsOpen}\n  title="Rename folder"\n  actionLabel="Rename"\n  onAction={async () => {\n    await rename();\n    setIsOpen(false);\n  }}\n>\n  <TextInput label="Name" value={name} onChange={setName} />\n</Modal>',
+        },
+        {
+          type: "prose",
+          text: "Moving from `@astryxdesign/core/Dialog`: change the specifier to `@lablup/ui-common/Modal`, `Dialog` to `Modal` and `DialogProps` to `ModalProps`. `DialogHeader`, `DialogPosition`, `DialogPurpose` and `DialogVariant` are re-exported unchanged (also as `ModalHeader`, `ModalPosition`, ...).",
+        },
+      ],
+    },
+    {
       title: "Stylesheets and layers",
       content: [
         {

@@ -37,7 +37,9 @@ Add an entry to `exports.exclude.json`:
 `name` is the ui-common subpath (`Dialog`, `lab/lab.css`). `replacedBy` is what
 to use instead, or `null`. The subpath disappears from the exports map, and its
 names disappear from the root barrel. An entry that no longer matches an Astryx
-subpath fails the generator, so stale entries get removed.
+subpath fails the generator, so stale entries get removed. So does a
+`replacedBy` that is neither a custom in `exports.customs.json` nor a mirrored
+subpath.
 
 There is no other way to hide something. Do not curate the export map by hand.
 
@@ -56,13 +58,36 @@ There is no other way to hide something. Do not curate the export map by hand.
 3. Run `pnpm run gen:exports`.
 
 The generator refuses a custom that exports a name Astryx core or lab also
-exports. Only entries marked `legacy` may collide. Those are the 0.1 customs
-on their way out, and Astryx's export wins in the root barrel.
+exports. Two exceptions:
+
+- The replacement of an excluded subpath may re-export that subpath's names
+  unchanged, so moving an import onto it changes only the specifier. `Modal`
+  re-exports `DialogHeader` this way. The generator checks that the name
+  resolves to Astryx's own declaration, not to something else of that name.
+- Entries marked `legacy` may collide, and Astryx's export wins in the root
+  barrel. The mechanism is kept for a future deprecation; no entry uses it
+  since the 0.1 look-alikes were removed.
 
 ## Name rule
 
 A ui-common component never shares a name with an Astryx core or lab export.
 Pick a different name, or use the Astryx component.
+
+## Components
+
+| Component                                                      | Source                         | Built on                                    |
+| -------------------------------------------------------------- | ------------------------------ | ------------------------------------------- |
+| `Modal`                                                        | `src/components/Modal/`        | `Dialog` (inline), `DialogHeader`, `Layout` |
+| `PageLayout`                                                   | `src/components/PageLayout/`   | plain CSS                                   |
+| `PageHeader`                                                   | `src/components/PageHeader/`   | `Heading`, `Text`, `Button`, `IconButton`   |
+| `StatCard`                                                     | `src/components/StatCard/`     | `Card`, `ClickableCard`, `Text`, `Skeleton` |
+| `ErrorState`                                                   | `src/components/ErrorState/`   | `Icon`, `Heading`, `Text`, `Button`         |
+| `SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow` | `src/components/Skeleton/`     | `Skeleton`                                  |
+| `SmoothHeight`                                                 | `src/components/SmoothHeight/` | plain CSS                                   |
+| `DigitPopIn`                                                   | `src/components/DigitPopIn/`   | plain CSS                                   |
+
+Each has tests beside it. `src/components/componentStyles.test.ts` holds every
+stylesheet to the styling rules below.
 
 ## Component admission
 
@@ -111,12 +136,12 @@ through Astryx's translator:
 ```tsx
 // src/components/Modal/Modal.messages.ts
 export const modalMessages = defineMessages({
-  "uic.Modal.close": { defaultMessage: "Close", description: "Close button label" },
+  "uic.Modal.cancel": { defaultMessage: "Cancel", description: "Cancel button label" },
 });
 
 // src/components/Modal/Modal.tsx
 const t = useUicTranslator();
-const label = closeLabel ?? t("uic.Modal.close");
+const label = cancelLabel ?? t("uic.Modal.cancel");
 ```
 
 - Keys are `uic.<Component>.<key>`.
@@ -137,13 +162,22 @@ A string with no prop is a bug. So is a prop with no catalog default.
 - Every rule inside `@layer ui-common`.
 - Class names are BEM with a `uic-` prefix: `uic-page-header__title`.
 - Values come from Astryx tokens, `var(--color-...)`, `var(--spacing-...)`.
-  No new `--token-*` names.
+  No new `--token-*` names. A component's own custom properties start with
+  `--uic-`.
+- No colour literals. A length literal is allowed only where Astryx has no
+  token (a media query breakpoint, a page width, a readable measure), with a
+  comment saying so.
+- No focus styling. Astryx primitives draw focus.
+- Restyle an Astryx primitive through a `uic-` class you pass it, never through
+  its `astryx-` class.
 - No StyleX compile step for now. If one is added, it uses
   `classNamePrefix: "uic"`, and any exported `defineVars` uses keys that start
   with `--`. A hashed key never matches the name a consumer's compiler derives.
 
-The 0.1 components still use `--token-*` names and unlayered CSS. They are
-rebuilt or removed; do not copy their style.
+jsdom drops `@layer` blocks, so a test cannot read a component's cascade back
+through `getComputedStyle`. Test the rendered classes and attributes, and read
+the stylesheet source when a declaration itself is the contract (see the
+StatCard truncation test).
 
 ## Tokens
 

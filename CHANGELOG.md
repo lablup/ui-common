@@ -5,6 +5,95 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+The component layer moves onto Astryx: the 0.1 look-alikes are gone, the
+components Astryx has no counterpart for are rebuilt on it with their 0.1
+props, and `Modal` takes the place of the hidden `Dialog`.
+[`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json) lists every change
+below in the form `ui-common upgrade` reads.
+
+### Removed
+
+These 0.1 components are removed, source, styles and
+`@lablup/ui-common/components/<Name>` subpath alike. Each is replaced by
+Astryx, reached through ui-common. 0.2.0-alpha.0 announced their removal for
+0.3; it lands in 0.2 so the prerelease line never ships two components under
+one name:
+
+- `Badge`: Astryx `Badge` (`@lablup/ui-common/Badge`), or `Token` for a chip.
+  `children` becomes `label`; `danger` becomes `error`.
+- `BaseCard`: Astryx `Card`, or `ClickableCard` when it is clickable.
+- `Button`: Astryx `Button`, or `IconButton` for an icon-only button.
+  `children` becomes `label`, `disabled` `isDisabled`, `loading` `isLoading`,
+  `danger` `destructive`; sizes are `sm`, `md`, `lg`.
+- `DataTable`: Astryx `Table`. `rows` becomes `data`, `getRowKey` `idKey`, a
+  column's `id` `key` and `render` `renderCell`. Sorting and resizing are
+  Table plugins.
+- `Drawer`: lab `Drawer` (`@lablup/ui-common/lab`, needs the optional
+  `@astryxdesign/lab` peer). `onClose` becomes `onOpenChange`.
+- `EmptyState`: Astryx `EmptyState`. `illustration` becomes `icon`; the two
+  action objects become an `actions` node.
+- `ProgressBar`: Astryx `ProgressBar`. `value={null}` becomes
+  `isIndeterminate`; `label` is required.
+- `Select`: Astryx `Selector`. `searchable` becomes `hasSearch`, `disabled`
+  `isDisabled`; `label` is a required string.
+- `Skeleton` (the base shape only): Astryx `Skeleton`. `variant="circle"`
+  becomes `radius="rounded"`. It is always decorative; announce the wait on
+  the region around it.
+- `StatusTag`: Astryx `StatusDot`, with `state` mapped onto `variant` and
+  `pulse` onto `isPulsing`. The dot carries the label as its accessible name
+  only; render the text beside it.
+- `Tabs`: Astryx `TabList`. It renders the strip; the caller renders the
+  panel. `activeTab` becomes `value`, `onTabChange` `onChange`.
+- `Tooltip`: Astryx `Tooltip`. `placement` `top`/`bottom` becomes
+  `above`/`below`.
+
+### Changed
+
+- **`PageHeader`, `PageLayout`, `StatCard`, `ErrorState`, `SmoothHeight`,
+  `DigitPopIn`, `SkeletonCard`, `SkeletonText`, `SkeletonChart` and
+  `SkeletonRow` are rebuilt on Astryx**, with the same props. They render
+  Astryx `Heading`, `Text`, `Button`, `IconButton`, `Icon`, `Card`,
+  `ClickableCard` and `Skeleton`, and their styles now live in
+  `@layer ui-common` and read Astryx tokens only.
+- **Their class names moved to `uic-`**: `page-header` is `uic-page-header`,
+  `stat-card__value` is `uic-stat-card__value`, and so on. The shapes inside
+  the Skeleton composites are `uic-skeleton-shape` (on Astryx's
+  `astryx-skeleton`). `ErrorState`'s `error-state__action-btn` is
+  `uic-error-state__action`. DigitPopIn's tuning properties are
+  `--uic-digit-pop-in-*`. StatCard no longer sets `corner-accent` or reads
+  `--corner-accent-color`; its tone draws its own corner.
+- **Built-in strings come from the catalog**: PageHeader's Retry and Dismiss
+  labels and the Skeleton composites' loading names resolve through
+  `uic.PageHeader.*` and `uic.Skeleton*.loading`. The props that set them
+  still win.
+- `StatCard` with `onClick` renders Astryx `ClickableCard`; its accessible name
+  sits on the card's inner button.
+- `ErrorState`'s default icon is Astryx's `error` glyph.
+
+### Added
+
+- **`Modal`**, at `@lablup/ui-common/Modal` and the root: ui-common's dialog in
+  place of Astryx `Dialog`. It takes every `Dialog` prop, renders into a
+  `document.body` portal so layers above the modal band stay reachable, stacks
+  nested modals (only the topmost traps focus and takes Escape, through
+  Astryx's layer stack), keeps content mounted while closed unless
+  `unmountOnClose`, and reports each edge through `afterOpenChange`. With
+  `title`, `onAction` or `footer` it lays out a header, the body and a footer
+  with a primary action (pending while `onAction`'s promise runs) and Cancel.
+  `ModalHeader`, `ModalPosition`, `ModalPurpose` and `ModalVariant` are
+  Astryx's Dialog parts under Modal names; `DialogHeader`, `DialogPosition`,
+  `DialogPurpose` and `DialogVariant` are re-exported unchanged, so a `Dialog`
+  import moves by changing the specifier and `Dialog`/`DialogProps`.
+  `configureModalZIndex` sets the z-index band (default 1100 to 10999) and
+  `useModalLevel` lets another portalled surface join the stack.
+- Catalog strings `uic.Modal.ok`, `uic.Modal.cancel`, `uic.PageHeader.retry`,
+  `uic.PageHeader.dismissError` and `uic.Skeleton{Card,Text,Row,Chart}.loading`,
+  with `ko-KR` and `ja-JP` translations in `ui-common-locales/`.
+- `migration/0.1-to-0.2.json`, the 0.1 → 0.2 map for the upgrade tool.
+- The export generator checks that an exclusion's `replacedBy` exists, and lets
+  the replacement re-export the excluded subpath's own names when they resolve
+  to Astryx's declaration.
+
 ## [0.2.0-alpha.0]
 
 ui-common is now Lablup's layer on top of Astryx. This release lays the
