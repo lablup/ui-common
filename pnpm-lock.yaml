@@ -20,6 +20,15 @@ importers:
       intl-messageformat:
         specifier: ^11.2.9
         version: 11.2.15
+      jscodeshift:
+        specifier: ^17.4.0
+        version: 17.4.0(supports-color@8.1.1)
+      postcss:
+        specifier: ^8.5.25
+        version: 8.5.25
+      postcss-selector-parser:
+        specifier: ^7.1.6
+        version: 7.1.6
     devDependencies:
       '@astryxdesign/lab':
         specifier: 0.6.2-canary.c9fb1ad

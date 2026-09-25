@@ -5,7 +5,7 @@ import { dirname, isAbsolute, posix, relative, resolve, sep } from "node:path";
 
 import react from "@vitejs/plugin-react";
 import type { Plugin } from "vite";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 import { globSync } from "tinyglobby";
 
@@ -252,5 +252,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: true,
+    // Consumer source the upgrade codemods run on, not tests of this package.
+    exclude: [...configDefaults.exclude, "test/upgrade/fixtures/**"],
   },
 });

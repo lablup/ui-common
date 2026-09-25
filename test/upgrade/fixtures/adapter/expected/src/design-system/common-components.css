@@ -1,0 +1,8 @@
+.empty-state__title {
+  font-size: 1.25rem;
+}
+
+:root {
+  --color-error: #d4380d;
+  --app-accent: #ff7a00;
+}

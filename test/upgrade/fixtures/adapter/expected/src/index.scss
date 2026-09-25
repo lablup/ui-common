@@ -1,0 +1,14 @@
+@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
+
+@import "@lablup/ui-common/reset.css";
+@import "@lablup/ui-common/astryx.css";
+@import "@lablup/ui-common/theme/lablup/theme.css";
+@import "@lablup/ui-common/ui-common.css";
+@import "@lablup/ui-common/legacy-tokens.css";
+@import "@lablup/ui-common/lab/lab.css";
+
+.app {
+  .button--primary {
+    margin: 0;
+  }
+}

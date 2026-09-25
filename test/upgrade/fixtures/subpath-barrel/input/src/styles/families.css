@@ -1,0 +1,7 @@
+[data-theme="orange-light"] .tabs__tab--active {
+  background: var(--token-tabActiveBg);
+}
+
+:root {
+  --color-text-secondary: #6b7280;
+}

@@ -1,0 +1,18 @@
+[data-theme="violet-light"] {
+  --token-colorPrimary: #6b4eff;
+  --color-border: #e0dcf5;
+  --color-text-primary: #1b1535;
+}
+
+[data-theme="violet-light"] .button--primary:hover {
+  box-shadow: 0 0 0 2px var(--token-colorPrimary);
+}
+
+.drawer__content,
+.my-panel {
+  padding: var(--token-paddingMD);
+}
+
+.sidebar {
+  color: var(--color-text-primary);
+}

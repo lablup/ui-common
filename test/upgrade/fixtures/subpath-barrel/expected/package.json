@@ -1,0 +1,14 @@
+{
+  "name": "subpath-barrel-app",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astryxdesign/lab": "0.6.2-canary.c9fb1ad",
+    "@lablup/ui-common": "^0.2.0-alpha.0",
+    "@stylexjs/stylex": "^0.19.0",
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.0"
+  }
+}

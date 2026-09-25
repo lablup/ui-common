@@ -12,6 +12,8 @@ export default tseslint.config(
       "fixture/dist",
       // `astryx theme build` output, committed as generated.
       "src/theme/*/built/**",
+      // Consumer code the upgrade codemods run on, and their expected output.
+      "test/upgrade/fixtures/**",
     ],
   },
   js.configs.recommended,
@@ -64,7 +66,13 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
   {
-    files: ["scripts/**/*.mjs", "*.config.{js,ts}"],
+    files: [
+      "scripts/**/*.mjs",
+      "bin/**/*.mjs",
+      "cli/**/*.mjs",
+      "codemods/**/*.mjs",
+      "*.config.{js,ts}",
+    ],
     languageOptions: { globals: globals.node },
   },
 );
