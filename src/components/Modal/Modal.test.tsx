@@ -319,6 +319,25 @@ describe("Modal content lifecycle", () => {
 });
 
 describe("Modal structured mode", () => {
+  it("puts headerClassName and footerClassName on the generated chrome", () => {
+    render(
+      <Modal
+        isOpen
+        onOpenChange={vi.fn()}
+        title="Rename"
+        onAction={vi.fn()}
+        headerClassName="my-header"
+        footerClassName="my-footer"
+      >
+        body
+      </Modal>,
+    );
+    const header = document.querySelector(".my-header");
+    const footer = document.querySelector(".my-footer");
+    expect(header).toHaveTextContent("Rename");
+    expect(footer?.querySelectorAll("button")).toHaveLength(2);
+  });
+
   it("renders children alone when no structure is asked for", () => {
     render(
       <Modal isOpen onOpenChange={vi.fn()} aria-label="bare">

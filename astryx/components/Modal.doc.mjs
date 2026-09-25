@@ -99,6 +99,17 @@ export default {
       default: "true",
     },
     {
+      name: "headerClassName",
+      type: "string",
+      description:
+        "Class name on the generated header, for a product's own header geometry.",
+    },
+    {
+      name: "footerClassName",
+      type: "string",
+      description: "Class name on the generated footer.",
+    },
+    {
       name: "headerStartContent",
       type: "ReactNode",
       description: "Content before the title, e.g. a back button.",

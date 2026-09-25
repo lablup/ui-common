@@ -107,6 +107,8 @@ export interface ModalProps extends Omit<DialogProps, "ref" | "children"> {
   headerEndContent?: ReactNode;
   /** Whether the header shows a close button. Default: true */
   hasCloseButton?: boolean;
+  /** Class name on the generated header, for a product's own header geometry. */
+  headerClassName?: string;
 
   /**
    * Replaces the generated footer. `null` removes the footer. Left
@@ -129,6 +131,8 @@ export interface ModalProps extends Omit<DialogProps, "ref" | "children"> {
   cancelLabel?: string;
   /** Whether the generated footer has a Cancel button. Default: true */
   hasCancelButton?: boolean;
+  /** Class name on the generated footer. */
+  footerClassName?: string;
   /** Shows a text skeleton in place of the body. */
   isLoading?: boolean;
 }
@@ -200,6 +204,7 @@ export function Modal({
   headerStartContent,
   headerEndContent,
   hasCloseButton = true,
+  headerClassName,
   footer,
   onAction,
   actionLabel,
@@ -209,6 +214,7 @@ export function Modal({
   actionButtonProps,
   cancelLabel,
   hasCancelButton = true,
+  footerClassName,
   isLoading = false,
   role,
   children,
@@ -397,13 +403,16 @@ export function Modal({
             startContent={headerStartContent}
             endContent={headerEndContent}
             onOpenChange={hasCloseButton ? (next) => !next && close() : undefined}
+            className={headerClassName}
           />
         ) : undefined
       }
       content={<LayoutContent>{body}</LayoutContent>}
       footer={
         resolvedFooter ? (
-          <LayoutFooter hasDivider>{resolvedFooter}</LayoutFooter>
+          <LayoutFooter hasDivider className={footerClassName}>
+            {resolvedFooter}
+          </LayoutFooter>
         ) : undefined
       }
     />
