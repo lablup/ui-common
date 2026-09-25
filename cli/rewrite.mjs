@@ -97,7 +97,8 @@ export function rewriteCommands(text, invocation = "ui-common") {
 export function exclusionNotes(text, args = []) {
   const notes = [];
   for (const entry of excludedExports()) {
-    if (!entry.replacedBy) continue;
+    // Asking about the replacement itself needs no pointer to it.
+    if (!entry.replacedBy || args.includes(entry.replacedBy)) continue;
     const name = entry.name;
     const mention = new RegExp(String.raw`(?<![\w.-])${name}(?![\w.-])`);
     if (mention.test(text) || args.includes(name)) {
