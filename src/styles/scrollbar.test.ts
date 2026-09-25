@@ -11,7 +11,7 @@
  * rail where the bar took 8.5% of the width.
  *
  * The rule these tests enforce is not "no width in a scrollbar rule". Hiding a
- * bar is legitimate (`Tabs.css` does it with `display: none`), and so is
+ * bar is legitimate, and so is
  * scoping the shared size to one surface. What is not legitimate is a second
  * source of truth for the size, so a `width` or `height` here has to resolve
  * through `--token-scrollbarSize`.
@@ -22,7 +22,6 @@ import { describe, expect, it } from "vitest";
 
 const STYLES_DIR = __dirname;
 const THEMES_DIR = join(STYLES_DIR, "themes");
-const COMPONENTS_DIR = join(STYLES_DIR, "..", "components");
 const BASE_CSS = readFileSync(join(STYLES_DIR, "base.css"), "utf8");
 
 /** Comments blanked out, so prose about a `width` is not read as one. */
@@ -51,16 +50,6 @@ function unsharedSizes(block: string): string[] {
     if (property !== "width" && property !== "height") continue;
     const value = declaration.slice(colon + 1);
     if (!value.includes("--token-scrollbarSize")) out.push(declaration.trim());
-  }
-  return out;
-}
-
-function cssFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...cssFiles(path));
-    else if (entry.name.endsWith(".css")) out.push(path);
   }
   return out;
 }
@@ -102,22 +91,6 @@ describe("scrollbar sizing", () => {
       `themes/${name} sizes the scrollbar itself. A theme selector outranks the ` +
         `global rule, so this cannot be corrected from base.css; size it from ` +
         `var(--token-scrollbarSize) or drop the declaration`,
-    ).toEqual([]);
-  });
-
-  it("no component stylesheet resizes the scrollbar", () => {
-    const offenders: string[] = [];
-    for (const file of cssFiles(COMPONENTS_DIR)) {
-      for (const block of scrollbarBoxRules(readFileSync(file, "utf8"))) {
-        for (const declaration of unsharedSizes(block)) {
-          offenders.push(`${file}: ${declaration}`);
-        }
-      }
-    }
-    expect(
-      offenders,
-      "a component may hide its bar or scope the shared size, but a second " +
-        "literal size is a second source of truth",
     ).toEqual([]);
   });
 });

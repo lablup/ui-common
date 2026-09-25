@@ -104,9 +104,13 @@ describe("export surface rules", () => {
     }
   });
 
-  it("a deprecated custom whose name Astryx owns yields to Astryx in the root barrel", () => {
+  it("no custom shadows an Astryx name: the 0.1 look-alikes are gone", () => {
     const barrel = result.files.get("src/index.ts") ?? "";
-    expect(result.report.legacyCollisions).toContain("Button");
-    expect(barrel).not.toMatch(/export \{[^}]*\bButton\b[^}]*\} from "\.\/components/);
+    expect(result.report.legacyCollisions).toEqual([]);
+    for (const name of ["Button", "Badge", "Skeleton", "Tooltip", "EmptyState"]) {
+      expect(barrel).not.toMatch(
+        new RegExp(`export \\{[^}]*\\b${name}\\b[^}]*\\} from "\\./components`),
+      );
+    }
   });
 });

@@ -1,13 +1,8 @@
 /**
- * Skeleton Components
- *
- * Loading state components. The composites are drawn with Astryx `Skeleton`;
- * the 0.1 base `Skeleton` is deprecated.
+ * Skeleton composites: loading placeholders for a card, a text block, a list
+ * row and a chart, each drawn with Astryx `Skeleton`. The base shape is
+ * Astryx's own `Skeleton` (`@lablup/ui-common/Skeleton`).
  */
-
-export { Skeleton } from "./Skeleton";
-export type { SkeletonProps } from "./Skeleton";
-
 export { SkeletonCard } from "./SkeletonCard";
 export type { SkeletonCardProps } from "./SkeletonCard";
 

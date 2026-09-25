@@ -1,0 +1,626 @@
+{
+  "$comment": "Machine-readable map of what 0.2 removed, renamed or restyled relative to 0.1, for `ui-common upgrade --from 0.1`. Each removedComponents entry names every 0.1 import that reached the component, its Astryx replacement, and the prop changes: `propRenames` a codemod can apply, `valueMaps` for renamed enum values, and `manual` for what it cannot prove (leave a `// TODO(ui-common-upgrade):` marker and a report entry). In 0.2 the root barrel name of a removed component that Astryx also exports (Badge, Button, EmptyState, ProgressBar, Skeleton, Tooltip) already resolves to Astryx's component, so a root import keeps its specifier and only needs the prop changes.",
+  "from": "0.1",
+  "to": "0.2",
+  "removedComponents": [
+    {
+      "name": "Badge",
+      "oldImports": [
+        { "specifier": "@lablup/ui-common", "names": ["Badge", "BadgeProps"] },
+        {
+          "specifier": "@lablup/ui-common/components/Badge",
+          "names": ["Badge", "BadgeProps"]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/Badge",
+        "names": { "Badge": "Badge", "BadgeProps": "BadgeProps" }
+      },
+      "alternatives": [
+        {
+          "specifier": "@lablup/ui-common/Token",
+          "names": { "Badge": "Token", "BadgeProps": "TokenProps" },
+          "when": "the badge is a removable or clickable chip rather than a status label"
+        }
+      ],
+      "propRenames": [
+        { "from": "children", "to": "label", "kind": "children-to-prop" }
+      ],
+      "valueMaps": {
+        "variant": {
+          "default": "neutral",
+          "success": "success",
+          "warning": "warning",
+          "danger": "error",
+          "info": "info",
+          "primary": null
+        }
+      },
+      "manual": [
+        "variant=\"primary\" has no semantic Badge variant; pick `info` or a colour variant such as `orange`.",
+        "size (small | medium) has no Badge counterpart; drop it.",
+        "The .badge / .badge--* classes are gone; Astryx's stable class is .astryx-badge."
+      ]
+    },
+    {
+      "name": "BaseCard",
+      "oldImports": [
+        {
+          "specifier": "@lablup/ui-common",
+          "names": ["BaseCard", "BaseCardProps", "BaseCardVariant", "BaseCardState"]
+        },
+        {
+          "specifier": "@lablup/ui-common/components/BaseCard",
+          "names": [
+            "BaseCard",
+            "BaseCardProps",
+            "BaseCardVariant",
+            "BaseCardState",
+            "default"
+          ]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/Card",
+        "names": { "BaseCard": "Card", "BaseCardProps": "CardProps" }
+      },
+      "alternatives": [
+        {
+          "specifier": "@lablup/ui-common/ClickableCard",
+          "names": {
+            "BaseCard": "ClickableCard",
+            "BaseCardProps": "ClickableCardProps"
+          },
+          "when": "the card has onClick or clickable; ClickableCard requires a `label` (take it from ariaLabel)"
+        }
+      ],
+      "propRenames": [
+        { "from": "testId", "to": "data-testid" },
+        { "from": "ariaLabel", "to": "aria-label" },
+        { "from": "ariaChecked", "to": "aria-checked" }
+      ],
+      "valueMaps": {},
+      "manual": [
+        "variant (default | installed | available) maps to Card variant by intent: default -> \"muted\", installed -> \"default\", available -> \"muted\".",
+        "state (loading | active | disabled | warning) has no Card counterpart; express it in the content, or use ClickableCard isDisabled for disabled.",
+        "direction=\"row\" has no Card counterpart; wrap the children in an HStack.",
+        "hoverable, clickable, onKeyDown, role and tabIndex: ClickableCard owns hover, focus and keyboard activation.",
+        "The .base-card classes and the --corner-accent-color property are gone."
+      ]
+    },
+    {
+      "name": "Button",
+      "oldImports": [
+        { "specifier": "@lablup/ui-common", "names": ["Button", "ButtonProps"] },
+        {
+          "specifier": "@lablup/ui-common/components/Button",
+          "names": ["Button", "ButtonProps"]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/Button",
+        "names": { "Button": "Button", "ButtonProps": "ButtonProps" }
+      },
+      "alternatives": [
+        {
+          "specifier": "@lablup/ui-common/IconButton",
+          "names": { "Button": "IconButton", "ButtonProps": "IconButtonProps" },
+          "when": "iconOnly is set; the accessible name moves from ariaLabel to label"
+        }
+      ],
+      "propRenames": [
+        {
+          "from": "children",
+          "to": "label",
+          "kind": "children-to-prop",
+          "onlyWhen": "children is a string literal or expression of type string"
+        },
+        { "from": "disabled", "to": "isDisabled" },
+        { "from": "loading", "to": "isLoading" },
+        { "from": "iconOnly", "to": "isIconOnly" },
+        { "from": "ariaLabel", "to": "aria-label" },
+        { "from": "fullWidth", "to": "width", "value": "100%" }
+      ],
+      "valueMaps": {
+        "variant": {
+          "primary": "primary",
+          "secondary": "secondary",
+          "danger": "destructive",
+          "ghost": "ghost",
+          "text": "ghost",
+          "outline": "secondary",
+          "success": null
+        },
+        "size": { "xsmall": "sm", "small": "sm", "medium": "md", "large": "lg" }
+      },
+      "manual": [
+        "`label` is required. A non-string child needs `label` for the accessible name and the node as children.",
+        "variant=\"success\" has no Button variant; use primary.",
+        "iconPosition=\"right\" becomes `endContent` (an Icon or Badge element only).",
+        "shape=\"circle\", inline and active have no counterpart.",
+        "The .button / .button--* classes are gone; Astryx's stable class is .astryx-button."
+      ]
+    },
+    {
+      "name": "DataTable",
+      "oldImports": [
+        {
+          "specifier": "@lablup/ui-common",
+          "names": [
+            "DataTable",
+            "DataTableColumn",
+            "DataTableProps",
+            "DataTablePersistedState",
+            "SortDirection"
+          ]
+        },
+        {
+          "specifier": "@lablup/ui-common/components/DataTable",
+          "names": [
+            "DataTable",
+            "DataTableColumn",
+            "DataTableProps",
+            "DataTablePersistedState",
+            "SortDirection",
+            "default"
+          ]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/Table",
+        "names": {
+          "DataTable": "Table",
+          "DataTableProps": "TableProps",
+          "DataTableColumn": "TableColumn"
+        }
+      },
+      "alternatives": [],
+      "propRenames": [
+        { "from": "rows", "to": "data" },
+        {
+          "from": "getRowKey",
+          "to": "idKey",
+          "kind": "signature-change",
+          "note": "idKey takes (item) or a property name; the index argument is gone"
+        }
+      ],
+      "columnRenames": [
+        { "from": "id", "to": "key" },
+        { "from": "render", "to": "renderCell", "kind": "signature-change" },
+        { "from": "initialWidth", "to": "width" }
+      ],
+      "valueMaps": {},
+      "manual": [
+        "Sorting, column resizing, column visibility and persisted column state are Table plugins (`plugins`), not props.",
+        "loading, loadingState and emptyState: render them around the Table.",
+        "onRowClick, isRowClickable and rowClassName: use the row-interaction plugin or children mode.",
+        "The .data-table classes are gone."
+      ]
+    },
+    {
+      "name": "Drawer",
+      "oldImports": [
+        { "specifier": "@lablup/ui-common", "names": ["Drawer", "DrawerProps"] },
+        {
+          "specifier": "@lablup/ui-common/components/Drawer",
+          "names": ["Drawer", "DrawerProps"]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/lab",
+        "names": { "Drawer": "Drawer", "DrawerProps": "DrawerProps" }
+      },
+      "alternatives": [],
+      "requiresPackages": { "@astryxdesign/lab": "0.6.2-canary.c9fb1ad" },
+      "propRenames": [
+        {
+          "from": "onClose",
+          "to": "onOpenChange",
+          "kind": "signature-change",
+          "note": "called with false; wrap as (open) => { if (!open) onClose(); }"
+        },
+        { "from": "title", "to": "label", "onlyWhen": "title is a string" }
+      ],
+      "valueMaps": { "width": { "narrow": 400, "medium": 520, "wide": 900 } },
+      "manual": [
+        "lab Drawer renders no header: render the title, subtitle and footer inside children.",
+        "closeLabel, ariaLabelledBy and ariaDescribedBy have no counterpart.",
+        "preventDismiss and onDismissAttempt: decline the close in onOpenChange.",
+        "The .drawer classes are gone."
+      ]
+    },
+    {
+      "name": "EmptyState",
+      "oldImports": [
+        {
+          "specifier": "@lablup/ui-common",
+          "names": [
+            "EmptyState",
+            "EmptyStateProps",
+            "EmptyStateAction",
+            "EmptyStateSecondaryAction"
+          ]
+        },
+        {
+          "specifier": "@lablup/ui-common/components/EmptyState",
+          "names": [
+            "EmptyState",
+            "EmptyStateProps",
+            "EmptyStateAction",
+            "EmptyStateSecondaryAction"
+          ]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/EmptyState",
+        "names": { "EmptyState": "EmptyState", "EmptyStateProps": "EmptyStateProps" }
+      },
+      "alternatives": [],
+      "propRenames": [{ "from": "illustration", "to": "icon" }],
+      "valueMaps": {},
+      "manual": [
+        "primaryAction and secondaryAction become `actions`, a node: <Button variant=\"primary\" label={a.label} onClick={a.onClick} /> and a secondary Button, or a Link for a secondaryAction with href.",
+        "showIllustration={false}: omit `icon`.",
+        "children has no slot; put it in `actions` or below the EmptyState.",
+        "The title renders as an h3 by default; set headingLevel to fit the outline.",
+        "The .empty-state classes are gone."
+      ]
+    },
+    {
+      "name": "ProgressBar",
+      "oldImports": [
+        {
+          "specifier": "@lablup/ui-common",
+          "names": [
+            "ProgressBar",
+            "ProgressBarProps",
+            "ProgressBarVariant",
+            "ProgressBarSize"
+          ]
+        },
+        {
+          "specifier": "@lablup/ui-common/components/ProgressBar",
+          "names": [
+            "ProgressBar",
+            "ProgressBarProps",
+            "ProgressBarVariant",
+            "ProgressBarSize",
+            "default"
+          ]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/ProgressBar",
+        "names": {
+          "ProgressBar": "ProgressBar",
+          "ProgressBarProps": "ProgressBarProps"
+        }
+      },
+      "alternatives": [],
+      "propRenames": [
+        { "from": "showLabel", "to": "hasValueLabel" },
+        { "from": "ariaLabel", "to": "label", "onlyWhen": "label is not also set" }
+      ],
+      "valueMaps": {
+        "variant": {
+          "primary": "accent",
+          "success": "success",
+          "error": "error",
+          "warning": "warning"
+        }
+      },
+      "manual": [
+        "value={null} becomes isIndeterminate (and no value).",
+        "`label` is required and is the accessible name; the old visible `label` text maps to it with isLabelHidden when it was not shown.",
+        "size and animated have no counterpart.",
+        "The .progress-bar classes are gone."
+      ]
+    },
+    {
+      "name": "Select",
+      "oldImports": [
+        {
+          "specifier": "@lablup/ui-common",
+          "names": ["Select", "SelectOption", "SelectProps"]
+        },
+        {
+          "specifier": "@lablup/ui-common/components/Select",
+          "names": ["Select", "SelectOption", "SelectProps"]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/Selector",
+        "names": {
+          "Select": "Selector",
+          "SelectProps": "SelectorProps",
+          "SelectOption": "SelectorOption"
+        }
+      },
+      "alternatives": [],
+      "propRenames": [
+        { "from": "disabled", "to": "isDisabled" },
+        { "from": "searchable", "to": "hasSearch" },
+        { "from": "noOptionsLabel", "to": "emptyText" },
+        {
+          "from": "aria-label",
+          "to": "label",
+          "onlyWhen": "label is not set; add isLabelHidden"
+        }
+      ],
+      "valueMaps": {
+        "size": { "small": "sm", "default": "md", "medium": "md", "large": "lg" }
+      },
+      "manual": [
+        "`label` is required and is a string; a node label needs a string for the accessible name.",
+        "invalid becomes status={{ type: \"error\" }}.",
+        "fullWidth, onBlur and aria-describedby (use `description`) have no direct counterpart.",
+        "Selector is not generic over the value type; onChange receives a string.",
+        "The .select classes are gone."
+      ]
+    },
+    {
+      "name": "Skeleton",
+      "oldImports": [
+        { "specifier": "@lablup/ui-common", "names": ["Skeleton", "SkeletonProps"] },
+        {
+          "specifier": "@lablup/ui-common/components/Skeleton",
+          "names": ["Skeleton", "SkeletonProps"]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/Skeleton",
+        "names": { "Skeleton": "Skeleton", "SkeletonProps": "SkeletonProps" }
+      },
+      "alternatives": [],
+      "note": "Only the base Skeleton is removed. SkeletonCard, SkeletonText, SkeletonChart and SkeletonRow stay, at the root and at @lablup/ui-common/components/Skeleton.",
+      "propRenames": [{ "from": "testId", "to": "data-testid" }],
+      "valueMaps": { "variant": { "rect": null, "circle": null, "text": null } },
+      "manual": [
+        "variant=\"circle\" becomes radius=\"rounded\"; variant=\"text\" becomes height=\"1em\"; variant=\"rect\" is the default.",
+        "Astryx Skeleton is always decorative (aria-hidden). loadingLabel and decorative are gone: put role=\"status\" and the label on the region that waits.",
+        "width and height default to 100% (was 100% and 20px).",
+        "The .skeleton and .skeleton__shimmer classes are gone; Astryx's stable class is .astryx-skeleton."
+      ]
+    },
+    {
+      "name": "StatusTag",
+      "oldImports": [
+        {
+          "specifier": "@lablup/ui-common",
+          "names": ["StatusTag", "StatusTagProps", "StatusKind"]
+        },
+        {
+          "specifier": "@lablup/ui-common/components/StatusTag",
+          "names": ["StatusTag", "StatusTagProps", "StatusKind", "default"]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/StatusDot",
+        "names": { "StatusTag": "StatusDot", "StatusTagProps": "StatusDotProps" }
+      },
+      "alternatives": [],
+      "propRenames": [
+        { "from": "state", "to": "variant", "kind": "value-map" },
+        { "from": "pulse", "to": "isPulsing" }
+      ],
+      "valueMaps": {
+        "state": {
+          "running": "success",
+          "preparing": "accent",
+          "idle": "neutral",
+          "busy": "accent",
+          "stopping": "warning",
+          "terminated": "neutral",
+          "error": "error"
+        }
+      },
+      "defaultsToMaterialize": {
+        "isPulsing": { "whenState": ["preparing", "stopping", "busy"], "value": true }
+      },
+      "manual": [
+        "StatusDot renders only the dot; `label` becomes its accessible name. Keep the visible text: <HStack gap={1}><StatusDot variant=... label={label} /><Text>{label}</Text></HStack>.",
+        "size has no counterpart.",
+        "The .status-tag classes and data-testid=\"status-tag-indicator\" are gone."
+      ]
+    },
+    {
+      "name": "Tabs",
+      "oldImports": [
+        {
+          "specifier": "@lablup/ui-common",
+          "names": [
+            "Tabs",
+            "TabsProps",
+            "TabItem",
+            "TabGroupMeta",
+            "TabOverflowMode",
+            "TabVariant"
+          ]
+        },
+        {
+          "specifier": "@lablup/ui-common/components/Tabs",
+          "names": [
+            "Tabs",
+            "TabsProps",
+            "TabItem",
+            "TabGroupMeta",
+            "TabOverflowMode",
+            "TabVariant"
+          ]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/TabList",
+        "names": { "Tabs": "TabList", "TabsProps": "TabListProps" }
+      },
+      "alternatives": [],
+      "propRenames": [
+        { "from": "activeTab", "to": "value" },
+        { "from": "onTabChange", "to": "onChange" }
+      ],
+      "valueMaps": {},
+      "manual": [
+        "TabList renders the strip only. `tabs` (id, label, content) becomes <Tab value={id} label={label} /> children, and the active panel is rendered by the caller.",
+        "defaultTab (uncontrolled) needs caller state: TabList is controlled.",
+        "groups, overflowMode, showOverflowControls, showGroupLabels and the overflow labels: TabList chooses overflow itself (`overflow`); groups have no counterpart.",
+        "variant: underlined is the default; segmented maps to SegmentedControl; compact to size=\"sm\".",
+        "fillContainer becomes layout=\"fill\".",
+        "The .tabs classes are gone."
+      ]
+    },
+    {
+      "name": "Tooltip",
+      "oldImports": [
+        { "specifier": "@lablup/ui-common", "names": ["Tooltip", "TooltipProps"] },
+        {
+          "specifier": "@lablup/ui-common/components/Tooltip",
+          "names": ["Tooltip", "TooltipProps"]
+        }
+      ],
+      "replacement": {
+        "specifier": "@lablup/ui-common/Tooltip",
+        "names": { "Tooltip": "Tooltip", "TooltipProps": "TooltipProps" }
+      },
+      "alternatives": [],
+      "propRenames": [],
+      "valueMaps": { "placement": { "top": "above", "bottom": "below" } },
+      "manual": [
+        "toggleable, tooltipId, tabIndex and contentClassName have no counterpart; Astryx Tooltip handles focus and touch itself (focusTrigger, touchTrigger).",
+        "The .tooltip classes are gone."
+      ]
+    }
+  ],
+  "keptComponents": [
+    {
+      "name": "PageHeader",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/PageHeader"],
+      "propChanges": [],
+      "classRenames": { "page-header": "uic-page-header" },
+      "notes": [
+        "The title is Astryx Heading level 1, the retry control an Astryx Button, the dismiss control an Astryx IconButton."
+      ]
+    },
+    {
+      "name": "PageLayout",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/PageLayout"],
+      "propChanges": [],
+      "classRenames": { "page-layout": "uic-page-layout" },
+      "notes": []
+    },
+    {
+      "name": "StatCard",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/StatCard"],
+      "propChanges": [],
+      "classRenames": { "stat-card": "uic-stat-card" },
+      "removedClasses": ["corner-accent"],
+      "removedCustomProperties": ["--corner-accent-color"],
+      "notes": [
+        "Renders Astryx Card, or ClickableCard when onClick is set. With onClick the accessible name sits on the card's inner button, not on the root.",
+        "The loading placeholder is Astryx Skeleton (.astryx-skeleton), not .skeleton."
+      ]
+    },
+    {
+      "name": "ErrorState",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/ErrorState"],
+      "propChanges": [],
+      "classRenames": {
+        "error-state": "uic-error-state",
+        "error-state__action-btn": "uic-error-state__action",
+        "error-state__action-btn--primary": "uic-error-state__action--primary",
+        "error-state__action-btn--secondary": "uic-error-state__action--secondary"
+      },
+      "notes": ["The default icon is Astryx's `error` glyph."]
+    },
+    {
+      "name": "SmoothHeight",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/SmoothHeight"],
+      "propChanges": [],
+      "classRenames": { "smooth-height": "uic-smooth-height" },
+      "notes": []
+    },
+    {
+      "name": "DigitPopIn",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/DigitPopIn"],
+      "propChanges": [],
+      "classRenames": { "digit-pop-in": "uic-digit-pop-in" },
+      "customPropertyRenames": {
+        "--digit-pop-in-duration": "--uic-digit-pop-in-duration",
+        "--digit-pop-in-distance": "--uic-digit-pop-in-distance",
+        "--digit-pop-in-stagger": "--uic-digit-pop-in-stagger",
+        "--digit-pop-in-blur": "--uic-digit-pop-in-blur",
+        "--digit-pop-in-ease": "--uic-digit-pop-in-ease",
+        "--digit-pop-in-index": "--uic-digit-pop-in-index"
+      },
+      "notes": []
+    },
+    {
+      "name": "SkeletonCard",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/Skeleton"],
+      "propChanges": [],
+      "classRenames": { "skeleton-card": "uic-skeleton-card" },
+      "notes": []
+    },
+    {
+      "name": "SkeletonText",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/Skeleton"],
+      "propChanges": [],
+      "classRenames": { "skeleton-text": "uic-skeleton-text" },
+      "notes": []
+    },
+    {
+      "name": "SkeletonChart",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/Skeleton"],
+      "propChanges": [],
+      "classRenames": { "skeleton-chart": "uic-skeleton-chart" },
+      "notes": []
+    },
+    {
+      "name": "SkeletonRow",
+      "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/Skeleton"],
+      "propChanges": [],
+      "classRenames": { "skeleton-row": "uic-skeleton-row" },
+      "notes": []
+    }
+  ],
+  "classRenameRule": "Each keptComponents classRenames key is a BEM block: `.<block>`, `.<block>__<element>` and `.<block>--<modifier>` all move to the value with the same suffix. Explicit full-name keys win over the block rule.",
+  "shapeClassRenames": {
+    "skeleton": "uic-skeleton-shape",
+    "skeleton--rect": "uic-skeleton-shape--rect",
+    "skeleton--circle": "uic-skeleton-shape--circle",
+    "skeleton--text": "uic-skeleton-shape--text",
+    "skeleton__shimmer": null
+  },
+  "stylesheets": [
+    {
+      "specifier": "@lablup/ui-common/styles/base.css",
+      "status": "deprecated, removed in 0.3",
+      "replaceWith": {
+        "layerOrder": "@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;",
+        "imports": [
+          "@lablup/ui-common/reset.css",
+          "@lablup/ui-common/astryx.css",
+          "@lablup/ui-common/theme/lablup/theme.css",
+          "@lablup/ui-common/ui-common.css",
+          "@lablup/ui-common/legacy-tokens.css"
+        ]
+      }
+    },
+    {
+      "specifier": "@lablup/ui-common/styles/themes/*.css",
+      "status": "deprecated, removed in 0.3",
+      "replaceWith": null,
+      "note": "The Lablup theme covers light and dark; drop the import."
+    }
+  ],
+  "newExports": {
+    "@lablup/ui-common/Modal": [
+      "Modal",
+      "ModalHeader",
+      "DialogHeader",
+      "configureModalZIndex",
+      "useModalLevel",
+      "MODAL_OPEN_ATTRIBUTE",
+      "MAX_MODAL_LEVEL"
+    ]
+  }
+}
