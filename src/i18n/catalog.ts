@@ -25,6 +25,7 @@ import type { Catalog, MessageEntry } from "@astryxdesign/core/i18n";
 // These modules import `defineMessages` back from here. The cycle is safe:
 // it is a function declaration, so it is bound before either module runs.
 import { booleanTokenMessages } from "../components/BooleanToken/BooleanToken.messages";
+import { colorPickerMessages } from "../components/ColorPicker/ColorPicker.messages";
 import { deleteConfirmModalMessages } from "../components/DeleteConfirmModal/DeleteConfirmModal.messages";
 import { notificationStackMessages } from "../components/NotificationStack/NotificationStack.messages";
 import { pageHeaderMessages } from "../components/PageHeader/PageHeader.messages";
@@ -34,6 +35,7 @@ import { statisticMessages } from "../components/Statistic/Statistic.messages";
 import { numberStepperMessages } from "../components/StepNumberInput/NumberStepper.messages";
 import { tokenRowMessages } from "../components/TokenRow/TokenRow.messages";
 import { uncontrolledInputMessages } from "../components/UncontrolledInput/UncontrolledInput.messages";
+import { unitGridMessages } from "../components/UnitGrid/UnitGrid.messages";
 import { commonMessages } from "./common.messages";
 
 /**
@@ -55,6 +57,7 @@ export function defineMessages<const T extends Record<UicMessageKey, MessageEntr
 export const uiCommonCatalog: Catalog = {
   ...commonMessages,
   ...booleanTokenMessages,
+  ...colorPickerMessages,
   ...deleteConfirmModalMessages,
   ...notificationStackMessages,
   ...numberStepperMessages,
@@ -64,4 +67,5 @@ export const uiCommonCatalog: Catalog = {
   ...statisticMessages,
   ...tokenRowMessages,
   ...uncontrolledInputMessages,
+  ...unitGridMessages,
 };

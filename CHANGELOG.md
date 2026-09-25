@@ -5,6 +5,31 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `UnitGrid`: groups of unit squares packed on one lattice (`serpentine`
+    or `wordwrap`), each group a tinted plate with its initial, a hover card
+    (`renderGroupPopover`), an optional palette picker (`hueOverrides`,
+    `onHueOverrideChange`), a legend row and a partial fill per unit. The
+    seven default hues are `--uic-unit-grid-group-1` to `-7` (Astryx
+    `--color-icon-*` by default), the initial's inks
+    `--uic-unit-grid-ink-dark`/`-light` (`--color-on-light`/`--color-on-dark`),
+    and `--uic-unit-grid-popover-z` places the hover card.
+    `UnitGridSkeleton` is its loading stand-in.
+  - `ColorPicker`: a hex colour field on the platform colour input, with a
+    hex text field and an optional clear button (`value`, `onChange` on the
+    settled colour, `hasValueLabel`, `hasClear`, `onClear`, `isDisabled`,
+    `label`). `toHexColor` normalises `#rgb`, `#rrggbbaa`, `rgb()` and
+    `rgba()` to `#rrggbb`. It had no tests in the origin and gets them here.
+- Catalog keys `uic.UnitGrid.label`, `uic.UnitGrid.changeGroupColor`,
+  `uic.UnitGrid.useColor` (ICU `{index}`), `uic.ColorPicker.label`,
+  `uic.ColorPicker.hexValue`, `uic.ColorPicker.clear` and
+  `uic.ColorPicker.noColor`, translated in every shipped locale from
+  backend.ai-ui's locale files.
+
 ## [0.2.0-alpha.5]
 
 Six more components move in from backend.ai-ui, the ones its theme shim

@@ -68,6 +68,8 @@ export const docs = {
             "`Statistic`: a metric with a caption, a large value and a notched usage bar. `DividedRow`: a wrapping row with dividers between neighbours on a line.",
             '`TokenList`: values inline, the rest behind +N on hover. `TokenRow`: tokens cut off with "and N more".',
             "`NotificationItem`: the title, description, actions and footer of one notice.",
+            "`UnitGrid`: groups of unit squares packed on one lattice, each group a tinted plate with a hover card and an optional palette picker; `UnitGridSkeleton` is its loading stand-in.",
+            "`ColorPicker`: a hex colour field on the platform colour input, reporting the settled colour.",
           ],
         },
         {

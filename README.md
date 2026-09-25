@@ -170,6 +170,8 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `TokenList`                                                    | Values inline, the rest behind `+N` on hover                | `/components/TokenList`          |
 | `TokenRow`                                                     | Tokens cut off with "and N more"                            | `/components/TokenRow`           |
 | `NotificationItem`                                             | The title, description, actions and footer of one notice    | `/components/NotificationItem`   |
+| `UnitGrid`, `UnitGridSkeleton`                                 | Groups of unit squares on one lattice, with a hover card    | `/components/UnitGrid`           |
+| `ColorPicker`                                                  | A hex colour field on the platform colour input             | `/components/ColorPicker`        |
 | `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook         | root only                        |
 
 Their styles live in `@layer ui-common`, under `uic-` class names.

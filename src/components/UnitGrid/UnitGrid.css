@@ -1,0 +1,66 @@
+/*
+ * UnitGrid. The seven group hues and the two letter inks are --uic- custom
+ * properties on the root, so a product can hand in its own palette from a
+ * class of its own. Hue overrides are stored by palette index: keep index N
+ * meaning the same hue in light and dark.
+ *
+ * The inks contrast the cell fill (chosen per cell by luminance), not the
+ * page, so they default to the mode-invariant --color-on-light/--color-on-dark.
+ */
+@layer ui-common {
+  .uic-unit-grid {
+    --uic-unit-grid-group-1: var(--color-icon-purple);
+    --uic-unit-grid-group-2: var(--color-icon-blue);
+    --uic-unit-grid-group-3: var(--color-icon-green);
+    --uic-unit-grid-group-4: var(--color-icon-cyan);
+    --uic-unit-grid-group-5: var(--color-icon-orange);
+    --uic-unit-grid-group-6: var(--color-icon-red);
+    --uic-unit-grid-group-7: var(--color-icon-gray);
+    --uic-unit-grid-cell-stroke: var(--color-border);
+    /* Translucent, so a partial cell stays readable when the unit's own fill
+       is the same muted colour. */
+    --uic-unit-grid-cell-empty: color-mix(
+      in srgb,
+      var(--color-background-muted) 60%,
+      transparent
+    );
+    --uic-unit-grid-ink-dark: var(--color-on-light);
+    --uic-unit-grid-ink-light: var(--color-on-dark);
+  }
+
+  .uic-unit-grid__wrapper {
+    position: relative;
+  }
+
+  .uic-unit-grid__svg {
+    display: block;
+  }
+
+  .uic-unit-grid__svg--clickable {
+    cursor: pointer;
+  }
+
+  .uic-unit-grid__swatch {
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /*
+   * Fixed, so it escapes a host card's overflow clipping; the component sets
+   * the coordinates and the border colour inline. --uic-unit-grid-popover-z
+   * places it on a product's z-index ladder. The width bounds are a readable
+   * measure, which Astryx has no token for.
+   */
+  .uic-unit-grid__popover {
+    position: fixed;
+    z-index: var(--uic-unit-grid-popover-z, 1000);
+    min-width: 200px;
+    max-width: 320px;
+    padding: var(--spacing-2);
+    border-width: var(--border-width);
+    border-style: solid;
+    border-radius: var(--radius-element);
+    background: var(--color-background-popover);
+    box-shadow: var(--shadow-med);
+  }
+}

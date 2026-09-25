@@ -1321,6 +1321,10 @@ export type { BoardItemTitleProps } from "./components/BoardItemTitle";
 export { BooleanToken } from "./components/BooleanToken";
 export type { BooleanTokenProps } from "./components/BooleanToken";
 
+// ColorPicker
+export { ColorPicker, toHexColor } from "./components/ColorPicker";
+export type { ColorPickerProps } from "./components/ColorPicker";
+
 // ConfirmPopover
 export { ConfirmPopover } from "./components/ConfirmPopover";
 export type { ConfirmPopoverProps } from "./components/ConfirmPopover";
@@ -1470,6 +1474,17 @@ export type { TokenRowItem, TokenRowProps } from "./components/TokenRow";
 // UncontrolledInput
 export { UncontrolledInput } from "./components/UncontrolledInput";
 export type { UncontrolledInputProps } from "./components/UncontrolledInput";
+
+// UnitGrid
+export { UnitGrid, UnitGridSkeleton } from "./components/UnitGrid";
+export type {
+  UnitGridGroup,
+  UnitGridLayout,
+  UnitGridLegendItem,
+  UnitGridProps,
+  UnitGridSkeletonProps,
+  UnitGridUnit,
+} from "./components/UnitGrid";
 
 // usePrefersReducedMotion
 export { usePrefersReducedMotion } from "./hooks";

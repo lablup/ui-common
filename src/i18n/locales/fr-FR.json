@@ -11,6 +11,22 @@
     "defaultMessage": "Supprimer",
     "description": "Generic label of a button that deletes something"
   },
+  "uic.ColorPicker.label": {
+    "defaultMessage": "Sélectionner une couleur",
+    "description": "Accessible name of a color picker whose caller gave it no label"
+  },
+  "uic.ColorPicker.hexValue": {
+    "defaultMessage": "Valeur hexadécimale",
+    "description": "Hidden label of the color picker's text field for a #rrggbb value"
+  },
+  "uic.ColorPicker.clear": {
+    "defaultMessage": "Effacer",
+    "description": "Button in a color picker that removes the chosen color"
+  },
+  "uic.ColorPicker.noColor": {
+    "defaultMessage": "Aucune couleur",
+    "description": "Shown on a color picker's trigger when no color is set"
+  },
   "uic.DeleteConfirmModal.title": {
     "defaultMessage": "Supprimer",
     "description": "Title of the dialog that confirms deleting one item"
@@ -66,5 +82,17 @@
   "uic.UncontrolledInput.label": {
     "defaultMessage": "Sélectionner",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  },
+  "uic.UnitGrid.label": {
+    "defaultMessage": "Grille de ressources",
+    "description": "Accessible name of a unit grid whose caller gave it no aria-label"
+  },
+  "uic.UnitGrid.changeGroupColor": {
+    "defaultMessage": "Modifier la couleur du groupe",
+    "description": "Button in a unit grid's hover card that opens the palette for the group"
+  },
+  "uic.UnitGrid.useColor": {
+    "defaultMessage": "Utiliser la couleur {index}",
+    "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
   }
 }

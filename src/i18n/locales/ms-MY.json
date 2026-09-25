@@ -11,6 +11,22 @@
     "defaultMessage": "Padam",
     "description": "Generic label of a button that deletes something"
   },
+  "uic.ColorPicker.label": {
+    "defaultMessage": "Pilih warna",
+    "description": "Accessible name of a color picker whose caller gave it no label"
+  },
+  "uic.ColorPicker.hexValue": {
+    "defaultMessage": "Nilai heks",
+    "description": "Hidden label of the color picker's text field for a #rrggbb value"
+  },
+  "uic.ColorPicker.clear": {
+    "defaultMessage": "Kosongkan",
+    "description": "Button in a color picker that removes the chosen color"
+  },
+  "uic.ColorPicker.noColor": {
+    "defaultMessage": "Tiada warna",
+    "description": "Shown on a color picker's trigger when no color is set"
+  },
   "uic.DeleteConfirmModal.title": {
     "defaultMessage": "Padam",
     "description": "Title of the dialog that confirms deleting one item"
@@ -66,5 +82,17 @@
   "uic.UncontrolledInput.label": {
     "defaultMessage": "Pilih",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  },
+  "uic.UnitGrid.label": {
+    "defaultMessage": "Grid sumber",
+    "description": "Accessible name of a unit grid whose caller gave it no aria-label"
+  },
+  "uic.UnitGrid.changeGroupColor": {
+    "defaultMessage": "Tukar warna kumpulan",
+    "description": "Button in a unit grid's hover card that opens the palette for the group"
+  },
+  "uic.UnitGrid.useColor": {
+    "defaultMessage": "Guna warna {index}",
+    "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
   }
 }

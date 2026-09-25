@@ -6,6 +6,7 @@
   },
   { "name": "BoardItemTitle", "source": "components/BoardItemTitle/index.ts" },
   { "name": "BooleanToken", "source": "components/BooleanToken/index.ts" },
+  { "name": "ColorPicker", "source": "components/ColorPicker/index.ts" },
   { "name": "ConfirmPopover", "source": "components/ConfirmPopover/index.ts" },
   { "name": "CountBadge", "source": "components/CountBadge/index.ts" },
   { "name": "DeleteConfirmModal", "source": "components/DeleteConfirmModal/index.ts" },
@@ -30,5 +31,6 @@
   { "name": "TokenList", "source": "components/TokenList/index.ts" },
   { "name": "TokenRow", "source": "components/TokenRow/index.ts" },
   { "name": "UncontrolledInput", "source": "components/UncontrolledInput/index.ts" },
+  { "name": "UnitGrid", "source": "components/UnitGrid/index.ts" },
   { "name": "usePrefersReducedMotion", "source": "hooks/index.ts" }
 ]

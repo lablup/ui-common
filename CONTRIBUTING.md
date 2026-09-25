@@ -104,6 +104,8 @@ Pick a different name, or use the Astryx component.
 | `TokenList`                                                    | `src/components/TokenList/`          | `Token`, `Badge`, `Link`, `HoverCard`, `Popover`   |
 | `TokenRow`                                                     | `src/components/TokenRow/`           | `Token`, `HStack`                                  |
 | `NotificationItem`                                             | `src/components/NotificationItem/`   | `Stack`, `Text`                                    |
+| `UnitGrid`, `UnitGridSkeleton`                                 | `src/components/UnitGrid/`           | `Stack`, `Text`, `VisuallyHidden`, `Skeleton`      |
+| `ColorPicker`                                                  | `src/components/ColorPicker/`        | `Popover`, `TextInput`, `Button`                   |
 
 Each has tests beside it. `src/components/componentStyles.test.ts` holds every
 stylesheet to the styling rules below.

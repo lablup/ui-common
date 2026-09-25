@@ -27,6 +27,22 @@
     "defaultMessage": "いいえ",
     "description": "Default label of a token showing a boolean value that is false"
   },
+  "uic.ColorPicker.label": {
+    "defaultMessage": "色を選択",
+    "description": "Accessible name of a color picker whose caller gave it no label"
+  },
+  "uic.ColorPicker.hexValue": {
+    "defaultMessage": "16進数の値",
+    "description": "Hidden label of the color picker's text field for a #rrggbb value"
+  },
+  "uic.ColorPicker.clear": {
+    "defaultMessage": "クリア",
+    "description": "Button in a color picker that removes the chosen color"
+  },
+  "uic.ColorPicker.noColor": {
+    "defaultMessage": "色なし",
+    "description": "Shown on a color picker's trigger when no color is set"
+  },
   "uic.DeleteConfirmModal.title": {
     "defaultMessage": "削除",
     "description": "Title of the dialog that confirms deleting one item"
@@ -106,5 +122,17 @@
   "uic.UncontrolledInput.label": {
     "defaultMessage": "選択",
     "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  },
+  "uic.UnitGrid.label": {
+    "defaultMessage": "リソースグリッド",
+    "description": "Accessible name of a unit grid whose caller gave it no aria-label"
+  },
+  "uic.UnitGrid.changeGroupColor": {
+    "defaultMessage": "グループの色を変更",
+    "description": "Button in a unit grid's hover card that opens the palette for the group"
+  },
+  "uic.UnitGrid.useColor": {
+    "defaultMessage": "色{index}を使用",
+    "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
   }
 }
