@@ -46,7 +46,7 @@ export interface PageHeaderProps {
    * are two props rather than one.
    */
   onRetry?: () => void;
-  /** Label for the Retry button. Default: the catalog's `uic.PageHeader.retry` */
+  /** Label for the Retry button. Default: the catalog's `uic.common.retry` */
   retryLabel?: string;
   /** Callback when the error is dismissed; renders the dismiss button */
   onErrorDismiss?: () => void;
@@ -108,7 +108,7 @@ export function PageHeader({
                   variant="secondary"
                   size="sm"
                   className="uic-page-header__error-retry"
-                  label={retryLabel ?? t("uic.PageHeader.retry")}
+                  label={retryLabel ?? t("uic.common.retry")}
                   onClick={onRetry}
                 />
               )}

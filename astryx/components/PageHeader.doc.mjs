@@ -51,7 +51,7 @@ export default {
       name: "retryLabel",
       type: "string",
       description: "Retry button label.",
-      default: "the catalog's uic.PageHeader.retry",
+      default: "the catalog's uic.common.retry",
     },
     {
       name: "onErrorDismiss",

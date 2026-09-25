@@ -52,7 +52,7 @@ export default {
       name: "actionLabel",
       type: "string",
       description: "Primary action label.",
-      default: 'the catalog\'s uic.Modal.ok ("OK")',
+      default: 'the catalog\'s uic.common.ok ("OK")',
     },
     {
       name: "actionVariant",
@@ -79,7 +79,7 @@ export default {
       name: "cancelLabel",
       type: "string",
       description: "Cancel label.",
-      default: 'the catalog\'s uic.Modal.cancel ("Cancel")',
+      default: 'the catalog\'s uic.common.cancel ("Cancel")',
     },
     {
       name: "hasCancelButton",

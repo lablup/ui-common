@@ -104,9 +104,9 @@ describe("ui-common catalog", () => {
     }
   })();
 
-  it("keys are uic.<Component>.<key>", () => {
+  it("keys are uic.<Component>.<key> or uic.common.<key>", () => {
     for (const key of Object.keys(uiCommonCatalog)) {
-      expect(key).toMatch(/^uic\.[A-Z][A-Za-z0-9]*\.[A-Za-z0-9]+$/);
+      expect(key).toMatch(/^uic\.(common|[A-Z][A-Za-z0-9]*)\.[A-Za-z0-9]+$/);
     }
   });
 

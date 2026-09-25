@@ -374,8 +374,8 @@ describe("Modal structured mode", () => {
   it("takes translated defaults from the provider and explicit labels over them", () => {
     const messages = {
       "ko-KR": {
-        "uic.Modal.ok": { defaultMessage: "확인" },
-        "uic.Modal.cancel": { defaultMessage: "취소" },
+        "uic.common.ok": { defaultMessage: "확인" },
+        "uic.common.cancel": { defaultMessage: "취소" },
       },
     };
     const { unmount } = render(

@@ -21,7 +21,7 @@
  * A component still lets an explicit string prop win:
  *
  *   const t = useUicTranslator();
- *   const label = closeLabel ?? t("uic.Modal.close");
+ *   const label = cancelLabel ?? t("uic.common.cancel");
  */
 import { useCallback, useContext } from "react";
 import IntlMessageFormat from "intl-messageformat";

@@ -75,10 +75,10 @@ export interface NotificationStackItem {
   /** Label of the navigation action ("View folder"). Shown with `onAction`. */
   actionText?: string;
   onAction?: () => void;
-  /** @default the catalog's uic.NotificationStack.retry ("Retry") */
+  /** @default the catalog's uic.common.retry ("Retry") */
   retryText?: string;
   onRetry?: () => void;
-  /** @default the catalog's uic.NotificationStack.cancel ("Cancel") */
+  /** @default the catalog's uic.common.cancel ("Cancel") */
   cancelText?: string;
   onCancel?: () => void;
   /**
@@ -175,7 +175,7 @@ function NotificationStackItemView({
         <Button
           size="sm"
           variant="ghost"
-          label={item.cancelText ?? t("uic.NotificationStack.cancel")}
+          label={item.cancelText ?? t("uic.common.cancel")}
           onClick={item.onCancel}
         />
       ) : null}
@@ -183,7 +183,7 @@ function NotificationStackItemView({
         <Button
           size="sm"
           variant="secondary"
-          label={item.retryText ?? t("uic.NotificationStack.retry")}
+          label={item.retryText ?? t("uic.common.retry")}
           onClick={item.onRetry}
         />
       ) : null}

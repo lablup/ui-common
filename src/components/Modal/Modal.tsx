@@ -115,7 +115,7 @@ export interface ModalProps extends Omit<DialogProps, "ref" | "children"> {
   footer?: ReactNode | null;
   /** Primary action. Returning a promise shows the button pending until it settles. It does not close the modal. */
   onAction?: () => unknown;
-  /** Primary action label. Default: the catalog's `uic.Modal.ok` ("OK") */
+  /** Primary action label. Default: the catalog's `uic.common.ok` ("OK") */
   actionLabel?: string;
   /** Primary action variant. Default: "primary" */
   actionVariant?: ButtonVariant;
@@ -125,7 +125,7 @@ export interface ModalProps extends Omit<DialogProps, "ref" | "children"> {
   isActionDisabled?: boolean;
   /** More props for the primary action button (`type`, `form`, `icon`, ...). */
   actionButtonProps?: ModalActionButtonProps;
-  /** Cancel label. Default: the catalog's `uic.Modal.cancel` ("Cancel") */
+  /** Cancel label. Default: the catalog's `uic.common.cancel` ("Cancel") */
   cancelLabel?: string;
   /** Whether the generated footer has a Cancel button. Default: true */
   hasCancelButton?: boolean;
@@ -364,14 +364,14 @@ export function Modal({
         {hasCancelButton && (
           <Button
             variant="secondary"
-            label={cancelLabel ?? t("uic.Modal.cancel")}
+            label={cancelLabel ?? t("uic.common.cancel")}
             onClick={close}
           />
         )}
         <Button
           {...actionButtonProps}
           variant={actionVariant}
-          label={actionLabel ?? t("uic.Modal.ok")}
+          label={actionLabel ?? t("uic.common.ok")}
           isLoading={isActionLoading ?? actionButtonProps?.isLoading}
           isDisabled={isActionDisabled ?? actionButtonProps?.isDisabled}
           clickAction={async () => {
