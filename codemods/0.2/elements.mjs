@@ -1,13 +1,15 @@
 /**
- * Per-component JSX rewrites for the 0.1 -> 0.2 upgrade: each function takes
- * one element of a removed 0.1 component and reshapes its props into the
- * Astryx counterpart's. What it cannot prove safe, it leaves in place with a
- * TODO marker (see ../lib/todo.mjs).
+ * Per-component JSX rewrites for the 0.1 -> 0.2 upgrade. The data (renames,
+ * value maps, manual notes) comes from `migration/0.1-to-0.2.json` through
+ * ./map.mjs; the functions here apply it to one element of a removed 0.1
+ * component. What cannot be proven safe stays in place with a
+ * TODO(ui-common-upgrade) marker (see ../lib/todo.mjs), worded from the map's
+ * `manual` notes where one fits.
  */
 import {
   attrExpression,
-  cloneNode,
   attrValue,
+  cloneNode,
   getAttr,
   isSimpleReference,
   isStringish,
@@ -20,22 +22,21 @@ import {
   replaceAttr,
   setAttr,
 } from "../lib/jsx.mjs";
+import { manualNote } from "./map.mjs";
 
 /**
  * @typedef {object} Helpers
  * @property {any} j jscodeshift
  * @property {any} path NodePath of the element
  * @property {any} el the JSXElement
+ * @property {import('./map.mjs').Removed} removed the component's map entry
  * @property {(message: string) => void} todo
  * @property {(name: string, subpath: string) => string} ensureImport
- * @property {(name: string) => void} setTag rename the element (alternate component)
+ * @property {(name: string) => void} setTag switch to an alternative component
  * @property {boolean} isTS
- * @property {any} props mapping.props
  */
 
 /**
- * Rename an attribute if present.
- *
  * @param {any} el
  * @param {string} from
  * @param {string} to
@@ -47,52 +48,91 @@ function rename(el, from, to) {
 }
 
 /**
- * Map a literal attribute through `table`; values are either a replacement
- * string, `null` (drop the attribute), or `[replacement, note]` (replace and
- * leave a TODO with the note).
+ * A TODO worded from the map's manual note about `word`, or `fallback`.
  *
  * @param {Helpers} h
- * @param {string} name attribute to read
- * @param {Record<string, any>} table
- * @param {{to?: string, component: string}} options
+ * @param {string} word
+ * @param {string} fallback
  */
-function mapLiteral(h, name, table, { to = name, component }) {
-  const attr = getAttr(h.el, name);
-  if (!attr) return;
+function todoAbout(h, word, fallback) {
+  h.todo(manualNote(h.removed, word) ?? fallback);
+}
+
+/**
+ * Apply the map's value map for `prop` to a literal attribute: a mapped value
+ * replaces it; `null` (no counterpart) leaves it with a TODO. A dynamic value
+ * is renamed (when `to` differs) and gets a TODO listing the map.
+ *
+ * @param {Helpers} h
+ * @param {string} prop
+ * @param {{to?: string, table?: Record<string, string|number|null>}} [options]
+ */
+function mapValue(h, prop, { to = prop, table = h.removed.spec.valueMaps[prop] } = {}) {
+  const attr = getAttr(h.el, prop);
+  if (!attr || !table) return;
   const value = attrValue(attr);
-  if (value.kind === "string") {
-    if (!(value.value in table)) {
-      h.todo(`${component} ${name}="${value.value}" has no known Astryx counterpart.`);
+  const component = h.removed.name;
+  if (value.kind === "string" || value.kind === "number") {
+    const key = String(value.value);
+    if (!(key in table)) {
+      todoAbout(
+        h,
+        key,
+        `${component} ${prop}="${key}" has no known Astryx counterpart.`,
+      );
       return;
     }
-    const mapped = table[value.value];
+    const mapped = table[key];
     if (mapped === null) {
-      removeAttr(h.el, attr);
+      todoAbout(h, key, `${component} ${prop}="${key}" has no Astryx counterpart.`);
       return;
     }
-    const [replacement, note] = Array.isArray(mapped) ? mapped : [mapped, null];
-    replaceAttr(h.el, attr, makeAttr(h.j, to, replacement));
-    if (note) h.todo(note);
+    replaceAttr(h.el, attr, makeAttr(h.j, to, mapped));
     return;
   }
-  if (to !== name) renameAttr(attr, to);
+  if (to !== prop) renameAttr(attr, to);
   h.todo(
-    `${component} ${name} is dynamic; map its values onto Astryx's: ${Object.entries(
+    `${component} ${prop} is dynamic; map its values onto Astryx's: ${Object.entries(
       table,
     )
-      .map(([k, v]) => `${k}→${v === null ? "(none)" : Array.isArray(v) ? v[0] : v}`)
+      .map(([k, v]) => `${k}→${v === null ? "(none)" : v}`)
       .join(", ")}.`,
   );
 }
 
 /**
- * A boolean 0.1 prop that becomes a different prop value in Astryx:
- * `fullWidth` -> `width="100%"`, `invalid` -> `status={{type: "error"}}`.
+ * The map's plain renames (no kind, condition or value), except `skip`.
+ *
+ * @param {Helpers} h
+ * @param {string[]} [skip]
+ */
+function plainRenames(h, skip = []) {
+  for (const r of h.removed.spec.propRenames) {
+    if (r.kind || r.onlyWhen || r.value !== undefined || skip.includes(r.from))
+      continue;
+    rename(h.el, r.from, r.to);
+  }
+}
+
+/**
+ * The map's renames that carry a fixed value: `fullWidth` -> `width="100%"`.
+ *
+ * @param {Helpers} h
+ */
+function valueRenames(h) {
+  for (const r of h.removed.spec.propRenames) {
+    if (r.value === undefined) continue;
+    booleanToValue(h, r.from, r.to, () => h.j.stringLiteral(String(r.value)));
+  }
+}
+
+/**
+ * A boolean 0.1 prop that becomes another prop's value.
  *
  * @param {Helpers} h
  * @param {string} name
  * @param {string} to
- * @param {() => any} whenTrue expression for the new value
+ * @param {() => any} whenTrue
  */
 function booleanToValue(h, name, to, whenTrue) {
   const attr = getAttr(h.el, name);
@@ -120,41 +160,38 @@ function booleanToValue(h, name, to, whenTrue) {
 }
 
 /**
- * Drop a 0.1 prop Astryx has no place for. A literal default is dropped
- * silently; anything else leaves a TODO.
+ * A 0.1 prop with no counterpart: a literal equal to its 0.1 default is
+ * dropped silently, anything else stays with a TODO from the manual notes.
  *
  * @param {Helpers} h
- * @param {string} component
  * @param {string} name
- * @param {string} message
- * @param {Array<string|boolean>} [silentValues]
+ * @param {Array<string|boolean>} [defaults]
  */
-function unsupported(h, component, name, message, silentValues = []) {
+function unsupported(h, name, defaults = []) {
   const attr = getAttr(h.el, name);
   if (!attr) return;
   const value = attrValue(attr);
   if (
     (value.kind === "string" || value.kind === "boolean") &&
-    silentValues.includes(value.value)
+    defaults.includes(value.value)
   ) {
     removeAttr(h.el, attr);
     return;
   }
-  h.todo(`${component} "${name}": ${message}`);
+  todoAbout(h, name, `${h.removed.name} "${name}" has no Astryx counterpart.`);
 }
 
 /**
- * Move children into a prop. `mode`:
+ * Move the children into a prop (the map's `children-to-prop` rename).
  * - "string": only provably-string children move silently; others move with a TODO
  * - "node": any children move (the target prop is a ReactNode)
  *
  * @param {Helpers} h
  * @param {string} prop
  * @param {"string" | "node"} mode
- * @param {string} component
  * @returns {boolean} whether children were moved
  */
-function childrenToProp(h, prop, mode, component) {
+function childrenToProp(h, prop, mode) {
   const { j, el } = h;
   const children = meaningfulChildren(el);
   if (children.length === 0) return false;
@@ -168,7 +205,9 @@ function childrenToProp(h, prop, mode, component) {
     setAttr(j, el, prop, expression);
     makeSelfClosing(el);
     if (mode === "string" && !isStringish(expression)) {
-      h.todo(`${component} "${prop}" must be a string; it was the element's children.`);
+      h.todo(
+        `${h.removed.name} "${prop}" must be a string; it was the element's children.`,
+      );
     }
     return true;
   }
@@ -187,69 +226,66 @@ function childrenToProp(h, prop, mode, component) {
 
 /** @param {Helpers} h */
 export function Button(h) {
-  const { j, el, props } = h;
-  const table = props.Button;
-  mapLiteral(h, "variant", table.variant, { component: "Button" });
-  mapLiteral(h, "size", table.size, { component: "Button" });
-  for (const [from, to] of Object.entries(table.rename)) rename(el, from, to);
-  booleanToValue(h, "fullWidth", "width", () => j.stringLiteral("100%"));
-  unsupported(h, "Button", "shape", table.todo.shape, ["default"]);
-  unsupported(h, "Button", "inline", table.todo.inline, [false]);
-  unsupported(h, "Button", "active", table.todo.active, [false]);
-  unsupported(h, "Button", "iconPosition", table.todo.iconPosition, ["left"]);
+  const { j, el } = h;
+  mapValue(h, "variant");
+  mapValue(h, "size");
+  valueRenames(h);
+  unsupported(h, "shape", ["default"]);
+  unsupported(h, "inline", [false]);
+  unsupported(h, "active", [false]);
+  unsupported(h, "iconPosition", ["left"]);
 
-  if (getAttr(el, "label")) return;
-  const ariaLabel = getAttr(el, "ariaLabel");
-  if (childrenToProp(h, "label", "string", "Button")) {
-    if (ariaLabel) renameAttr(ariaLabel, "aria-label");
-    return;
+  // `label` is required: take it from the children, else from ariaLabel (then
+  // it is the accessible name), else from title on an icon-only button.
+  if (!getAttr(el, "label")) {
+    const ariaLabel = getAttr(el, "ariaLabel");
+    if (childrenToProp(h, "label", "string")) {
+      // ariaLabel falls through to the plain rename (aria-label).
+    } else if (meaningfulChildren(el).length > 0) {
+      if (ariaLabel) renameAttr(ariaLabel, "label");
+      else todoAbout(h, "label", "Button needs a string `label`.");
+    } else if (ariaLabel) {
+      renameAttr(ariaLabel, "label");
+    } else {
+      const title = getAttr(el, "title");
+      if (title && getAttr(el, "iconOnly")) {
+        setAttr(j, el, "label", cloneNode(attrExpression(j, title)));
+      } else {
+        todoAbout(
+          h,
+          "label",
+          "Button needs a string `label`; this call had no text, ariaLabel or title to take it from.",
+        );
+      }
+    }
   }
-  if (meaningfulChildren(el).length > 0) {
-    // Rich children stay (Astryx renders them in place of the label), but the
-    // accessible name still needs a string.
-    if (ariaLabel) renameAttr(ariaLabel, "label");
-    else
-      h.todo(
-        "Button needs a string `label` (its accessible name); its children are rich content.",
-      );
-    return;
-  }
-  if (ariaLabel) {
-    renameAttr(ariaLabel, "label");
-    return;
-  }
-  const tooltip = getAttr(el, "tooltip");
-  if (tooltip && getAttr(el, "isIconOnly")) {
-    setAttr(j, el, "label", cloneNode(attrExpression(j, tooltip)));
-    return;
-  }
-  h.todo(
-    "Button needs a string `label`; this call had no text, ariaLabel or title to take it from.",
-  );
+  plainRenames(h);
 }
 
 /** @param {Helpers} h */
 export function Badge(h) {
-  const table = h.props.Badge;
-  mapLiteral(h, "variant", table.variant, { component: "Badge" });
-  unsupported(h, "Badge", "size", "Astryx Badge has one size.", ["small"]);
-  childrenToProp(h, "label", "node", "Badge");
+  mapValue(h, "variant");
+  // The map says to drop size: Astryx Badge has one size.
+  const size = getAttr(h.el, "size");
+  if (size) removeAttr(h.el, size);
+  childrenToProp(h, "label", "node");
+  plainRenames(h);
 }
 
 /** @param {Helpers} h */
 export function StatusTag(h) {
-  const { j, el, props } = h;
-  const table = props.StatusTag.state;
-  const pulsing = props.StatusTag.pulsingStates;
+  const { j, el } = h;
+  const table = /** @type {Record<string, string>} */ (h.removed.spec.valueMaps.state);
+  const pulsing = h.removed.spec.defaultsToMaterialize?.isPulsing?.whenState ?? [];
   const state = getAttr(el, "state");
-  const pulse = getAttr(el, "pulse");
-  if (pulse) renameAttr(pulse, "isPulsing");
+  const pulse = rename(el, "pulse", "isPulsing");
   if (state) {
     const value = attrValue(state);
     if (value.kind === "string" && value.value in table) {
       replaceAttr(el, state, makeAttr(j, "variant", table[value.value]));
       if (!pulse && pulsing.includes(value.value)) setAttr(j, el, "isPulsing", true);
     } else if (value.kind === "expression" && isSimpleReference(value.expression)) {
+      // A lookup in the map itself, typed `as const` in TypeScript.
       const map = j.objectExpression(
         Object.entries(table).map(([k, v]) =>
           j.objectProperty(j.identifier(k), j.stringLiteral(v)),
@@ -263,7 +299,7 @@ export function StatusTag(h) {
         state,
         makeAttr(j, "variant", j.memberExpression(typedMap, value.expression, true)),
       );
-      if (!pulse) {
+      if (!pulse && pulsing.length > 0) {
         setAttr(
           j,
           el,
@@ -282,21 +318,25 @@ export function StatusTag(h) {
     } else {
       renameAttr(state, "variant");
       h.todo(
-        `StatusDot "variant" replaces StatusTag "state": map ${Object.entries(table)
+        `StatusDot "variant" replaces StatusTag "state": ${Object.entries(table)
           .map(([k, v]) => `${k}→${v}`)
           .join(", ")}.`,
       );
     }
   }
-  unsupported(h, "StatusTag", "size", "StatusDot has one size.", ["small"]);
-  h.todo(
-    "StatusDot shows no text: `label` is its accessible name only. Put a <Text> beside it if the label must stay visible.",
+  unsupported(h, "size", ["small"]);
+  todoAbout(
+    h,
+    "label",
+    "StatusDot shows no text: `label` is its accessible name only.",
   );
 }
 
 /** @param {Helpers} h */
 export function Tooltip(h) {
   const { j, el } = h;
+  mapValue(h, "placement");
+  // toggleable meant "a tap toggles it"; that is Astryx's touchTrigger="tap".
   const toggleable = getAttr(el, "toggleable");
   if (toggleable) {
     const value = attrValue(toggleable);
@@ -319,50 +359,41 @@ export function Tooltip(h) {
       );
     }
   }
-  for (const name of ["className", "contentClassName", "tooltipId", "tabIndex"]) {
-    unsupported(
-      h,
-      "Tooltip",
-      name,
-      "Astryx Tooltip has no such prop; it wires the trigger and the ARIA ids itself. Style the trigger, not the tooltip.",
-    );
+  for (const name of ["contentClassName", "tooltipId", "tabIndex"])
+    unsupported(h, name);
+  if (getAttr(el, "className")) {
+    h.todo("Astryx Tooltip takes no className: style the trigger, not the tooltip.");
   }
+  plainRenames(h);
 }
 
 /** @param {Helpers} h */
 export function ProgressBar(h) {
-  const { j, el, props } = h;
-  mapLiteral(h, "variant", props.ProgressBar.variant, { component: "ProgressBar" });
-  unsupported(h, "ProgressBar", "size", "Astryx ProgressBar has one size.", ["md"]);
-  unsupported(
-    h,
-    "ProgressBar",
-    "animated",
-    "Astryx ProgressBar always animates its fill.",
-    [true],
-  );
+  const { j, el } = h;
+  mapValue(h, "variant");
+  unsupported(h, "size", ["md"]);
+  unsupported(h, "animated", [true]);
   const value = getAttr(el, "value");
   if (value && attrValue(value).kind === "null") {
     replaceAttr(el, value, makeAttr(j, "isIndeterminate", true));
   }
-  rename(el, "showLabel", "hasValueLabel");
+  plainRenames(h);
 
-  // 0.1 `label` was visible text replacing the percentage; Astryx's `label`
-  // is the accessible name. The visible text moves to `formatValueLabel`.
-  const visible = getAttr(el, "label");
+  // `label` is required and is the accessible name. A 0.1 `label` was visible
+  // text, so it stays and stays visible; a 0.1 ariaLabel was not, so it
+  // becomes a hidden label.
+  const label = getAttr(el, "label");
   const ariaLabel = getAttr(el, "ariaLabel");
-  if (visible) {
-    const expression = attrExpression(j, visible);
-    removeAttr(el, visible);
-    setAttr(j, el, "hasValueLabel", true);
-    setAttr(j, el, "formatValueLabel", j.arrowFunctionExpression([], expression));
-    if (!ariaLabel) setAttr(j, el, "label", cloneNode(expression));
-  }
-  if (ariaLabel) renameAttr(ariaLabel, "label");
-  if (!getAttr(el, "label")) {
+  if (label && ariaLabel) {
+    removeAttr(el, ariaLabel);
     h.todo(
-      "ProgressBar needs a `label` (its accessible name); add one, with isLabelHidden if it should not show.",
+      "ProgressBar had both a visible label and ariaLabel; Astryx has one `label`, now the visible one.",
     );
+  } else if (ariaLabel) {
+    renameAttr(ariaLabel, "label");
+    setAttr(j, el, "isLabelHidden", true);
+  } else if (!label) {
+    todoAbout(h, "label", "ProgressBar needs a `label`.");
   }
 }
 
@@ -391,23 +422,24 @@ function actionFields(object) {
 /** @param {Helpers} h */
 export function EmptyState(h) {
   const { j, el } = h;
-  const illustration = rename(el, "illustration", "icon");
+  plainRenames(h);
+  const icon = getAttr(el, "icon");
   const show = getAttr(el, "showIllustration");
   if (show) {
     const value = attrValue(show);
     removeAttr(el, show);
     if (value.kind === "boolean") {
-      if (!value.value && illustration) removeAttr(el, illustration);
-    } else if (illustration) {
+      if (!value.value && icon) removeAttr(el, icon);
+    } else if (icon) {
       replaceAttr(
         el,
-        illustration,
+        icon,
         makeAttr(
           j,
           "icon",
           j.conditionalExpression(
             value.expression,
-            attrExpression(j, illustration),
+            attrExpression(j, icon),
             j.identifier("undefined"),
           ),
         ),
@@ -426,9 +458,7 @@ export function EmptyState(h) {
       attrValue(attr).kind === "expression" ? attrExpression(j, attr) : null,
     );
     if (!fields || !fields.label) {
-      h.todo(
-        `EmptyState "${name}" becomes a <Button> in "actions"; it is not an object literal, so move it by hand.`,
-      );
+      todoAbout(h, name, `EmptyState "${name}" becomes a <Button> in "actions".`);
       continue;
     }
     const button = h.ensureImport("Button", "Button");
@@ -450,61 +480,48 @@ export function EmptyState(h) {
     );
   }
   if (meaningfulChildren(el).length > 0) {
-    h.todo(
-      "Astryx EmptyState takes no children; move them into `actions`, or beside it.",
-    );
+    todoAbout(h, "children", "Astryx EmptyState takes no children.");
   }
   for (const name of ["title", "description"]) {
     const attr = getAttr(el, name);
+    const expression = attr ? attrExpression(j, attr) : null;
     if (
-      attr &&
-      attrValue(attr).kind === "expression" &&
-      !isStringish(attrExpression(j, attr))
+      expression &&
+      (expression.type === "JSXElement" || expression.type === "JSXFragment")
     ) {
-      const expression = attrExpression(j, attr);
-      if (expression.type === "JSXElement" || expression.type === "JSXFragment") {
-        h.todo(`Astryx EmptyState "${name}" is a string, not markup.`);
-      }
+      h.todo(`Astryx EmptyState "${name}" is a string, not markup.`);
     }
   }
 }
 
 /** @param {Helpers} h */
 export function Skeleton(h) {
-  const { j, el, props } = h;
+  const { j, el } = h;
+  // From the map's manual note: circle -> radius="rounded", text ->
+  // height="1em", rect is the default.
   const variant = getAttr(el, "variant");
   if (variant) {
     const value = attrValue(variant);
-    if (value.kind === "string" && value.value in props.Skeleton.variant) {
-      const mapped = props.Skeleton.variant[value.value];
-      if (mapped === null) removeAttr(el, variant);
-      else replaceAttr(el, variant, makeAttr(j, "radius", mapped));
+    if (value.kind === "string" && ["rect", "circle", "text"].includes(value.value)) {
+      removeAttr(el, variant);
+      if (value.value === "circle") setAttr(j, el, "radius", "rounded");
       if (value.value === "text" && !getAttr(el, "height"))
         setAttr(j, el, "height", "1em");
     } else {
-      h.todo(
-        'Skeleton "variant" is dynamic: rect → (default), text → radius={1}, circle → radius="rounded".',
-      );
+      todoAbout(h, "variant", 'Skeleton "variant" is dynamic.');
     }
   }
-  rename(el, "testId", "data-testid");
-  unsupported(
-    h,
-    "Skeleton",
-    "loadingLabel",
-    "Astryx Skeleton is decorative; announce loading on the region instead (aria-busy).",
-  );
-  unsupported(h, "Skeleton", "decorative", "Astryx Skeleton is always decorative.", [
-    true,
-  ]);
+  unsupported(h, "loadingLabel");
+  unsupported(h, "decorative", [true]);
+  plainRenames(h);
 }
 
 /** @param {Helpers} h */
 export function Select(h) {
-  const { j, el, props } = h;
-  const table = props.Select;
-  mapLiteral(h, "size", table.size, { component: "Select" });
-  for (const [from, to] of Object.entries(table.rename)) rename(el, from, to);
+  const { j, el } = h;
+  mapValue(h, "size");
+  plainRenames(h);
+  // Selector sizes the whole field with `width`.
   booleanToValue(h, "fullWidth", "width", () => j.stringLiteral("100%"));
   booleanToValue(h, "invalid", "status", () =>
     j.objectExpression([
@@ -517,35 +534,60 @@ export function Select(h) {
       renameAttr(aria, "label");
       setAttr(j, el, "isLabelHidden", true);
     } else {
-      h.todo(
-        "Selector needs a `label` (add isLabelHidden to keep it visually hidden).",
-      );
+      todoAbout(h, "label", "Selector needs a `label`.");
     }
   }
+  for (const name of ["onBlur", "aria-describedby"]) unsupported(h, name);
 }
 
 /** @param {Helpers} h */
 export function Tabs(h) {
-  const { el } = h;
-  rename(el, "activeTab", "value");
-  rename(el, "onTabChange", "onChange");
+  const { j, el } = h;
+  plainRenames(h);
   rename(el, "ariaLabel", "aria-label");
-  h.todo(
-    "TabList renders the tab strip only: turn `tabs` into <Tab value label /> children, render the active panel yourself (was `content` / `renderPanel`), and drop `groups`, `variant`, `overflowMode`, `fillContainer` (see `ui-common component TabList`; `segmented` is SegmentedControl).",
+  booleanToValue(h, "fillContainer", "layout", () => j.stringLiteral("fill"));
+  const variant = getAttr(el, "variant");
+  if (variant) {
+    const value = attrValue(variant);
+    if (value.kind === "string" && value.value === "underlined")
+      removeAttr(el, variant);
+    else if (value.kind === "string" && value.value === "compact") {
+      replaceAttr(el, variant, makeAttr(j, "size", "sm"));
+    } else todoAbout(h, "variant", 'Tabs "variant" has no TabList counterpart.');
+  }
+  todoAbout(
+    h,
+    "tabs",
+    "TabList renders the strip only: `tabs` becomes <Tab> children and the caller renders the panel.",
   );
+  for (const name of [
+    "defaultTab",
+    "groups",
+    "overflowMode",
+    "showOverflowControls",
+    "showGroupLabels",
+  ]) {
+    if (getAttr(el, name))
+      todoAbout(h, name, `Tabs "${name}" has no TabList counterpart.`);
+  }
 }
 
 /** @param {Helpers} h */
 export function DataTable(h) {
   const { el } = h;
-  rename(el, "rows", "data");
-  rename(el, "getRowKey", "idKey");
+  plainRenames(h);
   rename(el, "ariaLabel", "aria-label");
   rename(el, "testId", "data-testid");
-  h.todo(
-    "Table columns are {key, header, width, align, renderCell}: rename id→key and render→renderCell, and widths use pixel()/proportional() from @lablup/ui-common/Table.",
-  );
-  const rebuilt = [
+  const idKey = h.removed.spec.propRenames.find((r) => r.from === "getRowKey");
+  if (idKey && rename(el, idKey.from, idKey.to) && idKey.note)
+    h.todo(`Table ${idKey.to}: ${idKey.note}.`);
+  const columns = h.removed.spec.columnRenames ?? [];
+  if (columns.length > 0) {
+    h.todo(
+      `Table columns: rename ${columns.map((c) => `${c.from}→${c.to}`).join(", ")}; renderCell takes the row item, and width is pixel()/proportional() from @lablup/ui-common/Table.`,
+    );
+  }
+  for (const name of [
     "emptyState",
     "loadingState",
     "loading",
@@ -557,11 +599,8 @@ export function DataTable(h) {
     "sortColumnId",
     "sortDirection",
     "onSortChange",
-  ].filter((name) => getAttr(el, name));
-  if (rebuilt.length > 0) {
-    h.todo(
-      `Table has no ${rebuilt.join(", ")}: rebuild them with Table plugins (useTableSortable, useTableColumnResize, useTableColumnSettings) or around the table.`,
-    );
+  ]) {
+    if (getAttr(el, name)) todoAbout(h, name, `Table has no "${name}".`);
   }
 }
 
@@ -575,69 +614,38 @@ export function BaseCard(h) {
     onClick != null ||
     (clickableValue?.kind === "boolean" && clickableValue.value === true);
   if (clickable && clickableValue?.kind === "expression") {
-    h.todo(
-      "BaseCard `clickable` is dynamic: use ClickableCard when it is clickable and Card when not.",
+    todoAbout(
+      h,
+      "clickable",
+      "BaseCard `clickable` is dynamic: ClickableCard when clickable, Card when not.",
     );
   } else if (clickable) {
     removeAttr(el, clickable);
   }
-  rename(el, "testId", "data-testid");
-  if (isClickable) {
-    h.setTag(h.ensureImport("ClickableCard", "ClickableCard"));
-    const aria = rename(el, "ariaLabel", "label");
-    if (!aria) h.todo("ClickableCard needs a `label` (its accessible name).");
-    for (const name of ["onKeyDown", "role", "tabIndex"]) {
-      unsupported(
-        h,
-        "BaseCard",
-        name,
-        "ClickableCard handles keyboard activation and its role itself.",
-      );
-    }
+  const alternate = Object.keys(h.removed.alternates)[0];
+  if (isClickable && alternate) {
+    h.setTag(h.ensureImport(alternate, h.removed.alternates[alternate]));
+    // ClickableCard requires a label; the map's alternative says to take it
+    // from ariaLabel.
+    if (!rename(el, "ariaLabel", "label"))
+      h.todo("ClickableCard needs a `label` (its accessible name).");
+    for (const name of ["onKeyDown", "role", "tabIndex", "hoverable"])
+      unsupported(h, name);
   } else {
-    rename(el, "ariaLabel", "aria-label");
+    unsupported(h, "hoverable", [false]);
   }
-  unsupported(
-    h,
-    "BaseCard",
-    "variant",
-    "Card `variant` is a background colour; 0.1's installed/available states have no counterpart.",
-    ["default"],
-  );
-  unsupported(
-    h,
-    "BaseCard",
-    "state",
-    "Card has no state; show loading/disabled/warning in its content (Skeleton, Banner).",
-    ["idle"],
-  );
-  unsupported(
-    h,
-    "BaseCard",
-    "direction",
-    "Card does not lay out its children; wrap them in HStack or VStack.",
-    ["column"],
-  );
-  unsupported(
-    h,
-    "BaseCard",
-    "hoverable",
-    "Card has no hover style; ClickableCard has one.",
-    [false],
-  );
-  unsupported(
-    h,
-    "BaseCard",
-    "ariaChecked",
-    "A checkable card is SelectableCard (@lablup/ui-common/SelectableCard).",
-  );
+  plainRenames(h);
+  unsupported(h, "variant");
+  unsupported(h, "state", ["idle"]);
+  unsupported(h, "direction", ["column"]);
 }
 
 /** @param {Helpers} h */
 export function Drawer(h) {
-  const { j, el, props } = h;
+  const { j, el } = h;
   const onClose = getAttr(el, "onClose");
   if (onClose) {
+    // The map: onClose -> onOpenChange, wrapped as (open) => { if (!open) onClose(); }.
     const handler = attrExpression(j, onClose);
     const isOpen = j.identifier("isOpen");
     const notOpen = j.unaryExpression("!", isOpen);
@@ -677,49 +685,41 @@ export function Drawer(h) {
     const value = attrValue(title);
     replaceAttr(el, title, makeAttr(j, "label", attrExpression(j, title)));
     if (value.kind === "expression" && !isStringish(value.expression)) {
-      h.todo("lab Drawer `label` must be a string (it was the title).");
+      h.todo("lab Drawer `label` must be a string; it was the title.");
     }
   }
   if (title || getAttr(el, "subtitle") || getAttr(el, "footer")) {
-    h.todo(
-      "lab Drawer renders no title, subtitle or footer: put a Heading (and the footer) inside its children, then remove `subtitle` / `footer`.",
+    todoAbout(
+      h,
+      "header",
+      "lab Drawer renders no header: render the title, subtitle and footer inside children.",
     );
   }
 
+  // 0.1's default width was "medium"; the lab Drawer's default is narrower.
+  const widths = /** @type {Record<string, number>} */ (
+    h.removed.spec.valueMaps.width ?? {}
+  );
   const width = getAttr(el, "width");
   if (!width) {
-    setAttr(j, el, "width", props.Drawer.defaultWidth);
+    if (widths.medium) setAttr(j, el, "width", widths.medium);
   } else {
+    // A preset maps to pixels; any other CSS length is valid as it is.
     const value = attrValue(width);
-    if (value.kind === "string" && value.value in props.Drawer.width) {
-      replaceAttr(el, width, makeAttr(j, "width", props.Drawer.width[value.value]));
-    } else if (value.kind === "expression") {
+    if (value.kind === "string" && value.value in widths) mapValue(h, "width");
+    else if (value.kind === "expression") {
       h.todo(
-        "Drawer `width` is dynamic: narrow → 400, medium → 520, wide → 900 (pixels).",
+        `Drawer width is dynamic: ${Object.entries(widths)
+          .map(([k, v]) => `${k}→${v}`)
+          .join(", ")} (pixels).`,
       );
     }
   }
-  rename(el, "ariaLabelledBy", "aria-labelledby");
-  rename(el, "ariaDescribedBy", "aria-describedby");
-  unsupported(
-    h,
-    "Drawer",
-    "preventDismiss",
-    "lab Drawer always dismisses on Escape and scrim click; guard in onOpenChange instead.",
-    [false],
-  );
-  unsupported(
-    h,
-    "Drawer",
-    "onDismissAttempt",
-    "lab Drawer has no dismiss-attempt hook; handle it in onOpenChange.",
-  );
-  unsupported(
-    h,
-    "Drawer",
-    "closeLabel",
-    "lab Drawer's close button label comes from Astryx's i18n catalog.",
-  );
+  for (const name of ["ariaLabelledBy", "ariaDescribedBy", "closeLabel"])
+    unsupported(h, name);
+  unsupported(h, "preventDismiss", [false]);
+  unsupported(h, "onDismissAttempt");
+  plainRenames(h);
 }
 
 export const ELEMENT_TRANSFORMS = {

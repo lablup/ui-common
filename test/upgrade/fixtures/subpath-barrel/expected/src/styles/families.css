@@ -5,3 +5,8 @@
 :root {
   --color-text-secondary: #6b7280;
 }
+
+.page-header__title,
+.error-state__action-btn--primary {
+  font-weight: 600;
+}

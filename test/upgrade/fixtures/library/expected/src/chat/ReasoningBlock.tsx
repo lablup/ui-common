@@ -6,8 +6,7 @@ import { SmoothHeight } from "@lablup/ui-common";
 export function ReasoningBlock({ open, toggle }: { open: boolean; toggle: () => void }) {
   return (
     <div>
-      {/* TODO(ui-common-upgrade): Astryx Button has no "text" variant; mapped to "ghost". */}
-      {/* TODO(ui-common-upgrade): Button "inline": Astryx Button has no "inline" variant. Use variant="ghost" size="sm", or a Link. */}
+      {/* TODO(ui-common-upgrade): shape="circle", inline and active have no counterpart. */}
       <Button variant="ghost" size="sm" onClick={toggle} aria-expanded={open} label="Toggle reasoning" inline isIconOnly icon={<span>›</span>} />
       <SmoothHeight active={open}>
         <UC.Badge>thinking</UC.Badge>

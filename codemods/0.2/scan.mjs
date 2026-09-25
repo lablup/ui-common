@@ -17,6 +17,7 @@ import postcss from "postcss";
 import selectorParser from "postcss-selector-parser";
 
 import { dependencyDir } from "../../cli/paths.mjs";
+import { keptClassRename } from "./map.mjs";
 
 const legacy = JSON.parse(
   readFileSync(
@@ -29,6 +30,29 @@ const legacy = JSON.parse(
 export const LEGACY_CLASSES = new Map();
 for (const [component, classes] of Object.entries(legacy.components)) {
   for (const c of /** @type {string[]} */ (classes)) LEGACY_CLASSES.set(c, component);
+}
+
+/**
+ * A class 0.1 rendered: every class its stylesheets declared, plus anything
+ * under a kept component's renamed BEM block.
+ *
+ * @param {string} name
+ */
+export function isLegacyClass(name) {
+  return LEGACY_CLASSES.has(name) || keptClassRename(name) !== null;
+}
+
+/**
+ * Where a 0.1 class went: a kept component's class was renamed (the map's
+ * classRenames), a removed component's is gone.
+ *
+ * @param {string} name
+ */
+export function describeClass(name) {
+  const owner = LEGACY_CLASSES.get(name);
+  const renamed = keptClassRename(name);
+  if (renamed?.to) return `.${name} → .${renamed.to}${owner ? ` (${owner})` : ""}`;
+  return `.${name} (${owner ?? "0.1"}): gone`;
 }
 
 const COLLISION_PREFIXES = /^--(color|radius|spacing|font|shadow)-/;
@@ -117,14 +141,14 @@ function scanStylesheet(file, source) {
         /keyframes$/.test(/** @type {any} */ (rule.parent).name)
       )
         return;
-      const hits = classesIn(rule.selector).filter((c) => LEGACY_CLASSES.has(c));
+      const hits = classesIn(rule.selector).filter(isLegacyClass);
       if (hits.length > 0) {
         findings.push({
           category: "css-selector",
           file,
           line: rule.source?.start?.line ?? 0,
           text: rule.selector.replace(/\s+/g, " "),
-          detail: hits.map((c) => `.${c} (${LEGACY_CLASSES.get(c)})`).join(", "),
+          detail: hits.map(describeClass).join(", "),
         });
       }
     });
@@ -159,16 +183,14 @@ function scanStylesheet(file, source) {
     if (!/[{,]\s*$/.test(code)) return;
     const hits = [...code.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)]
       .map((m) => m[1])
-      .filter((c) => LEGACY_CLASSES.has(c));
+      .filter(isLegacyClass);
     if (hits.length > 0) {
       findings.push({
         category: "css-selector",
         file,
         line: i + 1,
         text: code.trim().replace(/\s*[{,]$/, ""),
-        detail: [...new Set(hits)]
-          .map((c) => `.${c} (${LEGACY_CLASSES.get(c)})`)
-          .join(", "),
+        detail: [...new Set(hits)].map(describeClass).join(", "),
       });
     }
   });
@@ -197,17 +219,15 @@ function scanScript(file, source) {
       file,
       line,
       text: (lines[line - 1] ?? "").trim(),
-      detail: [...new Set(hits)]
-        .map((c) => `.${c} (${LEGACY_CLASSES.get(c)})`)
-        .join(", "),
+      detail: [...new Set(hits)].map(describeClass).join(", "),
     });
   };
   for (const m of source.matchAll(SELECTOR_CALL)) {
-    const hits = classesIn(m[3]).filter((c) => LEGACY_CLASSES.has(c));
+    const hits = classesIn(m[3]).filter(isLegacyClass);
     if (hits.length > 0) record(m, hits);
   }
   for (const m of source.matchAll(CLASS_CALL)) {
-    const hits = m[3].split(/\s+/).filter((c) => LEGACY_CLASSES.has(c));
+    const hits = m[3].split(/\s+/).filter(isLegacyClass);
     if (hits.length > 0) record(m, hits);
   }
   for (const m of source.matchAll(
@@ -263,7 +283,7 @@ export function scanFile(file, source) {
 export const CATEGORIES = {
   "css-selector": {
     title: "CSS selectors on 0.1 class names",
-    help: "Astryx renders none of the 0.1 class names. Restyle through the component's props, the theme, or your `components` layer. Generic names (`.button`, `.select`) may be your own classes: skip those.",
+    help: "A removed component's classes are gone: Astryx renders its own. Restyle through the component's props, the theme, or your `components` layer. A kept component's classes were renamed to `uic-` names (shown as →), but its markup was rebuilt on Astryx, so check the selector still means what it did. Generic names (`.button`, `.select`) may be your own classes: skip those.",
   },
   "dom-hook": {
     title: "DOM hooks on 0.1 class names",

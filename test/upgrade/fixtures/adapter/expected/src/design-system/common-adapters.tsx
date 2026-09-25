@@ -13,7 +13,7 @@ import { Skeleton } from "@lablup/ui-common/Skeleton";
 
 export function Button({ tone, busy, children, onClick }: { tone: "primary" | "danger"; busy?: boolean; children: ReactNode; onClick?: () => void }) {
   return (
-    // TODO(ui-common-upgrade): Button variant is dynamic; map its values onto Astryx's: primary→primary, secondary→secondary, ghost→ghost, danger→destructive, text→ghost, outline→secondary, success→primary.
+    // TODO(ui-common-upgrade): Button variant is dynamic; map its values onto Astryx's: primary→primary, secondary→secondary, danger→destructive, ghost→ghost, text→ghost, outline→secondary, success→(none).
     // TODO(ui-common-upgrade): Button "label" must be a string; it was the element's children.
     <UiButton
       variant={tone}
@@ -52,8 +52,8 @@ export function RegionSelect({ value, onChange, invalid }: { value: string; onCh
 
 export function Panel({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
   return (
-    // TODO(ui-common-upgrade): lab Drawer `label` must be a string (it was the title).
-    // TODO(ui-common-upgrade): lab Drawer renders no title, subtitle or footer: put a Heading (and the footer) inside its children, then remove `subtitle` / `footer`.
+    // TODO(ui-common-upgrade): lab Drawer `label` must be a string; it was the title.
+    // TODO(ui-common-upgrade): lab Drawer renders no header: render the title, subtitle and footer inside children.
     <UiDrawer
       isOpen={open}
       onOpenChange={isOpen => {
@@ -72,18 +72,12 @@ export function Panel({ open, onClose, title, children }: { open: boolean; onClo
 export function Loading({ percent }: { percent: number | null }) {
   return (
     <>
-      {/* TODO(ui-common-upgrade): ProgressBar "animated": Astryx ProgressBar always animates its fill. */}
-      <ProgressBar
-        value={percent}
-        variant="success"
-        animated={false}
-        hasValueLabel
-        formatValueLabel={() => `${percent ?? 0} of 100`}
-        label={`${percent ?? 0} of 100`} />
-      <ProgressBar isIndeterminate label="Loading" />
-      <Skeleton radius="rounded" width="40px" height="40px" data-testid="avatar" />
-      <Skeleton radius={1} width="60%" height="1em" />
-      {/* TODO(ui-common-upgrade): Tooltip "className": Astryx Tooltip has no such prop; it wires the trigger and the ARIA ids itself. Style the trigger, not the tooltip. */}
+      {/* TODO(ui-common-upgrade): size and animated have no counterpart. */}
+      <ProgressBar value={percent} label={`${percent ?? 0} of 100`} variant="success" animated={false} />
+      <ProgressBar isIndeterminate label="Loading" isLabelHidden />
+      <Skeleton width="40px" height="40px" data-testid="avatar" radius="rounded" />
+      <Skeleton width="60%" height="1em" />
+      {/* TODO(ui-common-upgrade): Astryx Tooltip takes no className: style the trigger, not the tooltip. */}
       <Tooltip content="Help" touchTrigger={isTouch() ? "tap" : "auto"} className="hint">
         <button type="button">?</button>
       </Tooltip>

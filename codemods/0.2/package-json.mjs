@@ -5,9 +5,8 @@
  * - add @astryxdesign/lab, pinned to the canary ui-common is built against,
  *   when a Drawer import was moved to `@lablup/ui-common/lab`.
  */
-import { mapping } from "./components.mjs";
+import { LAB_PACKAGE, stylexPeer, UIC } from "./map.mjs";
 
-const UIC = "@lablup/ui-common";
 const FIELDS = /** @type {const} */ ([
   "dependencies",
   "devDependencies",
@@ -51,7 +50,7 @@ function bumpSpec(spec, to) {
 
 /**
  * @param {string} text package.json source
- * @param {{to: string, flags: {peers: Set<string>}, uiCommonPeers: Record<string, string>, note: (message: string) => void}} ctx
+ * @param {{to: string, flags: {packages: Map<string, string>}, note: (message: string) => void}} ctx
  */
 export function transformPackageJson(text, ctx) {
   const pkg = JSON.parse(text);
@@ -79,7 +78,7 @@ export function transformPackageJson(text, ctx) {
   // an application depends on it.
   const library = fields.includes("peerDependencies");
 
-  const stylex = mapping.packageJson.stylex;
+  const stylex = stylexPeer();
   if (!has(stylex.name)) {
     if (library) {
       addDependency(pkg, "peerDependencies", stylex.name, stylex.range);
@@ -95,10 +94,10 @@ export function transformPackageJson(text, ctx) {
     }
   }
 
-  const lab = mapping.packageJson.lab.name;
-  if (ctx.flags.peers.has(lab) && !has(lab)) {
-    const range = ctx.uiCommonPeers[lab];
-    if (range) {
+  // Packages the map says a moved component needs (the lab Drawer).
+  for (const [lab, range] of ctx.flags.packages) {
+    if (has(lab)) continue;
+    {
       const field = library
         ? "peerDependencies"
         : fields.includes("dependencies")
@@ -108,7 +107,9 @@ export function transformPackageJson(text, ctx) {
       if (library && fields.includes("devDependencies"))
         addDependency(pkg, "devDependencies", lab, range);
       ctx.note(
-        `added ${lab} ${range} to ${field}: a Drawer moved to ${UIC}/lab, and ui-common pins the lab canary exactly.`,
+        lab === LAB_PACKAGE
+          ? `added ${lab} ${range} to ${field}: a Drawer moved to ${UIC}/lab, and ui-common pins the lab canary exactly.`
+          : `added ${lab} ${range} to ${field}.`,
       );
     }
   }

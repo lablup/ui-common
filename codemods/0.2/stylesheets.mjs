@@ -18,27 +18,23 @@ import postcss from "postcss";
 
 import { TODO_TAG } from "../lib/jsx.mjs";
 import { addTodo } from "../lib/todo.mjs";
-import { mapping } from "./components.mjs";
+import { LAB_CSS, LAB_PACKAGE, STYLESHEETS } from "./map.mjs";
 
-const { base, layerOrder, replacement, entryFile } = mapping.stylesheets;
-const DROPPED = new RegExp(mapping.stylesheets.dropped);
-
-const LAB_CSS = "@lablup/ui-common/lab/lab.css";
+const { base, layerOrder, imports: replacement, entryFile } = STYLESHEETS;
+const DROPPED = STYLESHEETS.dropped;
 
 /**
  * The stylesheets that replace base.css. lab.css joins them when a Drawer was
  * moved to the lab package.
  *
- * @param {{flags?: {peers: Set<string>}}} ctx
+ * @param {{flags?: {packages: Map<string, string>}}} ctx
  * @returns {string[]}
  */
 function replacementFor(ctx) {
-  return ctx.flags?.peers.has(mapping.packageJson.lab.name)
-    ? [...replacement, LAB_CSS]
-    : replacement;
+  return ctx.flags?.packages.has(LAB_PACKAGE) ? [...replacement, LAB_CSS] : replacement;
 }
 
-/** @param {{flags?: {peers: Set<string>}}} ctx */
+/** @param {{flags?: {packages: Map<string, string>}}} ctx */
 export const entryCss = (ctx) => `/*
  * The @lablup/ui-common stylesheet entry, written by \`ui-common upgrade\` in
  * place of the 0.1 styles/base.css import. Keep it first among your
@@ -178,7 +174,7 @@ export const cssMeta = {
 /**
  * @param {{source: string, path: string}} file
  * @param {unknown} _api
- * @param {{flags?: {peers: Set<string>}}} ctx
+ * @param {{flags?: {packages: Map<string, string>}}} ctx
  */
 export function transformStylesheet(file, _api, ctx) {
   if (!file.source.includes("@lablup/ui-common/styles/")) return undefined;
@@ -196,7 +192,7 @@ export const jsMeta = {
 /**
  * @param {{source: string, path: string}} file
  * @param {{jscodeshift: any}} api
- * @param {{createFile: (path: string, content: string) => void, flags: {peers: Set<string>}}} ctx
+ * @param {{createFile: (path: string, content: string) => void, flags: {packages: Map<string, string>}}} ctx
  */
 export function transformScriptImports(file, api, ctx) {
   if (!file.source.includes("@lablup/ui-common/styles/")) return undefined;

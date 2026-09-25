@@ -19,7 +19,7 @@ Scanned 4 files under `src`.
 
 ## Changed files
 
-- `src/pages/ModelsPage.tsx`: +59 −23, components
+- `src/pages/ModelsPage.tsx`: +65 −23, components
 
 ## package.json
 
@@ -34,23 +34,23 @@ Each is a `TODO(ui-common-upgrade)` comment in the code, above the call it is ab
 
 - `src/pages/ModelsPage.tsx:10` type StatusKind was removed with StatusTag in 0.2 and has no Astryx counterpart.
 - `src/pages/ModelsPage.tsx:44` props spread into <Button> are not migrated; check them against Astryx Button's props.
-- `src/pages/ModelsPage.tsx:45` Astryx Button has no "outline" variant; mapped to "secondary".
-- `src/pages/ModelsPage.tsx:46` Button "inline": Astryx Button has no "inline" variant. Use variant="ghost" size="sm", or a Link.
-- `src/pages/ModelsPage.tsx:47` Button needs a string `label` (its accessible name); its children are rich content.
-- `src/pages/ModelsPage.tsx:52` BaseCard "state": Card has no state; show loading/disabled/warning in its content (Skeleton, Banner).
-- `src/pages/ModelsPage.tsx:59` Astryx Badge has no "primary" variant; mapped to the "orange" colour variant (tinted, not solid).
-- `src/pages/ModelsPage.tsx:61` StatusDot shows no text: `label` is its accessible name only. Put a <Text> beside it if the label must stay visible.
-- `src/pages/ModelsPage.tsx:74` StatusDot shows no text: `label` is its accessible name only. Put a <Text> beside it if the label must stay visible.
-- `src/pages/ModelsPage.tsx:76` ProgressBar "size": Astryx ProgressBar has one size.
+- `src/pages/ModelsPage.tsx:45` shape="circle", inline and active have no counterpart.
+- `src/pages/ModelsPage.tsx:46` `label` is required. A non-string child needs `label` for the accessible name and the node as children.
+- `src/pages/ModelsPage.tsx:51` state (loading | active | disabled | warning) has no Card counterpart; express it in the content, or use ClickableCard isDisabled for disabled.
+- `src/pages/ModelsPage.tsx:58` variant="primary" has no semantic Badge variant; pick `info` or a colour variant such as `orange`.
+- `src/pages/ModelsPage.tsx:60` StatusDot renders only the dot; `label` becomes its accessible name. Keep the visible text: <HStack gap={1}><StatusDot variant=... label={label} /><Text>{label}</Text></HStack>.
+- `src/pages/ModelsPage.tsx:73` StatusDot renders only the dot; `label` becomes its accessible name. Keep the visible text: <HStack gap={1}><StatusDot variant=... label={label} /><Text>{label}</Text></HStack>.
+- `src/pages/ModelsPage.tsx:75` size and animated have no counterpart.
+- `src/pages/ModelsPage.tsx:88` variant (default | installed | available) maps to Card variant by intent: default -> "muted", installed -> "default", available -> "muted".
 
 ### CSS selectors on 0.1 class names (2)
 
-Astryx renders none of the 0.1 class names. Restyle through the component's props, the theme, or your `components` layer. Generic names (`.button`, `.select`) may be your own classes: skip those.
+A removed component's classes are gone: Astryx renders its own. Restyle through the component's props, the theme, or your `components` layer. A kept component's classes were renamed to `uic-` names (shown as →), but its markup was rebuilt on Astryx, so check the selector still means what it did. Generic names (`.button`, `.select`) may be your own classes: skip those.
 
 | Where | What | Detail |
 |---|---|---|
-| `src/themes/violet.css:7` | `[data-theme="violet-light"] .button--primary:hover` | .button--primary (Button) |
-| `src/themes/violet.css:11` | `.drawer__content, .my-panel` | .drawer__content (Drawer) |
+| `src/themes/violet.css:7` | `[data-theme="violet-light"] .button--primary:hover` | .button--primary (Button): gone |
+| `src/themes/violet.css:11` | `.drawer__content, .my-panel` | .drawer__content (Drawer): gone |
 
 ### DOM hooks on 0.1 class names (1)
 
@@ -58,7 +58,7 @@ Scripts that find 0.1 markup by class stop matching. Use a ref, a data-testid, o
 
 | Where | What | Detail |
 |---|---|---|
-| `src/chat/InputPopup.tsx:7` | `if (target.closest(".select__dropdown--portal")) return;` | .select__dropdown--portal (Select) |
+| `src/chat/InputPopup.tsx:7` | `if (target.closest(".select__dropdown--portal")) return;` | .select__dropdown--portal (Select): gone |
 
 ### Tests querying 0.1 class names (2)
 
@@ -66,8 +66,8 @@ Query by role, label or data-testid instead.
 
 | Where | What | Detail |
 |---|---|---|
-| `src/pages/ModelsPage.test.tsx:12` | `expect(container.querySelector(".button--primary")).not.toBeNull();` | .button--primary (Button) |
-| `src/pages/ModelsPage.test.tsx:13` | `expect(container.firstChild).toHaveClass("page-layout");` | .page-layout (PageLayout) |
+| `src/pages/ModelsPage.test.tsx:12` | `expect(container.querySelector(".button--primary")).not.toBeNull();` | .button--primary (Button): gone |
+| `src/pages/ModelsPage.test.tsx:13` | `expect(container.firstChild).toHaveClass("page-layout");` | .page-layout → .uic-page-layout (PageLayout) |
 
 ### Module mocks of @lablup/ui-common (1)
 
@@ -93,11 +93,11 @@ None.
 
 ## Notes
 
-- Badge: the codemod keeps Badge. Astryx reserves Badge for counts and loud status; a settled value (a tag, a category, a state label) reads better as Token (`@lablup/ui-common/Token`, `label` + `color`). Decide per call site.
-- Button: children became `label` (the accessible name, required). `title` became `tooltip`. Sizes collapse onto sm/md/lg (xsmall → sm).
-- Select → Selector: `onChange` receives a string value. A 0.1 Select typed over a non-string value needs its own mapping.
-- StatusTag → StatusDot: a dot with an accessible label, no visible text.
-- Tabs → TabList and DataTable → Table are reshaped only partly: the TODO markers say what is left.
-- Drawer → @lablup/ui-common/lab Drawer: `@astryxdesign/lab` is an optional peer of ui-common, pinned to the canary ui-common is built against. The codemod adds it to package.json when it moved a Drawer, and adds `@lablup/ui-common/lab/lab.css` to the stylesheet entry it rewrites; import lab.css yourself if your entry is elsewhere.
-- Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps library reads resolving until 0.3.
+- Badge → Badge (@lablup/ui-common/Badge); or Token (@lablup/ui-common/Token) when the badge is a removable or clickable chip rather than a status label. variant="primary" has no semantic Badge variant; pick `info` or a colour variant such as `orange`. size (small | medium) has no Badge counterpart; drop it. The .badge / .badge--* classes are gone; Astryx's stable class is .astryx-badge.
+- BaseCard → Card (@lablup/ui-common/Card); or ClickableCard (@lablup/ui-common/ClickableCard) when the card has onClick or clickable; ClickableCard requires a `label` (take it from ariaLabel). variant (default | installed | available) maps to Card variant by intent: default -> "muted", installed -> "default", available -> "muted". state (loading | active | disabled | warning) has no Card counterpart; express it in the content, or use ClickableCard isDisabled for disabled. direction="row" has no Card counterpart; wrap the children in an HStack. hoverable, clickable, onKeyDown, role and tabIndex: ClickableCard owns hover, focus and keyboard activation. The .base-card classes and the --corner-accent-color property are gone.
+- Button → Button (@lablup/ui-common/Button); or IconButton (@lablup/ui-common/IconButton) when iconOnly is set; the accessible name moves from ariaLabel to label. `label` is required. A non-string child needs `label` for the accessible name and the node as children. variant="success" has no Button variant; use primary. iconPosition="right" becomes `endContent` (an Icon or Badge element only). shape="circle", inline and active have no counterpart. The .button / .button--* classes are gone; Astryx's stable class is .astryx-button.
+- ProgressBar → ProgressBar (@lablup/ui-common/ProgressBar). value={null} becomes isIndeterminate (and no value). `label` is required and is the accessible name; the old visible `label` text maps to it with isLabelHidden when it was not shown. size and animated have no counterpart. The .progress-bar classes are gone.
+- StatusTag → StatusDot (@lablup/ui-common/StatusDot). StatusDot renders only the dot; `label` becomes its accessible name. Keep the visible text: <HStack gap={1}><StatusDot variant=... label={label} /><Text>{label}</Text></HStack>. size has no counterpart. The .status-tag classes and data-testid="status-tag-indicator" are gone.
+- Tooltip → Tooltip (@lablup/ui-common/Tooltip). toggleable, tooltipId, tabIndex and contentClassName have no counterpart; Astryx Tooltip handles focus and touch itself (focusTrigger, touchTrigger). The .tooltip classes are gone.
+- Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps them resolving until 0.3.
 - 2 `var(--token-*)` reads left as they are. `@lablup/ui-common/legacy-tokens.css` declares the 0.1 names (deprecated, removed in 0.3).

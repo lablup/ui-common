@@ -189,8 +189,7 @@ export async function runUpgrade(options) {
   const ctx = {
     from,
     to,
-    flags: { peers: new Set() },
-    uiCommonPeers: own.peerDependencies ?? {},
+    flags: { packages: new Map(), touched: new Set() },
     note: (/** @type {string} */ message) => packageNotes.push(message),
     createFile: (/** @type {string} */ path, /** @type {string} */ content) => {
       const existing = state.get(path);
@@ -337,7 +336,7 @@ export async function runUpgrade(options) {
     steps: steps.map(({ version, step }) => ({
       version,
       title: step.title,
-      notes: step.notes ?? [],
+      notes: typeof step.notes === "function" ? step.notes(ctx) : (step.notes ?? []),
     })),
     changed: changed.map((c) => ({
       file: c.file,

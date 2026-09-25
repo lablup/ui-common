@@ -27,8 +27,12 @@ import {
   rewriteSpecifiers,
 } from "../../cli/rewrite.mjs";
 import { coerce, compare, nextBreaking } from "../../cli/semver.mjs";
-import { mapping } from "../../codemods/0.2/components.mjs";
-import { LEGACY_CLASSES, astryxCustomProperties } from "../../codemods/0.2/scan.mjs";
+import { keptClassRename, MOVED, REMOVED } from "../../codemods/0.2/map.mjs";
+import {
+  LEGACY_CLASSES,
+  astryxCustomProperties,
+  describeClass,
+} from "../../codemods/0.2/scan.mjs";
 import { registeredVersions, stepsBetween } from "../../codemods/registry.mjs";
 import { toAstryxSpecifiers, upstreamStep } from "../../codemods/upstream.mjs";
 
@@ -287,15 +291,7 @@ describe("upgrade registry", () => {
           : join(root, "node_modules/@astryxdesign/core/dist", subpath, "index.d.ts");
       return readFileSync(file, "utf8");
     };
-    type Removed = {
-      to: string;
-      subpath: string;
-      types: Record<string, string | null>;
-      alternates?: Record<string, string>;
-    };
-    for (const [name, entry] of Object.entries(
-      mapping.removed as Record<string, Removed>,
-    )) {
+    for (const [name, entry] of REMOVED) {
       const exported = declarations(entry.subpath);
       expect(exported, `${name} -> ${entry.subpath}`).toMatch(
         new RegExp(`\\b${entry.to}\\b`),
@@ -306,16 +302,33 @@ describe("upgrade registry", () => {
             new RegExp(`\\b${to}\\b`),
           );
       }
-      for (const alternate of Object.keys(entry.alternates ?? {})) {
-        expect(declarations(alternate)).toMatch(new RegExp(`\\b${alternate}\\b`));
+      for (const [alternate, subpath] of Object.entries(entry.alternates)) {
+        expect(declarations(subpath)).toMatch(new RegExp(`\\b${alternate}\\b`));
       }
     }
-    // Every name the root barrel mirrors from ui-common's generated surface.
+    // Moved exports resolve at their new home.
     const barrel = readFileSync(join(root, "src/index.ts"), "utf8");
-    for (const names of Object.values(mapping.kept) as string[][]) {
-      for (const name of names)
-        expect(barrel, name).toMatch(new RegExp(`\\b${name}\\b`));
-    }
+    for (const [name] of MOVED)
+      expect(barrel, name).toMatch(new RegExp(`\\b${name}\\b`));
+  });
+
+  it("follows the map's class renames for kept components", () => {
+    expect(keptClassRename("page-header__title")).toEqual({
+      to: "uic-page-header__title",
+    });
+    expect(keptClassRename("error-state__action-btn--primary")).toEqual({
+      to: "uic-error-state__action--primary",
+    });
+    expect(keptClassRename("skeleton--circle")).toEqual({
+      to: "uic-skeleton-shape--circle",
+    });
+    expect(keptClassRename("skeleton__shimmer")).toEqual({ to: null });
+    expect(keptClassRename("button--primary")).toBeNull();
+    expect(keptClassRename("uic-page-header")).toBeNull();
+    expect(describeClass("page-header__title")).toBe(
+      ".page-header__title → .uic-page-header__title (PageHeader)",
+    );
+    expect(describeClass("badge--primary")).toBe(".badge--primary (Badge): gone");
   });
 
   it("knows the 0.1 class names and Astryx's custom properties", () => {

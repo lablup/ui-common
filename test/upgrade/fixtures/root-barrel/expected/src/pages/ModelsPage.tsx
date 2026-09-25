@@ -42,23 +42,22 @@ export function ModelsPage({ models, onOpen }: { models: Model[]; onOpen: (id: s
         label={t("models.deleteAll")} />
       <Button variant="ghost" isIconOnly label="Refresh" icon={<span>↻</span>} />
       {/* TODO(ui-common-upgrade): props spread into <Button> are not migrated; check them against Astryx Button's props. */}
-      {/* TODO(ui-common-upgrade): Astryx Button has no "outline" variant; mapped to "secondary". */}
-      {/* TODO(ui-common-upgrade): Button "inline": Astryx Button has no "inline" variant. Use variant="ghost" size="sm", or a Link. */}
-      {/* TODO(ui-common-upgrade): Button needs a string `label` (its accessible name); its children are rich content. */}
+      {/* TODO(ui-common-upgrade): shape="circle", inline and active have no counterpart. */}
+      {/* TODO(ui-common-upgrade): `label` is required. A non-string child needs `label` for the accessible name and the node as children. */}
       <Button variant="secondary" inline tooltip="Details" {...extra}>
         <span>More</span>
       </Button>
       {models.map((model) => (
-        // TODO(ui-common-upgrade): BaseCard "state": Card has no state; show loading/disabled/warning in its content (Skeleton, Banner).
+        // TODO(ui-common-upgrade): state (loading | active | disabled | warning) has no Card counterpart; express it in the content, or use ClickableCard isDisabled for disabled.
         <ClickableCard
           key={model.id}
           onClick={() => onOpen(model.id)}
           label={model.name}
           state="loading">
           <Badge variant="success" label={model.name} />
-          {/* TODO(ui-common-upgrade): Astryx Badge has no "primary" variant; mapped to the "orange" colour variant (tinted, not solid). */}
-          <Badge variant="orange" label="New" />
-          {/* TODO(ui-common-upgrade): StatusDot shows no text: `label` is its accessible name only. Put a <Text> beside it if the label must stay visible. */}
+          {/* TODO(ui-common-upgrade): variant="primary" has no semantic Badge variant; pick `info` or a colour variant such as `orange`. */}
+          <Badge variant="primary" label="New" />
+          {/* TODO(ui-common-upgrade): StatusDot renders only the dot; `label` becomes its accessible name. Keep the visible text: <HStack gap={1}><StatusDot variant=... label={label} /><Text>{label}</Text></HStack>. */}
           <StatusDot
             variant={({
               running: "success",
@@ -71,16 +70,23 @@ export function ModelsPage({ models, onOpen }: { models: Model[]; onOpen: (id: s
             } as const)[model.state]}
             label={model.state}
             isPulsing={["preparing", "stopping", "busy"].includes(model.state)} />
-          {/* TODO(ui-common-upgrade): StatusDot shows no text: `label` is its accessible name only. Put a <Text> beside it if the label must stay visible. */}
+          {/* TODO(ui-common-upgrade): StatusDot renders only the dot; `label` becomes its accessible name. Keep the visible text: <HStack gap={1}><StatusDot variant=... label={label} /><Text>{label}</Text></HStack>. */}
           <StatusDot variant="accent" label="Preparing" isPulsing />
-          {/* TODO(ui-common-upgrade): ProgressBar "size": Astryx ProgressBar has one size. */}
-          <ProgressBar value={model.progress} variant="accent" size="sm" label="Download" hasValueLabel />
+          {/* TODO(ui-common-upgrade): size and animated have no counterpart. */}
+          <ProgressBar
+            value={model.progress}
+            variant="accent"
+            size="sm"
+            label="Download"
+            hasValueLabel
+            isLabelHidden />
           <Tooltip content="Copied" touchTrigger="tap">
             <span>copy</span>
           </Tooltip>
         </ClickableCard>
       ))}
-      <Card className="summary">
+      {/* TODO(ui-common-upgrade): variant (default | installed | available) maps to Card variant by intent: default -> "muted", installed -> "default", available -> "muted". */}
+      <Card variant="default" className="summary">
         <p>Summary</p>
       </Card>
     </PageLayout>

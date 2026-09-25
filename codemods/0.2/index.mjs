@@ -1,7 +1,9 @@
 /**
- * The 0.1 -> 0.2 upgrade step: ui-common moves onto Astryx.
+ * The 0.1 -> 0.2 upgrade step: ui-common moves onto Astryx. Its data is
+ * `migration/0.1-to-0.2.json` (see ./map.mjs).
  */
 import transformComponents, { meta as componentsMeta } from "./components.mjs";
+import { LAB_CSS, LAB_PACKAGE, REMOVED, UIC } from "./map.mjs";
 import { transformPackageJson } from "./package-json.mjs";
 import { CATEGORIES, scanFile } from "./scan.mjs";
 import {
@@ -10,6 +12,37 @@ import {
   transformScriptImports,
   transformStylesheet,
 } from "./stylesheets.mjs";
+
+/**
+ * One note per removed component the run met: where it went, the map's
+ * alternatives, and its manual notes.
+ *
+ * @param {{flags: {touched: Set<string>, packages: Map<string, string>}}} ctx
+ */
+function notes(ctx) {
+  const out = [];
+  for (const name of [...ctx.flags.touched].sort()) {
+    const removed = REMOVED.get(name);
+    if (!removed) continue;
+    const alternatives = removed.spec.alternatives.map(
+      (a) => `${Object.values(a.names)[0]} (${a.specifier}) when ${a.when}`,
+    );
+    out.push(
+      `${name} → ${removed.to} (${removed.subpath ? `${UIC}/${removed.subpath}` : UIC})` +
+        `${alternatives.length > 0 ? `; or ${alternatives.join("; ")}` : ""}. ` +
+        removed.spec.manual.join(" "),
+    );
+  }
+  if (ctx.flags.packages.has(LAB_PACKAGE)) {
+    out.push(
+      `A Drawer moved to ${UIC}/lab: ${LAB_PACKAGE} is an optional peer of ui-common, pinned to the canary it is built against. The codemod added it to package.json and ${LAB_CSS} to the stylesheet entry it rewrote; import lab.css yourself if your entry is elsewhere.`,
+    );
+  }
+  out.push(
+    "Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps them resolving until 0.3.",
+  );
+  return out;
+}
 
 /** @type {import('../registry.mjs').Step} */
 export default {
@@ -22,13 +55,5 @@ export default {
   packageJson: transformPackageJson,
   scan: scanFile,
   categories: CATEGORIES,
-  notes: [
-    "Badge: the codemod keeps Badge. Astryx reserves Badge for counts and loud status; a settled value (a tag, a category, a state label) reads better as Token (`@lablup/ui-common/Token`, `label` + `color`). Decide per call site.",
-    "Button: children became `label` (the accessible name, required). `title` became `tooltip`. Sizes collapse onto sm/md/lg (xsmall → sm).",
-    "Select → Selector: `onChange` receives a string value. A 0.1 Select typed over a non-string value needs its own mapping.",
-    "StatusTag → StatusDot: a dot with an accessible label, no visible text.",
-    "Tabs → TabList and DataTable → Table are reshaped only partly: the TODO markers say what is left.",
-    "Drawer → @lablup/ui-common/lab Drawer: `@astryxdesign/lab` is an optional peer of ui-common, pinned to the canary ui-common is built against. The codemod adds it to package.json when it moved a Drawer, and adds `@lablup/ui-common/lab/lab.css` to the stylesheet entry it rewrites; import lab.css yourself if your entry is elsewhere.",
-    "Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps library reads resolving until 0.3.",
-  ],
+  notes,
 };

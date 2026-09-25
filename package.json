@@ -35,6 +35,7 @@
     "bin",
     "cli",
     "codemods",
+    "migration",
     "exports.exclude.json",
     "exports.customs.json",
     "NOTICE"

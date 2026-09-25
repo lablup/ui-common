@@ -41,7 +41,11 @@ const READ_ONLY = new Set([
   "template",
 ]);
 
-const ASTRYX_PACKAGES = ["@astryxdesign/core", "@astryxdesign/theme-neutral", "@astryxdesign/lab"];
+const ASTRYX_PACKAGES = [
+  "@astryxdesign/core",
+  "@astryxdesign/theme-neutral",
+  "@astryxdesign/lab",
+];
 
 const PROJECT_FILES = [
   "package.json",
@@ -89,7 +93,10 @@ export function needsShadow(args, cwd) {
   const command = positionals[0];
   if (!command || !READ_ONLY.has(command)) return false;
   // `template <name> <path>` and `--cdn` write files.
-  if (command === "template" && (positionals.length > 2 || args.some((a) => a.startsWith("--cdn")))) {
+  if (
+    command === "template" &&
+    (positionals.length > 2 || args.some((a) => a.startsWith("--cdn")))
+  ) {
     return false;
   }
   if (!dependencyDir("@astryxdesign/core")) return false;

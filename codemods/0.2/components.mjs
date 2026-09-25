@@ -9,19 +9,10 @@
  * - Re-exports (`export { Select } from …`) keep their public name.
  * - Every JSX element of a moved component goes through ./elements.mjs.
  */
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { hasSpread, renameElement, tagName } from "../lib/jsx.mjs";
 import { addTodo } from "../lib/todo.mjs";
 import { ELEMENT_TRANSFORMS } from "./elements.mjs";
-
-export const mapping = JSON.parse(
-  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "mapping.json"), "utf8"),
-);
-
-const UIC = "@lablup/ui-common";
+import { MOVED, REMOVED, REMOVED_TYPES, UIC } from "./map.mjs";
 
 export const meta = {
   id: "components",
@@ -29,16 +20,6 @@ export const meta = {
     "Move removed 0.1 components to their Astryx counterparts and reshape their props",
   extensions: [".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs", ".mts", ".cts"],
 };
-
-/** @type {Map<string, any>} */
-const REMOVED = new Map(Object.entries(mapping.removed));
-/** @type {Map<string, {component: string, to: string|null}>} */
-const REMOVED_TYPES = new Map();
-for (const [component, entry] of REMOVED) {
-  for (const [type, to] of Object.entries(entry.types ?? {})) {
-    REMOVED_TYPES.set(type, { component, to: /** @type {string|null} */ (to) });
-  }
-}
 
 /**
  * @param {string} source
@@ -58,9 +39,9 @@ function classify(source) {
  */
 function resolveName(name, from) {
   if (from.kind === "hooks") {
-    const moved = mapping.moved[name];
-    return moved
-      ? { action: "move", source: moved.to ? `${UIC}/${moved.to}` : UIC }
+    const moved = MOVED.get(name);
+    return moved && moved.from === `${UIC}/hooks`
+      ? { action: "move", source: moved.to }
       : { action: "keep" };
   }
   if (REMOVED.has(name)) return { action: "component", entry: REMOVED.get(name) };
@@ -269,7 +250,7 @@ function reuseNode(path, decls, kindKey) {
 /**
  * @param {{source: string, path: string}} file
  * @param {{jscodeshift: any}} api
- * @param {{flags: {peers: Set<string>}}} ctx
+ * @param {{flags: {packages: Map<string, string>, touched: Set<string>}}} ctx
  */
 export default function transform(file, api, ctx) {
   if (!file.source.includes(UIC)) return undefined;
@@ -377,6 +358,7 @@ export default function transform(file, api, ctx) {
           local: finalLocal,
         };
         adds.push(add);
+        ctx.flags.touched.add(imported);
         if (kind === "value") {
           bindings.set(local, {
             component: imported,
@@ -387,7 +369,9 @@ export default function transform(file, api, ctx) {
             add,
           });
         }
-        if (entry.requiresPeer) ctx.flags.peers.add(entry.requiresPeer);
+        for (const [name, range] of Object.entries(entry.requiresPackages)) {
+          ctx.flags.packages.set(name, range);
+        }
         continue;
       }
       // A 0.1 type.
@@ -440,8 +424,9 @@ export default function transform(file, api, ctx) {
         target = resolved.entry.to;
         targetSource = `${UIC}/${resolved.entry.subpath}`;
         reexportedComponent = true;
-        if (resolved.entry.requiresPeer)
-          ctx.flags.peers.add(resolved.entry.requiresPeer);
+        for (const [name, range] of Object.entries(resolved.entry.requiresPackages)) {
+          ctx.flags.packages.set(name, range);
+        }
       } else if (resolved.action === "type") {
         if (resolved.to == null) {
           addTodo(
@@ -545,7 +530,7 @@ export default function transform(file, api, ctx) {
         path,
         el,
         isTS,
-        props: mapping.props,
+        removed: binding.entry,
         todo: (message) => addTodo(j, path, message),
         ensureImport,
         setTag: (name) => {

@@ -30,7 +30,7 @@ import { compare, parse } from "../cli/semver.mjs";
  * @property {(text: string, ctx: any) => string | undefined} [packageJson]
  * @property {(file: string, source: string) => Array<{category: string, file: string, line: number, text: string, detail?: string}>} [scan]
  * @property {Record<string, {title: string, help: string}>} [categories]
- * @property {string[]} [notes]
+ * @property {string[] | ((ctx: any) => string[])} [notes] report notes, or a function of the run
  */
 
 export const CODEMODS_DIR = dirname(fileURLToPath(import.meta.url));

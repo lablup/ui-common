@@ -10,7 +10,7 @@ Scanned 1 file under `src`.
 |---|---:|
 | Files changed | 1 |
 | package.json changed | yes |
-| TODO markers left in code | 4 |
+| TODO markers left in code | 3 |
 | Manual-review findings | 0 |
 
 ## Steps
@@ -19,7 +19,7 @@ Scanned 1 file under `src`.
 
 ## Changed files
 
-- `src/chat/ReasoningBlock.tsx`: +7 −2, components
+- `src/chat/ReasoningBlock.tsx`: +6 −2, components
 
 ## package.json
 
@@ -30,14 +30,13 @@ Scanned 1 file under `src`.
 
 ## Manual review
 
-### TODO markers (4)
+### TODO markers (3)
 
 Each is a `TODO(ui-common-upgrade)` comment in the code, above the call it is about. Resolve it, then delete the comment.
 
 - `src/chat/ReasoningBlock.tsx:1` namespace import of @lablup/ui-common: in 0.2 Badge, Button, Select, Tabs and the other removed 0.1 components are Astryx's (or gone). Rewrite the UC.X uses by hand.
-- `src/chat/ReasoningBlock.tsx:9` Astryx Button has no "text" variant; mapped to "ghost".
-- `src/chat/ReasoningBlock.tsx:10` Button "inline": Astryx Button has no "inline" variant. Use variant="ghost" size="sm", or a Link.
-- `src/chat/ReasoningBlock.tsx:19` Button is used as a value here; props passed to it this way are not migrated to Astryx Button.
+- `src/chat/ReasoningBlock.tsx:9` shape="circle", inline and active have no counterpart.
+- `src/chat/ReasoningBlock.tsx:18` Button is used as a value here; props passed to it this way are not migrated to Astryx Button.
 
 ### CSS selectors on 0.1 class names (0)
 
@@ -65,10 +64,5 @@ None.
 
 ## Notes
 
-- Badge: the codemod keeps Badge. Astryx reserves Badge for counts and loud status; a settled value (a tag, a category, a state label) reads better as Token (`@lablup/ui-common/Token`, `label` + `color`). Decide per call site.
-- Button: children became `label` (the accessible name, required). `title` became `tooltip`. Sizes collapse onto sm/md/lg (xsmall → sm).
-- Select → Selector: `onChange` receives a string value. A 0.1 Select typed over a non-string value needs its own mapping.
-- StatusTag → StatusDot: a dot with an accessible label, no visible text.
-- Tabs → TabList and DataTable → Table are reshaped only partly: the TODO markers say what is left.
-- Drawer → @lablup/ui-common/lab Drawer: `@astryxdesign/lab` is an optional peer of ui-common, pinned to the canary ui-common is built against. The codemod adds it to package.json when it moved a Drawer, and adds `@lablup/ui-common/lab/lab.css` to the stylesheet entry it rewrites; import lab.css yourself if your entry is elsewhere.
-- Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps library reads resolving until 0.3.
+- Button → Button (@lablup/ui-common/Button); or IconButton (@lablup/ui-common/IconButton) when iconOnly is set; the accessible name moves from ariaLabel to label. `label` is required. A non-string child needs `label` for the accessible name and the node as children. variant="success" has no Button variant; use primary. iconPosition="right" becomes `endContent` (an Icon or Badge element only). shape="circle", inline and active have no counterpart. The .button / .button--* classes are gone; Astryx's stable class is .astryx-button.
+- Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps them resolving until 0.3.

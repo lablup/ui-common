@@ -32,7 +32,7 @@ export function DataTableWrapper({
 }) {
   return (
     <>
-      {/* TODO(ui-common-upgrade): TabList renders the tab strip only: turn `tabs` into <Tab value label /> children, render the active panel yourself (was `content` / `renderPanel`), and drop `groups`, `variant`, `overflowMode`, `fillContainer` (see `ui-common component TabList`; `segmented` is SegmentedControl). */}
+      {/* TODO(ui-common-upgrade): TabList renders the strip only. `tabs` (id, label, content) becomes <Tab value={id} label={label} /> children, and the active panel is rendered by the caller. */}
       <TabList
         tabs={[{ id: "all", label: "All", content: null }]}
         value={tab}
@@ -48,8 +48,10 @@ export function DataTableWrapper({
         hasSearch
         width="100%"
         isLabelHidden />
-      {/* TODO(ui-common-upgrade): Table columns are {key, header, width, align, renderCell}: rename id→key and render→renderCell, and widths use pixel()/proportional() from @lablup/ui-common/Table. */}
-      {/* TODO(ui-common-upgrade): Table has no emptyState, onRowClick: rebuild them with Table plugins (useTableSortable, useTableColumnResize, useTableColumnSettings) or around the table. */}
+      {/* TODO(ui-common-upgrade): Table idKey: idKey takes (item) or a property name; the index argument is gone. */}
+      {/* TODO(ui-common-upgrade): Table columns: rename id→key, render→renderCell, initialWidth→width; renderCell takes the row item, and width is pixel()/proportional() from @lablup/ui-common/Table. */}
+      {/* TODO(ui-common-upgrade): loading, loadingState and emptyState: render them around the Table. */}
+      {/* TODO(ui-common-upgrade): onRowClick, isRowClickable and rowClassName: use the row-interaction plugin or children mode. */}
       <Table
         columns={columns}
         data={rows}
@@ -64,8 +66,8 @@ export function DataTableWrapper({
         }
         onRowClick={(row) => setOpen(Boolean(row))}
       />
-      {/* TODO(ui-common-upgrade): lab Drawer renders no title, subtitle or footer: put a Heading (and the footer) inside its children, then remove `subtitle` / `footer`. */}
-      {/* TODO(ui-common-upgrade): Drawer "preventDismiss": lab Drawer always dismisses on Escape and scrim click; guard in onOpenChange instead. */}
+      {/* TODO(ui-common-upgrade): lab Drawer renders no header: render the title, subtitle and footer inside children. */}
+      {/* TODO(ui-common-upgrade): preventDismiss and onDismissAttempt: decline the close in onOpenChange. */}
       <Drawer isOpen={open} onOpenChange={isOpen => {
         if (!isOpen) {
           setOpen(false);
