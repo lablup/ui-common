@@ -1,0 +1,34 @@
+{
+  "uic.Modal.ok": {
+    "defaultMessage": "확인",
+    "description": "Default label of the modal's primary action button"
+  },
+  "uic.Modal.cancel": {
+    "defaultMessage": "취소",
+    "description": "Default label of the modal's cancel button, which closes it"
+  },
+  "uic.PageHeader.retry": {
+    "defaultMessage": "다시 시도",
+    "description": "Button in the page header's error banner that retries the failed load"
+  },
+  "uic.PageHeader.dismissError": {
+    "defaultMessage": "오류 닫기",
+    "description": "Accessible name of the icon button that closes the error banner"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "불러오는 중",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonChart.loading": {
+    "defaultMessage": "차트 불러오는 중",
+    "description": "Accessible name of a chart-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "불러오는 중",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "불러오는 중",
+    "description": "Accessible name of a text-block loading placeholder"
+  }
+}

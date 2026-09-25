@@ -11,7 +11,27 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { InternationalizationProvider } from "@astryxdesign/core/i18n";
+
+import { uiCommonMessages } from "../../i18n/messages";
 import { PageHeader } from "./PageHeader";
+
+describe("PageHeader strings", () => {
+  it("takes its default labels from the shipped translations", () => {
+    render(
+      <InternationalizationProvider locale="ko-KR" messages={uiCommonMessages}>
+        <PageHeader
+          title="Fleet"
+          error="Boom"
+          onRetry={() => undefined}
+          onErrorDismiss={() => undefined}
+        />
+      </InternationalizationProvider>,
+    );
+    expect(screen.getByRole("button", { name: "다시 시도" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "오류 닫기" })).toBeInTheDocument();
+  });
+});
 
 describe("PageHeader", () => {
   describe("rendering", () => {
