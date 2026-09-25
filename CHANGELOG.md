@@ -5,6 +5,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.6]
+
+The last component moves from backend.ai-ui that do not wait on its theme
+shim: its unit grid and its colour picker.
+
 ### Added
 
 - **Components moved from backend.ai-ui**, with Astryx-shaped props and
