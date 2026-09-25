@@ -6,9 +6,12 @@
  * below, `astryx search` finds it, and `astryx init --features agents`
  * appends the `agentDocs` lines to the managed agent block.
  *
- * No `components` root yet. The CLI requires each `{Name}.doc.mjs` to sit
- * beside a same-stem `{Name}.tsx`, and the tarball ships no source today.
- * The component docs arrive with the rebuilt customs and that decision.
+ * `components` holds ui-common's component docs (`astryx component Modal`).
+ * The CLI pairs each `{Name}.doc.mjs` with a same-stem `{Name}.tsx`, and
+ * `doctor integration validate` fails a doc without one. The manifest cannot
+ * point that source elsewhere, and the tarball ships no source, so each doc
+ * sits beside a one-line `{Name}.tsx` that re-exports the component from the
+ * package. `astryx swizzle` on one copies that line, not an implementation.
  *
  * Identity (name, version) comes from package.json. Each root is shipped in
  * the tarball (see `files` in package.json). `pnpm run check:integration`
@@ -18,6 +21,7 @@
  */
 export default {
   docs: "./astryx/docs",
+  components: "./astryx/components",
   agentDocs: {
     append: [
       "Import Astryx through @lablup/ui-common, never @astryxdesign/*: same subpaths (@lablup/ui-common/Button, /theme/tokens.stylex, /reset.css, /lab).",

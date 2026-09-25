@@ -1,0 +1,10 @@
+@charset "utf-8";
+/* App entry stylesheet. */
+@import "@lablup/ui-common/styles/base.css";
+@import "@lablup/ui-common/styles/themes/orange-light.css";
+@import "@lablup/ui-common/styles/themes/orange-dark.css";
+@import "./app.css";
+
+body {
+  margin: 0;
+}

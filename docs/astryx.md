@@ -138,20 +138,46 @@ with Astryx's own: `mergeMessages({ "ko-KR": astryxKo }, uiCommonMessages)`.
 ## The Astryx CLI
 
 `astryx.integration.mjs` registers ui-common with the Astryx CLI. A project
-that depends on ui-common loads it implicitly. Today it contributes the
-`astryx docs ui-common` topic, which lists ui-common's components and shows
-`Modal`, and four lines for the managed agent block, including "Use Modal,
-not Dialog".
+that depends on ui-common loads it implicitly. It contributes the
+`astryx docs ui-common` topic, component docs for ui-common's own components
+(`astryx component Modal`), and four lines for the managed agent block,
+including "Use Modal, not Dialog".
 
-It contributes no per-component docs (`astryx component Modal`). The CLI
-requires each `{Name}.doc.mjs` to sit beside a same-stem `{Name}.tsx`, and the
-tarball ships no source. Shipping a `.tsx` stub per component only for the
-CLI, or shipping source, is still an open decision.
+The CLI pairs each `{Name}.doc.mjs` with a same-stem `{Name}.tsx`, and the
+manifest has no way to point at source elsewhere. ui-common ships no source,
+so each doc sits beside a one-line `.tsx` that re-exports the component.
+`doctor integration validate` accepts that; `astryx swizzle` on one copies
+the re-export, not an implementation.
 
-The CLI cannot hide a core component, and `astryx component` and
-`astryx search` need `@astryxdesign/core` resolvable from the consumer's
-directory. A consumer that uses those commands keeps core as a devDependency,
-for tooling only.
+The CLI cannot hide a core component, so the hiding happens one level up, in
+ui-common's own bin.
+
+## The ui-common CLI
+
+`bin/ui-common.mjs` wraps the pinned `@astryxdesign/cli`. It resolves that CLI
+from ui-common's own install location, so a consumer needs no Astryx
+dependency.
+
+- **Passthrough.** Any Astryx command runs the pinned bin; its output is
+  rewritten from `@astryxdesign/*` to `@lablup/ui-common/*` and from `astryx …`
+  to `ui-common …`, and a name `exports.exclude.json` hides gets a note naming
+  its replacement. Astryx's lookups find core by walking up from the working
+  directory, which a pnpm consumer of ui-common does not have; for read-only
+  commands the bin then runs Astryx in a throwaway directory of symlinks to the
+  project's packages plus the Astryx packages ui-common pins.
+- **`agents`.** Astryx renders its agent block in memory; ui-common rewrites
+  it, adds its own rules, and keeps it between UI-COMMON markers, which
+  `astryx init` and `astryx upgrade` leave alone.
+- **`upgrade`.** Codemod steps keyed by ui-common version, on jscodeshift and
+  postcss (the engines the Astryx CLI uses). See
+  [CONTRIBUTING.md](../CONTRIBUTING.md#the-upgrade-tool).
+- **`sync-astryx`.** The maintainer's pin bump. See
+  [CONTRIBUTING.md](../CONTRIBUTING.md#bumping-astryx).
+
+`agents` and the upstream codemods use Astryx CLI internals
+(`foundation/agent-docs`, `assets/codemods/registry.mjs`) that are not its
+public API. The pin is exact, and `test/cli/` exercises both, so a bump that
+moves them fails the tests.
 
 ## Checks
 
@@ -164,4 +190,6 @@ for tooling only.
 | `src/migrationMap.test.ts`               | `migration/0.1-to-0.2.json` matches what was removed, what replaces it, and the renamed classes                |
 | `pnpm run check:pack`                    | every export target is packed; every bare import is a dependency or peer; every Astryx locale is mirrored      |
 | `pnpm run check:integration`             | the CLI accepts the manifest, and the tarball carries it                                                       |
+| `test/upgrade/`                          | the upgrade codemods turn each fixture project into its expected output, and a second run changes nothing      |
+| `test/cli/`                              | output rewriting, the agent block, the registry, upstream codemods, and `sync-astryx`'s guards                 |
 | CI `external-install`                    | the tarball installs, type-checks and builds in a clean project, with Astryx's sheets in the bundle            |

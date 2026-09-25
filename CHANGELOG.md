@@ -91,7 +91,33 @@ one name:
 - Catalog strings `uic.Modal.ok`, `uic.Modal.cancel`, `uic.PageHeader.retry`,
   `uic.PageHeader.dismissError` and `uic.Skeleton{Card,Text,Row,Chart}.loading`,
   with `ko-KR` and `ja-JP` translations in `ui-common-locales/`.
-- `migration/0.1-to-0.2.json`, the 0.1 → 0.2 map for the upgrade tool.
+- `migration/0.1-to-0.2.json`, the 0.1 → 0.2 map for the upgrade tool. It
+  also records that `usePrefersReducedMotion` moved from `/hooks` (Astryx's
+  hooks barrel from 0.2) to the root, maps `SelectOption` to Astryx's
+  `SelectorOptionData`, and Button `title` to `tooltip`.
+- **The `ui-common` bin**, wrapping the Astryx CLI ui-common pins:
+  - `ui-common <astryx command>` runs any Astryx command with its output
+    rewritten to `@lablup/ui-common` paths and `ui-common` commands, and a note
+    when it names a hidden subpath ("Use Modal, not Dialog"). `--json` stays
+    valid JSON and exit codes are Astryx's. `component`, `search` and the
+    other lookups work in a project that depends on ui-common alone.
+    `ui-common astryx …` runs Astryx without rewriting.
+  - `ui-common agents [--write <file>] [--check]` writes the agent block
+    between `UI-COMMON` markers: Astryx's block, rewritten, plus ui-common's
+    rules.
+  - `ui-common upgrade` runs the 0.1 → 0.2 codemods from the migration map:
+    imports of the removed components move to their Astryx counterparts,
+    provable prop renames are applied and the rest marked
+    `TODO(ui-common-upgrade)`, the `styles/base.css` import becomes the 0.2
+    stylesheet set, and `package.json` gets the new version, the StyleX peer
+    and, with a Drawer, the lab canary. `ui-common-upgrade-report.md` lists
+    every TODO, the selectors, DOM queries and tests on 0.1 class names (with
+    the `uic-` name where the component was kept), module mocks, and custom
+    properties that collide with Astryx's. `--dry-run` writes only the report.
+  - `ui-common sync-astryx <version>`, the maintainer's Astryx bump, which
+    records the Astryx codemods consumers need for later `upgrade` runs.
+- Component docs for the CLI: `ui-common component Modal` and
+  `ui-common component PageHeader`.
 - The export generator checks that an exclusion's `replacedBy` exists, and lets
   the replacement re-export the excluded subpath's own names when they resolve
   to Astryx's declaration.

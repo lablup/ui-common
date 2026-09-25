@@ -1,0 +1,12 @@
+{
+  "name": "subpath-barrel-app",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@lablup/ui-common": "^0.1.0-alpha.19",
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.0"
+  }
+}

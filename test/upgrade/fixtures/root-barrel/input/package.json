@@ -1,0 +1,10 @@
+{
+  "name": "root-barrel-app",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@lablup/ui-common": "0.1.0-alpha.7",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  }
+}

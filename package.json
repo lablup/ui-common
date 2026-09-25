@@ -24,11 +24,20 @@
   "engines": {
     "node": ">=20"
   },
+  "bin": {
+    "ui-common": "./bin/ui-common.mjs"
+  },
   "packageManager": "pnpm@11.19.0",
   "files": [
     "dist",
     "astryx",
     "astryx.integration.mjs",
+    "bin",
+    "cli",
+    "codemods",
+    "migration",
+    "exports.exclude.json",
+    "exports.customs.json",
     "NOTICE"
   ],
   "exports": {
@@ -578,7 +587,10 @@
     "@astryxdesign/cli": "0.6.2",
     "@astryxdesign/core": "0.6.2",
     "@astryxdesign/theme-neutral": "0.6.2",
-    "intl-messageformat": "^11.2.9"
+    "intl-messageformat": "^11.2.9",
+    "jscodeshift": "^17.4.0",
+    "postcss": "^8.5.25",
+    "postcss-selector-parser": "^7.1.6"
   },
   "peerDependencies": {
     "@astryxdesign/lab": "0.6.2-canary.c9fb1ad",
