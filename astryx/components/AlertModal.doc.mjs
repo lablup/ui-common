@@ -11,7 +11,7 @@ export default {
   category: "Overlay",
   keywords: ["alert dialog", "confirm", "alertdialog", "destructive", "are you sure"],
   description:
-    "The WAI-ARIA alert dialog on Modal's portalled surface: role=alertdialog named by its title and described by its description, Cancel focused first, Escape cancels, the backdrop does not. Use it instead of AlertDialog next to Modal: it joins Modal's level stack and leaves the notification layer reachable.",
+    "The WAI-ARIA alert dialog on Modal's portalled surface: role=alertdialog named by its title and described by its description, Cancel focused first, Escape cancels, the backdrop does not. ui-common hides Astryx AlertDialog in its favour: it joins Modal's level stack and leaves the notification layer reachable.",
   props: [
     {
       name: "isOpen",

@@ -5,6 +5,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Removed
+
+- **Breaking:** `AlertDialog` is no longer mirrored. The
+  `@lablup/ui-common/AlertDialog` subpath is gone, and `AlertDialog`,
+  `AlertDialogProps`, `useImperativeAlertDialog` and
+  `ImperativeAlertDialogReturn` leave the root barrel. Dialog-based surfaces
+  go through `Modal`'s level stack; a raw `AlertDialog` bypasses it. Use
+  `AlertModal`, which now also has the top-level subpath
+  `@lablup/ui-common/AlertModal`, the way `Modal` stands in for `Dialog`.
+
 ## [0.2.0-alpha.4]
 
 Three more components move in from backend.ai-ui: the rest of its dialog

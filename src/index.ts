@@ -6,9 +6,10 @@
  * exports.customs.json. Edit those files and run `pnpm run gen:exports`.
  *
  * Left out because their subpath is excluded:
- * Dialog, DialogHeader, DialogHeaderProps, DialogPosition, DialogProps,
- * DialogPurpose, DialogVariant, DialogVariantMap, ImperativeDialogReturn,
- * useImperativeDialog.
+ * AlertDialog, AlertDialogProps, Dialog, DialogHeader, DialogHeaderProps,
+ * DialogPosition, DialogProps, DialogPurpose, DialogVariant, DialogVariantMap,
+ * ImperativeAlertDialogReturn, ImperativeDialogReturn,
+ * useImperativeAlertDialog, useImperativeDialog.
  *
  * Excluded Astryx names re-exported unchanged by their replacement:
  * DialogHeader, DialogHeaderProps, DialogPosition, DialogPurpose,
@@ -16,7 +17,6 @@
  */
 
 export {
-  AlertDialog,
   AppShell,
   AppShellMobileContext,
   AspectRatio,
@@ -442,7 +442,6 @@ export {
   useHoverCard,
   useIcon,
   useImageMode,
-  useImperativeAlertDialog,
   useIndicator,
   useIndicatorFocusRing,
   useInputContainer,
@@ -511,7 +510,6 @@ export {
   warnOnce,
 } from "@astryxdesign/core";
 export type {
-  AlertDialogProps,
   AnnounceFn,
   AnnouncePoliteness,
   AppShellBreakpoint,
@@ -805,7 +803,6 @@ export type {
   IconSize,
   IconType,
   ImageSampleRegion,
-  ImperativeAlertDialogReturn,
   IncrementalParseState,
   IndicatorComponent,
   IndicatorFamily,

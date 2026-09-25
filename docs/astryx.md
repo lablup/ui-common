@@ -82,7 +82,8 @@ Product palettes stay in the products, as their own `defineTheme` over
   Astryx primitives and tokens and never share a name with Astryx. Each is in
   the root barrel and at `@lablup/ui-common/components/<Name>`; `Modal` also
   has a top-level subpath, `@lablup/ui-common/Modal`, because it stands where
-  the hidden `@lablup/ui-common/Dialog` would. The excluded subpath's own
+  the hidden `@lablup/ui-common/Dialog` would, and so has `AlertModal` in
+  place of the hidden `AlertDialog`. The excluded subpath's own
   names that `Modal` re-exports unchanged (`DialogHeader` and the Dialog
   types) are the one sanctioned overlap with Astryx: they are Astryx's.
 - **`ui-common.css`**, the global sheet. It holds rules with no component to

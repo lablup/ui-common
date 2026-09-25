@@ -148,5 +148,26 @@ describe("export surface rules", () => {
     const dialog = exclusions.find((e) => e.name === "Dialog");
     expect(dialog?.replacedBy).toBe("Modal");
     expect(customs.map((c) => c.name)).toContain("Modal");
+    const alertDialog = exclusions.find((e) => e.name === "AlertDialog");
+    expect(alertDialog?.replacedBy).toBe("AlertModal");
+    expect(customs.map((c) => c.name)).toContain("AlertModal");
+  });
+
+  it("hides AlertDialog behind AlertModal, which has its own subpath", () => {
+    expect(Object.keys(result.exports)).not.toContain("./AlertDialog");
+    expect(result.exports["./AlertModal"]).toEqual({
+      types: "./dist/components/AlertModal/index.d.ts",
+      import: "./dist/components/AlertModal/index.js",
+    });
+    const barrel = result.files.get("src/index.ts") ?? "";
+    for (const name of [
+      "AlertDialog",
+      "AlertDialogProps",
+      "useImperativeAlertDialog",
+      "ImperativeAlertDialogReturn",
+    ]) {
+      expect(barrel).not.toMatch(new RegExp(`^\\s+${name},$`, "m"));
+      expect(result.report.droppedFromRoot).toContain(name);
+    }
   });
 });

@@ -1,5 +1,9 @@
 [
-  { "name": "AlertModal", "source": "components/AlertModal/index.ts" },
+  {
+    "name": "AlertModal",
+    "source": "components/AlertModal/index.ts",
+    "subpath": "AlertModal"
+  },
   { "name": "BooleanToken", "source": "components/BooleanToken/index.ts" },
   { "name": "ConfirmPopover", "source": "components/ConfirmPopover/index.ts" },
   { "name": "CountBadge", "source": "components/CountBadge/index.ts" },

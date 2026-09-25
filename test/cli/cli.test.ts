@@ -101,7 +101,12 @@ describe("output rewriting", { timeout: 60_000 }, () => {
     expect(exclusionNotes("see @lablup/ui-common/Dialog")[0]).toMatch(
       /Use Modal .*not Dialog/,
     );
-    expect(exclusionNotes("AlertDialog and DialogHeader")).toEqual([]);
+    // Dialog is matched as a whole word: AlertDialog is its own exclusion,
+    // and DialogHeader is re-exported by Modal.
+    const notes = exclusionNotes("AlertDialog and DialogHeader");
+    expect(notes).toHaveLength(1);
+    expect(notes[0]).toMatch(/Use AlertModal .*not AlertDialog/);
+    expect(exclusionNotes("DialogHeader")).toEqual([]);
     expect(exclusionNotes("nothing", ["component", "Dialog"])).toHaveLength(1);
   });
 

@@ -161,7 +161,7 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `ConfirmPopover`                                               | A one-click confirmation anchored to its trigger            | `/components/ConfirmPopover`     |
 | `SelectionLabel`                                               | "3 selected", with a button that clears the selection       | `/components/SelectionLabel`     |
 | `UncontrolledInput`                                            | A field that reports its value on Enter or blur             | `/components/UncontrolledInput`  |
-| `AlertModal`                                                   | An alert dialog on `Modal`'s surface, in its level stack    | `/components/AlertModal`         |
+| `AlertModal`                                                   | An alert dialog, in place of Astryx `AlertDialog`           | `/AlertModal`                    |
 | `DeleteConfirmModal`                                           | Confirms a deletion, with typed confirmation when needed    | `/components/DeleteConfirmModal` |
 | `StepNumberInput`, `NumberStepper`                             | A number field that steps along a list of values            | `/components/StepNumberInput`    |
 | `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook         | root only                        |
@@ -213,7 +213,8 @@ What it adds:
 
 A few Astryx subpaths are deliberately not re-exported. They are listed, with
 the reason and the replacement, in [`exports.exclude.json`](exports.exclude.json).
-Today that is `Dialog` (use `Modal`) and two Astryx CLI data files.
+Today that is `Dialog` (use `Modal`), `AlertDialog` (use `AlertModal`) and two
+Astryx CLI data files.
 
 ### Name rule
 

@@ -91,10 +91,6 @@
       "import": "./dist/astryx/theme/syntax.js"
     },
     "./locales/*.json": "./dist/locales/*.json",
-    "./AlertDialog": {
-      "types": "./dist/astryx/AlertDialog.d.ts",
-      "import": "./dist/astryx/AlertDialog.js"
-    },
     "./AppShell": {
       "types": "./dist/astryx/AppShell.d.ts",
       "import": "./dist/astryx/AppShell.js"
@@ -561,6 +557,10 @@
       "import": "./dist/astryx/theme/neutral/built.js"
     },
     "./theme/neutral/theme.css": "./dist/astryx/theme/neutral/theme.css",
+    "./AlertModal": {
+      "types": "./dist/components/AlertModal/index.d.ts",
+      "import": "./dist/components/AlertModal/index.js"
+    },
     "./Modal": {
       "types": "./dist/components/Modal/index.d.ts",
       "import": "./dist/components/Modal/index.js"

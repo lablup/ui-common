@@ -1,5 +1,10 @@
 [
   {
+    "name": "AlertDialog",
+    "replacedBy": "AlertModal",
+    "reason": "Dialog-based surfaces go through Modal's level stack; a raw AlertDialog bypasses it."
+  },
+  {
     "name": "Dialog",
     "replacedBy": "Modal",
     "reason": "ui-common ships Modal as the one dialog surface. Hiding Dialog keeps consumers from building a second, differently behaved dialog."
