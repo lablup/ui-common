@@ -1,0 +1,23 @@
+# Settings for this repository's own dev install. They do not travel with the
+# published package; consumers resolve @lablup/ui-common's dependencies under
+# their own pnpm settings.
+
+# @astryxdesign/lab is a canary build. Canary releases never age out of a
+# release-age quarantine by design, so it is excluded for as long as the exact
+# pin exists (the same exclusion backend.ai-webui carries).
+minimumReleaseAgeExclude:
+  - "@astryxdesign/lab@0.6.2-canary.c9fb1ad"
+
+peerDependencyRules:
+  # The lab canary declares an exact peer on the core canary it was cut from
+  # (`@astryxdesign/core@0.6.2-canary.c9fb1ad`). It runs against the stable
+  # 0.6.2 that ui-common pins, which is how backend.ai-webui installs it too.
+  # This only silences the mismatch warning in this repository's dev install.
+  allowedVersions:
+    "@astryxdesign/lab>@astryxdesign/core": "0.6.2"
+
+allowBuilds:
+  # Each postinstall only prints an `astryx init` nudge; no build output is
+  # needed. Listing them keeps pnpm from failing with ERR_PNPM_IGNORED_BUILDS.
+  "@astryxdesign/cli": false
+  "@astryxdesign/core": false
