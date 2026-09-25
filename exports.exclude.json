@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Dialog",
+    "replacedBy": "Modal",
+    "reason": "ui-common ships Modal as the one dialog surface. Hiding Dialog keeps consumers from building a second, differently behaved dialog."
+  },
+  {
+    "name": "docs.mjs",
+    "replacedBy": null,
+    "reason": "Documentation data for the Astryx CLI, not runtime API. The CLI reads it from @astryxdesign/core directly."
+  },
+  {
+    "name": "groups.doc.mjs",
+    "replacedBy": null,
+    "reason": "Documentation data for the Astryx CLI, not runtime API. The CLI reads it from @astryxdesign/core directly."
+  }
+]

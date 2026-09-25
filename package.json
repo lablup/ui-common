@@ -6,7 +6,8 @@
   "author": "Lablup Inc.",
   "type": "module",
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "**/*.stylex.js"
   ],
   "repository": {
     "type": "git",
@@ -37,12 +38,502 @@
       "types": "./dist/components/*/index.d.ts",
       "import": "./dist/components/*/index.js"
     },
-    "./hooks": {
-      "types": "./dist/hooks/index.d.ts",
-      "import": "./dist/hooks/index.js"
-    },
     "./styles/base.css": "./dist/styles/base.css",
     "./styles/themes/*.css": "./dist/styles/themes/*.css",
+    "./reset.css": "./dist/astryx/reset.css",
+    "./astryx.css": "./dist/astryx/astryx.css",
+    "./tailwind-theme.css": "./dist/astryx/tailwind-theme.css",
+    "./BaseProps": {
+      "types": "./dist/astryx/BaseProps.d.ts",
+      "import": "./dist/astryx/BaseProps.js"
+    },
+    "./naming": {
+      "types": "./dist/astryx/naming.d.ts",
+      "import": "./dist/astryx/naming.js"
+    },
+    "./theme/tokens": {
+      "types": "./dist/astryx/theme/tokens.d.ts",
+      "import": "./dist/astryx/theme/tokens.js"
+    },
+    "./theme/tokens.stylex": {
+      "types": "./dist/astryx/theme/tokens.stylex.d.ts",
+      "import": "./dist/astryx/theme/tokens.stylex.js"
+    },
+    "./theme/syntax": {
+      "types": "./dist/astryx/theme/syntax.d.ts",
+      "import": "./dist/astryx/theme/syntax.js"
+    },
+    "./locales/*.json": "./dist/locales/*.json",
+    "./AlertDialog": {
+      "types": "./dist/astryx/AlertDialog.d.ts",
+      "import": "./dist/astryx/AlertDialog.js"
+    },
+    "./AppShell": {
+      "types": "./dist/astryx/AppShell.d.ts",
+      "import": "./dist/astryx/AppShell.js"
+    },
+    "./AspectRatio": {
+      "types": "./dist/astryx/AspectRatio.d.ts",
+      "import": "./dist/astryx/AspectRatio.js"
+    },
+    "./Avatar": {
+      "types": "./dist/astryx/Avatar.d.ts",
+      "import": "./dist/astryx/Avatar.js"
+    },
+    "./AvatarGroup": {
+      "types": "./dist/astryx/AvatarGroup.d.ts",
+      "import": "./dist/astryx/AvatarGroup.js"
+    },
+    "./Badge": {
+      "types": "./dist/astryx/Badge.d.ts",
+      "import": "./dist/astryx/Badge.js"
+    },
+    "./Banner": {
+      "types": "./dist/astryx/Banner.d.ts",
+      "import": "./dist/astryx/Banner.js"
+    },
+    "./Blockquote": {
+      "types": "./dist/astryx/Blockquote.d.ts",
+      "import": "./dist/astryx/Blockquote.js"
+    },
+    "./BottomSheet": {
+      "types": "./dist/astryx/BottomSheet.d.ts",
+      "import": "./dist/astryx/BottomSheet.js"
+    },
+    "./Breadcrumbs": {
+      "types": "./dist/astryx/Breadcrumbs.d.ts",
+      "import": "./dist/astryx/Breadcrumbs.js"
+    },
+    "./Button": {
+      "types": "./dist/astryx/Button.d.ts",
+      "import": "./dist/astryx/Button.js"
+    },
+    "./ButtonGroup": {
+      "types": "./dist/astryx/ButtonGroup.d.ts",
+      "import": "./dist/astryx/ButtonGroup.js"
+    },
+    "./Calendar": {
+      "types": "./dist/astryx/Calendar.d.ts",
+      "import": "./dist/astryx/Calendar.js"
+    },
+    "./Card": {
+      "types": "./dist/astryx/Card.d.ts",
+      "import": "./dist/astryx/Card.js"
+    },
+    "./Carousel": {
+      "types": "./dist/astryx/Carousel.d.ts",
+      "import": "./dist/astryx/Carousel.js"
+    },
+    "./Center": {
+      "types": "./dist/astryx/Center.d.ts",
+      "import": "./dist/astryx/Center.js"
+    },
+    "./Chat": {
+      "types": "./dist/astryx/Chat.d.ts",
+      "import": "./dist/astryx/Chat.js"
+    },
+    "./CheckboxInput": {
+      "types": "./dist/astryx/CheckboxInput.d.ts",
+      "import": "./dist/astryx/CheckboxInput.js"
+    },
+    "./CheckboxList": {
+      "types": "./dist/astryx/CheckboxList.d.ts",
+      "import": "./dist/astryx/CheckboxList.js"
+    },
+    "./Citation": {
+      "types": "./dist/astryx/Citation.d.ts",
+      "import": "./dist/astryx/Citation.js"
+    },
+    "./ClickableCard": {
+      "types": "./dist/astryx/ClickableCard.d.ts",
+      "import": "./dist/astryx/ClickableCard.js"
+    },
+    "./Code": {
+      "types": "./dist/astryx/Code.d.ts",
+      "import": "./dist/astryx/Code.js"
+    },
+    "./CodeBlock": {
+      "types": "./dist/astryx/CodeBlock.d.ts",
+      "import": "./dist/astryx/CodeBlock.js"
+    },
+    "./Collapsible": {
+      "types": "./dist/astryx/Collapsible.d.ts",
+      "import": "./dist/astryx/Collapsible.js"
+    },
+    "./CommandPalette": {
+      "types": "./dist/astryx/CommandPalette.d.ts",
+      "import": "./dist/astryx/CommandPalette.js"
+    },
+    "./ComplexSelector": {
+      "types": "./dist/astryx/ComplexSelector.d.ts",
+      "import": "./dist/astryx/ComplexSelector.js"
+    },
+    "./ContextMenu": {
+      "types": "./dist/astryx/ContextMenu.d.ts",
+      "import": "./dist/astryx/ContextMenu.js"
+    },
+    "./DateInput": {
+      "types": "./dist/astryx/DateInput.d.ts",
+      "import": "./dist/astryx/DateInput.js"
+    },
+    "./DateRangeInput": {
+      "types": "./dist/astryx/DateRangeInput.d.ts",
+      "import": "./dist/astryx/DateRangeInput.js"
+    },
+    "./DateTimeInput": {
+      "types": "./dist/astryx/DateTimeInput.d.ts",
+      "import": "./dist/astryx/DateTimeInput.js"
+    },
+    "./Divider": {
+      "types": "./dist/astryx/Divider.d.ts",
+      "import": "./dist/astryx/Divider.js"
+    },
+    "./DropdownMenu": {
+      "types": "./dist/astryx/DropdownMenu.d.ts",
+      "import": "./dist/astryx/DropdownMenu.js"
+    },
+    "./EmptyState": {
+      "types": "./dist/astryx/EmptyState.d.ts",
+      "import": "./dist/astryx/EmptyState.js"
+    },
+    "./Field": {
+      "types": "./dist/astryx/Field.d.ts",
+      "import": "./dist/astryx/Field.js"
+    },
+    "./FieldStatus": {
+      "types": "./dist/astryx/FieldStatus.d.ts",
+      "import": "./dist/astryx/FieldStatus.js"
+    },
+    "./FileInput": {
+      "types": "./dist/astryx/FileInput.d.ts",
+      "import": "./dist/astryx/FileInput.js"
+    },
+    "./FormLayout": {
+      "types": "./dist/astryx/FormLayout.d.ts",
+      "import": "./dist/astryx/FormLayout.js"
+    },
+    "./Grid": {
+      "types": "./dist/astryx/Grid.d.ts",
+      "import": "./dist/astryx/Grid.js"
+    },
+    "./HStack": {
+      "types": "./dist/astryx/HStack.d.ts",
+      "import": "./dist/astryx/HStack.js"
+    },
+    "./Heading": {
+      "types": "./dist/astryx/Heading.d.ts",
+      "import": "./dist/astryx/Heading.js"
+    },
+    "./HoverCard": {
+      "types": "./dist/astryx/HoverCard.d.ts",
+      "import": "./dist/astryx/HoverCard.js"
+    },
+    "./Icon": {
+      "types": "./dist/astryx/Icon.d.ts",
+      "import": "./dist/astryx/Icon.js"
+    },
+    "./IconButton": {
+      "types": "./dist/astryx/IconButton.d.ts",
+      "import": "./dist/astryx/IconButton.js"
+    },
+    "./Indicator": {
+      "types": "./dist/astryx/Indicator.d.ts",
+      "import": "./dist/astryx/Indicator.js"
+    },
+    "./InputGroup": {
+      "types": "./dist/astryx/InputGroup.d.ts",
+      "import": "./dist/astryx/InputGroup.js"
+    },
+    "./InteractiveRoleContext": {
+      "types": "./dist/astryx/InteractiveRoleContext.d.ts",
+      "import": "./dist/astryx/InteractiveRoleContext.js"
+    },
+    "./Item": {
+      "types": "./dist/astryx/Item.d.ts",
+      "import": "./dist/astryx/Item.js"
+    },
+    "./Kbd": {
+      "types": "./dist/astryx/Kbd.d.ts",
+      "import": "./dist/astryx/Kbd.js"
+    },
+    "./Layer": {
+      "types": "./dist/astryx/Layer.d.ts",
+      "import": "./dist/astryx/Layer.js"
+    },
+    "./Layout": {
+      "types": "./dist/astryx/Layout.d.ts",
+      "import": "./dist/astryx/Layout.js"
+    },
+    "./Lightbox": {
+      "types": "./dist/astryx/Lightbox.d.ts",
+      "import": "./dist/astryx/Lightbox.js"
+    },
+    "./Link": {
+      "types": "./dist/astryx/Link.d.ts",
+      "import": "./dist/astryx/Link.js"
+    },
+    "./List": {
+      "types": "./dist/astryx/List.d.ts",
+      "import": "./dist/astryx/List.js"
+    },
+    "./Markdown": {
+      "types": "./dist/astryx/Markdown.d.ts",
+      "import": "./dist/astryx/Markdown.js"
+    },
+    "./MetadataList": {
+      "types": "./dist/astryx/MetadataList.d.ts",
+      "import": "./dist/astryx/MetadataList.js"
+    },
+    "./MobileNav": {
+      "types": "./dist/astryx/MobileNav.d.ts",
+      "import": "./dist/astryx/MobileNav.js"
+    },
+    "./MoreMenu": {
+      "types": "./dist/astryx/MoreMenu.d.ts",
+      "import": "./dist/astryx/MoreMenu.js"
+    },
+    "./MultiSelector": {
+      "types": "./dist/astryx/MultiSelector.d.ts",
+      "import": "./dist/astryx/MultiSelector.js"
+    },
+    "./NavIcon": {
+      "types": "./dist/astryx/NavIcon.d.ts",
+      "import": "./dist/astryx/NavIcon.js"
+    },
+    "./NavMenu": {
+      "types": "./dist/astryx/NavMenu.d.ts",
+      "import": "./dist/astryx/NavMenu.js"
+    },
+    "./NumberInput": {
+      "types": "./dist/astryx/NumberInput.d.ts",
+      "import": "./dist/astryx/NumberInput.js"
+    },
+    "./Outline": {
+      "types": "./dist/astryx/Outline.d.ts",
+      "import": "./dist/astryx/Outline.js"
+    },
+    "./OverflowList": {
+      "types": "./dist/astryx/OverflowList.d.ts",
+      "import": "./dist/astryx/OverflowList.js"
+    },
+    "./Overlay": {
+      "types": "./dist/astryx/Overlay.d.ts",
+      "import": "./dist/astryx/Overlay.js"
+    },
+    "./Pagination": {
+      "types": "./dist/astryx/Pagination.d.ts",
+      "import": "./dist/astryx/Pagination.js"
+    },
+    "./Popover": {
+      "types": "./dist/astryx/Popover.d.ts",
+      "import": "./dist/astryx/Popover.js"
+    },
+    "./PowerSearch": {
+      "types": "./dist/astryx/PowerSearch.d.ts",
+      "import": "./dist/astryx/PowerSearch.js"
+    },
+    "./ProgressBar": {
+      "types": "./dist/astryx/ProgressBar.d.ts",
+      "import": "./dist/astryx/ProgressBar.js"
+    },
+    "./RadioList": {
+      "types": "./dist/astryx/RadioList.d.ts",
+      "import": "./dist/astryx/RadioList.js"
+    },
+    "./Resizable": {
+      "types": "./dist/astryx/Resizable.d.ts",
+      "import": "./dist/astryx/Resizable.js"
+    },
+    "./ScrollableArea": {
+      "types": "./dist/astryx/ScrollableArea.d.ts",
+      "import": "./dist/astryx/ScrollableArea.js"
+    },
+    "./Section": {
+      "types": "./dist/astryx/Section.d.ts",
+      "import": "./dist/astryx/Section.js"
+    },
+    "./SegmentedControl": {
+      "types": "./dist/astryx/SegmentedControl.d.ts",
+      "import": "./dist/astryx/SegmentedControl.js"
+    },
+    "./SelectableCard": {
+      "types": "./dist/astryx/SelectableCard.d.ts",
+      "import": "./dist/astryx/SelectableCard.js"
+    },
+    "./Selector": {
+      "types": "./dist/astryx/Selector.d.ts",
+      "import": "./dist/astryx/Selector.js"
+    },
+    "./SideNav": {
+      "types": "./dist/astryx/SideNav.d.ts",
+      "import": "./dist/astryx/SideNav.js"
+    },
+    "./SizeContext": {
+      "types": "./dist/astryx/SizeContext.d.ts",
+      "import": "./dist/astryx/SizeContext.js"
+    },
+    "./Skeleton": {
+      "types": "./dist/astryx/Skeleton.d.ts",
+      "import": "./dist/astryx/Skeleton.js"
+    },
+    "./Slider": {
+      "types": "./dist/astryx/Slider.d.ts",
+      "import": "./dist/astryx/Slider.js"
+    },
+    "./Spinner": {
+      "types": "./dist/astryx/Spinner.d.ts",
+      "import": "./dist/astryx/Spinner.js"
+    },
+    "./Stack": {
+      "types": "./dist/astryx/Stack.d.ts",
+      "import": "./dist/astryx/Stack.js"
+    },
+    "./StatusDot": {
+      "types": "./dist/astryx/StatusDot.d.ts",
+      "import": "./dist/astryx/StatusDot.js"
+    },
+    "./Stepper": {
+      "types": "./dist/astryx/Stepper.d.ts",
+      "import": "./dist/astryx/Stepper.js"
+    },
+    "./Switch": {
+      "types": "./dist/astryx/Switch.d.ts",
+      "import": "./dist/astryx/Switch.js"
+    },
+    "./TabList": {
+      "types": "./dist/astryx/TabList.d.ts",
+      "import": "./dist/astryx/TabList.js"
+    },
+    "./Table": {
+      "types": "./dist/astryx/Table.d.ts",
+      "import": "./dist/astryx/Table.js"
+    },
+    "./Text": {
+      "types": "./dist/astryx/Text.d.ts",
+      "import": "./dist/astryx/Text.js"
+    },
+    "./TextArea": {
+      "types": "./dist/astryx/TextArea.d.ts",
+      "import": "./dist/astryx/TextArea.js"
+    },
+    "./TextInput": {
+      "types": "./dist/astryx/TextInput.d.ts",
+      "import": "./dist/astryx/TextInput.js"
+    },
+    "./Thumbnail": {
+      "types": "./dist/astryx/Thumbnail.d.ts",
+      "import": "./dist/astryx/Thumbnail.js"
+    },
+    "./TimeInput": {
+      "types": "./dist/astryx/TimeInput.d.ts",
+      "import": "./dist/astryx/TimeInput.js"
+    },
+    "./Timestamp": {
+      "types": "./dist/astryx/Timestamp.d.ts",
+      "import": "./dist/astryx/Timestamp.js"
+    },
+    "./Toast": {
+      "types": "./dist/astryx/Toast.d.ts",
+      "import": "./dist/astryx/Toast.js"
+    },
+    "./ToggleButton": {
+      "types": "./dist/astryx/ToggleButton.d.ts",
+      "import": "./dist/astryx/ToggleButton.js"
+    },
+    "./Token": {
+      "types": "./dist/astryx/Token.d.ts",
+      "import": "./dist/astryx/Token.js"
+    },
+    "./Tokenizer": {
+      "types": "./dist/astryx/Tokenizer.d.ts",
+      "import": "./dist/astryx/Tokenizer.js"
+    },
+    "./Toolbar": {
+      "types": "./dist/astryx/Toolbar.d.ts",
+      "import": "./dist/astryx/Toolbar.js"
+    },
+    "./Tooltip": {
+      "types": "./dist/astryx/Tooltip.d.ts",
+      "import": "./dist/astryx/Tooltip.js"
+    },
+    "./TopNav": {
+      "types": "./dist/astryx/TopNav.d.ts",
+      "import": "./dist/astryx/TopNav.js"
+    },
+    "./TreeList": {
+      "types": "./dist/astryx/TreeList.d.ts",
+      "import": "./dist/astryx/TreeList.js"
+    },
+    "./Typeahead": {
+      "types": "./dist/astryx/Typeahead.d.ts",
+      "import": "./dist/astryx/Typeahead.js"
+    },
+    "./VStack": {
+      "types": "./dist/astryx/VStack.d.ts",
+      "import": "./dist/astryx/VStack.js"
+    },
+    "./VisuallyHidden": {
+      "types": "./dist/astryx/VisuallyHidden.d.ts",
+      "import": "./dist/astryx/VisuallyHidden.js"
+    },
+    "./hooks": {
+      "types": "./dist/astryx/hooks.d.ts",
+      "import": "./dist/astryx/hooks.js"
+    },
+    "./i18n": {
+      "types": "./dist/astryx/i18n.d.ts",
+      "import": "./dist/astryx/i18n.js"
+    },
+    "./theme": {
+      "types": "./dist/astryx/theme.d.ts",
+      "import": "./dist/astryx/theme.js"
+    },
+    "./utils": {
+      "types": "./dist/astryx/utils.d.ts",
+      "import": "./dist/astryx/utils.js"
+    },
+    "./Calendar/utils": {
+      "types": "./dist/astryx/Calendar/utils.d.ts",
+      "import": "./dist/astryx/Calendar/utils.js"
+    },
+    "./Markdown/utils": {
+      "types": "./dist/astryx/Markdown/utils.d.ts",
+      "import": "./dist/astryx/Markdown/utils.js"
+    },
+    "./PowerSearch/utils": {
+      "types": "./dist/astryx/PowerSearch/utils.d.ts",
+      "import": "./dist/astryx/PowerSearch/utils.js"
+    },
+    "./Resizable/utils": {
+      "types": "./dist/astryx/Resizable/utils.d.ts",
+      "import": "./dist/astryx/Resizable/utils.js"
+    },
+    "./Selector/utils": {
+      "types": "./dist/astryx/Selector/utils.d.ts",
+      "import": "./dist/astryx/Selector/utils.js"
+    },
+    "./Table/utils": {
+      "types": "./dist/astryx/Table/utils.d.ts",
+      "import": "./dist/astryx/Table/utils.js"
+    },
+    "./Typeahead/utils": {
+      "types": "./dist/astryx/Typeahead/utils.d.ts",
+      "import": "./dist/astryx/Typeahead/utils.js"
+    },
+    "./lab": {
+      "types": "./dist/astryx/lab.d.ts",
+      "import": "./dist/astryx/lab.js"
+    },
+    "./lab/lab.css": "./dist/astryx/lab/lab.css",
+    "./theme/neutral": {
+      "types": "./dist/astryx/theme/neutral.d.ts",
+      "import": "./dist/astryx/theme/neutral.js"
+    },
+    "./theme/neutral/built": {
+      "types": "./dist/astryx/theme/neutral/built.d.ts",
+      "import": "./dist/astryx/theme/neutral/built.js"
+    },
+    "./theme/neutral/theme.css": "./dist/astryx/theme/neutral/theme.css",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -53,6 +544,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "gen:exports": "node scripts/gen-exports.mjs",
     "check:pack": "node scripts/check-pack.mjs",
     "check:boundary": "node scripts/check-boundary.mjs",
     "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run test && pnpm run build && pnpm run check:pack"

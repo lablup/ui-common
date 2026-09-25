@@ -1,0 +1,69 @@
+[
+  {
+    "name": "BaseCard",
+    "source": "components/BaseCard/index.ts",
+    "legacy": { "replacedBy": "Card" }
+  },
+  {
+    "name": "Badge",
+    "source": "components/Badge/index.ts",
+    "legacy": { "replacedBy": "Badge" }
+  },
+  {
+    "name": "Button",
+    "source": "components/Button/index.ts",
+    "legacy": { "replacedBy": "Button" }
+  },
+  {
+    "name": "DataTable",
+    "source": "components/DataTable/index.ts",
+    "legacy": { "replacedBy": "Table" }
+  },
+  { "name": "DigitPopIn", "source": "components/DigitPopIn/index.ts" },
+  {
+    "name": "Drawer",
+    "source": "components/Drawer/index.ts",
+    "legacy": { "replacedBy": "lab/Drawer" }
+  },
+  {
+    "name": "EmptyState",
+    "source": "components/EmptyState/index.ts",
+    "legacy": { "replacedBy": "EmptyState" }
+  },
+  { "name": "ErrorState", "source": "components/ErrorState/index.ts" },
+  { "name": "PageHeader", "source": "components/PageHeader/index.ts" },
+  { "name": "PageLayout", "source": "components/PageLayout/index.ts" },
+  {
+    "name": "ProgressBar",
+    "source": "components/ProgressBar/index.ts",
+    "legacy": { "replacedBy": "ProgressBar" }
+  },
+  {
+    "name": "Skeleton",
+    "source": "components/Skeleton/index.ts",
+    "legacy": { "replacedBy": "Skeleton", "names": ["Skeleton", "SkeletonProps"] }
+  },
+  { "name": "SmoothHeight", "source": "components/SmoothHeight/index.ts" },
+  {
+    "name": "Select",
+    "source": "components/Select/index.ts",
+    "legacy": { "replacedBy": "Selector" }
+  },
+  { "name": "StatCard", "source": "components/StatCard/index.ts" },
+  {
+    "name": "StatusTag",
+    "source": "components/StatusTag/index.ts",
+    "legacy": { "replacedBy": "StatusDot" }
+  },
+  {
+    "name": "Tabs",
+    "source": "components/Tabs/index.ts",
+    "legacy": { "replacedBy": "TabList" }
+  },
+  {
+    "name": "Tooltip",
+    "source": "components/Tooltip/index.ts",
+    "legacy": { "replacedBy": "Tooltip" }
+  },
+  { "name": "usePrefersReducedMotion", "source": "hooks/index.ts" }
+]

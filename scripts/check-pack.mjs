@@ -15,7 +15,7 @@
  * files that arrive advertised by no one.
  */
 import { execFileSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import {
@@ -140,6 +140,55 @@ for (const stylesheet of packed.filter((f) => f.endsWith(".css"))) {
     `"${stylesheet}" is packed but unreachable: no packed module imports it and no ` +
       `exports entry names it, so a consumer cannot load its rules`,
   );
+}
+
+/**
+ * Every bare specifier a packed module imports has to be something the
+ * consumer is guaranteed to install: a dependency or a peer. Astryx and
+ * StyleX are external on purpose, so a missing declaration does not fail the
+ * build; it fails at the consumer, as an unresolvable import, and only for
+ * the subpath that happens to reach it.
+ */
+const declared = new Set([
+  ...Object.keys(pkg.dependencies ?? {}),
+  ...Object.keys(pkg.peerDependencies ?? {}),
+]);
+
+function packageOf(specifier) {
+  const parts = specifier.split("/");
+  return specifier.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0];
+}
+
+const bareImport =
+  /(?:\bimport\s*(?:[\w*{}\s,$]+\s*from\s*)?|\bexport\s*[\w*{}\s,$]+\s*from\s*|\bimport\s*\()\s*["']([^"'./][^"']*)["']/g;
+
+for (const file of packed.filter((f) => f.endsWith(".js"))) {
+  const code = await readFile(resolve(root, file), "utf8");
+  for (const [, specifier] of code.matchAll(bareImport)) {
+    if (specifier.startsWith("node:")) continue;
+    const name = packageOf(specifier);
+    if (!declared.has(name)) {
+      failures.push(
+        `"${file}" imports "${specifier}", but "${name}" is neither a dependency nor a ` +
+          `peer, so a consumer is not guaranteed to have it`,
+      );
+    }
+  }
+}
+
+/**
+ * `locales/*.json` mirrors Astryx core's catalogs. A pattern export only has
+ * to match one file to pass the check above, so compare the whole set.
+ */
+const coreLocales = (
+  await readdir(resolve(root, "node_modules/@astryxdesign/core/locales"))
+).filter((f) => f.endsWith(".json"));
+for (const locale of coreLocales) {
+  if (!packedSet.has(`dist/locales/${locale}`)) {
+    failures.push(
+      `Astryx locale "${locale}" is not mirrored at dist/locales/${locale}`,
+    );
+  }
 }
 
 if (failures.length > 0) {

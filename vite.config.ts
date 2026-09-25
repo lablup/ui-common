@@ -20,39 +20,63 @@ const root = dirname(fileURLToPath(import.meta.url));
 function entryPoints(): Record<string, string> {
   const entries: Record<string, string> = {
     index: resolve(root, "src/index.ts"),
-    "hooks/index": resolve(root, "src/hooks/index.ts"),
   };
 
-  for (const file of globSync("src/components/*/index.ts", { cwd: root })) {
+  const patterns = [
+    "src/components/*/index.ts",
+    // The generated Astryx mirrors (scripts/gen-exports.mjs). Each one is a
+    // one-line re-export that stays a one-line re-export in dist, because
+    // every @astryxdesign/* specifier is external.
+    "src/astryx/**/*.ts",
+  ];
+  for (const file of globSync(patterns, { cwd: root, ignore: ["**/*.test.*"] })) {
     entries[file.replace(/^src\//, "").replace(/\.ts$/, "")] = resolve(root, file);
   }
 
   return entries;
 }
 
+/** Keep stylesheets and walk into directories; nothing else ships. */
+const cssOnly = (source: string) =>
+  statSync(source).isDirectory() || source.endsWith(".css");
+
 /**
- * Design tokens are standalone stylesheets that no component imports, so
- * Rollup never sees them. They are copied verbatim so the palette stays an
- * opt-in entry point rather than being folded into a single bundle.
+ * Files no module imports, so Rollup never sees them, copied verbatim.
  *
- * Stylesheets only. The copy used to take the whole directory, so anything
- * that ever landed beside the tokens shipped inside the tarball: a test, a
- * script, a note. `check:pack` catches the test case by name, but the general
- * one is cheaper to prevent here than to enumerate there.
+ * - `styles/`: the deprecated 0.1 token sheets.
+ * - `astryx/**.css`: the generated one-line `@import` mirrors of the Astryx
+ *   stylesheets. They stay `@import`s so the consumer's bundler resolves the
+ *   Astryx sheet from this package's install location.
+ * - `locales/`: Astryx core's own locale catalogs, mirrored 1:1 at
+ *   `@lablup/ui-common/locales/<locale>.json`. JSON cannot re-export, so this
+ *   is the one mirror that is a copy. It is taken from the installed, pinned
+ *   core at build time, so it cannot drift from the JS.
+ *
+ * Stylesheets only where the source is a source directory. The copy used to
+ * take the whole of `styles/`, so anything that ever landed beside the tokens
+ * shipped inside the tarball: a test, a script, a note.
  */
-function copyStyles(): Plugin {
+function copyAssets(): Plugin {
+  const copies: { from: string; to: string; filter: (source: string) => boolean }[] = [
+    { from: "src/styles", to: "dist/styles", filter: cssOnly },
+    { from: "src/astryx", to: "dist/astryx", filter: cssOnly },
+    {
+      from: "node_modules/@astryxdesign/core/locales",
+      to: "dist/locales",
+      filter: (source) => statSync(source).isDirectory() || source.endsWith(".json"),
+    },
+  ];
   return {
-    name: "ui-common-copy-styles",
+    name: "ui-common-copy-assets",
     apply: "build",
     async closeBundle() {
-      const from = resolve(root, "src/styles");
-      if (!existsSync(from)) return;
-      const to = resolve(root, "dist/styles");
-      await mkdir(to, { recursive: true });
-      await cp(from, to, {
-        recursive: true,
-        filter: (source) => statSync(source).isDirectory() || source.endsWith(".css"),
-      });
+      for (const { from, to, filter } of copies) {
+        const source = resolve(root, from);
+        if (!existsSync(source)) continue;
+        const target = resolve(root, to);
+        await mkdir(target, { recursive: true });
+        await cp(source, target, { recursive: true, dereference: true, filter });
+      }
     },
   };
 }
@@ -158,7 +182,7 @@ export default defineConfig({
   plugins: [
     react(),
     dts({ include: ["src"], exclude: ["src/**/*.test.*", "src/test/**"] }),
-    copyStyles(),
+    copyAssets(),
     linkComponentStyles(),
   ],
   build: {
@@ -174,9 +198,10 @@ export default defineConfig({
       // at the consumer, so nothing from node_modules belongs in dist. With
       // preserveModules, a bare specifier that is not external gets written
       // into dist/node_modules as a vendored copy of a package the consumer
-      // already installs, and the two then drift apart. This package has no
-      // runtime dependencies today; the rule is here so adding one cannot
-      // silently start shipping it.
+      // already installs, and the two then drift apart. For Astryx it would
+      // be worse than drift: a bundled second copy splits the React contexts
+      // (Theme, i18n, SizeContext) from the copy the consumer's other code
+      // sees. Every @astryxdesign/* and @stylexjs/* import stays external.
       external: (id) => {
         if (id.startsWith("\0")) return false; // plugin virtual module
         if (id.startsWith(".") || isAbsolute(id)) return false;
