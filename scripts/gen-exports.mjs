@@ -64,6 +64,11 @@ export const OWN_EXPORTS = {
     import: "./dist/theme/lablup/built/lablup.js",
   },
   "./theme/lablup/theme.css": "./dist/theme/lablup/built/theme.css",
+  "./i18n-catalog": {
+    types: "./dist/i18n/index.d.ts",
+    import: "./dist/i18n/index.js",
+  },
+  "./ui-common-locales/*.json": "./dist/ui-common-locales/*.json",
   "./ui-common.css": "./dist/ui-common.css",
   "./legacy-tokens.css": "./dist/legacy-tokens.css",
   "./styles/base.css": "./dist/styles/base.css",

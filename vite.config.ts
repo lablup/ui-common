@@ -1,4 +1,4 @@
-import { cp, mkdir } from "node:fs/promises";
+import { cp, mkdir, writeFile } from "node:fs/promises";
 import { existsSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, isAbsolute, posix, relative, resolve, sep } from "node:path";
@@ -8,6 +8,8 @@ import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 import { globSync } from "tinyglobby";
+
+import { uiCommonCatalog } from "./src/i18n/catalog.ts";
 
 const root = dirname(fileURLToPath(import.meta.url));
 
@@ -30,6 +32,8 @@ function entryPoints(): Record<string, string> {
     "src/astryx/**/*.ts",
     // The Lablup brand theme, as source. Its pre-built form is copied below.
     "src/theme/*/index.ts",
+    // `@lablup/ui-common/i18n-catalog`.
+    "src/i18n/index.ts",
   ];
   for (const file of globSync(patterns, { cwd: root, ignore: ["**/*.test.*"] })) {
     entries[file.replace(/^src\//, "").replace(/\.ts$/, "")] = resolve(root, file);
@@ -41,6 +45,9 @@ function entryPoints(): Record<string, string> {
 /** Keep stylesheets and walk into directories; nothing else ships. */
 const cssOnly = (source: string) =>
   statSync(source).isDirectory() || source.endsWith(".css");
+
+const jsonOnly = (source: string) =>
+  statSync(source).isDirectory() || source.endsWith(".json");
 
 /**
  * Files no module imports, so Rollup never sees them, copied verbatim.
@@ -54,6 +61,8 @@ const cssOnly = (source: string) =>
  *   `@lablup/ui-common/locales/<locale>.json`. JSON cannot re-export, so this
  *   is the one mirror that is a copy. It is taken from the installed, pinned
  *   core at build time, so it cannot drift from the JS.
+ * - `ui-common-locales/`: ui-common's own `uic.*` catalog, one JSON file per
+ *   Astryx locale name. `en.json` is written from the code catalog.
  * - `theme/lablup/built/`: the output of `astryx theme build`, committed and
  *   shipped as is (JS, declarations and `theme.css`). Its staleness gate is
  *   `pnpm run theme:check`.
@@ -76,8 +85,9 @@ function copyAssets(): Plugin {
     {
       from: "node_modules/@astryxdesign/core/locales",
       to: "dist/locales",
-      filter: (source) => statSync(source).isDirectory() || source.endsWith(".json"),
+      filter: jsonOnly,
     },
+    { from: "src/i18n/locales", to: "dist/ui-common-locales", filter: jsonOnly },
   ];
   return {
     name: "ui-common-copy-assets",
@@ -90,6 +100,12 @@ function copyAssets(): Plugin {
         await mkdir(dirname(target), { recursive: true });
         await cp(source, target, { recursive: true, dereference: true, filter });
       }
+
+      // ui-common's English catalog lives in code; the translations beside it
+      // are JSON. Ship English as JSON too, so every locale has one file.
+      const english = resolve(root, "dist/ui-common-locales/en.json");
+      await mkdir(dirname(english), { recursive: true });
+      await writeFile(english, `${JSON.stringify(uiCommonCatalog, null, 2)}\n`);
     },
   };
 }
