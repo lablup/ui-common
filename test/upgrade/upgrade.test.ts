@@ -288,7 +288,35 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     });
   });
 
-  it("reads --from from package.json and refuses a non-upgrade", async () => {
+  it("reads --from from package.json", async () => {
+    // css-entry declares "@lablup/ui-common": "0.1.0-alpha.23".
+    const dir = copyFixture("css-entry");
+    const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+    expect(result.code).toBe(0);
+    expect(result.report).toContain("`ui-common upgrade` 0.1.0-alpha.23 → " + TO);
+    expect(result.changed?.length).toBeGreaterThan(0);
+
+    // Once package.json declares the target, there is nothing to do.
+    const upgraded = mkdtempSync(join(tmpdir(), "uic-upgrade-declared-"));
+    temps.push(upgraded);
+    cpSync(join(FIXTURES, "css-entry", "input"), upgraded, { recursive: true });
+    const pkg = JSON.parse(readFileSync(join(upgraded, "package.json"), "utf8"));
+    pkg.dependencies["@lablup/ui-common"] = `^${TO}`;
+    writeFileSync(join(upgraded, "package.json"), JSON.stringify(pkg));
+    const lines: string[] = [];
+    const none = await runUpgrade({
+      cwd: upgraded,
+      paths: ["src"],
+      to: TO,
+      log: (l: string) => lines.push(l),
+      warn: () => {},
+    });
+    expect(none.code).toBe(0);
+    expect(none.changed).toBeUndefined();
+    expect(lines.join("\n")).toContain(`${TO} → ${TO} is not an upgrade`);
+  });
+
+  it("refuses a non-upgrade and a --from that is not a version", async () => {
     const dir = copyFixture("css-entry");
     const same = await runUpgrade({
       cwd: dir,
