@@ -5,6 +5,20 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.8]
+
+One `Modal` focus fix.
+
+### Fixed
+
+- `Modal` returned focus to `<body>` instead of the opener when its content
+  took focus as it mounted: the first open of a `DeleteConfirmModal` with a
+  confirm field (or any autofocusing input), and every open with
+  `unmountOnClose`. The opener was read after the content's autofocus had
+  already run, so the modal recorded its own field as the opener. It is now
+  read before the content commits, and focus returns to it on close by
+  Escape, Cancel, the action or the backdrop, nested modals included.
+
 ## [0.2.0-alpha.7]
 
 Review fixes: `Modal` now makes the page behind it inert, and the upgrade
