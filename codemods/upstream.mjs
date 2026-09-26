@@ -3,9 +3,11 @@
  *
  * Astryx codemods match `@astryxdesign/*` import specifiers; a ui-common
  * consumer imports the same modules as `@lablup/ui-common/*`. So each
- * transform sees the file with the specifiers swapped to Astryx's, and its
- * output is swapped back. Text the transform did not touch round-trips
- * unchanged, and a file it does not change is left alone.
+ * transform sees the file with the module specifiers swapped to Astryx's, and
+ * its output's module specifiers are swapped back. Only specifiers are
+ * swapped (imports, re-exports, `import()`, `require()`): a comment or string
+ * that names either package is left as written. A file the transform does not
+ * change is left alone.
  *
  * `codemods/<ui-common version>/upstream.json` (written by
  * `ui-common sync-astryx`) names the Astryx version range and codemod ids.
@@ -32,6 +34,57 @@ export function toAstryxSpecifiers(text) {
 }
 
 /**
+ * Apply `swap` to the module specifier strings of a script and nothing else.
+ * A source jscodeshift cannot parse (a stylesheet an Astryx codemod targets)
+ * is swapped as a whole.
+ *
+ * @param {any} j
+ * @param {string} source
+ * @param {(text: string) => string} swap
+ */
+export function swapModuleSpecifiers(j, source, swap) {
+  let root;
+  try {
+    root = j(source);
+  } catch {
+    return swap(source);
+  }
+  /** @type {Array<{start: number, end: number}>} */
+  const ranges = [];
+  const add = (/** @type {any} */ node) => {
+    const isString =
+      node?.type === "StringLiteral" ||
+      (node?.type === "Literal" && typeof node.value === "string");
+    if (isString && typeof node.start === "number" && typeof node.end === "number")
+      ranges.push({ start: node.start, end: node.end });
+  };
+  root.find(j.ImportDeclaration).forEach((/** @type {any} */ p) => add(p.node.source));
+  root
+    .find(j.ExportNamedDeclaration)
+    .forEach((/** @type {any} */ p) => add(p.node.source));
+  root
+    .find(j.ExportAllDeclaration)
+    .forEach((/** @type {any} */ p) => add(p.node.source));
+  root.find(j.CallExpression).forEach((/** @type {any} */ p) => {
+    const callee = p.node.callee;
+    const isImport = callee.type === "Import";
+    const isRequire = callee.type === "Identifier" && callee.name === "require";
+    if (isImport || isRequire) add(p.node.arguments[0]);
+  });
+  if (j.ImportExpression)
+    root.find(j.ImportExpression).forEach((/** @type {any} */ p) => add(p.node.source));
+  if (j.TSImportType)
+    root.find(j.TSImportType).forEach((/** @type {any} */ p) => {
+      add(p.node.argument?.literal ?? p.node.argument);
+    });
+  let out = source;
+  for (const { start, end } of ranges.sort((a, b) => b.start - a.start)) {
+    out = `${out.slice(0, start)}${swap(out.slice(start, end))}${out.slice(end)}`;
+  }
+  return out;
+}
+
+/**
  * @typedef {{astryx: {from: string, to: string}, codemods: Array<{id: string, version: string, title?: string}>}} UpstreamManifest
  */
 
@@ -48,13 +101,14 @@ export function wrapAstryxTransform(entry, version) {
     extensions,
     parse: extensions.some((e) => DEFAULT_EXTENSIONS.includes(e)),
     run(file, api) {
-      const swapped = toAstryxSpecifiers(file.source);
+      const j = api.jscodeshift;
+      const swapped = swapModuleSpecifiers(j, file.source, toAstryxSpecifiers);
       const out = entry.transform(
         { path: file.path, source: swapped },
-        { jscodeshift: api.jscodeshift, stats: () => {}, report: () => {} },
+        { jscodeshift: j, stats: () => {}, report: () => {} },
       );
       if (out == null || out === swapped) return undefined;
-      return rewriteSpecifiers(out);
+      return swapModuleSpecifiers(j, out, rewriteSpecifiers);
     },
   };
 }

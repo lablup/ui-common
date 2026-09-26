@@ -385,6 +385,34 @@ describe("upstream Astryx codemods", () => {
       ),
     ).toBeUndefined();
   });
+
+  it("swaps module specifiers only, never comments or other strings", async () => {
+    const step = await upstreamStep({
+      astryx: { from: "0.5.4", to: "0.6.0" },
+      codemods: [{ id: "move-ime-helper-import", version: "0.6.0" }],
+    });
+    const j = jscodeshift.withParser("tsx");
+    const source = [
+      'import { isImeKeyEvent } from "@lablup/ui-common/hooks";',
+      "// Built on @lablup/ui-common, which wraps @astryxdesign/core.",
+      'const lazy = () => import("@lablup/ui-common/Button");',
+      'export const note = "see @astryxdesign/core/hooks and @lablup/ui-common/hooks";',
+      "",
+    ].join("\n");
+    const out = step.transforms[0]!.run(
+      { path: "a.tsx", source },
+      { jscodeshift: j },
+      {},
+    ) as string;
+    expect(out).toContain("@lablup/ui-common/utils");
+    expect(out).toContain(
+      "// Built on @lablup/ui-common, which wraps @astryxdesign/core.",
+    );
+    expect(out).toContain(
+      'export const note = "see @astryxdesign/core/hooks and @lablup/ui-common/hooks";',
+    );
+    expect(out).toContain('import("@lablup/ui-common/Button")');
+  });
 });
 
 describe("sync-astryx", { timeout: 60_000 }, () => {
