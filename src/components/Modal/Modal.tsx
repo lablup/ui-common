@@ -8,10 +8,12 @@
  * What it changes about `Dialog`:
  *
  * - **Portalled, not top layer.** The surface renders into a `document.body`
- *   portal instead of a native `<dialog>` promoted with `showModal()`. Nothing
- *   the app layers above the modal band (a notification stack) is covered or
- *   made inert, so notices stay visible and clickable over an open modal.
- *   Covered modal roots are inert instead; see modalStack.ts.
+ *   portal instead of a native `<dialog>` promoted with `showModal()`. While
+ *   it is open the page behind it is inert and the topmost surface is
+ *   `aria-modal`, as `showModal()` would make them, but an element marked
+ *   `MODAL_LIVE_ATTRIBUTE` (`NotificationStack` is) stays reachable, so
+ *   notices stay visible and clickable over an open modal. Covered modal
+ *   roots are inert too; see modalStack.ts.
  * - **Nesting.** A modal opened from inside another paints above it, and
  *   only the topmost one traps focus and answers Escape.
  * - **Content lifecycle.** Children mount on first open and stay mounted
@@ -478,8 +480,9 @@ export function Modal({
             ? (role ?? (purpose === "required" ? "alertdialog" : "dialog"))
             : undefined
         }
-        // No `aria-modal`: it would claim everything outside is unavailable,
-        // and the layers above the modal band are not.
+        // True: modalStack makes everything outside inert, except what is
+        // marked MODAL_LIVE_ATTRIBUTE (a notification stack).
+        aria-modal={isOpen && isTopmost ? true : undefined}
       >
         <Dialog
           isInline

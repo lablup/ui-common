@@ -629,6 +629,8 @@
       "configureModalZIndex",
       "useModalLevel",
       "MODAL_OPEN_ATTRIBUTE",
+      "MODAL_LIVE_ATTRIBUTE",
+      "refreshModalBackground",
       "MAX_MODAL_LEVEL"
     ]
   }

@@ -4,7 +4,9 @@
  * `Modal` renders into a `document.body` portal instead of the browser's top
  * layer (see Modal.tsx for why). Without the top layer, stacking and
  * inertness are this module's job: a surface opened from inside another
- * paints above it, and only the topmost one is interactive.
+ * paints above it, only the topmost one is interactive, and while any is
+ * open the page behind them is inert, except what is marked
+ * `MODAL_LIVE_ATTRIBUTE`.
  *
  * Other portalled modal surfaces (a scrimmed drawer, say) claim a level with
  * `useModalLevel` so they stack on the same order as `Modal`.
@@ -81,11 +83,92 @@ function resolveZIndex(
 }
 
 /**
+ * Marks an element that stays reachable while a modal is open: it, and the
+ * ancestors it needs, are never made inert. `NotificationStack` sets it on
+ * its root, so a notice raised over a modal can still be read and dismissed.
+ * The mark is read when a modal opens or closes and on
+ * `refreshModalBackground()`; call that after mounting a marked element while
+ * a modal is open.
+ */
+export const MODAL_LIVE_ATTRIBUTE = "data-uic-modal-live";
+
+/** The background elements this module made inert, and only those. */
+const inertedBackground = new Set<Element>();
+
+const NEVER_INERT = new Set(["SCRIPT", "STYLE", "LINK", "TEMPLATE", "NOSCRIPT"]);
+
+/**
+ * The elements to inert while `keep` stays reachable: every child of
+ * `document.body` that holds none of them, and, inside a body child that
+ * does, every sibling on the way down to them.
+ */
+function backgroundOf(keep: Element[]): Element[] {
+  const kept = new Set(keep);
+  const onPath = new Set<Element>();
+  for (const el of keep) {
+    for (let node = el.parentElement; node && node !== document.body;) {
+      onPath.add(node);
+      node = node.parentElement;
+    }
+  }
+  const out: Element[] = [];
+  const visit = (parent: Element) => {
+    for (const child of Array.from(parent.children)) {
+      if (kept.has(child) || NEVER_INERT.has(child.tagName)) continue;
+      if (onPath.has(child)) visit(child);
+      else out.push(child);
+    }
+  };
+  visit(document.body);
+  return out;
+}
+
+/**
+ * While any modal is open the rest of the page is `inert`, which is what
+ * `aria-modal` promises. Modal roots (a drawer's too, when it claims a level
+ * through `useModalLevel`) and elements marked `MODAL_LIVE_ATTRIBUTE` are
+ * spared. An `inert` the page set itself is left alone, before and after.
+ */
+function syncBackground(): void {
+  if (typeof document === "undefined" || !document.body) return;
+  const roots = openModals
+    .map((entry) => entry.root)
+    .filter((root): root is HTMLElement => root != null && root.isConnected);
+  const target = new Set(
+    openModals.length === 0
+      ? []
+      : backgroundOf([
+          ...roots,
+          ...Array.from(document.querySelectorAll(`[${MODAL_LIVE_ATTRIBUTE}]`)),
+        ]),
+  );
+  for (const el of inertedBackground) {
+    if (target.has(el)) continue;
+    el.removeAttribute("inert");
+    inertedBackground.delete(el);
+  }
+  for (const el of target) {
+    if (inertedBackground.has(el) || el.hasAttribute("inert")) continue;
+    el.setAttribute("inert", "");
+    inertedBackground.add(el);
+  }
+}
+
+/**
+ * Re-reads which elements are marked `MODAL_LIVE_ATTRIBUTE` (and which modal
+ * roots are in the document) while a modal is open. A no-op otherwise.
+ */
+export function refreshModalBackground(): void {
+  if (openModals.length > 0 || inertedBackground.size > 0) syncBackground();
+}
+
+/**
  * Only the topmost surface stays interactive. A covered one drops its focus
  * trap and goes `inert`: the trap alone lets Tab escape to the parent, and
  * `inert` alone leaves the covered trap swallowing Tab with nothing to focus.
  */
 function syncCovered(): void {
+  syncBackground();
   openModals.forEach((entry, index) => {
     const isTopmost = index === openModals.length - 1;
     entry.root?.toggleAttribute("inert", !isTopmost);

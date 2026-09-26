@@ -39,6 +39,7 @@
 import {
   useEffect,
   useEffectEvent,
+  useLayoutEffect,
   useRef,
   useState,
   type Key,
@@ -51,6 +52,7 @@ import { HStack, VStack } from "@astryxdesign/core/Stack";
 import { Text } from "@astryxdesign/core/Text";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
+import { MODAL_LIVE_ATTRIBUTE, refreshModalBackground } from "../Modal/modalStack";
 import "./NotificationStack.css";
 
 /** Matches the exit animation's budget in NotificationStack.css. */
@@ -325,13 +327,22 @@ export function NotificationStack({
   const visibleKeys = new Set(visible.map((n) => n.key));
   const stillExiting = exiting.filter((n) => !visibleKeys.has(n.key));
 
-  if (visible.length === 0 && stillExiting.length === 0) return null;
+  const isRendered = visible.length > 0 || stillExiting.length > 0;
+  // The stack is marked to stay reachable over an open Modal; the modal stack
+  // re-reads the mark whenever the stack appears or goes.
+  useLayoutEffect(() => {
+    refreshModalBackground();
+    return () => queueMicrotask(refreshModalBackground);
+  }, [isRendered]);
+
+  if (!isRendered) return null;
 
   return (
     <div
       ref={stackRef}
       className={["uic-notification-stack", className].filter(Boolean).join(" ")}
       data-testid={testId}
+      {...{ [MODAL_LIVE_ATTRIBUTE]: "" }}
       // Each Banner announces itself; the container stays out of the tree.
       role="presentation"
     >

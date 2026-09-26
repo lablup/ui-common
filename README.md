@@ -191,11 +191,19 @@ What it adds:
 
 - It renders into a `document.body` portal instead of the browser's top layer,
   so whatever the app layers above the modal band, such as a notification
-  stack, stays visible and clickable. The band is `z-index` 1100 to 10999 by
-  default; `configureModalZIndex({ base, step, max })` moves it.
+  stack, stays visible. The band is `z-index` 1100 to 10999 by default;
+  `configureModalZIndex({ base, step, max })` moves it.
+- While a modal is open, the topmost one is `aria-modal="true"` and the rest
+  of the page is `inert`, as `showModal()` would make it. Two things stay
+  reachable: modal roots, and elements marked `data-uic-modal-live`
+  (`MODAL_LIVE_ATTRIBUTE`). `NotificationStack` marks itself, so notices over a
+  modal can still be read and dismissed; mark your own live region the same
+  way, and call `refreshModalBackground()` if it mounts while a modal is open.
+  An `inert` the page set itself is left as it was.
 - A modal opened from inside another paints above it. Only the topmost one
   traps focus and takes Escape; covered ones are `inert`. Other portalled
-  surfaces can join the same stack with `useModalLevel`.
+  surfaces (a drawer) join the same stack with `useModalLevel`, which also
+  keeps them out of the inert background.
 - Content mounts on first open and stays mounted while closed.
   `unmountOnClose` drops it. `afterOpenChange` reports each open and close.
 - With `title`, `onAction` or `footer`, it lays out a header, the body and a

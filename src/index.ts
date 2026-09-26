@@ -1368,10 +1368,12 @@ export type { ImageWithFallbackProps } from "./components/ImageWithFallback";
 export {
   DialogHeader,
   MAX_MODAL_LEVEL,
+  MODAL_LIVE_ATTRIBUTE,
   MODAL_OPEN_ATTRIBUTE,
   Modal,
   ModalHeader,
   configureModalZIndex,
+  refreshModalBackground,
   useModalLevel,
 } from "./components/Modal";
 export type {

@@ -1,7 +1,7 @@
 /**
- * Modal: the portalled surface (no native `<dialog>`, nothing outside made
- * unavailable), nesting, dismissal by purpose, the content lifecycle, and the
- * structured header/footer mode with its catalog defaults.
+ * Modal: the portalled surface (no native `<dialog>`; the page behind it inert,
+ * notification stacks excepted), nesting, dismissal by purpose, the content
+ * lifecycle, and the structured header/footer mode with its catalog defaults.
  *
  * jsdom treats `inert` as markup only, and there is no layout, so these check
  * the attributes and custom properties the browser acts on.
@@ -16,7 +16,12 @@ import { Layout, LayoutContent } from "@astryxdesign/core/Layout";
 import { Theme, defineTheme } from "@astryxdesign/core/theme";
 
 import { DialogHeader, Modal, ModalHeader } from ".";
-import { MODAL_OPEN_ATTRIBUTE, configureModalZIndex } from "./modalStack";
+import { NotificationStack } from "../NotificationStack";
+import {
+  MODAL_LIVE_ATTRIBUTE,
+  MODAL_OPEN_ATTRIBUTE,
+  configureModalZIndex,
+} from "./modalStack";
 
 type ModalTestProps = Partial<ComponentProps<typeof Modal>>;
 
@@ -63,9 +68,70 @@ describe("Modal surface", () => {
     expect(rootOf()).toHaveAttribute(MODAL_OPEN_ATTRIBUTE);
   });
 
-  it("claims nothing outside the modal is unavailable", () => {
-    renderModal();
-    expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-modal");
+  it("is aria-modal, and makes the page behind it inert until it closes", () => {
+    const page = document.createElement("main");
+    document.body.prepend(page);
+    const { rerender, container } = renderModal();
+    expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
+    expect(page).toHaveAttribute("inert");
+    expect(container).toHaveAttribute("inert");
+    expect(rootOf()).not.toHaveAttribute("inert");
+
+    rerender(
+      <Modal isOpen={false} onOpenChange={vi.fn()}>
+        body
+      </Modal>,
+    );
+    expect(page).not.toHaveAttribute("inert");
+    expect(container).not.toHaveAttribute("inert");
+    page.remove();
+  });
+
+  it("keeps a NotificationStack reachable over the modal", () => {
+    render(
+      <>
+        <main>page</main>
+        <NotificationStack
+          notifications={[{ key: "n", title: "Saved" }]}
+          onClose={vi.fn()}
+          data-testid="stack"
+        />
+        <Modal isOpen onOpenChange={vi.fn()} aria-label="over">
+          <button type="button">inside</button>
+        </Modal>
+      </>,
+    );
+    const stack = screen.getByTestId("stack");
+    expect(stack).toHaveAttribute(MODAL_LIVE_ATTRIBUTE);
+    for (let el: HTMLElement | null = stack; el; el = el.parentElement)
+      expect(el).not.toHaveAttribute("inert");
+    expect(screen.getByText("page")).toHaveAttribute("inert");
+  });
+
+  it("picks up a NotificationStack that appears while the modal is open", () => {
+    function App({ notices }: { notices: number }) {
+      return (
+        <>
+          <main>page</main>
+          <NotificationStack
+            notifications={Array.from({ length: notices }, (_, i) => ({
+              key: i,
+              title: `Notice ${i}`,
+            }))}
+            onClose={vi.fn()}
+            data-testid="stack"
+          />
+          <Modal isOpen onOpenChange={vi.fn()} aria-label="over">
+            body
+          </Modal>
+        </>
+      );
+    }
+    const { rerender, container } = render(<App notices={0} />);
+    expect(container).toHaveAttribute("inert");
+    rerender(<App notices={1} />);
+    expect(container).not.toHaveAttribute("inert");
+    expect(screen.getByText("page")).toHaveAttribute("inert");
   });
 
   it("keeps the .astryx-dialog surface themes key off", () => {
@@ -210,6 +276,13 @@ describe("Modal nesting", () => {
     expect(zOf(inner)).toBeGreaterThan(zOf(outer));
     expect(outer).toHaveAttribute("inert");
     expect(inner).not.toHaveAttribute("inert");
+    expect(screen.getByRole("dialog", { name: "inner" })).toHaveAttribute(
+      "aria-modal",
+      "true",
+    );
+    expect(screen.getByRole("dialog", { name: "outer" })).not.toHaveAttribute(
+      "aria-modal",
+    );
   });
 
   it("keeps Tab inside the modal opened on top", async () => {

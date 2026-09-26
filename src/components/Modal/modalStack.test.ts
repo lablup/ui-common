@@ -2,8 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   MAX_MODAL_LEVEL,
+  MODAL_LIVE_ATTRIBUTE,
   claimModalLevel,
   configureModalZIndex,
+  refreshModalBackground,
   releaseModalLevel,
   type ModalLevelEntry,
 } from "./modalStack";
@@ -84,5 +86,102 @@ describe("modalStack", () => {
     expect(last?.entry.level).toBe(MAX_MODAL_LEVEL);
     if (last) releaseModalLevel(last.entry);
     expect(secondLast?.root).not.toHaveAttribute("inert");
+  });
+});
+
+describe("modalStack: the page behind an open modal", () => {
+  const added: Element[] = [];
+  /** Append `html` to document.body and return its first element. */
+  function mount(html: string) {
+    const template = document.createElement("template");
+    template.innerHTML = html.trim();
+    const el = template.content.firstElementChild as HTMLElement;
+    document.body.append(el);
+    added.push(el);
+    return el;
+  }
+  /** Claim a level for a root portalled straight into document.body. */
+  function open(parent: Element = document.body) {
+    const root = document.createElement("div");
+    parent.append(root);
+    added.push(root);
+    const entry = claimModalLevel(root, vi.fn());
+    claimed.push(entry);
+    return { root, entry };
+  }
+  afterEach(() => {
+    for (const entry of claimed.splice(0)) releaseModalLevel(entry);
+    for (const el of added.splice(0)) el.remove();
+  });
+
+  it("inerts every other child of document.body, and restores them on close", () => {
+    const app = mount(`<div id="app"><button>behind</button></div>`);
+    const toast = mount(`<div id="toast"></div>`);
+    const { root, entry } = open();
+    expect(app).toHaveAttribute("inert");
+    expect(toast).toHaveAttribute("inert");
+    expect(root).not.toHaveAttribute("inert");
+    releaseModalLevel(entry);
+    expect(app).not.toHaveAttribute("inert");
+    expect(toast).not.toHaveAttribute("inert");
+  });
+
+  it("keeps the background inert until the last modal closes", () => {
+    const app = mount(`<div id="app"></div>`);
+    const outer = open();
+    const inner = open();
+    expect(app).toHaveAttribute("inert");
+    expect(outer.root).toHaveAttribute("inert");
+    expect(inner.root).not.toHaveAttribute("inert");
+    releaseModalLevel(inner.entry);
+    expect(app).toHaveAttribute("inert");
+    expect(outer.root).not.toHaveAttribute("inert");
+    releaseModalLevel(outer.entry);
+    expect(app).not.toHaveAttribute("inert");
+  });
+
+  it("never clears an inert it did not set", () => {
+    const frozen = mount(`<div id="frozen" inert></div>`);
+    const { entry } = open();
+    releaseModalLevel(entry);
+    expect(frozen).toHaveAttribute("inert");
+  });
+
+  it(`leaves an element marked ${MODAL_LIVE_ATTRIBUTE} reachable, wherever it is`, () => {
+    const app = mount(
+      `<div id="app"><main id="page"></main><div id="notices" ${MODAL_LIVE_ATTRIBUTE}></div></div>`,
+    );
+    const page = app.querySelector("#page");
+    const notices = app.querySelector("#notices");
+    const { entry } = open();
+    expect(app).not.toHaveAttribute("inert");
+    expect(notices).not.toHaveAttribute("inert");
+    expect(page).toHaveAttribute("inert");
+    releaseModalLevel(entry);
+    expect(page).not.toHaveAttribute("inert");
+  });
+
+  it("treats a root that is not a direct child of body as a modal root", () => {
+    // A drawer portal, say, that claims its level through useModalLevel.
+    const host = mount(`<div id="host"><div id="sibling"></div></div>`);
+    const { root } = open(host);
+    expect(host).not.toHaveAttribute("inert");
+    expect(root).not.toHaveAttribute("inert");
+    expect(host.querySelector("#sibling")).toHaveAttribute("inert");
+  });
+
+  it("picks up a live region that mounts while a modal is open", () => {
+    const app = mount(`<div id="app"><main id="page"></main></div>`);
+    open();
+    expect(app).toHaveAttribute("inert");
+    const notices = document.createElement("div");
+    notices.setAttribute(MODAL_LIVE_ATTRIBUTE, "");
+    app.append(notices);
+    refreshModalBackground();
+    expect(app).not.toHaveAttribute("inert");
+    expect(app.querySelector("#page")).toHaveAttribute("inert");
+    notices.remove();
+    refreshModalBackground();
+    expect(app).toHaveAttribute("inert");
   });
 });

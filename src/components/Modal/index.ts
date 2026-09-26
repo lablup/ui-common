@@ -24,8 +24,10 @@ export type {
 
 export {
   MAX_MODAL_LEVEL,
+  MODAL_LIVE_ATTRIBUTE,
   MODAL_OPEN_ATTRIBUTE,
   configureModalZIndex,
+  refreshModalBackground,
   useModalLevel,
 } from "./modalStack";
 export type { ModalZIndexBand } from "./modalStack";
