@@ -1,3 +1,5 @@
+@use "sass:math";
+
 @layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
 
 @import "@lablup/ui-common/reset.css";
@@ -9,6 +11,6 @@
 
 .app {
   .button--primary {
-    margin: 0;
+    margin: math.div(8px, 2);
   }
 }

@@ -1,7 +1,9 @@
+@use "sass:math";
+
 @import "@lablup/ui-common/styles/base.css";
 
 .app {
   .button--primary {
-    margin: 0;
+    margin: math.div(8px, 2);
   }
 }

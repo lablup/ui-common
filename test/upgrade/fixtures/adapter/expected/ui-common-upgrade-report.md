@@ -51,7 +51,7 @@ A removed component's classes are gone: Astryx renders its own. Restyle through 
 | Where | What | Detail |
 |---|---|---|
 | `src/design-system/common-components.css:1` | `.empty-state__title` | .empty-state__title (EmptyState): gone |
-| `src/index.scss:11` | `.button--primary` | .button--primary (Button): gone |
+| `src/index.scss:13` | `.button--primary` | .button--primary (Button): gone |
 
 ### DOM hooks on 0.1 class names (0)
 

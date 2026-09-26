@@ -5,7 +5,8 @@
  *   Astryx's reset and component sheets, the Lablup theme, ui-common's global
  *   sheet and the deprecated `legacy-tokens.css` bridge.
  *   - In a stylesheet the `@import` is replaced in place, and the `@layer`
- *     statement goes first in the file.
+ *     statement goes first in the file (in SCSS, after the leading
+ *     `@use`/`@forward` rules, which Sass requires above every other rule).
  *   - In a script (`import "@lablup/ui-common/styles/base.css"`) a CSS
  *     `@layer` statement cannot be expressed, so the import is pointed at a
  *     new `ui-common-entry.css` beside the script, which holds all of it.
@@ -142,12 +143,64 @@ function transformCss(source, path, ctx) {
 }
 
 /**
- * Sass and Less: postcss cannot parse them, and the imports in question are
- * single lines, so rewrite the lines.
+ * Where the leading run of statements Sass requires first ends: `@charset`,
+ * `@use`, `@forward`, and the variable declarations that may configure them,
+ * with the comments between them. Returns 0 when there is none. Sass rejects
+ * any other rule, a CSS `@layer` statement included, above an `@use`.
  *
  * @param {string} source
  */
-function transformPreprocessed(source, ctx) {
+function sassPreludeEnd(source) {
+  let i = 0;
+  let end = 0;
+  const skipSpaceAndComments = () => {
+    for (;;) {
+      const rest = source.slice(i);
+      const space = /^\s+/.exec(rest);
+      if (space) i += space[0].length;
+      else if (rest.startsWith("//")) {
+        const nl = source.indexOf("\n", i);
+        i = nl === -1 ? source.length : nl + 1;
+      } else if (rest.startsWith("/*")) {
+        const close = source.indexOf("*/", i + 2);
+        i = close === -1 ? source.length : close + 2;
+      } else return;
+    }
+  };
+  for (;;) {
+    skipSpaceAndComments();
+    if (!/^(?:@(?:charset|use|forward)\b|\$[\w-]+\s*:)/.test(source.slice(i))) break;
+    // To the `;` that ends the statement, outside strings and parentheses
+    // (`@use "x" with ($a: 1, $b: 2);` spans lines).
+    let depth = 0;
+    /** @type {string | null} */
+    let quote = null;
+    for (; i < source.length; i++) {
+      const ch = source[i];
+      if (quote) {
+        if (ch === "\\") i++;
+        else if (ch === quote) quote = null;
+      } else if (ch === '"' || ch === "'") quote = ch;
+      else if (ch === "(") depth++;
+      else if (ch === ")") depth--;
+      else if (ch === ";" && depth <= 0) break;
+    }
+    if (i >= source.length) break;
+    i += 1;
+    end = i;
+  }
+  return end;
+}
+
+/**
+ * Sass and Less: postcss cannot parse them, and the imports in question are
+ * single lines, so rewrite the lines. The layer order goes first, or in SCSS
+ * right after the `@use`/`@forward` prelude.
+ *
+ * @param {string} source
+ * @param {string} path
+ */
+function transformPreprocessed(source, path, ctx) {
   const urls = replacementFor(ctx);
   const importLine =
     /^([ \t]*)@import\s+(?:url\()?["']([^"']+)["']\)?\s*;[ \t]*\r?\n?/gm;
@@ -159,9 +212,10 @@ function transformPreprocessed(source, ctx) {
     return urls.map((r) => `${indent}@import "${r}";\n`).join("");
   });
   if (out === source) return undefined;
-  return replacedBase && !/^\s*@layer\s+[^{]+;/m.test(out)
-    ? `${layerOrder}\n\n${out}`
-    : out;
+  if (!replacedBase || /^\s*@layer\s+[^{]+;/m.test(out)) return out;
+  const at = path.endsWith(".scss") ? sassPreludeEnd(out) : 0;
+  if (at === 0) return `${layerOrder}\n\n${out}`;
+  return `${out.slice(0, at)}\n\n${layerOrder}\n\n${out.slice(at).replace(/^[ \t]*\r?\n+/, "")}`;
 }
 
 export const cssMeta = {
@@ -179,7 +233,7 @@ export const cssMeta = {
 export function transformStylesheet(file, _api, ctx) {
   if (!file.source.includes("@lablup/ui-common/styles/")) return undefined;
   if (file.path.endsWith(".css")) return transformCss(file.source, file.path, ctx);
-  return transformPreprocessed(file.source, ctx);
+  return transformPreprocessed(file.source, file.path, ctx);
 }
 
 export const jsMeta = {

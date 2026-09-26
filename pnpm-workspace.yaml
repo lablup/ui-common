@@ -21,3 +21,5 @@ allowBuilds:
   # needed. Listing them keeps pnpm from failing with ERR_PNPM_IGNORED_BUILDS.
   "@astryxdesign/cli": false
   "@astryxdesign/core": false
+  # sass's optional native file watcher; the tests compile, they never watch.
+  "@parcel/watcher": false

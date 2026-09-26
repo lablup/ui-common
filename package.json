@@ -621,6 +621,7 @@
     "prettier": "^3.8.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "sass": "^1.105.0",
     "tinyglobby": "^0.2.15",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.47.0",
