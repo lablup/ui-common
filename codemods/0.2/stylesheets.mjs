@@ -12,7 +12,7 @@
  * - `styles/themes/orange-{light,dark}.css` imports are dropped: the Lablup
  *   theme covers both colour schemes.
  */
-import { dirname, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
 import postcss from "postcss";
 
@@ -192,7 +192,7 @@ export const jsMeta = {
 /**
  * @param {{source: string, path: string}} file
  * @param {{jscodeshift: any}} api
- * @param {{createFile: (path: string, content: string) => void, flags: {packages: Map<string, string>}}} ctx
+ * @param {{createFile: (path: string, content: string) => string, flags: {packages: Map<string, string>}}} ctx
  */
 export function transformScriptImports(file, api, ctx) {
   if (!file.source.includes("@lablup/ui-common/styles/")) return undefined;
@@ -223,8 +223,10 @@ export function transformScriptImports(file, api, ctx) {
       path.prune();
       return;
     }
-    path.node.source = j.stringLiteral(entrySpecifier);
-    ctx.createFile(join(dirname(file.path), entryFile), entryCss(ctx));
+    // createFile never overwrites: it hands back the file it will write,
+    // which is a numbered sibling when the project has its own entry there.
+    const entry = ctx.createFile(join(dirname(file.path), entryFile), entryCss(ctx));
+    path.node.source = j.stringLiteral(`./${basename(entry)}`);
   });
 
   root.find(j.CallExpression).forEach((/** @type {any} */ path) => {

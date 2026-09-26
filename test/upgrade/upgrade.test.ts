@@ -142,6 +142,69 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     );
   });
 
+  describe("never overwrites a file this run did not produce", () => {
+    const own = "/* the project's own entry */\n@import './brand.css';\n";
+
+    it.each([
+      ["outside the scanned paths", ["src/main.tsx"]],
+      ["inside the scanned paths", ["src"]],
+    ])("an existing ui-common-entry.css %s", async (_label, paths) => {
+      const dir = copyFixture("adapter");
+      writeFileSync(join(dir, "src/ui-common-entry.css"), own);
+      const result = await runUpgrade({ cwd: dir, paths, to: TO, ...quiet });
+      expect(result.code, JSON.stringify(result.errors)).toBe(0);
+      expect(readFileSync(join(dir, "src/ui-common-entry.css"), "utf8")).toBe(own);
+      // The script imports a fresh entry beside it instead, and the report says so.
+      const main = readFileSync(join(dir, "src/main.tsx"), "utf8");
+      expect(main).toContain('import "./ui-common-entry-2.css";');
+      expect(main).not.toContain('import "./ui-common-entry.css";');
+      expect(readFileSync(join(dir, "src/ui-common-entry-2.css"), "utf8")).toContain(
+        '@import "@lablup/ui-common/reset.css";',
+      );
+      expect(readFileSync(join(dir, "ui-common-upgrade-report.md"), "utf8")).toContain(
+        "src/ui-common-entry.css exists already",
+      );
+    });
+
+    it("reuses an existing entry that already holds the 0.2 stylesheet set", async () => {
+      const dir = copyFixture("adapter");
+      const main = join(dir, "src/main.tsx");
+      const original = readFileSync(main, "utf8");
+      const first = await runUpgrade({ cwd: dir, paths: [main], to: TO, ...quiet });
+      expect(first.code).toBe(0);
+      const entry = readFileSync(join(dir, "src/ui-common-entry.css"), "utf8");
+      // A second script still importing base.css, beside the first one's entry.
+      writeFileSync(main, original);
+      const again = await runUpgrade({
+        cwd: dir,
+        paths: ["src/main.tsx"],
+        from: "0.1.0",
+        to: TO,
+        ...quiet,
+      });
+      expect(again.code).toBe(0);
+      expect(readFileSync(join(dir, "src/main.tsx"), "utf8")).toContain(
+        'import "./ui-common-entry.css";',
+      );
+      expect(readFileSync(join(dir, "src/ui-common-entry.css"), "utf8")).toBe(entry);
+      expect(existsSync(join(dir, "src/ui-common-entry-2.css"))).toBe(false);
+    });
+
+    it("refuses to overwrite a report path that holds something else", async () => {
+      const dir = copyFixture("css-entry");
+      writeFileSync(join(dir, "NOTES.md"), "# my notes\n");
+      const result = await runUpgrade({
+        cwd: dir,
+        paths: ["src"],
+        to: TO,
+        report: "NOTES.md",
+        ...quiet,
+      });
+      expect(result.code).toBe(2);
+      expect(readFileSync(join(dir, "NOTES.md"), "utf8")).toBe("# my notes\n");
+    });
+  });
+
   it("reads --from from package.json and refuses a non-upgrade", async () => {
     const dir = copyFixture("css-entry");
     const same = await runUpgrade({

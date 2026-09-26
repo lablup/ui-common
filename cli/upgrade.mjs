@@ -20,7 +20,7 @@ import { registeredVersions, stepsBetween } from "../codemods/registry.mjs";
 import { TODO_TAG } from "../codemods/lib/jsx.mjs";
 import { diffStat, unifiedDiff } from "./diff.mjs";
 import { findProjectDir, ownPackageJson } from "./paths.mjs";
-import { renderReport } from "./report.mjs";
+import { renderReport, REPORT_HEADING } from "./report.mjs";
 import { coerce, compare, parse } from "./semver.mjs";
 
 const IGNORED_DIRS = new Set([
@@ -166,6 +166,18 @@ export async function runUpgrade(options) {
   }
   const files = collectFiles(roots);
 
+  // The report replaces an earlier report, never anything else.
+  const reportFile = resolve(cwd, options.report ?? "ui-common-upgrade-report.md");
+  if (
+    existsSync(reportFile) &&
+    !readFileSync(reportFile, "utf8").startsWith(REPORT_HEADING)
+  ) {
+    warn(
+      `ui-common upgrade: ${relative(cwd, reportFile)} exists and is not an upgrade report; not overwriting it. Pass --report <path>.`,
+    );
+    return { code: 2 };
+  }
+
   const { default: jscodeshift } = await import("jscodeshift");
 
   /** @type {Map<string, {original: string, current: string, transforms: string[], created: boolean}>} */
@@ -186,31 +198,46 @@ export async function runUpgrade(options) {
   const packageNotes = [];
   /** @type {Array<{file: string, transform: string, error: string}>} */
   const errors = [];
+  /** @type {string[]} */
+  const notices = [];
   const ctx = {
     from,
     to,
     flags: { packages: new Map(), touched: new Set() },
     note: (/** @type {string} */ message) => packageNotes.push(message),
-    createFile: (/** @type {string} */ path, /** @type {string} */ content) => {
-      const existing = state.get(path);
-      if (existing) {
-        if (!existing.created && existing.current !== content) {
-          // Never clobber a file the project already has.
-          errors.push({
-            file: rel(path),
-            transform: "stylesheet-entry",
-            error:
-              "exists already; left alone. Import the 0.2 stylesheets from it by hand.",
-          });
+    /**
+     * Claim a new file and return the path it will be written to. A file the
+     * project already has, scanned or not, is never overwritten: one holding
+     * exactly `content` is reused, otherwise the next free numbered sibling
+     * (`ui-common-entry-2.css`) is used and the report says so.
+     *
+     * @param {string} path
+     * @param {string} content
+     */
+    createFile: (path, content) => {
+      const ext = extname(path);
+      const stem = path.slice(0, path.length - ext.length);
+      for (let n = 1; ; n++) {
+        const candidate = n === 1 ? path : `${stem}-${n}${ext}`;
+        const known = state.get(candidate);
+        const onDisk =
+          known?.current ??
+          (existsSync(candidate) ? readFileSync(candidate, "utf8") : null);
+        if (onDisk === content) return candidate;
+        if (onDisk != null) continue;
+        if (n > 1 && !notices.some((m) => m.startsWith(`${rel(path)} `))) {
+          notices.push(
+            `${rel(path)} exists already and is not the 0.2 stylesheet entry, so it was left alone. The entry was written to ${rel(candidate)} instead, and the script that imported styles/base.css imports it.`,
+          );
         }
-        return;
+        state.set(candidate, {
+          original: "",
+          current: content,
+          transforms: ["stylesheet-entry"],
+          created: true,
+        });
+        return candidate;
       }
-      state.set(path, {
-        original: "",
-        current: content,
-        transforms: ["stylesheet-entry"],
-        created: true,
-      });
     },
   };
 
@@ -319,13 +346,24 @@ export async function runUpgrade(options) {
   const dryRun = Boolean(options.dryRun);
   if (!dryRun) {
     for (const c of changed) {
+      // Only what this run read, or a file it claimed that is still absent.
+      const now = existsSync(c.abs) ? readFileSync(c.abs, "utf8") : null;
+      if (c.created ? now != null : now !== c.original) {
+        errors.push({
+          file: c.file,
+          transform: c.transforms.join(", "),
+          error: c.created
+            ? "appeared on disk during the run; left alone."
+            : "changed on disk during the run; left alone.",
+        });
+        continue;
+      }
       mkdirSync(dirname(c.abs), { recursive: true });
       writeFileSync(c.abs, c.current);
     }
     if (pkgChanged && pkgAfter != null) writeFileSync(pkgFile, pkgAfter);
   }
 
-  const reportFile = resolve(cwd, options.report ?? "ui-common-upgrade-report.md");
   const report = renderReport({
     from,
     to,
@@ -349,6 +387,7 @@ export async function runUpgrade(options) {
     findings,
     categories,
     errors,
+    notices,
     tokenReads,
   });
   mkdirSync(dirname(reportFile), { recursive: true });
@@ -370,6 +409,7 @@ export async function runUpgrade(options) {
       log(unifiedDiff("package.json", pkgText, pkgAfter));
   }
   for (const e of errors) warn(`  ! ${e.file} [${e.transform}]: ${e.error}`);
+  for (const notice of notices) warn(`  note: ${notice}`);
   log(`Report: ${relative(cwd, reportFile) || reportFile}`);
   if (dryRun)
     log("Dry run: no source file was written. Run without --dry-run to apply.");

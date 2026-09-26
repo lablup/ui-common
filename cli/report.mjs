@@ -4,6 +4,9 @@
  * committed and diffed between runs.
  */
 
+/** The report's first line; `ui-common upgrade` overwrites only a file that starts with it. */
+export const REPORT_HEADING = "# ui-common upgrade report";
+
 /** @param {string} text */
 function code(text) {
   const ticks = text.includes("`") ? "``" : "`";
@@ -31,11 +34,12 @@ function escapeCell(text) {
  * @param {Array<{category: string, file: string, line: number, text: string, detail?: string}>} data.findings
  * @param {Record<string, {title: string, help: string}>} data.categories
  * @param {Array<{file: string, transform: string, error: string}>} data.errors
+ * @param {string[]} [data.notices] where the run did something other than the usual
  * @param {number} data.tokenReads
  */
 export function renderReport(data) {
   const out = [];
-  out.push("# ui-common upgrade report", "");
+  out.push(REPORT_HEADING, "");
   out.push(
     `\`ui-common upgrade\` ${data.from} → ${data.to} (installed @lablup/ui-common ${data.version})` +
       `${data.dryRun ? ", **dry run: nothing was written**" : ""}.`,
@@ -125,7 +129,7 @@ export function renderReport(data) {
     out.push("");
   }
 
-  const notes = data.steps.flatMap((s) => s.notes);
+  const notes = [...(data.notices ?? []), ...data.steps.flatMap((s) => s.notes)];
   if (notes.length > 0 || data.tokenReads > 0) {
     out.push("## Notes", "");
     for (const note of notes) out.push(`- ${note}`);
