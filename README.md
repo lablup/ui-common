@@ -30,13 +30,45 @@ Peer dependencies:
   and your own StyleX code share.
 - `@astryxdesign/lab`, optional. Install it only if you use
   `@lablup/ui-common/lab`. It is pinned to the exact canary ui-common is built
-  against.
+  against, and it needs the override below.
 
 Astryx itself (`@astryxdesign/core`, `@astryxdesign/theme-neutral`,
 `@astryxdesign/cli`) comes in as ui-common's own dependencies, pinned exactly.
 Do not add them to your project. ui-common owns the Astryx version. Two copies
 of Astryx means two copies of its React contexts, and components stop seeing
 the theme.
+
+### With `@lablup/ui-common/lab`
+
+The lab canary declares an exact peer on the core canary it was cut from, not
+on the core ui-common pins. Without an override, pnpm installs that canary
+core beside ui-common's, npm nests it under lab, and `@lablup/ui-common/lab`
+runs on the second copy. Add the override for your package manager, next to
+`@astryxdesign/lab` itself (`ui-common upgrade` adds both when it moves a
+Drawer to lab):
+
+pnpm, in `pnpm-workspace.yaml` (pnpm 10 and later read settings only from
+there):
+
+```yaml
+overrides:
+  "@astryxdesign/lab>@astryxdesign/core": "0.6.2"
+```
+
+npm, in the root `package.json`:
+
+```json
+"overrides": {
+  "@astryxdesign/lab": { "@astryxdesign/core": "0.6.2" }
+}
+```
+
+The version is the `@astryxdesign/core` that ui-common pins; it moves with
+each ui-common release that moves Astryx. Then `pnpm why @astryxdesign/core`
+(or `npm ls @astryxdesign/core`) lists one version. pnpm may still warn that
+lab's peer is unmet; with the override that is expected. A project that already
+lists `@astryxdesign/core` itself, at the same version, gets the same effect
+from pnpm resolving the peer to its own copy.
 
 ### The GitHub Packages mirror
 

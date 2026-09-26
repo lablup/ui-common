@@ -185,7 +185,7 @@ export async function runUpgrade(options) {
 
   const { default: jscodeshift } = await import("jscodeshift");
 
-  /** @type {Map<string, {original: string, current: string, transforms: string[], created: boolean}>} */
+  /** @type {Map<string, {original: string, current: string, transforms: string[], created: boolean, project?: boolean}>} */
   const state = new Map();
   for (const file of files) {
     const source = readFileSync(file, "utf8");
@@ -209,7 +209,40 @@ export async function runUpgrade(options) {
     from,
     to,
     flags: { packages: new Map(), touched: new Set() },
+    projectDir,
     note: (/** @type {string} */ message) => packageNotes.push(message),
+    /**
+     * Edit a project file outside the scanned sources (pnpm-workspace.yaml).
+     * `edit` gets its current text (null: absent) and returns the new text,
+     * or undefined to leave it. The write goes through the same checks, diff
+     * and dry run as the sources.
+     *
+     * @param {string} path
+     * @param {(current: string | null) => string | undefined} edit
+     */
+    editFile: (path, edit) => {
+      const known = state.get(path);
+      const current = known
+        ? known.current
+        : existsSync(path)
+          ? readFileSync(path, "utf8")
+          : null;
+      const next = edit(current);
+      if (next == null || next === current) return;
+      if (known) {
+        known.current = next;
+        if (!known.transforms.includes("package-json"))
+          known.transforms.push("package-json");
+        return;
+      }
+      state.set(path, {
+        original: current ?? "",
+        current: next,
+        transforms: ["package-json"],
+        created: current == null,
+        project: true,
+      });
+    },
     /**
      * Claim a new file and return the path it will be written to. A file the
      * project already has, scanned or not, is never overwritten: one holding
@@ -315,7 +348,7 @@ export async function runUpgrade(options) {
     Object.assign(categories, step.categories ?? {});
     if (!step.scan) continue;
     for (const [file, entry] of state) {
-      if (entry.created) continue;
+      if (entry.created || entry.project) continue;
       findings.push(...step.scan(rel(file), entry.current));
     }
   }

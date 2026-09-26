@@ -3,8 +3,12 @@
  * - bump @lablup/ui-common to the target version (keeping `^`/`~`);
  * - add the @stylexjs/stylex peer ui-common 0.2 needs, when missing;
  * - add @astryxdesign/lab, pinned to the canary ui-common is built against,
- *   when a Drawer import was moved to `@lablup/ui-common/lab`.
+ *   when a Drawer import was moved to `@lablup/ui-common/lab`, and point its
+ *   core peer at ui-common's core with the project's package manager's
+ *   override (../../cli/lab-peer.mjs).
  */
+import { applyLabOverride, CORE, detectPackageManager } from "../../cli/lab-peer.mjs";
+import { ownPackageJson } from "../../cli/paths.mjs";
 import { LAB_PACKAGE, stylexPeer, UIC } from "./map.mjs";
 
 const FIELDS = /** @type {const} */ ([
@@ -46,6 +50,37 @@ function bumpSpec(spec, to) {
     value: `^${to}`,
     note: `the range "${spec}" was replaced with "^${to}"; widen it again if this package must still accept 0.1.`,
   };
+}
+
+/**
+ * Point the lab canary's core peer at ui-common's core: `overrides` in
+ * package.json for npm (the project's own, when it is the install root),
+ * `overrides` in pnpm-workspace.yaml for pnpm, a note otherwise.
+ *
+ * @param {any} pkg parsed package.json, edited in place
+ * @param {{projectDir?: string, note: (message: string) => void, editFile?: (path: string, edit: (current: string | null) => string | undefined) => void}} ctx
+ */
+function addLabOverride(pkg, ctx) {
+  const pin = ownPackageJson().dependencies?.[CORE];
+  if (!pin || !ctx.projectDir || !ctx.editFile) return;
+  const { manager, root, workspaceYaml } = detectPackageManager(ctx.projectDir, pkg);
+  if (manager === "npm" && root !== ctx.projectDir) {
+    // npm reads overrides from the install root's package.json only.
+    const { note } = applyLabOverride({ manager: null, pin });
+    ctx.note(`npm installs from ${root}, not this package: ${note}`);
+    return;
+  }
+  if (manager === "pnpm" && workspaceYaml) {
+    const yamlFile = workspaceYaml;
+    ctx.editFile(yamlFile, (current) => {
+      const edit = applyLabOverride({ manager, pin, workspaceYaml: current });
+      if (edit.note) ctx.note(edit.note);
+      return edit.workspaceYaml;
+    });
+    return;
+  }
+  const { note } = applyLabOverride({ manager, pin, pkg });
+  ctx.note(note);
 }
 
 /**
@@ -111,6 +146,7 @@ export function transformPackageJson(text, ctx) {
           ? `added ${lab} ${range} to ${field}: a Drawer moved to ${UIC}/lab, and ui-common pins the lab canary exactly.`
           : `added ${lab} ${range} to ${field}.`,
       );
+      if (lab === LAB_PACKAGE) addLabOverride(pkg, ctx);
     }
   }
 

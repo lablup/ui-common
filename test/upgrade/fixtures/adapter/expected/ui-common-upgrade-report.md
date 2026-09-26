@@ -30,6 +30,7 @@ Scanned 4 files under `src`.
 - dependencies["@lablup/ui-common"]: "0.1.0-alpha.19" → "0.2.0-alpha.0".
 - added @stylexjs/stylex ^0.19.0 to dependencies.
 - added @astryxdesign/lab 0.6.2-canary.c9fb1ad to dependencies: a Drawer moved to @lablup/ui-common/lab, and ui-common pins the lab canary exactly.
+- no package manager was detected, so point @astryxdesign/lab's @astryxdesign/core peer at ui-common's by hand (pnpm: `overrides: { "@astryxdesign/lab>@astryxdesign/core": "0.6.2" }` in pnpm-workspace.yaml; npm: `"overrides": {"@astryxdesign/lab":{"@astryxdesign/core":"0.6.2"}}` in the root package.json) and check that `why @astryxdesign/core` lists one version.
 
 ## Manual review
 

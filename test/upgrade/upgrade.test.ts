@@ -158,6 +158,73 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     expect(readFileSync(join(dir, "reports/dry.md"), "utf8")).toContain("dry run");
   });
 
+  describe("points lab's core peer at ui-common's core when it adds lab", () => {
+    const own = JSON.parse(readFileSync(join(here, "../../package.json"), "utf8")) as {
+      dependencies: Record<string, string>;
+    };
+    const pin = own.dependencies["@astryxdesign/core"];
+
+    it("npm: an overrides entry in package.json", async () => {
+      const dir = copyFixture("adapter");
+      writeFileSync(join(dir, "package-lock.json"), "{}\n");
+      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(result.code, JSON.stringify(result.errors)).toBe(0);
+      const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+      expect(pkg.dependencies["@astryxdesign/lab"]).toBeTruthy();
+      expect(pkg.overrides).toEqual({
+        "@astryxdesign/lab": { "@astryxdesign/core": pin },
+      });
+    });
+
+    it("pnpm: an overrides entry in pnpm-workspace.yaml, created when missing", async () => {
+      const dir = copyFixture("adapter");
+      writeFileSync(join(dir, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
+      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(result.code, JSON.stringify(result.errors)).toBe(0);
+      expect(readFileSync(join(dir, "pnpm-workspace.yaml"), "utf8")).toBe(
+        `overrides:\n  "@astryxdesign/lab>@astryxdesign/core": "${pin}"\n`,
+      );
+      expect(
+        JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).overrides,
+      ).toBeUndefined();
+    });
+
+    it("pnpm: the workspace root's pnpm-workspace.yaml, above the project", async () => {
+      const workspace = mkdtempSync(join(tmpdir(), "uic-upgrade-ws-"));
+      temps.push(workspace);
+      writeFileSync(join(workspace, "pnpm-workspace.yaml"), "packages:\n  - app\n");
+      cpSync(join(FIXTURES, "adapter", "input"), join(workspace, "app"), {
+        recursive: true,
+      });
+      const dir = join(workspace, "app");
+      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(result.code, JSON.stringify(result.errors)).toBe(0);
+      expect(readFileSync(join(workspace, "pnpm-workspace.yaml"), "utf8")).toBe(
+        `packages:\n  - app\n\noverrides:\n  "@astryxdesign/lab>@astryxdesign/core": "${pin}"\n`,
+      );
+      expect(existsSync(join(dir, "pnpm-workspace.yaml"))).toBe(false);
+    });
+
+    it("a dry run shows the edit and writes nothing", async () => {
+      const dir = copyFixture("adapter");
+      writeFileSync(join(dir, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
+      const lines: string[] = [];
+      await runUpgrade({
+        cwd: dir,
+        paths: ["src"],
+        to: TO,
+        dryRun: true,
+        diff: true,
+        log: (l: string) => lines.push(l),
+        warn: () => {},
+      });
+      expect(existsSync(join(dir, "pnpm-workspace.yaml"))).toBe(false);
+      expect(lines.join("\n")).toContain(
+        `+  "@astryxdesign/lab>@astryxdesign/core": "${pin}"`,
+      );
+    });
+  });
+
   describe("never overwrites a file this run did not produce", () => {
     const own = "/* the project's own entry */\n@import './brand.css';\n";
 

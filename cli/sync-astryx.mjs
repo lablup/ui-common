@@ -2,7 +2,8 @@
  * `ui-common sync-astryx <version>`: the maintainer's Astryx bump, inside the
  * ui-common repository.
  *
- * 1. Move the exact pins (core, theme-neutral, cli; lab with --lab).
+ * 1. Move the exact pins (core, theme-neutral, cli; lab with --lab), and the
+ *    core version README and pnpm-workspace.yaml override lab's core peer to.
  * 2. Install, regenerate the export mirror and the built Lablup theme.
  * 3. Run Astryx's codemods on ui-common's own src/ (dry run, then applied).
  * 4. Run the tests, which include the export and theme drift checks.
@@ -22,6 +23,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { syncLabOverrideDocs } from "./lab-peer.mjs";
 import { findProjectDir, readJson } from "./paths.mjs";
 import { compare, nextBreaking, parse } from "./semver.mjs";
 
@@ -133,6 +135,27 @@ export function upstreamManifest(repo, version, astryx, listed) {
 }
 
 /**
+ * The files that name the core version lab's core peer is overridden to:
+ * README's consumer recipes and this repository's own peer rule. They move
+ * with the core pin (test/cli/lab-peer.test.ts fails when README lags).
+ *
+ * @param {string} repo
+ * @param {string} pin the new @astryxdesign/core pin
+ * @returns {Array<{name: string, file: string, after: string}>}
+ */
+export function labOverrideEdits(repo, pin) {
+  const edits = [];
+  for (const name of ["README.md", "pnpm-workspace.yaml"]) {
+    const file = join(repo, name);
+    if (!existsSync(file)) continue;
+    const before = readFileSync(file, "utf8");
+    const after = syncLabOverrideDocs(before, pin);
+    if (after !== before) edits.push({ name, file, after });
+  }
+  return edits;
+}
+
+/**
  * @param {string[]} argv arguments after `sync-astryx`
  */
 export async function syncAstryxCommand(argv) {
@@ -223,6 +246,9 @@ export async function syncAstryxCommand(argv) {
       ? `  package.json: ${edits.join("; ")}`
       : "  package.json: pins already at the target",
   );
+  for (const edit of labOverrideEdits(repo, target)) {
+    out(`  ${edit.name}: lab's core override → ${target}`);
+  }
 
   /** @param {string} title @param {string} cmd @param {string[]} args */
   const step = (title, cmd, args) => {
@@ -290,6 +316,10 @@ export async function syncAstryxCommand(argv) {
   }
   writeFileSync(pkgFile, `${JSON.stringify(pkg, null, 2)}\n`);
   out("  package.json written");
+  for (const edit of labOverrideEdits(repo, target)) {
+    writeFileSync(edit.file, edit.after);
+    out(`  ${edit.name}: lab's core override moved to ${target}`);
+  }
 
   if (!step("Install", "pnpm", ["install"])) return 1;
   if (!step("Regenerate the export mirror", "pnpm", ["run", "gen:exports"])) return 1;
