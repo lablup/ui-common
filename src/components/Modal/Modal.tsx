@@ -42,6 +42,7 @@ import {
   useEffect,
   useEffectEvent,
   useId,
+  useInsertionEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -255,13 +256,17 @@ export function Modal({
   const close = () => onOpenChange(false);
 
   const rootRef = useRef<HTMLDivElement>(null);
-  // Captured before the level stack inerts the covering root, which blurs
-  // whatever that subtree held.
+  // An insertion effect runs before any layout effect of this commit: before
+  // content mounting with the open autofocuses (a layout-phase focus), and
+  // before the level stack inerts the covering root, which blurs its focus.
   const triggerRef = useRef<HTMLElement | null>(null);
-  useLayoutEffect(() => {
-    if (isOpen && !isInline) {
-      triggerRef.current = document.activeElement as HTMLElement | null;
-    }
+  useInsertionEffect(() => {
+    if (!isOpen || isInline) return;
+    const active = document.activeElement;
+    triggerRef.current =
+      active instanceof HTMLElement && !rootRef.current?.contains(active)
+        ? active
+        : null;
   }, [isOpen, isInline]);
 
   const isActive = isOpen && !isInline;
@@ -285,10 +290,9 @@ export function Modal({
   useEffect(() => {
     if (!isActive) return;
     const root = rootRef.current;
-    return () => {
-      restoreTriggerFocus(triggerRef.current, root);
-      triggerRef.current = null;
-    };
+    // triggerRef is not cleared: StrictMode replays this cleanup on mount, and
+    // the insertion effect that captured it does not run again.
+    return () => restoreTriggerFocus(triggerRef.current, root);
   }, [isActive]);
 
   useScrollLock(isActive);

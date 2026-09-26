@@ -1,6 +1,6 @@
-import type { ComponentProps } from "react";
+import { useState, type ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
 
@@ -204,5 +204,48 @@ describe("DeleteConfirmModal", () => {
     expect(screen.getByRole("dialog")).toHaveAccessibleName("2개 항목 삭제");
     expect(screen.getByRole("button", { name: "삭제" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
+  });
+});
+
+describe("DeleteConfirmModal focus return", () => {
+  function Opener() {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <>
+        <button type="button" onClick={() => setIsOpen(true)}>
+          delete folder
+        </button>
+        <DeleteConfirmModal
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+          onAction={() => setIsOpen(false)}
+          items={[{ key: "a", label: "my-folder" }]}
+          confirmText="my-folder"
+          isConfirmInputRequired
+        />
+      </>
+    );
+  }
+
+  const opener = () =>
+    screen.getByRole("button", { name: "delete folder", hidden: true });
+
+  it("returns focus to the opener after its autofocused field held it", async () => {
+    const user = userEvent.setup();
+    render(<Opener />);
+
+    await user.click(opener());
+    expect(document.activeElement).toBe(screen.getByRole("textbox"));
+    await user.keyboard("{Escape}");
+    expect(document.activeElement).toBe(opener());
+
+    await user.click(opener());
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(document.activeElement).toBe(opener());
+
+    await user.click(opener());
+    await user.type(screen.getByRole("textbox"), "my-folder");
+    await user.click(deleteButton());
+    await waitFor(() => expect(document.activeElement).toBe(opener()));
   });
 });

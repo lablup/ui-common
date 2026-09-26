@@ -66,6 +66,28 @@ describe("ConfirmPopover", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   });
 
+  it.each([
+    ["Escape", () => userEvent.keyboard("{Escape}")],
+    ["Cancel", () => userEvent.click(screen.getByRole("button", { name: "Cancel" }))],
+    [
+      "the action",
+      () => userEvent.click(screen.getByRole("button", { name: "Confirm" })),
+    ],
+  ])("returns focus to its trigger when closed by %s", async (_, closeWith) => {
+    render(
+      <ConfirmPopover title="Leave?">
+        <Button label="Leave" />
+      </ConfirmPopover>,
+    );
+    await openWith("Leave");
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Cancel" })).toHaveFocus(),
+    );
+    await closeWith();
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(screen.getByRole("button", { name: "Leave" })).toHaveFocus();
+  });
+
   it("styles and disables the action as asked", async () => {
     render(
       <ConfirmPopover title="Delete?" actionVariant="destructive" isActionDisabled>

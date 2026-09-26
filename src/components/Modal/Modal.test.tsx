@@ -6,8 +6,8 @@
  * jsdom treats `inert` as markup only, and there is no layout, so these check
  * the attributes and custom properties the browser acts on.
  */
-import { useState, type ComponentProps } from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { StrictMode, useState, type ComponentProps } from "react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DialogHeader as CoreDialogHeader } from "@astryxdesign/core/Dialog";
@@ -388,6 +388,117 @@ describe("Modal content lifecycle", () => {
     expect(document.querySelector(".uic-modal")).toBeNull();
     await user.click(screen.getByRole("button", { name: "toggle" }));
     expect(screen.getByLabelText("field")).toHaveValue("");
+  });
+});
+
+describe("Modal focus return with autofocusing content", () => {
+  // The content mounts in the same commit as the open, and its field takes
+  // focus during that commit, before any effect of Modal's own runs.
+  function Opener(props: ModalTestProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <>
+        <button type="button" onClick={() => setIsOpen(true)}>
+          opener
+        </button>
+        <Modal
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+          title="Autofocus"
+          onAction={() => setIsOpen(false)}
+          {...props}
+        >
+          <input aria-label="field" autoFocus />
+        </Modal>
+      </>
+    );
+  }
+
+  type User = ReturnType<typeof userEvent.setup>;
+  const opener = () => screen.getByRole("button", { name: "opener", hidden: true });
+
+  const closers: Array<[string, (user: User) => Promise<void>]> = [
+    ["Escape", (user) => user.keyboard("{Escape}")],
+    ["Cancel", (user) => user.click(screen.getByRole("button", { name: "Cancel" }))],
+    ["the action", (user) => user.click(screen.getByRole("button", { name: "OK" }))],
+    [
+      "the backdrop",
+      async () => {
+        act(() => {
+          fireEvent.mouseDown(getMask());
+          fireEvent.click(getMask());
+        });
+      },
+    ],
+  ];
+
+  it.each(closers)(
+    "returns focus to the opener on the first open, closed by %s",
+    async (_, closeWith) => {
+      const user = userEvent.setup();
+      render(<Opener />);
+      await user.click(opener());
+      expect(screen.getByRole("dialog")).toContainElement(
+        document.activeElement as HTMLElement,
+      );
+
+      await closeWith(user);
+      // The action closes from an awaited clickAction, a tick later.
+      await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+      expect(document.activeElement).toBe(opener());
+    },
+  );
+
+  it("returns focus to the opener under StrictMode", async () => {
+    const user = userEvent.setup();
+    render(
+      <StrictMode>
+        <Opener />
+      </StrictMode>,
+    );
+    await user.click(opener());
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(opener());
+  });
+
+  it("returns focus on every open with unmountOnClose", async () => {
+    const user = userEvent.setup();
+    render(<Opener unmountOnClose />);
+    for (let round = 0; round < 2; round += 1) {
+      await user.click(opener());
+      expect(screen.getByRole("dialog")).toContainElement(
+        document.activeElement as HTMLElement,
+      );
+      await user.keyboard("{Escape}");
+      expect(document.querySelector(".uic-modal")).toBeNull();
+      expect(document.activeElement).toBe(opener());
+    }
+  });
+
+  it("returns focus to the opener inside a covered modal", async () => {
+    function NestedOpener() {
+      const [isInnerOpen, setIsInnerOpen] = useState(false);
+      return (
+        <Modal isOpen onOpenChange={vi.fn()} aria-label="outer">
+          <button type="button" onClick={() => setIsInnerOpen(true)}>
+            open inner
+          </button>
+          <Modal isOpen={isInnerOpen} onOpenChange={setIsInnerOpen} aria-label="inner">
+            <input aria-label="inner field" autoFocus />
+          </Modal>
+        </Modal>
+      );
+    }
+    const user = userEvent.setup();
+    render(<NestedOpener />);
+    const openInner = screen.getByRole("button", { name: "open inner" });
+    await user.click(openInner);
+    expect(document.activeElement).toBe(screen.getByLabelText("inner field"));
+
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog", { name: "inner" })).toBeNull();
+    expect(document.activeElement).toBe(openInner);
   });
 });
 
