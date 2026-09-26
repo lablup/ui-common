@@ -64,32 +64,45 @@ function detectQuote(source) {
 }
 
 /**
- * Names bound at module level: every import binding, and top-level
- * declarations. A new import must not shadow one.
+ * Names a new import binding must not take: every import binding, and every
+ * name bound or read in any scope of the file (a function-local `const Card`,
+ * a parameter, a global). A rename onto one of them would capture the
+ * other's references, or be captured by it.
  *
  * @param {any} j
  * @param {any} root
  */
-function boundNames(j, root) {
+function takenNames(j, root) {
   const names = new Set();
   root.find(j.ImportDeclaration).forEach((/** @type {any} */ p) => {
     for (const s of p.node.specifiers ?? []) if (s.local) names.add(s.local.name);
   });
-  const program = root.find(j.Program).get().node;
-  for (let statement of program.body) {
-    if (
-      statement.type === "ExportNamedDeclaration" ||
-      statement.type === "ExportDefaultDeclaration"
-    ) {
-      statement = statement.declaration ?? statement;
+  root.find(j.Identifier).forEach((/** @type {any} */ p) => {
+    if (p.node.type === "JSXIdentifier") {
+      const parent = p.parent?.node;
+      const isTag =
+        parent?.type === "JSXOpeningElement" ||
+        parent?.type === "JSXClosingElement" ||
+        (parent?.type === "JSXMemberExpression" && parent.object === p.node);
+      if (isTag) names.add(p.node.name);
+      return;
     }
-    if (statement.id?.name) names.add(statement.id.name);
-    if (statement.type === "VariableDeclaration") {
-      for (const d of statement.declarations)
-        if (d.id.type === "Identifier") names.add(d.id.name);
-    }
-  }
+    if (isReference(p)) names.add(p.node.name);
+  });
   return names;
+}
+
+/**
+ * Whether `name`, read at `path`, is the module-level binding (an import)
+ * rather than a local that shadows it.
+ *
+ * @param {any} path
+ * @param {string} name
+ * @param {any} programScope
+ */
+function isModuleBinding(path, name, programScope) {
+  const scope = path.scope?.lookup(name);
+  return scope == null || scope === programScope;
 }
 
 /**
@@ -129,16 +142,19 @@ function isReference(path) {
 }
 
 /**
- * Rename every reference to a module-level binding, JSX tags included.
+ * Rename every reference to a module-level binding, JSX tags included. A
+ * local that shadows it keeps its name.
  *
  * @param {any} j
  * @param {any} root
  * @param {string} from
  * @param {string} to
+ * @param {any} programScope
  */
-function renameReferences(j, root, from, to) {
+function renameReferences(j, root, from, to, programScope) {
   root.find(j.Identifier, { name: from }).forEach((/** @type {any} */ p) => {
     if (p.node.type === "JSXIdentifier") return;
+    if (!isModuleBinding(p, from, programScope)) return;
     const parent = p.parent?.node;
     if (
       (parent?.type === "ObjectProperty" || parent?.type === "Property") &&
@@ -158,6 +174,7 @@ function renameReferences(j, root, from, to) {
     p.node.name = to;
   });
   root.find(j.JSXIdentifier, { name: from }).forEach((/** @type {any} */ p) => {
+    if (!isModuleBinding(p, from, programScope)) return;
     const parent = p.parent?.node;
     if (
       parent?.type === "JSXOpeningElement" ||
@@ -263,8 +280,19 @@ export default function transform(file, api, ctx) {
   const j = api.jscodeshift;
   const root = j(file.source);
   const isTS = /\.[cm]?tsx?$/.test(file.path);
-  const bound = boundNames(j, root);
+  const taken = takenNames(j, root);
+  const programScope = root.find(j.Program).get().scope;
   let touched = false;
+
+  /**
+   * The local name for an import of `target` that replaces `local`: the
+   * target itself when nothing in any scope of the file uses it, else a
+   * `Uic`-prefixed alias that is free.
+   *
+   * @param {string} target
+   */
+  const localFor = (target) =>
+    freeName(taken, taken.has(target) ? [`Uic${target}`] : [target]);
 
   /** @type {Map<string, string>} */
   const renames = new Map();
@@ -295,10 +323,8 @@ export default function transform(file, api, ctx) {
     }
     const existing = extra.find((a) => a.source === source && a.imported === name);
     if (existing) return existing.local;
-    let local = name;
-    if (bound.has(local) || [...renames.values()].includes(local)) local = `Uic${name}`;
+    const local = localFor(name);
     extra.push({ source, kind: "value", imported: name, local });
-    bound.add(local);
     return local;
   };
 
@@ -353,9 +379,9 @@ export default function transform(file, api, ctx) {
       if (resolved.action === "component") {
         const entry = resolved.entry;
         let finalLocal = local;
-        if (local === imported && entry.to !== local && !bound.has(entry.to)) {
-          renames.set(local, entry.to);
-          finalLocal = entry.to;
+        if (local === imported && entry.to !== local) {
+          finalLocal = localFor(entry.to);
+          renames.set(local, finalLocal);
         }
         const add = {
           source: `${UIC}/${entry.subpath}`,
@@ -390,9 +416,9 @@ export default function transform(file, api, ctx) {
         continue;
       }
       let finalLocal = local;
-      if (local === imported && resolved.to !== local && !bound.has(resolved.to)) {
-        renames.set(local, resolved.to);
-        finalLocal = resolved.to;
+      if (local === imported && resolved.to !== local) {
+        finalLocal = localFor(resolved.to);
+        renames.set(local, finalLocal);
       }
       adds.push({
         source: `${UIC}/${REMOVED.get(resolved.component).subpath}`,
@@ -523,12 +549,14 @@ export default function transform(file, api, ctx) {
   if (!touched) return undefined;
 
   // Elements.
-  const spelled = identifierNames(j, root);
+  const spelled = new Set([...identifierNames(j, root), ...taken]);
   for (const [local, binding] of bindings) {
     const transformElement = /** @type {Record<string, any>} */ (ELEMENT_TRANSFORMS)[
       binding.component
     ];
     root.findJSXElements(local).forEach((/** @type {any} */ path) => {
+      // A local component that shadows the import is not ui-common's.
+      if (!isModuleBinding(path, local, programScope)) return;
       const el = path.node;
       let tag = null;
       /** @type {import('./elements.mjs').Helpers} */
@@ -558,6 +586,7 @@ export default function transform(file, api, ctx) {
     });
     root.find(j.Identifier, { name: local }).forEach((/** @type {any} */ path) => {
       if (path.node.type === "JSXIdentifier" || !isReference(path)) return;
+      if (!isModuleBinding(path, local, programScope)) return;
       const parent = path.parent?.node;
       if (parent?.type === "TSTypeQuery" || parent?.type === "TSTypeReference") return;
       binding.valueRefs++;
@@ -569,7 +598,7 @@ export default function transform(file, api, ctx) {
     });
   }
 
-  for (const [from, to] of renames) renameReferences(j, root, from, to);
+  for (const [from, to] of renames) renameReferences(j, root, from, to, programScope);
 
   // Imports: the planned moves, minus a Card import every BaseCard outgrew.
   const unused = new Set(

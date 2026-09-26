@@ -112,3 +112,70 @@ export const P = ({ log }: any) => <Drawer onClose={(reason = "closed") => log(r
     expect(log).toHaveBeenCalledWith("closed");
   });
 });
+
+describe("renames respect every scope", () => {
+  it("does not capture a local that already has the new name", () => {
+    const out = upgrade(
+      `import { BaseCard } from "@lablup/ui-common";
+export function Panel({ compact }: { compact: boolean }) {
+  const Card = compact ? "section" : "article";
+  return (
+    <Card className="outer">
+      <BaseCard>inside</BaseCard>
+    </Card>
+  );
+}
+`,
+    );
+    expect(out).toContain('import { Card as UicCard } from "@lablup/ui-common/Card";');
+    expect(out).toContain("<UicCard>inside</UicCard>");
+    expect(out).toContain('<Card className="outer">');
+    expect(out).toContain('const Card = compact ? "section" : "article";');
+  });
+
+  it("does not capture a function-local binding, and leaves shadowed names alone", () => {
+    const out = upgrade(
+      `import { Tabs, Select, StatusTag } from "@lablup/ui-common";
+
+export function A({ items }: { items: string[] }) {
+  const TabList = items.length;
+  return (
+    <div>
+      <Tabs activeTab="a" onTabChange={() => {}} tabs={[]} />
+      <span>{TabList}</span>
+    </div>
+  );
+}
+
+function B() {
+  const Select = (p: any) => <em>{p.children}</em>;
+  return <Select disabled>inner</Select>;
+}
+
+export function C() {
+  return <Select disabled options={[]} aria-label="x" />;
+}
+
+export function D({ StatusTag }: { StatusTag: any }) {
+  return <StatusTag state="x" />;
+}
+`,
+    );
+    // A: the import takes a free alias; the local keeps its name.
+    expect(out).toMatch(
+      /import \{ TabList as UicTabList \} from "@lablup\/ui-common\/TabList";/,
+    );
+    expect(out).toContain("<UicTabList value=");
+    expect(out).toContain("const TabList = items.length;");
+    expect(out).toContain("<span>{TabList}</span>");
+    // B: the local Select is not the import; nothing about it changes.
+    expect(out).toContain("const Select = (p: any) => <em>{p.children}</em>;");
+    expect(out).toContain("return <Select disabled>inner</Select>;");
+    // C: the module-level Select is migrated.
+    expect(out).toMatch(/<(Selector|UicSelector) isDisabled options=\{\[\]\}/);
+    // D: the parameter shadows the import.
+    expect(out).toContain("export function D({ StatusTag }: { StatusTag: any }) {");
+    expect(out).toContain('return <StatusTag state="x" />;');
+    expect(out).not.toContain("is used as a value here");
+  });
+});
