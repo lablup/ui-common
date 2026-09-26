@@ -5,6 +5,64 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.7]
+
+Review fixes: `Modal` now makes the page behind it inert, and the upgrade
+tool stops overwriting files, capturing names and hiding lab's second core.
+
+### Changed
+
+- **`Modal` makes the page behind it inert** while it is open, and the
+  topmost dialog is `aria-modal="true"`, as `showModal()` would make them.
+  Every other child of `document.body` goes `inert` (and, where a kept
+  element is nested, every sibling on the way down to it), except modal
+  roots claimed through `useModalLevel` (a drawer portal's too) and elements
+  marked `data-uic-modal-live`. Closing the last modal removes only the
+  `inert` it set. Nested modals behave as before: only the topmost is
+  interactive. **Breaking:** an overlay of the app's own that must stay
+  usable over a modal (a toaster, a chat widget) needs `data-uic-modal-live`,
+  and `refreshModalBackground()` if it mounts while a modal is open.
+- `NotificationStack` marks its root `data-uic-modal-live`, so notices stay
+  readable and dismissible over a modal.
+- New exports from the root and `@lablup/ui-common/Modal`:
+  `MODAL_LIVE_ATTRIBUTE` and `refreshModalBackground`.
+- `ui-common upgrade --dry-run` writes nothing: it prints the report after
+  the summary, and writes it only to a path given with `--report`.
+- `ui-common upgrade` points `@astryxdesign/lab`'s core peer at ui-common's
+  core whenever it adds lab: an `overrides` entry in the nearest
+  `pnpm-workspace.yaml` (created when missing) for pnpm, in package.json for
+  npm, and a report note with both recipes otherwise. README's install
+  section documents the same recipes, and `ui-common sync-astryx` moves them
+  with the core pin.
+
+### Fixed
+
+- The lab canary (`0.6.2-canary.c9fb1ad`) peers on exactly the core canary
+  it was cut from, so a consumer got a second `@astryxdesign/core` and
+  `@lablup/ui-common/lab` ran on it. The documented overrides resolve it to
+  ui-common's core (verified with pnpm 11 and 12, and npm 11); a test fails
+  when lab's peer differs from the core pin and README's recipes are missing
+  or stale.
+- Codemods: the Drawer `onClose` → `onOpenChange` wrapper named its
+  parameter `isOpen`, capturing a handler's own `isOpen`
+  (`() => { if (isOpen) close(); }` never ran). The parameter now takes a
+  name the file does not use.
+- Codemods: a component rename (`BaseCard` → `Card`, `Tabs` → `TabList`)
+  checked only module-level names, so a function-local `const Card` captured
+  the import, and locals or parameters shadowing a 0.1 name were migrated.
+  The import now takes a free `Uic`-prefixed alias when any scope uses the
+  new name, and only references that resolve to the import are rewritten.
+- `ui-common upgrade` overwrote an existing `ui-common-entry.css` outside
+  the scanned paths. A file this run did not read is never written: an
+  identical entry is reused, otherwise the entry goes to
+  `ui-common-entry-2.css` and the report says so. The report path is
+  replaced only when it holds an earlier report.
+- The SCSS rewrite put the `@layer` order above `@use`, which Sass rejects.
+  It now follows the leading `@use`/`@forward` rules.
+- Upstream Astryx codemods rewrote every mention of `@lablup/ui-common` and
+  `@astryxdesign/core` in a file, comments and strings included; only module
+  specifiers are swapped now.
+
 ## [0.2.0-alpha.6]
 
 The last component moves from backend.ai-ui that do not wait on its theme
