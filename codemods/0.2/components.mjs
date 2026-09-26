@@ -9,7 +9,13 @@
  * - Re-exports (`export { Select } from …`) keep their public name.
  * - Every JSX element of a moved component goes through ./elements.mjs.
  */
-import { hasSpread, renameElement, tagName } from "../lib/jsx.mjs";
+import {
+  freeName,
+  hasSpread,
+  identifierNames,
+  renameElement,
+  tagName,
+} from "../lib/jsx.mjs";
 import { addTodo } from "../lib/todo.mjs";
 import { ELEMENT_TRANSFORMS } from "./elements.mjs";
 import { MOVED, REMOVED, REMOVED_TYPES, UIC } from "./map.mjs";
@@ -517,6 +523,7 @@ export default function transform(file, api, ctx) {
   if (!touched) return undefined;
 
   // Elements.
+  const spelled = identifierNames(j, root);
   for (const [local, binding] of bindings) {
     const transformElement = /** @type {Record<string, any>} */ (ELEMENT_TRANSFORMS)[
       binding.component
@@ -536,6 +543,7 @@ export default function transform(file, api, ctx) {
         setTag: (name) => {
           tag = name;
         },
+        freeName: (candidates) => freeName(spelled, candidates),
       };
       if (hasSpread(el)) {
         addTodo(

@@ -33,6 +33,8 @@ import { manualNote } from "./map.mjs";
  * @property {(message: string) => void} todo
  * @property {(name: string, subpath: string) => string} ensureImport
  * @property {(name: string) => void} setTag switch to an alternative component
+ * @property {(candidates: string[]) => string} freeName the first candidate no
+ *   identifier in the file uses, else the last one numbered
  * @property {boolean} isTS
  */
 
@@ -646,13 +648,17 @@ export function Drawer(h) {
   const onClose = getAttr(el, "onClose");
   if (onClose) {
     // The map: onClose -> onOpenChange, wrapped as (open) => { if (!open) onClose(); }.
+    // 0.1 called onClose with no arguments. The parameter takes a name no
+    // identifier in the file uses, so the handler's own reads (an `isOpen`
+    // prop, say) keep their meaning.
     const handler = attrExpression(j, onClose);
-    const isOpen = j.identifier("isOpen");
-    const notOpen = j.unaryExpression("!", isOpen);
+    const param = j.identifier(h.freeName(["open", "isOpen", "nextOpen"]));
+    const notOpen = j.unaryExpression("!", param);
     let body;
+    // Only an arrow's body is inlined: `this` and `arguments` mean the same
+    // inside another arrow, which a `function` body's would not.
     if (
-      (handler.type === "ArrowFunctionExpression" ||
-        handler.type === "FunctionExpression") &&
+      handler.type === "ArrowFunctionExpression" &&
       handler.params.length === 0 &&
       !handler.async
     ) {
@@ -675,7 +681,7 @@ export function Drawer(h) {
       makeAttr(
         j,
         "onOpenChange",
-        j.arrowFunctionExpression([isOpen], j.blockStatement([body])),
+        j.arrowFunctionExpression([param], j.blockStatement([body])),
       ),
     );
   }

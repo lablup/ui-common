@@ -291,3 +291,40 @@ export function renameElement(el, name) {
   el.openingElement.name = { type: "JSXIdentifier", name };
   if (el.closingElement) el.closingElement.name = { type: "JSXIdentifier", name };
 }
+
+/**
+ * Every identifier the file spells: bindings, references, property keys and
+ * JSX tag names (attribute names bind nothing, so they are left out). A name
+ * outside this set can be introduced anywhere in the file without shadowing
+ * or capturing anything.
+ *
+ * @param {any} j
+ * @param {any} root
+ * @returns {Set<string>}
+ */
+export function identifierNames(j, root) {
+  const names = new Set();
+  root.find(j.Identifier).forEach((/** @type {any} */ p) => {
+    if (p.node.type === "JSXIdentifier" && p.parent?.node.type === "JSXAttribute")
+      return;
+    names.add(p.node.name);
+  });
+  return names;
+}
+
+/**
+ * The first of `candidates` that `taken` does not hold, else the last one
+ * numbered (`nextOpen2`, …). The name is added to `taken`.
+ *
+ * @param {Set<string>} taken
+ * @param {string[]} candidates
+ */
+export function freeName(taken, candidates) {
+  let name = candidates.find((c) => !taken.has(c));
+  const base = candidates[candidates.length - 1];
+  for (let i = 2; name === undefined; i++) {
+    if (!taken.has(`${base}${i}`)) name = `${base}${i}`;
+  }
+  taken.add(name);
+  return name;
+}
