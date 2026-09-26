@@ -4,8 +4,10 @@
  * manual-review report.
  *
  * All edits are made in memory first. `--dry-run` stops there and prints what
- * would change; otherwise the files are written. The report is written either
- * way, since it is how a dry run is read.
+ * would change and the report, writing nothing (the report only to an
+ * explicit `--report <path>`); otherwise the files and the report are
+ * written. A file is written only if this run read it, or created it where
+ * nothing existed.
  */
 import {
   existsSync,
@@ -166,9 +168,12 @@ export async function runUpgrade(options) {
   }
   const files = collectFiles(roots);
 
-  // The report replaces an earlier report, never anything else.
+  // A dry run prints the report unless --report names a file for it. The
+  // report replaces an earlier report, never anything else.
+  const writeReport = !options.dryRun || options.report != null;
   const reportFile = resolve(cwd, options.report ?? "ui-common-upgrade-report.md");
   if (
+    writeReport &&
     existsSync(reportFile) &&
     !readFileSync(reportFile, "utf8").startsWith(REPORT_HEADING)
   ) {
@@ -390,8 +395,10 @@ export async function runUpgrade(options) {
     notices,
     tokenReads,
   });
-  mkdirSync(dirname(reportFile), { recursive: true });
-  writeFileSync(reportFile, report);
+  if (writeReport) {
+    mkdirSync(dirname(reportFile), { recursive: true });
+    writeFileSync(reportFile, report);
+  }
 
   // Terminal summary.
   const verb = dryRun ? "Would change" : "Changed";
@@ -410,9 +417,12 @@ export async function runUpgrade(options) {
   }
   for (const e of errors) warn(`  ! ${e.file} [${e.transform}]: ${e.error}`);
   for (const notice of notices) warn(`  note: ${notice}`);
-  log(`Report: ${relative(cwd, reportFile) || reportFile}`);
+  if (writeReport) log(`Report: ${relative(cwd, reportFile) || reportFile}`);
+  else log(`\n${report}`);
   if (dryRun)
-    log("Dry run: no source file was written. Run without --dry-run to apply.");
+    log(
+      `Dry run: nothing was written${writeReport ? " but the report" : ""}. Run without --dry-run to apply${writeReport ? "" : ", or pass --report <path> to keep the report"}.`,
+    );
   if (!dryRun && pkgChanged)
     log("package.json changed: run your package manager's install.");
 
@@ -436,9 +446,12 @@ package.json, and write a manual-review report.
   --from <version>  The ui-common version the code is written against.
                     Default: the version package.json declares.
   --to <version>    Default: the installed @lablup/ui-common version.
-  --dry-run         Change nothing on disk except the report; list what would change.
+  --dry-run         Write nothing; list what would change and print the report.
   --diff            With --dry-run, also print unified diffs.
-  --report <path>   Default: ui-common-upgrade-report.md
+  --report <path>   Where to write the report. Default: ui-common-upgrade-report.md,
+                    except in a dry run, which writes a report only to a path
+                    given here. An existing file is replaced only if it is an
+                    earlier report.
   paths…            Directories or files to scan. Default: src/
 
 Exit codes: 0 done, 1 some files could not be transformed (see the report),

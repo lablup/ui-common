@@ -118,7 +118,7 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     }
   });
 
-  it("--dry-run writes only the report", async () => {
+  it("--dry-run writes nothing and prints the report", async () => {
     const dir = copyFixture("root-barrel");
     const before = new Map(
       tree(dir).map((f) => [f, readFileSync(join(dir, f), "utf8")]),
@@ -135,11 +135,27 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     expect(result.code).toBe(0);
     for (const [file, text] of before)
       expect(readFileSync(join(dir, file), "utf8"), file).toBe(text);
-    expect(tree(dir)).toEqual([...before.keys(), "ui-common-upgrade-report.md"].sort());
+    expect(tree(dir)).toEqual([...before.keys()].sort());
     expect(lines.some((l) => l.includes("~ src/pages/ModelsPage.tsx"))).toBe(true);
-    expect(readFileSync(join(dir, "ui-common-upgrade-report.md"), "utf8")).toContain(
-      "dry run",
-    );
+    const printed = lines.join("\n");
+    expect(printed).toContain("# ui-common upgrade report");
+    expect(printed).toContain("dry run: nothing was written");
+  });
+
+  it("--dry-run with an explicit --report writes the report there, and only it", async () => {
+    const dir = copyFixture("root-barrel");
+    const before = tree(dir);
+    const result = await runUpgrade({
+      cwd: dir,
+      paths: ["src"],
+      to: TO,
+      dryRun: true,
+      report: "reports/dry.md",
+      ...quiet,
+    });
+    expect(result.code).toBe(0);
+    expect(tree(dir)).toEqual([...before, "reports/dry.md"].sort());
+    expect(readFileSync(join(dir, "reports/dry.md"), "utf8")).toContain("dry run");
   });
 
   describe("never overwrites a file this run did not produce", () => {
