@@ -5,6 +5,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.9]
+
+A form engine with antd's form API, and the bulk-edit form item, from
+backend.ai-ui.
+
 ### Added
 
 - `@lablup/ui-common/Form` (also at the root): `Form` with `Form.Item`,
