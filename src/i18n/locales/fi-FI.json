@@ -94,5 +94,105 @@
   "uic.UnitGrid.useColor": {
     "defaultMessage": "Käytä väriä {index}",
     "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
+  },
+  "uic.Form.optional": {
+    "defaultMessage": "(optional)",
+    "description": "Suffix after the label of an optional field when requiredMark=\"optional\""
+  },
+  "uic.Form.default": {
+    "defaultMessage": "Kentän {label} vahvistus epäonnistui",
+    "description": "Validation error when a rule failed without a more specific message"
+  },
+  "uic.Form.required": {
+    "defaultMessage": "Syötä {label}",
+    "description": "Validation error for an empty required field"
+  },
+  "uic.Form.whitespace": {
+    "defaultMessage": "{label} ei voi olla tyhjä",
+    "description": "Validation error for a required field that holds only whitespace"
+  },
+  "uic.Form.typeString": {
+    "defaultMessage": "{label} ei ole kelvollinen {type}",
+    "description": "Validation error for a value that is not a string; {type} is the type name"
+  },
+  "uic.Form.typeNumber": {
+    "defaultMessage": "{label} ei ole kelvollinen {type}",
+    "description": "Validation error for a value that is not a number; {type} is the type name"
+  },
+  "uic.Form.typeObject": {
+    "defaultMessage": "{label} ei ole kelvollinen {type}",
+    "description": "Validation error for a value that is not an object; {type} is the type name"
+  },
+  "uic.Form.typeEmail": {
+    "defaultMessage": "{label} ei ole kelvollinen {type}",
+    "description": "Validation error for an invalid email address; {type} is the type name"
+  },
+  "uic.Form.typeUrl": {
+    "defaultMessage": "{label} ei ole kelvollinen {type}",
+    "description": "Validation error for an invalid URL; {type} is the type name"
+  },
+  "uic.Form.stringLen": {
+    "defaultMessage": "{label} täytyy olla täsmälleen {len} merkkiä pitkä",
+    "description": "Validation error for text of the wrong exact length"
+  },
+  "uic.Form.stringMin": {
+    "defaultMessage": "{label} täytyy olla vähintään {min} merkkiä pitkä",
+    "description": "Validation error for text shorter than the minimum"
+  },
+  "uic.Form.stringMax": {
+    "defaultMessage": "{label} saa olla enintään {max} merkkiä pitkä",
+    "description": "Validation error for text longer than the maximum"
+  },
+  "uic.Form.stringRange": {
+    "defaultMessage": "{label} täytyy olla {min}–{max} merkkiä pitkä",
+    "description": "Validation error for text outside a length range"
+  },
+  "uic.Form.numberLen": {
+    "defaultMessage": "{label} täytyy olla yhtä suuri kuin {len}",
+    "description": "Validation error for a number that must equal a value"
+  },
+  "uic.Form.numberMin": {
+    "defaultMessage": "{label} täytyy olla vähintään {min}",
+    "description": "Validation error for a number below the minimum"
+  },
+  "uic.Form.numberMax": {
+    "defaultMessage": "{label} saa olla enintään {max}",
+    "description": "Validation error for a number above the maximum"
+  },
+  "uic.Form.numberRange": {
+    "defaultMessage": "{label} täytyy olla välillä {min}–{max}",
+    "description": "Validation error for a number outside a range"
+  },
+  "uic.Form.arrayLen": {
+    "defaultMessage": "{label} täytyy sisältää täsmälleen {len} kohdetta",
+    "description": "Validation error for a list with the wrong number of items"
+  },
+  "uic.Form.arrayMin": {
+    "defaultMessage": "{label} täytyy sisältää vähintään {min} kohdetta",
+    "description": "Validation error for a list with too few items"
+  },
+  "uic.Form.arrayMax": {
+    "defaultMessage": "{label} saa sisältää enintään {max} kohdetta",
+    "description": "Validation error for a list with too many items"
+  },
+  "uic.Form.arrayRange": {
+    "defaultMessage": "{label} täytyy sisältää {min}–{max} kohdetta",
+    "description": "Validation error for a list whose item count is outside a range"
+  },
+  "uic.Form.patternMismatch": {
+    "defaultMessage": "{label} ei vastaa mallia {pattern}",
+    "description": "Validation error for text that does not match a pattern"
+  },
+  "uic.BulkEditFormItem.keepAsIs": {
+    "defaultMessage": "Pidä ennallaan",
+    "description": "Placeholder of a bulk-edit field that leaves every selected item's current value unchanged"
+  },
+  "uic.BulkEditFormItem.clear": {
+    "defaultMessage": "Tyhjennä",
+    "description": "Link that clears the field on every selected item, and the field's placeholder once cleared"
+  },
+  "uic.BulkEditFormItem.undoChanges": {
+    "defaultMessage": "Kumoa muutokset",
+    "description": "Link that returns a bulk-edit field to keeping the current values"
   }
 }

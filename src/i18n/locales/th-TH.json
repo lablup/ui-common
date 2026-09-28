@@ -94,5 +94,105 @@
   "uic.UnitGrid.useColor": {
     "defaultMessage": "ใช้สี {index}",
     "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
+  },
+  "uic.Form.optional": {
+    "defaultMessage": "(ไม่จำเป็น)",
+    "description": "Suffix after the label of an optional field when requiredMark=\"optional\""
+  },
+  "uic.Form.default": {
+    "defaultMessage": "ฟิลด์ {label} ไม่ผ่านเงื่อนไขการตรวจสอบ",
+    "description": "Validation error when a rule failed without a more specific message"
+  },
+  "uic.Form.required": {
+    "defaultMessage": "กรุณากรอก {label}",
+    "description": "Validation error for an empty required field"
+  },
+  "uic.Form.whitespace": {
+    "defaultMessage": "{label} ไม่สามารถเป็นช่องว่างได้",
+    "description": "Validation error for a required field that holds only whitespace"
+  },
+  "uic.Form.typeString": {
+    "defaultMessage": "{label} ไม่ใช่ {type} ที่ถูกต้อง",
+    "description": "Validation error for a value that is not a string; {type} is the type name"
+  },
+  "uic.Form.typeNumber": {
+    "defaultMessage": "{label} ไม่ใช่ {type} ที่ถูกต้อง",
+    "description": "Validation error for a value that is not a number; {type} is the type name"
+  },
+  "uic.Form.typeObject": {
+    "defaultMessage": "{label} ไม่ใช่ {type} ที่ถูกต้อง",
+    "description": "Validation error for a value that is not an object; {type} is the type name"
+  },
+  "uic.Form.typeEmail": {
+    "defaultMessage": "{label} ไม่ใช่ {type} ที่ถูกต้อง",
+    "description": "Validation error for an invalid email address; {type} is the type name"
+  },
+  "uic.Form.typeUrl": {
+    "defaultMessage": "{label} ไม่ใช่ {type} ที่ถูกต้อง",
+    "description": "Validation error for an invalid URL; {type} is the type name"
+  },
+  "uic.Form.stringLen": {
+    "defaultMessage": "{label} ต้องมี {len} ตัวอักษร",
+    "description": "Validation error for text of the wrong exact length"
+  },
+  "uic.Form.stringMin": {
+    "defaultMessage": "{label} ต้องมีอย่างน้อย {min} ตัวอักษร",
+    "description": "Validation error for text shorter than the minimum"
+  },
+  "uic.Form.stringMax": {
+    "defaultMessage": "{label} มีได้สูงสุด {max} ตัวอักษร",
+    "description": "Validation error for text longer than the maximum"
+  },
+  "uic.Form.stringRange": {
+    "defaultMessage": "{label} ต้องมี {min}-{max} ตัวอักษร",
+    "description": "Validation error for text outside a length range"
+  },
+  "uic.Form.numberLen": {
+    "defaultMessage": "{label} ต้องมี {len} ตัว",
+    "description": "Validation error for a number that must equal a value"
+  },
+  "uic.Form.numberMin": {
+    "defaultMessage": "ค่าต่ำสุด {label} คือ {min}",
+    "description": "Validation error for a number below the minimum"
+  },
+  "uic.Form.numberMax": {
+    "defaultMessage": "ค่าสูงสุด {label} คือ {max}",
+    "description": "Validation error for a number above the maximum"
+  },
+  "uic.Form.numberRange": {
+    "defaultMessage": "{label} ต้องมีค่า {min}-{max}",
+    "description": "Validation error for a number outside a range"
+  },
+  "uic.Form.arrayLen": {
+    "defaultMessage": "ต้องมี {len} {label}",
+    "description": "Validation error for a list with the wrong number of items"
+  },
+  "uic.Form.arrayMin": {
+    "defaultMessage": "ต้องมีอย่างน้อย {min} {label}",
+    "description": "Validation error for a list with too few items"
+  },
+  "uic.Form.arrayMax": {
+    "defaultMessage": "มีได้สูงสุด {max} {label}",
+    "description": "Validation error for a list with too many items"
+  },
+  "uic.Form.arrayRange": {
+    "defaultMessage": "จำนวน {label} ต้องอยู่ในช่วง {min}-{max}",
+    "description": "Validation error for a list whose item count is outside a range"
+  },
+  "uic.Form.patternMismatch": {
+    "defaultMessage": "{label} ไม่ตรงกับรูปแบบ {pattern}",
+    "description": "Validation error for text that does not match a pattern"
+  },
+  "uic.BulkEditFormItem.keepAsIs": {
+    "defaultMessage": "เก็บไว้ตามเดิม",
+    "description": "Placeholder of a bulk-edit field that leaves every selected item's current value unchanged"
+  },
+  "uic.BulkEditFormItem.clear": {
+    "defaultMessage": "ล้าง",
+    "description": "Link that clears the field on every selected item, and the field's placeholder once cleared"
+  },
+  "uic.BulkEditFormItem.undoChanges": {
+    "defaultMessage": "ยกเลิกการเปลี่ยนแปลง",
+    "description": "Link that returns a bulk-edit field to keeping the current values"
   }
 }

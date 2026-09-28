@@ -94,5 +94,105 @@
   "uic.UnitGrid.useColor": {
     "defaultMessage": "Өнгө {index} ашиглах",
     "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
+  },
+  "uic.Form.optional": {
+    "defaultMessage": "(сонголттой)",
+    "description": "Suffix after the label of an optional field when requiredMark=\"optional\""
+  },
+  "uic.Form.default": {
+    "defaultMessage": "{label}-ийн талбарын баталгаажуулалтын алдаа",
+    "description": "Validation error when a rule failed without a more specific message"
+  },
+  "uic.Form.required": {
+    "defaultMessage": "{label} оруулна уу",
+    "description": "Validation error for an empty required field"
+  },
+  "uic.Form.whitespace": {
+    "defaultMessage": "{label} нь хоосон тэмдэгт байж болохгүй",
+    "description": "Validation error for a required field that holds only whitespace"
+  },
+  "uic.Form.typeString": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for a value that is not a string; {type} is the type name"
+  },
+  "uic.Form.typeNumber": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for a value that is not a number; {type} is the type name"
+  },
+  "uic.Form.typeObject": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for a value that is not an object; {type} is the type name"
+  },
+  "uic.Form.typeEmail": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for an invalid email address; {type} is the type name"
+  },
+  "uic.Form.typeUrl": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for an invalid URL; {type} is the type name"
+  },
+  "uic.Form.stringLen": {
+    "defaultMessage": "{label} {len} тэмдэгттэй байх ёстой",
+    "description": "Validation error for text of the wrong exact length"
+  },
+  "uic.Form.stringMin": {
+    "defaultMessage": "{label} хамгийн багадаа {min} тэмдэгттэй байх ёстой",
+    "description": "Validation error for text shorter than the minimum"
+  },
+  "uic.Form.stringMax": {
+    "defaultMessage": "{label} нь {max} хүртэлх тэмдэгттэй байх ёстой",
+    "description": "Validation error for text longer than the maximum"
+  },
+  "uic.Form.stringRange": {
+    "defaultMessage": "{label} {min}-{max} тэмдэгтийн хооронд байх ёстой",
+    "description": "Validation error for text outside a length range"
+  },
+  "uic.Form.numberLen": {
+    "defaultMessage": "{label} нь {len}-тэй тэнцүү байх ёстой",
+    "description": "Validation error for a number that must equal a value"
+  },
+  "uic.Form.numberMin": {
+    "defaultMessage": "{label} хамгийн багадаа {min} байх ёстой",
+    "description": "Validation error for a number below the minimum"
+  },
+  "uic.Form.numberMax": {
+    "defaultMessage": "{label} дээд тал нь {max} байх ёстой",
+    "description": "Validation error for a number above the maximum"
+  },
+  "uic.Form.numberRange": {
+    "defaultMessage": "{label} {min}-{max} хооронд байх ёстой",
+    "description": "Validation error for a number outside a range"
+  },
+  "uic.Form.arrayLen": {
+    "defaultMessage": "{len} {label} байх ёстой",
+    "description": "Validation error for a list with the wrong number of items"
+  },
+  "uic.Form.arrayMin": {
+    "defaultMessage": "Дор хаяж {min} {label}",
+    "description": "Validation error for a list with too few items"
+  },
+  "uic.Form.arrayMax": {
+    "defaultMessage": "Хамгийн ихдээ {max} {label}",
+    "description": "Validation error for a list with too many items"
+  },
+  "uic.Form.arrayRange": {
+    "defaultMessage": "{label}-н хэмжээ {min}-{max} хооронд байх ёстой",
+    "description": "Validation error for a list whose item count is outside a range"
+  },
+  "uic.Form.patternMismatch": {
+    "defaultMessage": "{label} нь {pattern} загвартай тохирохгүй байна",
+    "description": "Validation error for text that does not match a pattern"
+  },
+  "uic.BulkEditFormItem.keepAsIs": {
+    "defaultMessage": "Хэвээр үлдээх",
+    "description": "Placeholder of a bulk-edit field that leaves every selected item's current value unchanged"
+  },
+  "uic.BulkEditFormItem.clear": {
+    "defaultMessage": "Цэвэрлэх",
+    "description": "Link that clears the field on every selected item, and the field's placeholder once cleared"
+  },
+  "uic.BulkEditFormItem.undoChanges": {
+    "defaultMessage": "Өөрчлөлтийг буцаах",
+    "description": "Link that returns a bulk-edit field to keeping the current values"
   }
 }

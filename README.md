@@ -34,6 +34,8 @@ Peer dependencies:
 
 Astryx itself (`@astryxdesign/core`, `@astryxdesign/theme-neutral`,
 `@astryxdesign/cli`) comes in as ui-common's own dependencies, pinned exactly.
+`lucide-react` (the icon set Astryx's neutral theme already depends on) and
+`intl-messageformat` come in the same way.
 Do not add them to your project. ui-common owns the Astryx version. Two copies
 of Astryx means two copies of its React contexts, and components stop seeing
 the theme.
@@ -204,6 +206,8 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `NotificationItem`                                             | The title, description, actions and footer of one notice    | `/components/NotificationItem`   |
 | `UnitGrid`, `UnitGridSkeleton`                                 | Groups of unit squares on one lattice, with a hover card    | `/components/UnitGrid`           |
 | `ColorPicker`                                                  | A hex colour field on the platform colour input             | `/components/ColorPicker`        |
+| `Form` and its hooks                                           | A form engine with antd's form API. See below.              | `/Form`                          |
+| `BulkEditFormItem`                                             | A form item that edits one field across many records        | `/components/BulkEditFormItem`   |
 | `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook         | root only                        |
 
 Their styles live in `@layer ui-common`, under `uic-` class names.
@@ -256,6 +260,50 @@ What it adds:
   <TextInput label="Name" value={name} onChange={setName} />
 </Modal>
 ```
+
+### Form
+
+`@lablup/ui-common/Form` is a form engine with antd's form API: `Form`,
+`Form.Item`, `Form.List`, `Form.ErrorList`, `Form.Provider`,
+`Form.useForm`, `Form.useWatch`, `Form.useFormInstance` and
+`Form.Item.useStatus`, with antd's rules (`required`, `message`,
+`validator`, `type`, `min`, `max`, `pattern`, `whitespace`,
+`warningOnly`). It keeps antd's names on purpose: it is a form-state API,
+not a component, so code written against antd's form moves over by changing
+the import. The item shell renders on Astryx tokens.
+
+```tsx
+import { Form } from "@lablup/ui-common/Form";
+
+const [form] = Form.useForm();
+
+<Form form={form} layout="vertical" onFinish={save}>
+  <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+    <TextInput label="Name" isLabelHidden />
+  </Form.Item>
+</Form>;
+```
+
+- Validation messages come from ui-common's catalog in the locale of the
+  nearest `InternationalizationProvider` (see Strings). `FormConfigProvider`
+  sets `validateMessages`, `requiredMark` and `optionalLabel` app-wide; a
+  form's own `validateMessages` wins over both.
+- A control shows its item's validation state by reading
+  `Form.Item.useStatus()` or `FormItemInputContext`.
+- `form.scrollToField` and `scrollToFirstError` find the control by
+  `data-uic-field-id`, which `Form.Item` puts on its child; Astryx inputs
+  keep `data-*` attributes.
+- The DOM is `.uic-form` (with `data-layout`) and `.uic-form-item` with
+  `__label`, `__label--required`, `__control`, `__control-input`,
+  `__explain`, `__explain-error`, `__explain-warning` and `__extra`.
+  The item carries `data-layout`, `data-size` and `data-status`. These
+  class names are the public hooks for tests and product CSS.
+- Four custom properties adjust it: `--uic-form-item-margin-bottom`
+  (default `--spacing-6`), `--uic-form-item-gap` (label to control in a
+  vertical item, default `--spacing-2`) and
+  `--uic-form-item-description-color` (help, extra, the tooltip glyph and
+  the optional suffix, default `--color-text-secondary`) and
+  `--uic-form-item-line-height` (default `--text-body-leading`).
 
 ### What is hidden
 

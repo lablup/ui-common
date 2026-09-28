@@ -5,6 +5,38 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- `@lablup/ui-common/Form` (also at the root): `Form` with `Form.Item`,
+  `Form.List`, `Form.ErrorList`, `Form.Provider`, `Form.useForm`,
+  `Form.useWatch`, `Form.useFormInstance` and `Form.Item.useStatus`;
+  `FormItem`, `FormList`, `ErrorList`, `FormProvider`, `useForm`,
+  `useWatch`, `useFormInstance`; `FormItemVisual` (the item shell);
+  `FormConfigProvider`, `FormConfigContext`, `useFormValidateMessages`;
+  `FormItemInputContext`, `NoStyleItemContext`; `FormStore`,
+  `defaultValidateMessages`; and the types `FormInstance`, `FormProps`,
+  `FormRef`, `FormItemProps`, `FormListProps`, `ListField`,
+  `ListOperations`, `ErrorListProps`, `WatchOptions`, `FieldData`,
+  `FieldError`, `Meta`, `NamePath`, `InternalNamePath`, `Rule`,
+  `RuleObject`, `RuleRender`, `RuleType`, `Store`, `StoreValue`,
+  `ValidateErrorEntity`, `ValidateMessages`, `ValidatorRule`,
+  `FormConfig`, `FormItemStatusContextValue`, `RequiredMark` and
+  `FormItemVisualProps`. It keeps antd's form API on purpose (a form-state
+  API, not a component vocabulary); see README, "Form". Its tests,
+  including the acceptance suite, came with it.
+- `BulkEditFormItem`: a `Form.Item` that edits one field across many
+  records: "Keep as is", edit, and with `hasClear` a "Clear" that sets
+  `null`. `keepValueLabel`, `clearValueLabel`, `clearLabel` and
+  `undoLabel` override its strings.
+- Catalog keys `uic.Form.*` (the 21 validation message templates and the
+  `(optional)` suffix) and `uic.BulkEditFormItem.*` (3), translated for all
+  20 locales from backend.ai-ui. Four Malay templates (`stringMin`,
+  `stringMax`, `numberMin`, `numberMax`) gained the field name they had
+  dropped, and a Mongolian one (`arrayMin`) its `{min}` placeholder, which
+  had been translated into a name that never resolved.
+- `lucide-react` (^1.18.0, the range `@astryxdesign/theme-neutral` already
+  requires) is a dependency, for the form item's help glyph.
+
 ## [0.2.0-alpha.8]
 
 One `Modal` focus fix.

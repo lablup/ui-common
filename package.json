@@ -561,6 +561,10 @@
       "types": "./dist/components/AlertModal/index.d.ts",
       "import": "./dist/components/AlertModal/index.js"
     },
+    "./Form": {
+      "types": "./dist/components/Form/index.d.ts",
+      "import": "./dist/components/Form/index.js"
+    },
     "./Modal": {
       "types": "./dist/components/Modal/index.d.ts",
       "import": "./dist/components/Modal/index.js"
@@ -589,6 +593,7 @@
     "@astryxdesign/theme-neutral": "0.6.2",
     "intl-messageformat": "^11.2.9",
     "jscodeshift": "^17.4.0",
+    "lucide-react": "^1.18.0",
     "postcss": "^8.5.25",
     "postcss-selector-parser": "^7.1.6"
   },

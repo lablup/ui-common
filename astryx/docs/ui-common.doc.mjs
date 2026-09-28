@@ -42,7 +42,7 @@ export const docs = {
       content: [
         {
           type: "prose",
-          text: "ui-common's own components are built on Astryx primitives and never share a name with an Astryx export. Each is exported from the package root; Modal and AlertModal also have their own subpaths.",
+          text: "ui-common's own components are built on Astryx primitives and never share a name with an Astryx export. Each is exported from the package root; Modal, AlertModal and Form also have their own subpaths.",
         },
         {
           type: "list",
@@ -70,6 +70,7 @@ export const docs = {
             "`NotificationItem`: the title, description, actions and footer of one notice.",
             "`UnitGrid`: groups of unit squares packed on one lattice, each group a tinted plate with a hover card and an optional palette picker; `UnitGridSkeleton` is its loading stand-in.",
             "`ColorPicker`: a hex colour field on the platform colour input, reporting the settled colour.",
+            "`Form` (`@lablup/ui-common/Form`): a form engine with antd's form API (Form.Item, Form.List, Form.useForm, Form.useWatch, rules), its messages from the catalog, its item shell on Astryx tokens. `BulkEditFormItem`: a Form.Item that edits one field across many records (keep / edit / clear).",
           ],
         },
         {

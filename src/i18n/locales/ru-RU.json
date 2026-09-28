@@ -94,5 +94,105 @@
   "uic.UnitGrid.useColor": {
     "defaultMessage": "Использовать цвет {index}",
     "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
+  },
+  "uic.Form.optional": {
+    "defaultMessage": "(необязательно)",
+    "description": "Suffix after the label of an optional field when requiredMark=\"optional\""
+  },
+  "uic.Form.default": {
+    "defaultMessage": "Ошибка проверки поля {label}",
+    "description": "Validation error when a rule failed without a more specific message"
+  },
+  "uic.Form.required": {
+    "defaultMessage": "Пожалуйста, введите {label}",
+    "description": "Validation error for an empty required field"
+  },
+  "uic.Form.whitespace": {
+    "defaultMessage": "{label} не может быть пустым",
+    "description": "Validation error for a required field that holds only whitespace"
+  },
+  "uic.Form.typeString": {
+    "defaultMessage": "{label} не является типом {type}",
+    "description": "Validation error for a value that is not a string; {type} is the type name"
+  },
+  "uic.Form.typeNumber": {
+    "defaultMessage": "{label} не является типом {type}",
+    "description": "Validation error for a value that is not a number; {type} is the type name"
+  },
+  "uic.Form.typeObject": {
+    "defaultMessage": "{label} не является типом {type}",
+    "description": "Validation error for a value that is not an object; {type} is the type name"
+  },
+  "uic.Form.typeEmail": {
+    "defaultMessage": "{label} не является типом {type}",
+    "description": "Validation error for an invalid email address; {type} is the type name"
+  },
+  "uic.Form.typeUrl": {
+    "defaultMessage": "{label} не является типом {type}",
+    "description": "Validation error for an invalid URL; {type} is the type name"
+  },
+  "uic.Form.stringLen": {
+    "defaultMessage": "{label} должна быть {len} символов",
+    "description": "Validation error for text of the wrong exact length"
+  },
+  "uic.Form.stringMin": {
+    "defaultMessage": "{label} должна быть больше или равна {min} символов",
+    "description": "Validation error for text shorter than the minimum"
+  },
+  "uic.Form.stringMax": {
+    "defaultMessage": "{label} должна быть меньше или равна {max} символов",
+    "description": "Validation error for text longer than the maximum"
+  },
+  "uic.Form.stringRange": {
+    "defaultMessage": "Длина {label} должна быть между {min}-{max} символами",
+    "description": "Validation error for text outside a length range"
+  },
+  "uic.Form.numberLen": {
+    "defaultMessage": "{label} должна быть равна {len}",
+    "description": "Validation error for a number that must equal a value"
+  },
+  "uic.Form.numberMin": {
+    "defaultMessage": "{label} должна быть больше или равна {min}",
+    "description": "Validation error for a number below the minimum"
+  },
+  "uic.Form.numberMax": {
+    "defaultMessage": "{label} должна быть меньше или равна {max}",
+    "description": "Validation error for a number above the maximum"
+  },
+  "uic.Form.numberRange": {
+    "defaultMessage": "{label} должна быть между {min}-{max}",
+    "description": "Validation error for a number outside a range"
+  },
+  "uic.Form.arrayLen": {
+    "defaultMessage": "Количество элементов {label} должно быть равно {len}",
+    "description": "Validation error for a list with the wrong number of items"
+  },
+  "uic.Form.arrayMin": {
+    "defaultMessage": "Количество элементов {label} должно быть больше или равно {min}",
+    "description": "Validation error for a list with too few items"
+  },
+  "uic.Form.arrayMax": {
+    "defaultMessage": "Количество элементов {label} должно быть меньше или равно {max}",
+    "description": "Validation error for a list with too many items"
+  },
+  "uic.Form.arrayRange": {
+    "defaultMessage": "Количество элементов {label} должно быть между {min} и {max}",
+    "description": "Validation error for a list whose item count is outside a range"
+  },
+  "uic.Form.patternMismatch": {
+    "defaultMessage": "{label} не соответствует шаблону {pattern}",
+    "description": "Validation error for text that does not match a pattern"
+  },
+  "uic.BulkEditFormItem.keepAsIs": {
+    "defaultMessage": "Оставить как есть",
+    "description": "Placeholder of a bulk-edit field that leaves every selected item's current value unchanged"
+  },
+  "uic.BulkEditFormItem.clear": {
+    "defaultMessage": "Очистить",
+    "description": "Link that clears the field on every selected item, and the field's placeholder once cleared"
+  },
+  "uic.BulkEditFormItem.undoChanges": {
+    "defaultMessage": "Отменить изменения",
+    "description": "Link that returns a bulk-edit field to keeping the current values"
   }
 }

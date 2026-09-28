@@ -62,6 +62,13 @@ export default tseslint.config(
     },
   },
   {
+    // The form engine keeps antd's form types, whose store and values are
+    // `any` by design (`Store = any`, `StoreValue = any`); narrowing them
+    // would break code written against antd's form.
+    files: ["src/components/Form/**"],
+    rules: { "@typescript-eslint/no-explicit-any": "off" },
+  },
+  {
     files: ["**/*.test.{ts,tsx}", "src/test/**"],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },

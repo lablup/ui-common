@@ -94,5 +94,105 @@
   "uic.UnitGrid.useColor": {
     "defaultMessage": "Χρήση χρώματος {index}",
     "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
+  },
+  "uic.Form.optional": {
+    "defaultMessage": "(προαιρετικό)",
+    "description": "Suffix after the label of an optional field when requiredMark=\"optional\""
+  },
+  "uic.Form.default": {
+    "defaultMessage": "Σφάλμα επικύρωσης πεδίου για {label}",
+    "description": "Validation error when a rule failed without a more specific message"
+  },
+  "uic.Form.required": {
+    "defaultMessage": "Παρακαλώ εισάγετε {label}",
+    "description": "Validation error for an empty required field"
+  },
+  "uic.Form.whitespace": {
+    "defaultMessage": "Το {label} δεν μπορεί να είναι κενός χαρακτήρας",
+    "description": "Validation error for a required field that holds only whitespace"
+  },
+  "uic.Form.typeString": {
+    "defaultMessage": "Το {label} δεν είναι έγκυρο {type}",
+    "description": "Validation error for a value that is not a string; {type} is the type name"
+  },
+  "uic.Form.typeNumber": {
+    "defaultMessage": "Το {label} δεν είναι έγκυρο {type}",
+    "description": "Validation error for a value that is not a number; {type} is the type name"
+  },
+  "uic.Form.typeObject": {
+    "defaultMessage": "Το {label} δεν είναι έγκυρο {type}",
+    "description": "Validation error for a value that is not an object; {type} is the type name"
+  },
+  "uic.Form.typeEmail": {
+    "defaultMessage": "Το {label} δεν είναι έγκυρο {type}",
+    "description": "Validation error for an invalid email address; {type} is the type name"
+  },
+  "uic.Form.typeUrl": {
+    "defaultMessage": "Το {label} δεν είναι έγκυρο {type}",
+    "description": "Validation error for an invalid URL; {type} is the type name"
+  },
+  "uic.Form.stringLen": {
+    "defaultMessage": "Το {label} πρέπει να είναι {len} χαρακτήρες",
+    "description": "Validation error for text of the wrong exact length"
+  },
+  "uic.Form.stringMin": {
+    "defaultMessage": "Το {label} πρέπει να είναι τουλάχιστον {min} χαρακτήρες",
+    "description": "Validation error for text shorter than the minimum"
+  },
+  "uic.Form.stringMax": {
+    "defaultMessage": "Το {label} πρέπει να είναι το πολύ {max} χαρακτήρες",
+    "description": "Validation error for text longer than the maximum"
+  },
+  "uic.Form.stringRange": {
+    "defaultMessage": "Το {label} πρέπει να είναι μεταξύ {min}-{max} χαρακτήρων",
+    "description": "Validation error for text outside a length range"
+  },
+  "uic.Form.numberLen": {
+    "defaultMessage": "Το {label} πρέπει να είναι ίσο με {len}",
+    "description": "Validation error for a number that must equal a value"
+  },
+  "uic.Form.numberMin": {
+    "defaultMessage": "Το {label} πρέπει να είναι τουλάχιστον {min}",
+    "description": "Validation error for a number below the minimum"
+  },
+  "uic.Form.numberMax": {
+    "defaultMessage": "Το {label} πρέπει να είναι το πολύ {max}",
+    "description": "Validation error for a number above the maximum"
+  },
+  "uic.Form.numberRange": {
+    "defaultMessage": "Το {label} πρέπει να είναι μεταξύ {min}-{max}",
+    "description": "Validation error for a number outside a range"
+  },
+  "uic.Form.arrayLen": {
+    "defaultMessage": "Πρέπει να είναι {len} {label}",
+    "description": "Validation error for a list with the wrong number of items"
+  },
+  "uic.Form.arrayMin": {
+    "defaultMessage": "Τουλάχιστον {min} {label}",
+    "description": "Validation error for a list with too few items"
+  },
+  "uic.Form.arrayMax": {
+    "defaultMessage": "Το πολύ {max} {label}",
+    "description": "Validation error for a list with too many items"
+  },
+  "uic.Form.arrayRange": {
+    "defaultMessage": "Το ποσό του {label} πρέπει να είναι μεταξύ {min}-{max}",
+    "description": "Validation error for a list whose item count is outside a range"
+  },
+  "uic.Form.patternMismatch": {
+    "defaultMessage": "Το {label} δεν ταιριάζει με το μοτίβο {pattern}",
+    "description": "Validation error for text that does not match a pattern"
+  },
+  "uic.BulkEditFormItem.keepAsIs": {
+    "defaultMessage": "Διατήρηση ως έχει",
+    "description": "Placeholder of a bulk-edit field that leaves every selected item's current value unchanged"
+  },
+  "uic.BulkEditFormItem.clear": {
+    "defaultMessage": "Καθαρισμός",
+    "description": "Link that clears the field on every selected item, and the field's placeholder once cleared"
+  },
+  "uic.BulkEditFormItem.undoChanges": {
+    "defaultMessage": "Αναίρεση αλλαγών",
+    "description": "Link that returns a bulk-edit field to keeping the current values"
   }
 }

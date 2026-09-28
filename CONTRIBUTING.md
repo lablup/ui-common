@@ -106,6 +106,8 @@ Pick a different name, or use the Astryx component.
 | `NotificationItem`                                             | `src/components/NotificationItem/`   | `Stack`, `Text`                                    |
 | `UnitGrid`, `UnitGridSkeleton`                                 | `src/components/UnitGrid/`           | `Stack`, `Text`, `VisuallyHidden`, `Skeleton`      |
 | `ColorPicker`                                                  | `src/components/ColorPicker/`        | `Popover`, `TextInput`, `Button`                   |
+| `Form` (engine, `Form.Item` shell, hooks)                      | `src/components/Form/`               | `Tooltip`, plain CSS                               |
+| `BulkEditFormItem`                                             | `src/components/BulkEditFormItem/`   | `Form.Item`, `TextInput`, `Link`, `HStack`         |
 
 Each has tests beside it. `src/components/componentStyles.test.ts` holds every
 stylesheet to the styling rules below.
@@ -146,6 +148,29 @@ A custom component is admitted when all of these hold:
 
 Failing one of these is a normal outcome. Say so in the pull request and leave
 the component with its product.
+
+### The form engine
+
+`Form` is the one custom that keeps a non-Astryx vocabulary. It is a
+form-state API (`Form.useForm`, `rules`, `valuePropName`, `FormInstance`),
+not a component prop surface, and it keeps antd's names and shapes so code
+written against antd's form moves over with an import rewrite. Its
+`Store` and values are `any` by design, which is why ESLint's
+`no-explicit-any` is off under `src/components/Form/`.
+
+- The state half (`FormStore`, `Field`, `List`, `validate`, `namePath`) is
+  a behavioural port of rc-field-form and async-validator. Match upstream
+  when fixing it: code depends on its quirks, and `Form.acceptance.test.tsx`
+  pins them.
+- The item shell (`FormItemVisual`) follows the Styling rules below. Its
+  classes (`uic-form-item__*`) and the `data-uic-field-id` attribute are
+  public: consumers' tests and CSS select on them.
+- Validation messages are catalog keys (`uic.Form.*`). The engine
+  interpolates rule values itself with `${label}`-style templates, so
+  `buildValidateMessages` formats each ICU message with every placeholder
+  standing for itself.
+- The feedback glyphs are Ant Design Icons path data (MIT, see NOTICE); the
+  tooltip glyph is `lucide-react`'s, a dependency.
 
 ### Things that are never admitted
 

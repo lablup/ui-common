@@ -23,6 +23,9 @@ importers:
       jscodeshift:
         specifier: ^17.4.0
         version: 17.4.0(supports-color@8.1.1)
+      lucide-react:
+        specifier: ^1.18.0
+        version: 1.48.0(react@19.2.8)
       postcss:
         specifier: ^8.5.25
         version: 8.5.25

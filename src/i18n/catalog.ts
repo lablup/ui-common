@@ -25,8 +25,10 @@ import type { Catalog, MessageEntry } from "@astryxdesign/core/i18n";
 // These modules import `defineMessages` back from here. The cycle is safe:
 // it is a function declaration, so it is bound before either module runs.
 import { booleanTokenMessages } from "../components/BooleanToken/BooleanToken.messages";
+import { bulkEditFormItemMessages } from "../components/BulkEditFormItem/BulkEditFormItem.messages";
 import { colorPickerMessages } from "../components/ColorPicker/ColorPicker.messages";
 import { deleteConfirmModalMessages } from "../components/DeleteConfirmModal/DeleteConfirmModal.messages";
+import { formMessages } from "../components/Form/Form.messages";
 import { notificationStackMessages } from "../components/NotificationStack/NotificationStack.messages";
 import { pageHeaderMessages } from "../components/PageHeader/PageHeader.messages";
 import { selectionLabelMessages } from "../components/SelectionLabel/SelectionLabel.messages";
@@ -57,8 +59,10 @@ export function defineMessages<const T extends Record<UicMessageKey, MessageEntr
 export const uiCommonCatalog: Catalog = {
   ...commonMessages,
   ...booleanTokenMessages,
+  ...bulkEditFormItemMessages,
   ...colorPickerMessages,
   ...deleteConfirmModalMessages,
+  ...formMessages,
   ...notificationStackMessages,
   ...numberStepperMessages,
   ...pageHeaderMessages,

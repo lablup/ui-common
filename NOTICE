@@ -8,3 +8,8 @@ Portions of this package were extracted from an existing Lablup product
 frontend. The extraction is a clean import: no upstream git history is
 published here, and the migration record is kept in that product's own
 repository.
+
+The form item's validation feedback glyphs
+(src/components/Form/feedbackIcons.tsx) use path data from Ant Design Icons
+(https://github.com/ant-design/ant-design-icons), Copyright (c) 2015-present
+Ant UED, licensed under the MIT License.
