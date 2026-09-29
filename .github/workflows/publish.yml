@@ -56,39 +56,68 @@ jobs:
       - name: Verify before publishing
         run: pnpm run verify
 
-      - name: Confirm the release tag matches the package version
-        if: github.event_name == 'release'
+      # @lablup/ui-common (the root) and @lablup/ui-common-cli (packages/cli)
+      # are released together at one version: the CLI takes the library as an
+      # exact peer.
+      - name: Confirm both packages are at one version
         run: |
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          TAG="${GITHUB_REF_NAME#v}"
-          if [ "$PKG_VERSION" != "$TAG" ]; then
-            echo "package.json is $PKG_VERSION but the release tag is $TAG" >&2
+          LIB=$(node -p "require('./package.json').version")
+          CLI=$(node -p "require('./packages/cli/package.json').version")
+          if [ "$LIB" != "$CLI" ]; then
+            echo "@lablup/ui-common is $LIB but @lablup/ui-common-cli is $CLI" >&2
             exit 1
           fi
 
+      - name: Confirm the release tag matches the package versions
+        if: github.event_name == 'release'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          for PKG in package.json packages/cli/package.json; do
+            PKG_VERSION=$(node -p "require('./$PKG').version")
+            if [ "$PKG_VERSION" != "$TAG" ]; then
+              echo "$PKG is $PKG_VERSION but the release tag is $TAG" >&2
+              exit 1
+            fi
+          done
+
+      # Any prerelease goes to `next`, a plain version to `latest`. 0.1's
+      # prereleases went out under `alpha`; that tag is no longer moved.
       - name: Choose the dist-tag from the version
         id: tag
         run: |
           VERSION=$(node -p "require('./package.json').version")
           case "$VERSION" in
-            *-alpha*) TAG=alpha ;;
-            *-beta*)  TAG=beta ;;
-            *-rc*)    TAG=rc ;;
-            *-*)      TAG=next ;;
-            *)        TAG=latest ;;
+            *-*) TAG=next ;;
+            *)   TAG=latest ;;
           esac
           echo "Publishing $VERSION under dist-tag $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # pnpm packs both, rewriting the CLI's `workspace:*` peer to the exact
+      # version; the library goes first so the CLI's peer exists when it lands.
+      - name: Pack both packages
+        run: |
+          mkdir -p "$RUNNER_TEMP/packed"
+          pnpm pack --pack-destination "$RUNNER_TEMP/packed"
+          pnpm --filter @lablup/ui-common-cli pack --pack-destination "$RUNNER_TEMP/packed"
+          ls -la "$RUNNER_TEMP/packed"
 
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: pnpm publish --no-git-checks --access public --tag ${{ steps.tag.outputs.tag }} --registry https://npm.pkg.github.com
+        run: |
+          for PKG in lablup-ui-common lablup-ui-common-cli; do
+            npm publish "$RUNNER_TEMP/packed/$PKG-${{ steps.tag.outputs.version }}.tgz" --access public --tag ${{ steps.tag.outputs.tag }} --registry https://npm.pkg.github.com
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: pnpm pack && ls -la *.tgz
+        run: |
+          for PKG in lablup-ui-common lablup-ui-common-cli; do
+            npm publish "$RUNNER_TEMP/packed/$PKG-${{ steps.tag.outputs.version }}.tgz" --dry-run --access public --tag ${{ steps.tag.outputs.tag }} --registry https://npm.pkg.github.com
+          done
 
   # GitHub Packages requires authentication even for public packages, so an
   # open-source consumer cannot install from it without every contributor
@@ -130,46 +159,75 @@ jobs:
       - name: Verify before publishing
         run: pnpm run verify
 
-      - name: Confirm the release tag matches the package version
-        if: github.event_name == 'release'
+      # @lablup/ui-common (the root) and @lablup/ui-common-cli (packages/cli)
+      # are released together at one version: the CLI takes the library as an
+      # exact peer.
+      - name: Confirm both packages are at one version
         run: |
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          TAG="${GITHUB_REF_NAME#v}"
-          if [ "$PKG_VERSION" != "$TAG" ]; then
-            echo "package.json is $PKG_VERSION but the release tag is $TAG" >&2
+          LIB=$(node -p "require('./package.json').version")
+          CLI=$(node -p "require('./packages/cli/package.json').version")
+          if [ "$LIB" != "$CLI" ]; then
+            echo "@lablup/ui-common is $LIB but @lablup/ui-common-cli is $CLI" >&2
             exit 1
           fi
 
+      - name: Confirm the release tag matches the package versions
+        if: github.event_name == 'release'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          for PKG in package.json packages/cli/package.json; do
+            PKG_VERSION=$(node -p "require('./$PKG').version")
+            if [ "$PKG_VERSION" != "$TAG" ]; then
+              echo "$PKG is $PKG_VERSION but the release tag is $TAG" >&2
+              exit 1
+            fi
+          done
+
+      # Any prerelease goes to `next`, a plain version to `latest`. 0.1's
+      # prereleases went out under `alpha`; that tag is no longer moved.
       - name: Choose the dist-tag from the version
         id: tag
         run: |
           VERSION=$(node -p "require('./package.json').version")
           case "$VERSION" in
-            *-alpha*) TAG=alpha ;;
-            *-beta*)  TAG=beta ;;
-            *-rc*)    TAG=rc ;;
-            *-*)      TAG=next ;;
-            *)        TAG=latest ;;
+            *-*) TAG=next ;;
+            *)   TAG=latest ;;
           esac
           echo "Publishing $VERSION under dist-tag $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # pnpm packs both, rewriting the CLI's `workspace:*` peer to the exact
+      # version; the library goes first so the CLI's peer exists when it lands.
+      - name: Pack both packages
+        run: |
+          mkdir -p "$RUNNER_TEMP/packed"
+          pnpm pack --pack-destination "$RUNNER_TEMP/packed"
+          pnpm --filter @lablup/ui-common-cli pack --pack-destination "$RUNNER_TEMP/packed"
+          ls -la "$RUNNER_TEMP/packed"
 
       - name: Confirm the credential is valid for npmjs
         run: npm whoami --registry https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # npm rather than pnpm here: provenance is an npm CLI feature and this
-      # is the one step that needs it. The tarball is identical either way,
-      # since both pack from the same files allowlist.
+      # npm publishes the tarballs pnpm packed: provenance is an npm CLI
+      # feature, and npm would leave the CLI's `workspace:*` peer unrewritten
+      # if it packed the directory itself.
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: npm publish --provenance --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
+        run: |
+          for PKG in lablup-ui-common lablup-ui-common-cli; do
+            npm publish "$RUNNER_TEMP/packed/$PKG-${{ steps.tag.outputs.version }}.tgz" --provenance --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: npm publish --dry-run --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
+        run: |
+          for PKG in lablup-ui-common lablup-ui-common-cli; do
+            npm publish "$RUNNER_TEMP/packed/$PKG-${{ steps.tag.outputs.version }}.tgz" --dry-run --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
