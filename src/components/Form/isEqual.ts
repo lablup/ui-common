@@ -6,6 +6,11 @@
  * `Error`, `Map` and `Set` (order-insensitive), and cycles. Any other
  * built-in tag (`File`, `Blob`, DOM nodes, …) is equal only by reference, as
  * in lodash.
+ *
+ * It differs from lodash only for `ArrayBuffer` (by reference here, by bytes
+ * in lodash), `DataView` (keys only here, so views over different bytes are
+ * equal; by bytes in lodash) and a boxed primitive against its primitive
+ * (`Object(1)` vs `1`: unequal here, equal in lodash).
  */
 const toTag = (value: unknown) => Object.prototype.toString.call(value);
 const hasOwn = (value: object, key: PropertyKey) =>
