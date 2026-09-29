@@ -5,6 +5,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.10]
+
+backend.ai-ui's table cluster (DataGrid, its dialogs, BulkErrorModal) and
+five single components, the moves its theme shim had held back.
+
 ### Added
 
 - **Components moved from backend.ai-ui**, with Astryx-shaped props and
