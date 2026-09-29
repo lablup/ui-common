@@ -173,7 +173,7 @@ export interface DataGridSelection<T> {
   /** The selected row keys. Selection is controlled. */
   selectedKeys?: ReadonlyArray<DataGridKey>;
   onChange?: (keys: string[], items: T[]) => void;
-  /** Whether a row's checkbox is enabled. */
+  /** Whether a row's checkbox is enabled. Select-all leaves a disabled row as it is. */
   getIsItemEnabled?: (item: T) => boolean;
   /** Accessible name of a row's checkbox. Default: the row key. */
   getRowLabel?: (item: T) => string;
@@ -714,7 +714,10 @@ export function DataGrid<T extends object = AnyRow>({
   const cellRowPlugin: TablePlugin<AnyRow> = {
     transformBodyCell: (props, column, row) => {
       if (isDetailRow(row)) return props;
-      const extra = columnByKey.get(column.key)?.getCellProps?.(row as T, 0);
+      const item = row as T;
+      const extra = columnByKey
+        .get(column.key)
+        ?.getCellProps?.(item, rowIndexByKey.get(getRowKey(item)) ?? 0);
       if (!extra) return props;
       return {
         ...props,
@@ -787,18 +790,21 @@ export function DataGrid<T extends object = AnyRow>({
     selection?.onChange?.(keys, items);
   };
   const isRowSelected = (item: T) => selectedKeySet.has(getRowKey(item));
+  const isRowEnabled = (item: T) => selection?.getIsItemEnabled?.(item) ?? true;
+  // Select-all acts on the enabled rows only; a disabled row keeps its state.
+  const enabledRows = rows.filter(isRowEnabled);
 
   const selectionPlugin = useTableSelection<AnyRow>({
     getIsItemSelectable: (row) => !isDetailRow(row),
     getIsItemSelected: (row) => !isDetailRow(row) && isRowSelected(row as T),
-    getIsItemEnabled: (row) =>
-      isDetailRow(row) ? false : (selection?.getIsItemEnabled?.(row as T) ?? true),
+    getIsItemEnabled: (row) => !isDetailRow(row) && isRowEnabled(row as T),
     getRowLabel: (row) =>
       isDetailRow(row)
         ? ""
         : (selection?.getRowLabel?.(row as T) ?? getRowKey(row as T)),
-    getIsAllSelected: () => rows.length > 0 && rows.every(isRowSelected),
-    getIsIndeterminate: () => rows.some(isRowSelected) && !rows.every(isRowSelected),
+    getIsAllSelected: () => enabledRows.length > 0 && enabledRows.every(isRowSelected),
+    getIsIndeterminate: () =>
+      enabledRows.some(isRowSelected) && !enabledRows.every(isRowSelected),
     onSelectItem: ({ item, isSelected }) => {
       if (isDetailRow(item)) return;
       const key = getRowKey(item as T);
@@ -811,7 +817,8 @@ export function DataGrid<T extends object = AnyRow>({
       const next = new Set(selection?.isPreservingOtherPages ? selectedKeySet : []);
       for (const item of rows) {
         const key = getRowKey(item);
-        if (isAllSelected) next.add(key);
+        const isSelected = isRowEnabled(item) ? isAllSelected : isRowSelected(item);
+        if (isSelected) next.add(key);
         else next.delete(key);
       }
       emitSelection([...next]);

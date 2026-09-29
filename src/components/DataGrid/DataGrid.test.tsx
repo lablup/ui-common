@@ -314,6 +314,73 @@ describe("DataGrid selection", () => {
     expect(screen.getByRole("checkbox", { name: "Select row-2" })).toBeEnabled();
   });
 
+  describe("with rows getIsItemEnabled rejects", () => {
+    const firstDisabled = (selectedKeys: string[], onChange = vi.fn()) => {
+      renderGrid({
+        data: makeRows(3),
+        selection: {
+          selectedKeys,
+          onChange,
+          getRowLabel: (row) => row.name,
+          getIsItemEnabled: (row) => row.id !== "1",
+        },
+      });
+      return {
+        onChange,
+        header: screen.getByRole("checkbox", {
+          name: "Select all rows",
+        }) as HTMLInputElement,
+      };
+    };
+
+    it("select-all adds only the enabled rows", async () => {
+      const { onChange, header } = firstDisabled([]);
+      await userEvent.click(header);
+      expect(onChange.mock.lastCall?.[0]).toEqual(["2", "3"]);
+    });
+
+    it("select-all keeps a disabled row that was already selected", async () => {
+      const { onChange, header } = firstDisabled(["1"]);
+      await userEvent.click(header);
+      expect(onChange.mock.lastCall?.[0]).toEqual(["1", "2", "3"]);
+    });
+
+    it("checks the header once every enabled row is selected", () => {
+      const { header } = firstDisabled(["2", "3"]);
+      expect(header.checked).toBe(true);
+      expect(header.indeterminate).toBe(false);
+    });
+
+    it("deselect-all keeps the disabled rows that were selected", async () => {
+      const { onChange, header } = firstDisabled(["1", "2", "3"]);
+      expect(header.checked).toBe(true);
+      await userEvent.click(header);
+      expect(onChange.mock.lastCall?.[0]).toEqual(["1"]);
+    });
+
+    it("counts only enabled rows for the indeterminate state", () => {
+      const { header } = firstDisabled(["1"]);
+      expect(header.checked).toBe(false);
+      expect(header.indeterminate).toBe(false);
+    });
+
+    it("is neither checked nor indeterminate when no row is enabled", () => {
+      renderGrid({
+        data: makeRows(2),
+        selection: {
+          selectedKeys: ["1"],
+          getRowLabel: (row) => row.name,
+          getIsItemEnabled: () => false,
+        },
+      });
+      const header = screen.getByRole("checkbox", {
+        name: "Select all rows",
+      }) as HTMLInputElement;
+      expect(header.checked).toBe(false);
+      expect(header.indeterminate).toBe(false);
+    });
+  });
+
   it("keeps keys from other pages on select-all only with isPreservingOtherPages", async () => {
     const onChange = vi.fn();
     renderGrid({
@@ -455,6 +522,23 @@ describe("DataGrid chrome", () => {
     });
     expect(screen.getByText("row-12@1")).toBeInTheDocument();
     expect(getRowProps).toHaveBeenCalledWith(expect.objectContaining({ id: "12" }), 1);
+  });
+
+  it("passes the row's page index to getCellProps", () => {
+    const getCellProps = vi.fn(() => ({}));
+    renderGrid({
+      data: makeRows(12),
+      pagination: { page: 2, pageSize: 10 },
+      columns: [
+        { key: "name", header: "Name", renderCell: (row) => row.name, getCellProps },
+      ],
+    });
+    expect(getCellProps).toHaveBeenCalledWith(expect.objectContaining({ id: "11" }), 0);
+    expect(getCellProps).toHaveBeenCalledWith(expect.objectContaining({ id: "12" }), 1);
+    expect(getCellProps).not.toHaveBeenCalledWith(
+      expect.objectContaining({ id: "12" }),
+      0,
+    );
   });
 
   it("applies a column's getCellProps to its body cells", () => {
