@@ -4,6 +4,7 @@
  * - add @lablup/ui-common-cli, the `ui-common` bin, to devDependencies at
  *   exactly the target version (0.1 shipped the bin inside ui-common);
  * - add the @stylexjs/stylex peer ui-common 0.2 needs, when missing;
+ * - in a library, drop React 18 from the react / react-dom peer ranges;
  * - add @astryxdesign/lab, pinned to the canary ui-common is built against,
  *   when a Drawer import was moved to `@lablup/ui-common/lab`, and point its
  *   core peer at ui-common's core with the project's package manager's
@@ -55,6 +56,24 @@ function bumpSpec(spec, to) {
     value: `^${to}`,
     note: `the range "${spec}" was replaced with "^${to}"; widen it again if this package must still accept 0.1.`,
   };
+}
+
+/**
+ * `range` without its alternatives that accept React below 19
+ * (`^18.2.0 || ^19.0.0` → `^19.0.0`); `fallback` when none is left.
+ *
+ * @param {string} range
+ * @param {string} fallback
+ */
+export function dropBelow19(range, fallback) {
+  if (/^(workspace:|link:|file:|npm:|catalog:)/.test(range.trim())) return range;
+  const alternatives = range.split("||").map((a) => a.trim());
+  const kept = alternatives.filter((a) => {
+    const major = /(\d+)/.exec(a)?.[1];
+    return major != null && Number(major) >= 19 && !/^<|^\*|^x/i.test(a);
+  });
+  if (kept.length === alternatives.length) return range;
+  return kept.length > 0 ? kept.join(" || ") : fallback;
 }
 
 /**
@@ -155,6 +174,29 @@ export function transformPackageJson(text, ctx) {
       const field = fields.includes("dependencies") ? "dependencies" : fields[0];
       addDependency(pkg, field, stylex.name, stylex.range);
       ctx.note(`added ${stylex.name} ${stylex.range} to ${field}.`);
+    }
+  }
+
+  // 0.2 needs React 19: a library that still accepts 18 in its peers would
+  // install beside a React 18 app and break there.
+  const reactPeers =
+    uiCommonPackageJson(targetUiCommonRoot(ctx.projectDir)).peerDependencies ?? {};
+  for (const name of ["react", "react-dom"]) {
+    const spec = pkg.peerDependencies?.[name];
+    if (library && typeof spec === "string") {
+      const next = dropBelow19(spec, reactPeers[name] ?? "^19.0.0");
+      if (next !== spec) {
+        pkg.peerDependencies[name] = next;
+        ctx.note(
+          `peerDependencies["${name}"]: "${spec}" → "${next}": ${UIC} 0.2 needs React 19.`,
+        );
+      }
+    }
+    const own = pkg.dependencies?.[name] ?? pkg.devDependencies?.[name];
+    if (typeof own === "string" && dropBelow19(own, "") !== own) {
+      ctx.note(
+        `${pkg.dependencies?.[name] ? "dependencies" : "devDependencies"}["${name}"] is "${own}": ${UIC} 0.2 needs React 19; upgrade React too.`,
+      );
     }
   }
 

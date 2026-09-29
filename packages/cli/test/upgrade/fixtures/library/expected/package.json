@@ -5,7 +5,8 @@
   "peerDependencies": {
     "@lablup/ui-common": "^0.2.0-alpha.0",
     "@stylexjs/stylex": "^0.19.0",
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@lablup/ui-common": "0.2.0-alpha.0",

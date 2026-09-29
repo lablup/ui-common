@@ -8,6 +8,7 @@ import jscodeshift from "jscodeshift";
 import { describe, expect, it, vi } from "vitest";
 
 import transformComponents from "../../codemods/0.2/components.mjs";
+import { dropBelow19 } from "../../codemods/0.2/package-json.mjs";
 
 const j = jscodeshift.withParser("tsx");
 
@@ -228,5 +229,20 @@ export const B = () => <Badge variant="info">x</Badge>;
 `,
     );
     expect(out).toContain('export type SortDirection = "asc" | "desc";');
+  });
+});
+
+describe("React peers of a library", () => {
+  it.each([
+    ["^18.2.0 || ^19.0.0", "^19.0.0"],
+    ["^18 || ^19.1 || ^20", "^19.1 || ^20"],
+    [">=18", "^19.0.0"],
+    [">=18.2.0 <20", "^19.0.0"],
+    ["*", "^19.0.0"],
+    ["^19.0.0", "^19.0.0"],
+    [">=19", ">=19"],
+    ["workspace:*", "workspace:*"],
+  ])("%s -> %s", (range, expected) => {
+    expect(dropBelow19(range, "^19.0.0")).toBe(expected);
   });
 });
