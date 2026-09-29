@@ -445,7 +445,8 @@ pnpm add -D @lablup/ui-common-cli@<the @lablup/ui-common version>
 
 Under pnpm 11, allow or decline the Astryx packages' postinstall (it only
 prints an `astryx init` nudge) in `pnpm-workspace.yaml`, or the install stops
-with `ERR_PNPM_IGNORED_BUILDS`:
+with `ERR_PNPM_IGNORED_BUILDS` (`ui-common upgrade` adds the entries a pnpm
+project does not decide yet):
 
 ```yaml
 allowBuilds:

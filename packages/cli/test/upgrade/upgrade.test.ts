@@ -66,6 +66,9 @@ function copyFixture(name: string) {
 
 const quiet = { log: () => {}, warn: () => {} };
 
+/** The block the fixture/ consumer carries, as a pnpm 11 project needs it. */
+const ALLOW_BUILDS = `allowBuilds:\n  "@astryxdesign/core": false\n  "@astryxdesign/cli": false`;
+
 const cases = readdirSync(FIXTURES).filter((name) =>
   existsSync(join(FIXTURES, name, "input")),
 );
@@ -195,7 +198,7 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
       const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
       expect(result.code, JSON.stringify(result.errors)).toBe(0);
       expect(readFileSync(join(dir, "pnpm-workspace.yaml"), "utf8")).toBe(
-        `overrides:\n  "@astryxdesign/lab>@astryxdesign/core": "${pin}"\n`,
+        `${ALLOW_BUILDS}\n\noverrides:\n  "@astryxdesign/lab>@astryxdesign/core": "${pin}"\n`,
       );
       expect(
         JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).overrides,
@@ -213,7 +216,7 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
       const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
       expect(result.code, JSON.stringify(result.errors)).toBe(0);
       expect(readFileSync(join(workspace, "pnpm-workspace.yaml"), "utf8")).toBe(
-        `packages:\n  - app\n\noverrides:\n  "@astryxdesign/lab>@astryxdesign/core": "${pin}"\n`,
+        `packages:\n  - app\n\n${ALLOW_BUILDS}\n\noverrides:\n  "@astryxdesign/lab>@astryxdesign/core": "${pin}"\n`,
       );
       expect(existsSync(join(dir, "pnpm-workspace.yaml"))).toBe(false);
     });
@@ -235,6 +238,44 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
       expect(lines.join("\n")).toContain(
         `+  "@astryxdesign/lab>@astryxdesign/core": "${pin}"`,
       );
+    });
+  });
+
+  describe("pnpm allowBuilds", () => {
+    it("matches the block the repository's fixture/ consumer carries", () => {
+      const fixture = readFileSync(
+        join(here, "../../../../fixture/pnpm-workspace.yaml"),
+        "utf8",
+      );
+      const keys = [
+        ...fixture.matchAll(/^\s+"(@astryxdesign\/[\w-]+)":\s*false/gm),
+      ].map((m) => m[1]);
+      expect(keys).toEqual(["@astryxdesign/core", "@astryxdesign/cli"]);
+      expect(ALLOW_BUILDS).toBe(
+        `allowBuilds:\n${keys.map((k) => `  "${k}": false`).join("\n")}`,
+      );
+    });
+
+    it("declines only what is undecided, pnpm's placeholder included", async () => {
+      const dir = copyFixture("root-barrel");
+      writeFileSync(join(dir, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
+      const yaml = `# workspace settings\nallowBuilds:\n  esbuild: true\n  '@astryxdesign/core': true\n  '@astryxdesign/cli': set this to true or false\n`;
+      writeFileSync(join(dir, "pnpm-workspace.yaml"), yaml);
+      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(result.code, JSON.stringify(result.errors)).toBe(0);
+      expect(readFileSync(join(dir, "pnpm-workspace.yaml"), "utf8")).toBe(
+        `# workspace settings\nallowBuilds:\n  esbuild: true\n  '@astryxdesign/core': true\n  '@astryxdesign/cli': false\n`,
+      );
+      expect(result.report).toContain(
+        'allowBuilds["@astryxdesign/cli"] was "set this to true or false"',
+      );
+    });
+
+    it("leaves an npm project's files alone", async () => {
+      const dir = copyFixture("root-barrel");
+      writeFileSync(join(dir, "package-lock.json"), "{}\n");
+      await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(existsSync(join(dir, "pnpm-workspace.yaml"))).toBe(false);
     });
   });
 

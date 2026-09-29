@@ -5,6 +5,7 @@
  *   exactly the target version (0.1 shipped the bin inside ui-common);
  * - add the @stylexjs/stylex peer ui-common 0.2 needs, when missing;
  * - in a library, drop React 18 from the react / react-dom peer ranges;
+ * - in a pnpm project, decline the Astryx postinstalls in `allowBuilds`;
  * - add @astryxdesign/lab, pinned to the canary ui-common is built against,
  *   when a Drawer import was moved to `@lablup/ui-common/lab`, and point its
  *   core peer at ui-common's core with the project's package manager's
@@ -56,6 +57,87 @@ function bumpSpec(spec, to) {
     value: `^${to}`,
     note: `the range "${spec}" was replaced with "^${to}"; widen it again if this package must still accept 0.1.`,
   };
+}
+
+/** Packages whose postinstall pnpm 11 must be told to run or skip. */
+export const DECLINED_BUILDS = ["@astryxdesign/core", "@astryxdesign/cli"];
+
+/**
+ * `pnpm-workspace.yaml` with `allowBuilds` declining each of `names` it does
+ * not decide yet. An entry set to true or false is left as it is; one with
+ * any other value (pnpm writes "set this to true or false" when it stops an
+ * install) counts as undecided and is set to false. Comments and every other
+ * line are kept.
+ *
+ * @param {string | null} yaml current text, null when there is no file
+ * @param {string[]} names
+ * @returns {{yaml?: string, notes: string[]}}
+ */
+export function applyAllowBuilds(yaml, names) {
+  const line = (/** @type {string} */ name, indent = "  ") =>
+    `${indent}"${name}": false`;
+  const why =
+    "their postinstall only prints an `astryx init` nudge, and pnpm 11 stops the install (ERR_PNPM_IGNORED_BUILDS) until each is allowed or declined";
+  if (yaml == null) {
+    return {
+      yaml: `allowBuilds:\n${names.map((n) => line(n)).join("\n")}\n`,
+      notes: [
+        `wrote pnpm-workspace.yaml with allowBuilds declining ${names.join(", ")}: ${why}.`,
+      ],
+    };
+  }
+  const block = /^allowBuilds:[ \t]*(#.*)?(\r?\n)/m.exec(yaml);
+  if (!block) {
+    if (/^allowBuilds\s*:/m.test(yaml)) {
+      return {
+        notes: [
+          `pnpm-workspace.yaml has an allowBuilds entry this cannot edit; decline ${names.join(", ")} in it: ${why}.`,
+        ],
+      };
+    }
+    const base = yaml.replace(/\s*$/, "");
+    return {
+      yaml: `${base}${base ? "\n\n" : ""}allowBuilds:\n${names.map((n) => line(n)).join("\n")}\n`,
+      notes: [
+        `added allowBuilds declining ${names.join(", ")} to pnpm-workspace.yaml: ${why}.`,
+      ],
+    };
+  }
+  const at = block.index + block[0].length;
+  const after = yaml.slice(at);
+  const end = /^\S/m.exec(after)?.index ?? after.length;
+  let body = after.slice(0, end);
+  const indent = /^([ \t]+)\S/m.exec(body)?.[1] ?? "  ";
+  const notes = [];
+  const added = [];
+  for (const name of names) {
+    const esc = name.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+    const entry = new RegExp(
+      `^([ \\t]+["']?${esc}["']?[ \\t]*:[ \\t]*)([^\\r\\n#]*?)([ \\t]*(#.*)?)$`,
+      "m",
+    );
+    const match = entry.exec(body);
+    if (!match) {
+      added.push(name);
+      continue;
+    }
+    const value = match[2].trim().replace(/^["']|["']$/g, "");
+    if (value === "true" || value === "false") continue;
+    body = body.replace(entry, (_m, head, _v, tail) => `${head}false${tail}`);
+    notes.push(
+      `pnpm-workspace.yaml allowBuilds["${name}"] was "${match[2].trim()}", which pnpm does not accept; set it to false.`,
+    );
+  }
+  if (added.length > 0) {
+    const trimmed = body.replace(/\s*$/, "");
+    const rest = body.slice(trimmed.length);
+    body = `${trimmed}${trimmed ? "\n" : ""}${added.map((n) => line(n, indent)).join("\n")}${rest.includes("\n") ? rest : "\n"}`;
+    notes.push(
+      `added ${added.join(", ")} to allowBuilds in pnpm-workspace.yaml, declined: ${why}.`,
+    );
+  }
+  const next = `${yaml.slice(0, at)}${body}${after.slice(end)}`;
+  return next === yaml ? { notes } : { yaml: next, notes };
 }
 
 /**
@@ -197,6 +279,18 @@ export function transformPackageJson(text, ctx) {
       ctx.note(
         `${pkg.dependencies?.[name] ? "dependencies" : "devDependencies"}["${name}"] is "${own}": ${UIC} 0.2 needs React 19; upgrade React too.`,
       );
+    }
+  }
+
+  // pnpm 11 refuses to install until the Astryx postinstalls are decided.
+  if (ctx.projectDir && ctx.editFile) {
+    const { manager, workspaceYaml } = detectPackageManager(ctx.projectDir, pkg);
+    if (manager === "pnpm" && workspaceYaml) {
+      ctx.editFile(workspaceYaml, (current) => {
+        const edit = applyAllowBuilds(current, DECLINED_BUILDS);
+        for (const note of edit.notes) ctx.note(note);
+        return edit.yaml;
+      });
     }
   }
 
