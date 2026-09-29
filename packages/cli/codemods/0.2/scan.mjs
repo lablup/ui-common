@@ -199,8 +199,10 @@ function scanStylesheet(file, source) {
   return findings;
 }
 
+// DOM APIs, and the selector-taking calls of Playwright, Cypress and
+// Testing Library's container queries.
 const SELECTOR_CALL =
-  /\b(querySelector(?:All)?|closest|matches|webkitMatchesSelector)\(\s*(["'`])((?:(?!\2)[^\\]|\\.)*)\2/g;
+  /(?:\b(querySelector(?:All)?|closest|matches|webkitMatchesSelector|locator|waitForSelector)|(?<![\w$])(\$\$?(?:eval)?)|\bcy\.(get|find))\(\s*(["'`])((?:(?!\4)[^\\]|\\.)*)\4/g;
 const CLASS_CALL =
   /\b(classList\.(?:contains|add|remove|toggle|replace)|getElementsByClassName|toHaveClass)\(\s*(["'`])((?:(?!\2)[^\\]|\\.)*)\2/g;
 
@@ -225,7 +227,7 @@ function scanScript(file, source) {
     });
   };
   for (const m of source.matchAll(SELECTOR_CALL)) {
-    const hits = classesIn(m[3]).filter(isLegacyClass);
+    const hits = classesIn(m[5]).filter(isLegacyClass);
     if (hits.length > 0) record(m, hits);
   }
   for (const m of source.matchAll(CLASS_CALL)) {

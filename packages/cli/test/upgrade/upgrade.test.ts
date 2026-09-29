@@ -301,6 +301,53 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     });
   });
 
+  describe("looks for findings across the whole project", () => {
+    const extra = {
+      "e2e/models.spec.ts": `test("bar", async ({ page }) => {\n  await expect(page.locator(".progress-bar__fill")).toBeVisible();\n});\n`,
+      "scripts/check-theme.mjs": `const sheet = "@lablup/ui-common/styles/themes/orange-light.css";\n`,
+      // A nested package is another project; build output is not source.
+      "docs-site/package.json": "{}\n",
+      "docs-site/src/site.css": ".badge { color: red; }\n",
+      "dist/bundle.css": ".badge { color: red; }\n",
+    };
+
+    it("tests, e2e specs and scripts outside src, read but not written", async () => {
+      const dir = copyFixture("root-barrel");
+      for (const [file, text] of Object.entries(extra)) {
+        mkdirSync(dirname(join(dir, file)), { recursive: true });
+        writeFileSync(join(dir, file), text);
+      }
+      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(result.code, JSON.stringify(result.errors)).toBe(0);
+      const where = (result.findings ?? []).map((f) => `${f.category} ${f.file}`);
+      expect(where).toContain("test-query e2e/models.spec.ts");
+      expect(where).toContain("stylesheet-path scripts/check-theme.mjs");
+      expect(where.filter((w) => /docs-site|dist\//.test(w))).toEqual([]);
+      for (const [file, text] of Object.entries(extra))
+        expect(readFileSync(join(dir, file), "utf8"), file).toBe(text);
+      expect(result.report).toContain(
+        "under the project root for manual-review findings",
+      );
+    });
+
+    it("--scan narrows it", async () => {
+      const dir = copyFixture("root-barrel");
+      for (const [file, text] of Object.entries(extra)) {
+        mkdirSync(dirname(join(dir, file)), { recursive: true });
+        writeFileSync(join(dir, file), text);
+      }
+      const result = await runUpgrade({
+        cwd: dir,
+        paths: ["src"],
+        scan: ["src", "scripts"],
+        to: TO,
+        ...quiet,
+      });
+      const files = new Set((result.findings ?? []).map((f) => f.file.split("/")[0]));
+      expect([...files].sort()).toEqual(["scripts", "src"]);
+    });
+  });
+
   it("reads --from from package.json", async () => {
     // css-entry declares "@lablup/ui-common": "0.1.0-alpha.23".
     const dir = copyFixture("css-entry");

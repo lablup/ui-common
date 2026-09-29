@@ -14,8 +14,10 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 
 import { registeredVersions, stepsBetween } from "../codemods/registry.mjs";
@@ -36,7 +38,25 @@ const IGNORED_DIRS = new Set([
   "coverage",
   ".turbo",
   ".cache",
+  // Only skipped by the project-wide finding scan (collectProjectFiles):
+  // build output and tool state that is never the project's own source.
+  "target",
+  ".venv",
+  "venv",
+  "__pycache__",
+  "storybook-static",
+  "playwright-report",
+  "test-results",
+  ".svelte-kit",
+  ".nuxt",
+  ".output",
+  ".vite",
+  ".yarn",
+  ".pnpm-store",
 ]);
+
+/** Bigger than any hand-written source; a bundle or a generated file. */
+const MAX_SCAN_BYTES = 512 * 1024;
 
 export const SOURCE_EXTENSIONS = new Set([
   ".tsx",
@@ -101,9 +121,88 @@ function readdirSafe(p) {
 }
 
 /**
+ * The files the manual-review scan reads: every source-like file under
+ * `roots`, without build output, generated directories, bundles, and
+ * packages nested in the project (another package.json below it is another
+ * project). In a git checkout the list comes from git, so .gitignore'd files
+ * are skipped too.
+ *
+ * @param {string[]} roots absolute
+ * @param {string} projectDir
+ */
+export function collectProjectFiles(roots, projectDir) {
+  /** @type {string[]} */
+  let listed = [];
+  const git = spawnSync(
+    "git",
+    ["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "."],
+    { cwd: projectDir, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 },
+  );
+  if (git.status === 0 && git.stdout) {
+    listed = git.stdout
+      .split("\0")
+      .filter(Boolean)
+      .map((f) => join(projectDir, f));
+  } else {
+    walk(projectDir, listed);
+    // walk keeps sources only; package.json files mark nested packages.
+    listed.push(...findPackageJsons(projectDir));
+  }
+  const nested = new Set(
+    listed
+      .filter((f) => f.endsWith(`${sep}package.json`) && dirname(f) !== projectDir)
+      .map((f) => dirname(f) + sep),
+  );
+  const inRoots = (/** @type {string} */ f) =>
+    roots.some((r) => f === r || f.startsWith(r.endsWith(sep) ? r : r + sep));
+  return [
+    ...new Set(
+      listed.filter((f) => {
+        if (!inRoots(f)) return false;
+        if (!SOURCE_EXTENSIONS.has(extname(f)) || f.endsWith(".d.ts")) return false;
+        if (/\.min\.[cm]?[jt]s$|\.min\.css$/.test(f)) return false;
+        const parts = relative(projectDir, f).split(sep);
+        if (parts.slice(0, -1).some((d) => IGNORED_DIRS.has(d))) return false;
+        for (const dir of nested) if (f.startsWith(dir)) return false;
+        try {
+          return statSync(f).size <= MAX_SCAN_BYTES;
+        } catch {
+          return false;
+        }
+      }),
+    ),
+  ].sort();
+}
+
+/** @param {string} dir */
+function findPackageJsons(dir) {
+  /** @type {string[]} */
+  const out = [];
+  const visit = (/** @type {string} */ d) => {
+    let entries;
+    try {
+      entries = readdirSync(d, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.isSymbolicLink()) continue;
+      const full = join(d, entry.name);
+      if (entry.isDirectory()) {
+        if (!IGNORED_DIRS.has(entry.name)) visit(full);
+      } else if (entry.name === "package.json") out.push(full);
+    }
+  };
+  visit(dir);
+  return out;
+}
+
+/**
  * @typedef {object} UpgradeOptions
  * @property {string} cwd
  * @property {string[]} paths as given (relative to cwd)
+ * @property {string[]} [scan] where the manual-review scan looks (relative to
+ *   cwd); default: the whole project
  * @property {string} [from]
  * @property {string} [to]
  * @property {boolean} [dryRun]
@@ -170,6 +269,10 @@ export async function runUpgrade(options) {
     return { code: 2 };
   }
   const files = collectFiles(roots);
+  const scanRoots =
+    options.scan && options.scan.length > 0
+      ? options.scan.map((p) => resolve(cwd, p))
+      : [projectDir];
 
   // A dry run prints the report unless --report names a file for it. The
   // report replaces an earlier report, never anything else.
@@ -378,14 +481,28 @@ export async function runUpgrade(options) {
   const findings = [];
   /** @type {Record<string, {title: string, help: string}>} */
   const categories = {};
+  // The finding scan reads the whole project (or --scan), not only the
+  // transformed sources: tests, e2e specs and scripts name 0.1 classes and
+  // stylesheet paths too. Files outside the sources are read, never written.
+  /** @type {Array<[string, string]>} */
+  const scanned = [];
+  const inScan = (/** @type {string} */ f) =>
+    scanRoots.some((r) => f === r || f.startsWith(r + sep));
+  for (const [file, entry] of state) {
+    if (entry.created || entry.project || !inScan(file)) continue;
+    scanned.push([file, entry.current]);
+  }
+  for (const file of collectProjectFiles(scanRoots, projectDir)) {
+    if (state.has(file)) continue;
+    const text = ctx.source(file);
+    if (text != null) scanned.push([file, text]);
+  }
+  scanned.sort((a, b) => a[0].localeCompare(b[0]));
   for (const { step } of steps) {
     Object.assign(categories, step.categories ?? {});
     if (step.findings) findings.push(...step.findings(ctx, rel));
     if (!step.scan) continue;
-    for (const [file, entry] of state) {
-      if (entry.created || entry.project) continue;
-      findings.push(...step.scan(rel(file), entry.current));
-    }
+    for (const [file, text] of scanned) findings.push(...step.scan(rel(file), text));
   }
   /** @type {Array<{file: string, line: number, text: string}>} */
   const todos = [];
@@ -453,6 +570,10 @@ export async function runUpgrade(options) {
     dryRun,
     roots: roots.map((r) => relative(projectDir, r).split(sep).join("/") || "."),
     fileCount: files.length,
+    scanRoots: scanRoots.map(
+      (r) => relative(projectDir, r).split(sep).join("/") || ".",
+    ),
+    scanCount: scanned.length,
     steps: steps.map(({ version, step }) => ({
       version,
       title: step.title,
@@ -514,7 +635,7 @@ export async function runUpgrade(options) {
   };
 }
 
-export const UPGRADE_HELP = `Usage: ui-common upgrade [--from <version>] [--to <version>] [--dry-run] [--diff] [--report <path>] [paths…]
+export const UPGRADE_HELP = `Usage: ui-common upgrade [--from <version>] [--to <version>] [--dry-run] [--diff] [--report <path>] [--scan <path>]… [paths…]
 
 Run the codemods registered between two @lablup/ui-common versions over your
 source (TS/TSX/JS/JSX through jscodeshift, CSS through postcss), update
@@ -535,7 +656,12 @@ One-off, from a project still on 0.1:
                     except in a dry run, which writes a report only to a path
                     given here. An existing file is replaced only if it is an
                     earlier report.
-  paths…            Directories or files to scan. Default: src/
+  --scan <path>     Where the report looks for 0.1 class names, stylesheet
+                    paths, test queries and module mocks. Default: the whole
+                    project (tests, e2e, scripts, …), without node_modules,
+                    build output, git-ignored files and nested packages.
+                    Repeat to narrow it: --scan src --scan e2e.
+  paths…            Directories or files to transform. Default: src/
 
 Exit codes: 0 done, 1 some files could not be transformed (see the report),
 2 bad arguments or nothing to scan.
@@ -564,6 +690,11 @@ export async function upgradeCommand(argv) {
       case "--report":
         options.report = value();
         break;
+      case "--scan": {
+        const v = value();
+        if (v) (options.scan ??= []).push(v);
+        break;
+      }
       case "--dry-run":
         options.dryRun = true;
         break;
@@ -583,7 +714,7 @@ export async function upgradeCommand(argv) {
         }
         options.paths.push(arg);
     }
-    if (["--from", "--to", "--report"].includes(flag)) {
+    if (["--from", "--to", "--report", "--scan"].includes(flag)) {
       const v = /** @type {any} */ (options)[flag.slice(2)];
       if (!v) {
         process.stderr.write(`ui-common upgrade: ${flag} needs a value\n`);

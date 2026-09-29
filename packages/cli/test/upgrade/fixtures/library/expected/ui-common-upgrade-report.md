@@ -2,7 +2,7 @@
 
 `ui-common upgrade` 0.1.0-alpha.0 → 0.2.0-alpha.0 (@lablup/ui-common-cli <version>).
 
-Scanned 1 file under `src`.
+Ran the codemods over 1 file under `src`; searched 1 file under the project root for manual-review findings.
 
 ## Summary
 

@@ -27,6 +27,8 @@ function escapeCell(text) {
  * @param {boolean} data.dryRun
  * @param {string[]} data.roots
  * @param {number} data.fileCount
+ * @param {string[]} [data.scanRoots] where the manual-review scan looked
+ * @param {number} [data.scanCount]
  * @param {Array<{version: string, title: string, notes: string[]}>} data.steps
  * @param {Array<{file: string, created: boolean, transforms: string[], added: number, removed: number}>} data.changed
  * @param {{changed: boolean, notes: string[]}} data.packageJson
@@ -44,7 +46,10 @@ export function renderReport(data) {
     `\`ui-common upgrade\` ${data.from} → ${data.to} (@lablup/ui-common-cli ${data.version})` +
       `${data.dryRun ? ", **dry run: nothing was written**" : ""}.`,
     "",
-    `Scanned ${data.fileCount} file${data.fileCount === 1 ? "" : "s"} under ${data.roots.map(code).join(", ")}.`,
+    `Ran the codemods over ${data.fileCount} file${data.fileCount === 1 ? "" : "s"} under ${data.roots.map(code).join(", ")}` +
+      (data.scanRoots
+        ? `; searched ${data.scanCount ?? 0} file${data.scanCount === 1 ? "" : "s"} under ${data.scanRoots.map((r) => (r === "." ? "the project root" : code(r))).join(", ")} for manual-review findings.`
+        : "."),
     "",
   );
 
