@@ -187,10 +187,6 @@
       "types": "./dist/astryx/CommandPalette.d.ts",
       "import": "./dist/astryx/CommandPalette.js"
     },
-    "./ComplexSelector": {
-      "types": "./dist/astryx/ComplexSelector.d.ts",
-      "import": "./dist/astryx/ComplexSelector.js"
-    },
     "./ContextMenu": {
       "types": "./dist/astryx/ContextMenu.d.ts",
       "import": "./dist/astryx/ContextMenu.js"
@@ -561,6 +557,10 @@
       "types": "./dist/components/AlertModal/index.d.ts",
       "import": "./dist/components/AlertModal/index.js"
     },
+    "./ComplexSelector": {
+      "types": "./dist/forks/ComplexSelector/index.d.ts",
+      "import": "./dist/forks/ComplexSelector/index.js"
+    },
     "./Form": {
       "types": "./dist/components/Form/index.d.ts",
       "import": "./dist/components/Form/index.js"
@@ -580,6 +580,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "gen:exports": "node scripts/gen-exports.mjs",
+    "sync:forks": "node scripts/sync-forks.mjs",
     "theme:build": "astryx theme build src/theme/lablup/lablupTheme.ts -o src/theme/lablup/built/theme.css --icons-specifier @astryxdesign/theme-neutral",
     "theme:check": "astryx theme build -c src/theme/lablup/lablupTheme.ts -o src/theme/lablup/built/theme.css --icons-specifier @astryxdesign/theme-neutral",
     "check:pack": "node scripts/check-pack.mjs",

@@ -9,6 +9,12 @@
   { "name": "BulkEditFormItem", "source": "components/BulkEditFormItem/index.ts" },
   { "name": "BulkErrorModal", "source": "components/BulkErrorModal/index.ts" },
   { "name": "ColorPicker", "source": "components/ColorPicker/index.ts" },
+  {
+    "name": "ComplexSelector",
+    "source": "forks/ComplexSelector/index.ts",
+    "subpath": "ComplexSelector",
+    "fork": "@astryxdesign/core/ComplexSelector"
+  },
   { "name": "ConfirmPopover", "source": "components/ConfirmPopover/index.ts" },
   { "name": "CountBadge", "source": "components/CountBadge/index.ts" },
   { "name": "CountdownBorder", "source": "components/CountdownBorder/index.ts" },
@@ -18,6 +24,11 @@
   { "name": "DividedRow", "source": "components/DividedRow/index.ts" },
   { "name": "DoubleBadge", "source": "components/DoubleBadge/index.ts" },
   { "name": "DoubleToken", "source": "components/DoubleToken/index.ts" },
+  {
+    "name": "Drawer",
+    "source": "forks/Drawer/index.ts",
+    "fork": "@astryxdesign/lab"
+  },
   { "name": "ErrorState", "source": "components/ErrorState/index.ts" },
   { "name": "Form", "source": "components/Form/index.ts", "subpath": "Form" },
   { "name": "IconWithTooltip", "source": "components/IconWithTooltip/index.ts" },
@@ -39,6 +50,11 @@
   { "name": "TextHighlighter", "source": "components/TextHighlighter/index.ts" },
   { "name": "TokenList", "source": "components/TokenList/index.ts" },
   { "name": "TokenRow", "source": "components/TokenRow/index.ts" },
+  {
+    "name": "Tour",
+    "source": "forks/Tour/index.ts",
+    "fork": "@astryxdesign/lab"
+  },
   { "name": "UncontrolledInput", "source": "components/UncontrolledInput/index.ts" },
   { "name": "UnitGrid", "source": "components/UnitGrid/index.ts" },
   { "name": "usePrefersReducedMotion", "source": "hooks/index.ts" }

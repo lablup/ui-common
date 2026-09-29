@@ -26,6 +26,10 @@ function entryPoints(): Record<string, string> {
 
   const patterns = [
     "src/components/*/index.ts",
+    // ui-common's copies of Astryx components (CONTRIBUTING, "Forks of
+    // Astryx components"). A core fork has its own subpath; lab's are reached
+    // through the lab mirror.
+    "src/forks/**/index.ts",
     // The generated Astryx mirrors (scripts/gen-exports.mjs). Each one is a
     // one-line re-export that stays a one-line re-export in dist, because
     // every @astryxdesign/* specifier is external.

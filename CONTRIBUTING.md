@@ -41,6 +41,22 @@ subpath fails the generator, so stale entries get removed. So does a
 `replacedBy` that is neither a custom in `exports.customs.json` nor a mirrored
 subpath.
 
+`exports` hides single names of a subpath instead of the whole of it:
+
+```json
+{
+  "name": "lab",
+  "exports": ["Drawer", "DrawerProps"],
+  "replacedBy": "Drawer",
+  "reason": "..."
+}
+```
+
+The mirror file then lists the subpath's names one by one, minus these. `lab`
+is always written that way, since Astryx ships it as one namespace with no
+per-component subpath. A listed name the subpath no longer exports fails the
+generator.
+
 There is no other way to hide something. Do not curate the export map by hand.
 
 ### Adding a custom export
@@ -67,11 +83,67 @@ exports. Two exceptions:
 - Entries marked `legacy` may collide, and Astryx's export wins in the root
   barrel. The mechanism is kept for a future deprecation; no entry uses it
   since the 0.1 look-alikes were removed.
+- A fork (below) keeps Astryx's names, because its exclusion takes Astryx's
+  out of the mirror first.
 
 ## Name rule
 
 A ui-common component never shares a name with an Astryx core or lab export.
 Pick a different name, or use the Astryx component.
+
+The one exception is a fork.
+
+## Forks of Astryx components
+
+A fork is a copy of an Astryx component with an upstream fix applied, shipped
+under Astryx's own name and import path until Astryx ships the fix. It exists
+because a product's pnpm `patchedDependencies` never reach that product's
+consumers, and ui-common's consumers import Astryx through ui-common.
+
+| Fork              | Where                               | Fix                                                                                  | Upstream                                                             |
+| ----------------- | ----------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                               | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
+| `Drawer`          | `@lablup/ui-common/lab`             | Escape stays inside (portalled layers, IME composition); `aria-modal` passes through | not filed                                                            |
+| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                     | not filed                                                            |
+
+How one is put together:
+
+- **Source** is in `src/forks/<Name>/`, lab's too: upstream's
+  source (`astryx swizzle <Name>` rewrites its imports to public subpaths),
+  the fix, and a header saying what changed. An internal Astryx does not
+  export is inlined from the same version.
+- **Styles** are not compiled here. `<Name>.styles.ts` holds the StyleX
+  objects Astryx's own build compiled for the pinned version, copied from its
+  `dist/` by `pnpm run sync:forks`, so the fork renders upstream's atomic class
+  names and their rules arrive with `astryx.css` / `lab/lab.css`. Where
+  upstream's compiler folded a `stylex.props` call into a class string, the
+  fork carries that string. No new CSS, no second copy of a rule, the same
+  cascade layer as upstream.
+- **Exports**: an `exports.exclude.json` entry with `replacedBy` naming the
+  fork, and an `exports.customs.json` entry with `fork` naming the Astryx
+  module. A core fork takes the excluded subpath (`"subpath": "ComplexSelector"`)
+  and must export exactly the names Astryx's does; a lab fork excludes names of
+  `lab` and must export exactly those, and the generator writes them into the
+  `lab` mirror. Anything else keeps the name rule.
+- **Tests**: upstream's tests, run against the fork (`<Name>.test.tsx`), and
+  ui-common's (`<Name>.fork.test.tsx`): the fix, markup parity with Astryx's
+  component where the fix does not apply, and a test that Astryx's component
+  still lacks the fix.
+- **Provenance**: `src/forks/provenance.json` records the Astryx version and a
+  SHA-256 of every upstream file the fork uses. The copied code is MIT; its
+  licence is in `NOTICE`.
+
+`src/forks/forks.test.ts` fails as soon as the installed Astryx differs from
+the recorded version or file. On an Astryx bump:
+
+1. If upstream now carries the fix (the "still lacks the fix" test fails, or
+   the issue is closed), delete the fork: its directory, its entries in
+   `exports.customs.json`, `exports.exclude.json` and `provenance.json`, and
+   its row above and in NOTICE's scope. Run `pnpm run gen:exports`. Astryx's
+   own component comes back under the same name.
+2. Otherwise re-take upstream's new source, re-apply the fix, then run
+   `node scripts/sync-forks.mjs --accept` to regenerate the styles and record
+   the new version and hashes.
 
 ## Components
 
@@ -334,8 +406,10 @@ Then, by hand:
 
 1. Read the `gen:exports` diff. Update `exports.exclude.json` if the generator
    reports a stale entry or a new data export.
-2. `pnpm run verify`.
-3. Note new and removed subpaths in `CHANGELOG.md`. A removed subpath is a
+2. Re-sync or delete each fork ("Forks of Astryx components");
+   `src/forks/forks.test.ts` fails until you do.
+3. `pnpm run verify`.
+4. Note new and removed subpaths in `CHANGELOG.md`. A removed subpath is a
    breaking change.
 
 ## The upgrade tool

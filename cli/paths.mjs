@@ -97,7 +97,7 @@ export function dependencyVersion(name) {
 export function excludedExports() {
   const file = join(PACKAGE_ROOT, "exports.exclude.json");
   if (!existsSync(file)) return [];
-  return /** @type {Array<{name: string, replacedBy: string|null, reason: string}>} */ (
+  return /** @type {Array<{name: string, exports?: string[], replacedBy: string|null, reason: string}>} */ (
     readJson(file)
   );
 }
@@ -106,8 +106,41 @@ export function excludedExports() {
 export function customExports() {
   const file = join(PACKAGE_ROOT, "exports.customs.json");
   if (!existsSync(file)) return [];
-  return /** @type {Array<{name: string, source: string, subpath?: string, legacy?: object}>} */ (
+  return /** @type {Array<{name: string, source: string, subpath?: string, fork?: string, legacy?: object}>} */ (
     readJson(file)
+  );
+}
+
+/**
+ * ui-common's own copies of Astryx components (src/forks/): same names and
+ * import paths as Astryx's, which exports.exclude.json hides. `names` are the
+ * names a reader may meet it by; `from` is where a consumer imports it.
+ *
+ * @returns {Array<{name: string, from: string, names: string[], reason: string}>}
+ */
+export function forkedExports() {
+  const exclusions = excludedExports();
+  return customExports()
+    .filter((c) => c.fork !== undefined)
+    .map((c) => {
+      const exclusion = exclusions.find((e) => e.replacedBy === c.name);
+      return {
+        name: c.name,
+        from: `@lablup/ui-common/${c.subpath ?? exclusion?.name ?? ""}`,
+        names: exclusion?.exports ?? [c.name],
+        reason: exclusion?.reason ?? "",
+      };
+    });
+}
+
+/**
+ * The exclusions that hide an Astryx name behind a different one. A fork's
+ * exclusion is not one: the name stays, now ui-common's.
+ */
+export function hiddenExports() {
+  const forks = new Set(forkedExports().map((f) => f.name));
+  return excludedExports().filter(
+    (e) => e.replacedBy === null || !forks.has(e.replacedBy),
   );
 }
 

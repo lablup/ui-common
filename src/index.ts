@@ -14,6 +14,11 @@
  * Excluded Astryx names re-exported unchanged by their replacement:
  * DialogHeader, DialogHeaderProps, DialogPosition, DialogPurpose,
  * DialogVariant.
+ *
+ * Astryx names exported from ui-common's own copy of the component:
+ * ComplexSelector, ComplexSelectorHandle, ComplexSelectorProps,
+ * ComplexSelectorRenderState, ComplexSelectorSize, ComplexSelectorStatus,
+ * ComplexSelectorVariant.
  */
 
 export {
@@ -77,7 +82,6 @@ export {
   CommandPaletteInput,
   CommandPaletteItem,
   CommandPaletteList,
-  ComplexSelector,
   ContextMenu,
   ContextMenuCheckboxItem,
   ContextMenuDivider,
@@ -646,12 +650,6 @@ export type {
   CommandPaletteItemProps,
   CommandPaletteListProps,
   CommandPaletteProps,
-  ComplexSelectorHandle,
-  ComplexSelectorProps,
-  ComplexSelectorRenderState,
-  ComplexSelectorSize,
-  ComplexSelectorStatus,
-  ComplexSelectorVariant,
   ComponentStyleMap,
   ContainerComponent,
   ContainerOptions,
@@ -1332,6 +1330,17 @@ export type { BulkErrorModalProps } from "./components/BulkErrorModal";
 // ColorPicker
 export { ColorPicker, toHexColor } from "./components/ColorPicker";
 export type { ColorPickerProps } from "./components/ColorPicker";
+
+// ComplexSelector: ui-common's own copy, in place of Astryx's.
+export { ComplexSelector } from "./forks/ComplexSelector";
+export type {
+  ComplexSelectorHandle,
+  ComplexSelectorProps,
+  ComplexSelectorRenderState,
+  ComplexSelectorSize,
+  ComplexSelectorStatus,
+  ComplexSelectorVariant,
+} from "./forks/ComplexSelector";
 
 // ConfirmPopover
 export { ConfirmPopover } from "./components/ConfirmPopover";

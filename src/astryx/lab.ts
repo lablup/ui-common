@@ -27,7 +27,6 @@ export {
   CircularProgress,
   CodeEditor,
   DEFAULT_CHAT_EMOJIS,
-  Drawer,
   InfoTip,
   ListInput,
   LogStream,
@@ -54,8 +53,6 @@ export {
   ThreeDScatter,
   ThreeDScatterGL,
   ThreeDSurface,
-  Tour,
-  TourStep,
   TransferList,
   TransferListSelector,
   bellIcon,
@@ -101,7 +98,6 @@ export {
   useScheduleContext,
   useSchedulePaginationPlugin,
   useScheduleViewSelectorPlugin,
-  useTour,
   variations,
   xIcon,
 } from "@astryxdesign/lab";
@@ -151,7 +147,6 @@ export type {
   CircularProgressVariant,
   CircularProgressVariantMap,
   CodeEditorProps,
-  DrawerProps,
   IconShape,
   IconShapeRole,
   InfoTipProps,
@@ -232,17 +227,26 @@ export type {
   ThreeDScatterProps,
   ThreeDSurfaceProps,
   TokenResolver,
-  TourDismissSource,
-  TourProps,
-  TourStepProps,
   TransferListOption,
   TransferListProps,
   TransferListSelectorCommitBehavior,
   TransferListSelectorProps,
   UseChartRangeOptions,
   UseChartRangeReturn,
-  UseTourReturn,
   YBaseline,
   ZonedDateTime,
   ZonedDateTimeRange,
 } from "@astryxdesign/lab";
+
+// Drawer: ui-common's own copy, in place of Astryx's.
+export { Drawer } from "../forks/Drawer";
+export type { DrawerProps } from "../forks/Drawer";
+
+// Tour: ui-common's own copy, in place of Astryx's.
+export { Tour, TourStep, useTour } from "../forks/Tour";
+export type {
+  TourDismissSource,
+  TourProps,
+  TourStepProps,
+  UseTourReturn,
+} from "../forks/Tour";

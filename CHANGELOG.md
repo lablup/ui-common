@@ -5,18 +5,37 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+Astryx fixes a product used to carry as pnpm patches now ship in ui-common,
+so its consumers get them without patching.
+
 ### Added
 
+- `ComplexSelector` (`@lablup/ui-common/ComplexSelector` and the root) is
+  ui-common's own copy of Astryx's, same API, adding `hasClear` and
+  `onClear`: a clear button between the spinner and the chevron while
+  `triggerLabel` is set, as `Selector` has. `onClear` runs, or
+  `onChange(undefined)` without it. Upstream: facebook/astryx#6362.
 - `DoubleToken`: a value's `endContent` renders in place of its visible
   label (a copy control around the text, say). The label stays the
   accessible name; `highlightKeyword` does not reach into it.
+- `exports.exclude.json` can hide single names of a subpath (`exports`), and
+  `@lablup/ui-common/lab` is now written as named re-exports. Same names as
+  before.
 
 ### Fixed
 
+- `Drawer` from `@lablup/ui-common/lab` is ui-common's own copy of lab's,
+  same API. An Escape from a layer opened inside the drawer (a modal
+  portalled out of it) no longer reaches the drawer, so the layer closes and
+  the drawer stays; an Escape that ends an IME composition no longer closes
+  it; and a consumer's `aria-modal` passes through on a scrimless drawer.
+- `Tour`, `TourStep` and `useTour` from `@lablup/ui-common/lab` are
+  ui-common's own copies of lab's, same API. A step's highlight is promoted
+  into the top layer once and never hidden and re-shown, so under React
+  StrictMode the spotlight dim no longer paints over the callout.
 - `DoubleToken` squares inner end corners with `:not(:last-of-type)`, so an
   element trailing the tokens (a copy control's tooltip) no longer squares
   the last token's outer corners.
-
 - `DataGrid`'s root (`.uic-data-grid`) is `min-width: 0; max-width: 100%`,
   so a wide grid inside a flex or grid parent scrolls itself instead of
   stretching the parent.

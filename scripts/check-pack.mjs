@@ -206,6 +206,15 @@ const THIRD_PARTY_NOTICES = [
       "The above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.",
     ],
   },
+  {
+    what: "Astryx source in the forks (src/forks/, dist/forks/)",
+    file: "NOTICE",
+    mustContain: [
+      "Copyright (c) 2026 Meta Platforms, Inc.",
+      "Permission is hereby granted, free of charge, to any person obtaining a copy",
+      "The above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.",
+    ],
+  },
 ];
 
 for (const { what, file, mustContain } of THIRD_PARTY_NOTICES) {

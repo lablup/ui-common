@@ -110,6 +110,26 @@ describe("output rewriting", { timeout: 60_000 }, () => {
     expect(exclusionNotes("nothing", ["component", "Dialog"])).toHaveLength(1);
   });
 
+  it("says ui-common's forks come from ui-common, under Astryx's name", () => {
+    const [note] = exclusionNotes("nothing", ["component", "ComplexSelector"]);
+    expect(note).toMatch(
+      /^Note: ComplexSelector \(@lablup\/ui-common\/ComplexSelector\) comes from ui-common: .*same API/,
+    );
+    expect(note).toContain("hasClear");
+    expect(note).not.toMatch(/does not export|Use ComplexSelector/);
+    const lab = exclusionNotes(
+      "import { Drawer, TourStep } from '@lablup/ui-common/lab'",
+    );
+    expect(lab).toHaveLength(2);
+    expect(lab[0]).toMatch(
+      /^Note: Drawer \(@lablup\/ui-common\/lab\) comes from ui-common/,
+    );
+    expect(lab[1]).toMatch(
+      /^Note: Tour \(@lablup\/ui-common\/lab\) comes from ui-common/,
+    );
+    expect(exclusionNotes("Selector and Tourniquet")).toEqual([]);
+  });
+
   it("keeps --json output valid and puts notes on stderr", () => {
     const stdout = JSON.stringify({
       type: "component",
@@ -212,6 +232,15 @@ describe("agents", { timeout: 60_000 }, () => {
     );
     expect(block).toContain('@import "@lablup/ui-common/theme/lablup/theme.css";');
     expect(block).toContain("Use Modal (@lablup/ui-common/Modal), not Dialog");
+    // A fork keeps Astryx's name: no "use X, not X" line, and not listed as
+    // one of ui-common's own components.
+    expect(block).toContain(
+      "- ComplexSelector (@lablup/ui-common/ComplexSelector) comes from ui-common: its own copy of Astryx's, same API and import path.",
+    );
+    expect(block).toContain("- Drawer (@lablup/ui-common/lab) comes from ui-common");
+    expect(block).toContain("- Tour (@lablup/ui-common/lab) comes from ui-common");
+    expect(block).not.toMatch(/Use (ComplexSelector|Drawer|Tour) /);
+    expect(block).not.toMatch(/ui-common's own components: [^\n]*\bComplexSelector\b/);
     expect(block).toContain("uiCommonMessages");
     // The integration line ui-common contributes is restated, not duplicated.
     expect(block).not.toContain("INTEGRATIONS:");

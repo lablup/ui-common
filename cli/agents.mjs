@@ -15,8 +15,9 @@ import {
   customExports,
   dependencyDir,
   dependencyVersion,
-  excludedExports,
   findProjectDir,
+  forkedExports,
+  hiddenExports,
   importAstryxInternal,
   ownPackageJson,
 } from "./paths.mjs";
@@ -70,17 +71,22 @@ async function coreComponentCount() {
 /** ui-common's own lines, appended to the rewritten Astryx block. */
 function uiCommonSection({ version, astryxVersion, invocation }) {
   const components = customExports()
-    .filter((c) => !c.legacy && /^[A-Z]/.test(c.name))
+    .filter((c) => !c.legacy && !c.fork && /^[A-Z]/.test(c.name))
     .map((c) => c.name);
   const lines = [
     `UI-COMMON (@lablup/ui-common v${version} wraps Astryx v${astryxVersion}):`,
     "- Import only from @lablup/ui-common: the root, or the same subpath Astryx uses (@lablup/ui-common/Button, /theme/tokens.stylex, /lab). Never import @astryxdesign/* directly.",
     `- Layers: declare \`${LAYER_ORDER}\` once, first, in the entry stylesheet. ui-common's styles sit in \`ui-common\`; yours go in \`components\` / \`utilities\`.`,
   ];
-  for (const entry of excludedExports()) {
+  for (const entry of hiddenExports()) {
     if (!entry.replacedBy) continue;
     lines.push(
       `- Use ${entry.replacedBy} (@lablup/ui-common/${entry.replacedBy}), not ${entry.name}: ui-common hides ${entry.name}.`,
+    );
+  }
+  for (const fork of forkedExports()) {
+    lines.push(
+      `- ${fork.name} (${fork.from}) comes from ui-common: its own copy of Astryx's, same API and import path. ${fork.reason}`,
     );
   }
   lines.push(

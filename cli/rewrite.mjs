@@ -5,7 +5,7 @@
  * no quote, backslash or control character, so it is safe inside JSON string
  * literals: `--json` output stays valid JSON.
  */
-import { excludedExports } from "./paths.mjs";
+import { forkedExports, hiddenExports } from "./paths.mjs";
 
 /** Astryx CLI subcommands. Used to tell `astryx component` from `astryx-base`. */
 export const ASTRYX_COMMANDS = [
@@ -88,7 +88,8 @@ export function rewriteCommands(text, invocation = "ui-common") {
 
 /**
  * Lines telling the reader that a name they are looking at is one ui-common
- * hides, and what to use instead.
+ * hides, and what to use instead; or one ui-common exports from its own copy
+ * of the Astryx component, and what that copy changes.
  *
  * @param {string} text rewritten output
  * @param {string[]} args the command line, so `component Dialog` is caught
@@ -96,15 +97,25 @@ export function rewriteCommands(text, invocation = "ui-common") {
  */
 export function exclusionNotes(text, args = []) {
   const notes = [];
-  for (const entry of excludedExports()) {
+  const mentions = (name) =>
+    new RegExp(String.raw`(?<![\w.-])${name}(?![\w.-])`).test(text) ||
+    args.includes(name);
+  for (const entry of hiddenExports()) {
     // Asking about the replacement itself needs no pointer to it.
     if (!entry.replacedBy || args.includes(entry.replacedBy)) continue;
     const name = entry.name;
-    const mention = new RegExp(String.raw`(?<![\w.-])${name}(?![\w.-])`);
-    if (mention.test(text) || args.includes(name)) {
+    if (mentions(name)) {
       notes.push(
         `Note: @lablup/ui-common does not export ${name}. Use ${entry.replacedBy} ` +
           `(@lablup/ui-common/${entry.replacedBy}), not ${name}. ${entry.reason}`,
+      );
+    }
+  }
+  for (const fork of forkedExports()) {
+    if (fork.names.some(mentions)) {
+      notes.push(
+        `Note: ${fork.name} (${fork.from}) comes from ui-common: its own copy of ` +
+          `Astryx's, same API and import path. ${fork.reason}`,
       );
     }
   }

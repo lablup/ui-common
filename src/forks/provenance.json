@@ -1,0 +1,64 @@
+{
+  "ComplexSelector": {
+    "package": "@astryxdesign/core",
+    "version": "0.6.2",
+    "upstream": "https://github.com/facebook/astryx/pull/6362",
+    "files": {
+      "src/ComplexSelector/ComplexSelector.tsx": "981e9834c3c2773f1e81ee895b320d1216b2c9671a2253292e816b9a53993abc",
+      "src/ComplexSelector/index.ts": "c33bc95b12e5c3dc3834469b9e057f66f0cb1979c366f880cf24517c710c4314",
+      "src/ComplexSelector/ComplexSelector.test.tsx": "ff7d2a1754cb460cf45266e5ea96ab64c9e6b5a61b8cc7a322e8f54a7884a93a",
+      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
+      "dist/ComplexSelector/ComplexSelector.js": "4e89217a6b16d46c11fd3c2d1c1b1fe39883602ce0fd5569f22ffcc89f1fdd5b",
+      "dist/utils/interactionOverlay.stylex.js": "ac284b71a2e357942caf64b0f689422601b7889c81763e33548bbb41137f2f9b"
+    },
+    "styles": {
+      "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
+      "from": [
+        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
+        {
+          "file": "dist/utils/interactionOverlay.stylex.js",
+          "consts": ["interactionOverlayStyles"]
+        }
+      ]
+    }
+  },
+  "Drawer": {
+    "package": "@astryxdesign/lab",
+    "version": "0.6.2-canary.c9fb1ad",
+    "upstream": null,
+    "files": {
+      "src/Drawer/Drawer.tsx": "f72daf426b140474e79dfc79218238f70310e41893694f06459950ea69cabad3",
+      "src/Drawer/useDrawerDialogPresence.ts": "46f7452950f7a771d14b65fffad8eeb7081a22caac13b6a5d66e7274f3607f6f",
+      "src/Drawer/index.ts": "ab1a3401c786dc87f0812db992ab5033433b30c8a8b6b402b133a9a54149a77c",
+      "src/Drawer/Drawer.test.tsx": "d0634ecdd026aa0e8925324b75bde262b2b297087f44c772c463ba9e03bc499b",
+      "dist/Drawer/Drawer.js": "8867764a9e747dbd96aeb3168d5f9f960bfa02c3d97c9a11c1db279ecc219fff"
+    },
+    "styles": {
+      "file": "src/forks/Drawer/Drawer.styles.ts",
+      "from": [
+        {
+          "file": "dist/Drawer/Drawer.js",
+          "consts": ["styles", "_temp", "dynamicStyles"]
+        }
+      ]
+    }
+  },
+  "Tour": {
+    "package": "@astryxdesign/lab",
+    "version": "0.6.2-canary.c9fb1ad",
+    "upstream": null,
+    "files": {
+      "src/Tour/Tour.tsx": "a379030d01f7e2f0d2b2cdae25aafdeacb6b5dd1c858d5cdb7511d8556735325",
+      "src/Tour/TourStep.tsx": "8977c221017d9a8b466528f1e9ba3d652308a3446d6d42afbfac25c8401da038",
+      "src/Tour/TourContext.ts": "638a4cde7e3b10952a04dc1d86de5e2fbc3fff88c7ed12243e30f072458dff36",
+      "src/Tour/useTour.ts": "431878830f7c070e7520dd8c402e6c8cfab1e5ececefa289b3058791ec0ac49b",
+      "src/Tour/index.ts": "127c290fb8ed1a977d282e0dd407724c0f133634ec8f38b515dc038f1da2efa8",
+      "src/Tour/Tour.test.tsx": "1df4a3d933bc4ca06b882864b91d7dfc0c8302fc7dd3ee34a652f83a9fdec867",
+      "dist/Tour/TourStep.js": "67b192f77652222b3a0eafac98ea1397a224108e0f35d4534efca261a27c64b5"
+    },
+    "styles": {
+      "file": "src/forks/Tour/TourStep.styles.ts",
+      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
+    }
+  }
+}

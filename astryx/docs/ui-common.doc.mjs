@@ -45,6 +45,10 @@ export const docs = {
           text: "ui-common's own components are built on Astryx primitives and never share a name with an Astryx export. Each is exported from the package root; Modal, AlertModal and Form also have their own subpaths.",
         },
         {
+          type: "prose",
+          text: "The exception is a fixed copy of an Astryx component, carrying an upstream fix Astryx has not shipped yet. It keeps Astryx's name, props and import path, and replaces Astryx's in ui-common's exports: `ComplexSelector` (`@lablup/ui-common/ComplexSelector`) adds `hasClear` and `onClear`; lab's `Drawer` keeps an Escape from a layer opened inside it, or one ending an IME composition, from closing it and passes `aria-modal` through; lab's `Tour` keeps a step's spotlight under its callout in StrictMode (both at `@lablup/ui-common/lab`).",
+        },
+        {
           type: "list",
           style: "unordered",
           items: [

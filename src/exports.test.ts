@@ -180,3 +180,49 @@ describe("export surface rules", () => {
     }
   });
 });
+
+describe("forks of Astryx components", () => {
+  const COMPLEX_SELECTOR_NAMES = [
+    "ComplexSelector",
+    "ComplexSelectorHandle",
+    "ComplexSelectorProps",
+    "ComplexSelectorRenderState",
+    "ComplexSelectorSize",
+    "ComplexSelectorStatus",
+    "ComplexSelectorVariant",
+  ];
+
+  it("serves ComplexSelector's subpath from ui-common's copy", () => {
+    expect(result.exports["./ComplexSelector"]).toEqual({
+      types: "./dist/forks/ComplexSelector/index.d.ts",
+      import: "./dist/forks/ComplexSelector/index.js",
+    });
+    expect(result.files.has("src/astryx/ComplexSelector.ts")).toBe(false);
+  });
+
+  it("exports every ComplexSelector name from the root, all from ui-common's copy", () => {
+    const barrel = result.files.get("src/index.ts") ?? "";
+    const fromFork = /export (?:type )?\{([^}]*)\} from "\.\/forks\/ComplexSelector"/g;
+    const names = [...barrel.matchAll(fromFork)].flatMap((m) =>
+      m[1]!
+        .split(",")
+        .map((n) => n.trim())
+        .filter(Boolean),
+    );
+    expect(names.sort()).toEqual(COMPLEX_SELECTOR_NAMES);
+    for (const name of COMPLEX_SELECTOR_NAMES) {
+      expect(result.report.replaced).toContain(name);
+    }
+  });
+
+  it("exports lab's Drawer and Tour from ui-common's copies, not lab", () => {
+    const lab = result.files.get("src/astryx/lab.ts") ?? "";
+    const [fromLab, ...own] = lab.split(/\n\/\/ (?=Drawer|Tour)/);
+    for (const name of ["Drawer", "DrawerProps", "Tour", "TourStep", "useTour"]) {
+      expect(fromLab).not.toMatch(new RegExp(`^\\s+${name},$`, "m"));
+      expect(result.report.replaced).toContain(name);
+    }
+    expect(own.join("\n")).toContain('from "../forks/Drawer";');
+    expect(own.join("\n")).toContain('from "../forks/Tour";');
+  });
+});
