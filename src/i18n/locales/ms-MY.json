@@ -1,6 +1,10 @@
 {
+  "uic.common.ok": {
+    "defaultMessage": "OK",
+    "description": "Generic label of a primary action button that accepts"
+  },
   "uic.common.cancel": {
-    "defaultMessage": "Batalkan",
+    "defaultMessage": "Batal",
     "description": "Generic label of a button that backs out of an action or stops a task"
   },
   "uic.common.confirm": {
@@ -11,8 +15,12 @@
     "defaultMessage": "Padam",
     "description": "Generic label of a button that deletes something"
   },
+  "uic.common.retry": {
+    "defaultMessage": "Cuba semula",
+    "description": "Generic label of a button that retries a failed action or load"
+  },
   "uic.common.apply": {
-    "defaultMessage": "Guna",
+    "defaultMessage": "Gunakan",
     "description": "Generic label of a button that applies the changes made in a dialog"
   },
   "uic.ColorPicker.label": {
@@ -74,6 +82,18 @@
   "uic.SelectionLabel.clear": {
     "defaultMessage": "Nyahpilih semua",
     "description": "Button that clears the whole selection"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "Memuatkan",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "Memuatkan",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "Memuatkan",
+    "description": "Accessible name of a text-block loading placeholder"
   },
   "uic.Statistic.unlimited": {
     "defaultMessage": "Tidak terhad",

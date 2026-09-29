@@ -12,7 +12,7 @@
     "description": "Generic label of a button that confirms an action"
   },
   "uic.common.delete": {
-    "defaultMessage": "消去",
+    "defaultMessage": "削除",
     "description": "Generic label of a button that deletes something"
   },
   "uic.common.retry": {

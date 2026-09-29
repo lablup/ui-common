@@ -1,6 +1,10 @@
 {
+  "uic.common.ok": {
+    "defaultMessage": "OK",
+    "description": "Generic label of a primary action button that accepts"
+  },
   "uic.common.cancel": {
-    "defaultMessage": "Anulować",
+    "defaultMessage": "Anuluj",
     "description": "Generic label of a button that backs out of an action or stops a task"
   },
   "uic.common.confirm": {
@@ -8,8 +12,12 @@
     "description": "Generic label of a button that confirms an action"
   },
   "uic.common.delete": {
-    "defaultMessage": "Usuwać",
+    "defaultMessage": "Usuń",
     "description": "Generic label of a button that deletes something"
+  },
+  "uic.common.retry": {
+    "defaultMessage": "Ponów",
+    "description": "Generic label of a button that retries a failed action or load"
   },
   "uic.common.apply": {
     "defaultMessage": "Zastosuj",
@@ -74,6 +82,18 @@
   "uic.SelectionLabel.clear": {
     "defaultMessage": "Odznacz wszystko",
     "description": "Button that clears the whole selection"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "Ładowanie",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "Ładowanie",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "Ładowanie",
+    "description": "Accessible name of a text-block loading placeholder"
   },
   "uic.Statistic.unlimited": {
     "defaultMessage": "Nieograniczony",

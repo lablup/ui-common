@@ -1,4 +1,8 @@
 {
+  "uic.common.ok": {
+    "defaultMessage": "確定",
+    "description": "Generic label of a primary action button that accepts"
+  },
   "uic.common.cancel": {
     "defaultMessage": "取消",
     "description": "Generic label of a button that backs out of an action or stops a task"
@@ -10,6 +14,10 @@
   "uic.common.delete": {
     "defaultMessage": "刪除",
     "description": "Generic label of a button that deletes something"
+  },
+  "uic.common.retry": {
+    "defaultMessage": "重試",
+    "description": "Generic label of a button that retries a failed action or load"
   },
   "uic.common.apply": {
     "defaultMessage": "套用",
@@ -74,6 +82,18 @@
   "uic.SelectionLabel.clear": {
     "defaultMessage": "取消全選",
     "description": "Button that clears the whole selection"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "載入中",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "載入中",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "載入中",
+    "description": "Accessible name of a text-block loading placeholder"
   },
   "uic.Statistic.unlimited": {
     "defaultMessage": "無限",

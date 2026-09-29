@@ -1,4 +1,8 @@
 {
+  "uic.common.ok": {
+    "defaultMessage": "ตกลง",
+    "description": "Generic label of a primary action button that accepts"
+  },
   "uic.common.cancel": {
     "defaultMessage": "ยกเลิก",
     "description": "Generic label of a button that backs out of an action or stops a task"
@@ -11,8 +15,12 @@
     "defaultMessage": "ลบ",
     "description": "Generic label of a button that deletes something"
   },
+  "uic.common.retry": {
+    "defaultMessage": "ลองใหม่",
+    "description": "Generic label of a button that retries a failed action or load"
+  },
   "uic.common.apply": {
-    "defaultMessage": "ใช้",
+    "defaultMessage": "นำไปใช้",
     "description": "Generic label of a button that applies the changes made in a dialog"
   },
   "uic.ColorPicker.label": {
@@ -74,6 +82,18 @@
   "uic.SelectionLabel.clear": {
     "defaultMessage": "ยกเลิกการเลือกทั้งหมด",
     "description": "Button that clears the whole selection"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "กำลังโหลด",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "กำลังโหลด",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "กำลังโหลด",
+    "description": "Accessible name of a text-block loading placeholder"
   },
   "uic.Statistic.unlimited": {
     "defaultMessage": "ไม่ จำกัด",

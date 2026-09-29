@@ -99,25 +99,8 @@ describe("useUicTranslator", () => {
  */
 const EXTRA_LOCALES = ["id-ID", "mn-MN", "ms-MY", "th-TH"];
 
-/**
- * Keys with no translation yet in the `UNTRANSLATED_IN` locales: their
- * components' origin had no translated string for them. Every other key is
- * translated in every shipped locale file. An allowlisted pair that is
- * translated fails, so the list only shrinks.
- */
-const UNTRANSLATED_KEYS = [
-  "uic.common.ok",
-  "uic.common.retry",
-  "uic.BooleanToken.true",
-  "uic.BooleanToken.false",
-  "uic.NotificationStack.progress",
-  "uic.PageHeader.dismissError",
-  "uic.SkeletonCard.loading",
-  "uic.SkeletonChart.loading",
-  "uic.SkeletonRow.loading",
-  "uic.SkeletonText.loading",
-];
-const UNTRANSLATED_IN = [
+/** Every locale ui-common ships a file for but Korean and Japanese. */
+const OTHER_LOCALES = [
   "de-DE",
   "el-GR",
   "es-ES",
@@ -137,6 +120,22 @@ const UNTRANSLATED_IN = [
   "zh-CN",
   "zh-TW",
 ];
+
+/**
+ * Keys with no translation yet, and the locales they lack it in: no product
+ * that uses them had a translated string to carry over. Every other key is
+ * translated in every shipped locale file. An allowlisted pair that is
+ * translated fails, so the list only shrinks.
+ */
+const UNTRANSLATED: Record<string, readonly string[]> = {
+  // Mongolian products used "БОЛЖ БАЙНА УУ" ("is it OK?"), not a button label.
+  "uic.common.ok": ["mn-MN"],
+  "uic.BooleanToken.true": OTHER_LOCALES,
+  "uic.BooleanToken.false": OTHER_LOCALES,
+  "uic.NotificationStack.progress": OTHER_LOCALES,
+  "uic.PageHeader.dismissError": OTHER_LOCALES,
+  "uic.SkeletonChart.loading": OTHER_LOCALES,
+};
 
 describe("ui-common catalog", () => {
   const LOCALES_DIR = join(__dirname, "locales");
@@ -176,13 +175,13 @@ describe("ui-common catalog", () => {
 
   it("ships a file for every locale it translates", () => {
     expect(translationFiles.map(localeOf).sort()).toEqual(
-      ["ja-JP", "ko-KR", ...UNTRANSLATED_IN].sort(),
+      ["ja-JP", "ko-KR", ...OTHER_LOCALES].sort(),
     );
   });
 
   it("translates every key in every file, but for the allowlist", () => {
     const isAllowed = (locale: string, key: string) =>
-      UNTRANSLATED_IN.includes(locale) && UNTRANSLATED_KEYS.includes(key);
+      UNTRANSLATED[key]?.includes(locale) ?? false;
     for (const file of translationFiles) {
       const locale = localeOf(file);
       const catalog = readLocale(file);
@@ -190,7 +189,7 @@ describe("ui-common catalog", () => {
       const missing = Object.keys(uiCommonCatalog).filter(
         (key) => !isTranslated(key) && !isAllowed(locale, key),
       );
-      const stale = UNTRANSLATED_KEYS.filter(
+      const stale = Object.keys(UNTRANSLATED).filter(
         (key) => isAllowed(locale, key) && isTranslated(key),
       );
       expect({ locale, missing, stale }).toEqual({ locale, missing: [], stale: [] });

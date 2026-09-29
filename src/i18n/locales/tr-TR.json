@@ -1,6 +1,10 @@
 {
+  "uic.common.ok": {
+    "defaultMessage": "Tamam",
+    "description": "Generic label of a primary action button that accepts"
+  },
   "uic.common.cancel": {
-    "defaultMessage": "İptal etmek",
+    "defaultMessage": "İptal",
     "description": "Generic label of a button that backs out of an action or stops a task"
   },
   "uic.common.confirm": {
@@ -8,8 +12,12 @@
     "description": "Generic label of a button that confirms an action"
   },
   "uic.common.delete": {
-    "defaultMessage": "Silmek",
+    "defaultMessage": "Sil",
     "description": "Generic label of a button that deletes something"
+  },
+  "uic.common.retry": {
+    "defaultMessage": "Yeniden Dene",
+    "description": "Generic label of a button that retries a failed action or load"
   },
   "uic.common.apply": {
     "defaultMessage": "Uygula",
@@ -74,6 +82,18 @@
   "uic.SelectionLabel.clear": {
     "defaultMessage": "Tüm seçimi kaldır",
     "description": "Button that clears the whole selection"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "Yükleniyor",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "Yükleniyor",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "Yükleniyor",
+    "description": "Accessible name of a text-block loading placeholder"
   },
   "uic.Statistic.unlimited": {
     "defaultMessage": "Sınırsız",
