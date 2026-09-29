@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
 
@@ -128,6 +128,62 @@ describe("DataGridSettingsModal", () => {
         "Reordering cancelled. Owner is back at position 2 of 3.",
       ),
     ).toBeInTheDocument();
+  });
+
+  describe("with layout", () => {
+    // jsdom has no layout: give each row a 32px slot so dnd-kit can measure.
+    const ROW_HEIGHT = 32;
+    let restore: () => void;
+    beforeEach(() => {
+      const original = Element.prototype.getBoundingClientRect;
+      Element.prototype.getBoundingClientRect = function (this: Element) {
+        const row = this.closest(".uic-data-grid-dialog__row");
+        if (!row?.parentElement) return original.call(this);
+        const index = [...row.parentElement.children].indexOf(row);
+        const top = index * ROW_HEIGHT;
+        return {
+          x: 0,
+          y: top,
+          top,
+          left: 0,
+          right: 300,
+          bottom: top + ROW_HEIGHT,
+          width: 300,
+          height: ROW_HEIGHT,
+          toJSON: () => ({}),
+        } as DOMRect;
+      };
+      restore = () => {
+        Element.prototype.getBoundingClientRect = original;
+      };
+    });
+    afterEach(() => restore());
+
+    const liveText = () =>
+      [...document.querySelectorAll("[aria-live]")]
+        .map((region) => region.textContent)
+        .join("");
+
+    it("reorders by keyboard and keeps the pick-up announcement", async () => {
+      const { onApply } = renderSettings();
+      screen.getByRole("button", { name: "Reorder Owner" }).focus();
+
+      await userEvent.keyboard(" ");
+      await waitFor(() =>
+        expect(liveText()).toBe("Picked up Owner. It is at position 2 of 3."),
+      );
+
+      await userEvent.keyboard("{ArrowDown}");
+      await waitFor(() => expect(liveText()).toBe("Owner moved to position 3 of 3."));
+
+      await userEvent.keyboard(" ");
+      await waitFor(() => expect(liveText()).toBe("Owner dropped at position 3 of 3."));
+
+      await userEvent.click(screen.getByRole("button", { name: "Apply" }));
+      expect(onApply).toHaveBeenCalledWith(
+        expect.objectContaining({ columnOrder: ["name", "size", "owner"] }),
+      );
+    });
   });
 
   it("renders no drag handles when not reorderable", () => {

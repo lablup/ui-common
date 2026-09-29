@@ -19,7 +19,13 @@
  *   }}
  * />
  */
-import { useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
+import {
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -184,16 +190,22 @@ function SettingsBody({
     position: order.indexOf(String(key)) + 1,
     total: order.length,
   });
+  // dnd-kit reports the picked-up row as "over" itself right after pick-up;
+  // announcing only a change of position keeps the pick-up message.
+  const lastOverRef = useRef<UniqueIdentifier | null>(null);
   const announcements: Announcements = {
-    onDragStart: ({ active }) =>
-      t("uic.DataGrid.reorderPickedUp", positionOf(active.id)),
-    onDragOver: ({ active, over }) =>
-      over
-        ? t("uic.DataGrid.reorderMoved", {
-            ...positionOf(over.id),
-            column: labelOf(active.id),
-          })
-        : undefined,
+    onDragStart: ({ active }) => {
+      lastOverRef.current = active.id;
+      return t("uic.DataGrid.reorderPickedUp", positionOf(active.id));
+    },
+    onDragOver: ({ active, over }) => {
+      if (!over || over.id === lastOverRef.current) return undefined;
+      lastOverRef.current = over.id;
+      return t("uic.DataGrid.reorderMoved", {
+        ...positionOf(over.id),
+        column: labelOf(active.id),
+      });
+    },
     onDragEnd: ({ active, over }) =>
       t("uic.DataGrid.reorderDropped", {
         ...positionOf(over?.id ?? active.id),
