@@ -8,9 +8,9 @@ Scanned 6 files under `src`.
 
 | | Count |
 |---|---:|
-| Files changed | 4 |
+| Files changed | 5 |
 | package.json changed | yes |
-| TODO markers left in code | 11 |
+| TODO markers left in code | 12 |
 | Manual-review findings | 5 |
 
 ## Steps
@@ -20,6 +20,7 @@ Scanned 6 files under `src`.
 ## Changed files
 
 - `src/components/common/DataTableWrapper.tsx`: +35 −23, components
+- `src/components/common/Select.test.tsx`: +1 −0, components
 - `src/components/common/index.ts`: +13 −6, components
 - `src/styles/theme.ts`: +1 −2, script-stylesheet-imports
 - `src/styles/ui-common-entry.css` (new): +15 −0, stylesheet-entry
@@ -34,7 +35,7 @@ Scanned 6 files under `src`.
 
 ## Manual review
 
-### TODO markers (11)
+### TODO markers (12)
 
 Each is a `TODO(ui-common-upgrade)` comment in the code, above the call it is about. Resolve it, then delete the comment.
 
@@ -45,10 +46,11 @@ Each is a `TODO(ui-common-upgrade)` comment in the code, above the call it is ab
 - `src/components/common/DataTableWrapper.tsx:54` onRowClick, isRowClickable and rowClassName: use the row-interaction plugin or children mode.
 - `src/components/common/DataTableWrapper.tsx:69` lab Drawer renders no header: render the title, subtitle and footer inside children.
 - `src/components/common/DataTableWrapper.tsx:70` preventDismiss and onDismissAttempt: decline the close in onOpenChange.
-- `src/components/common/index.ts:2` re-exported under the 0.1 name, but the component is Astryx's now; modules importing it from here still pass 0.1 props and need the same migration.
-- `src/components/common/index.ts:4` re-exported under the 0.1 name, but the component is Astryx's now; modules importing it from here still pass 0.1 props and need the same migration.
-- `src/components/common/index.ts:8` re-exported under the 0.1 name, but the component is Astryx's now; modules importing it from here still pass 0.1 props and need the same migration.
-- `src/components/common/index.ts:13` re-exported under the 0.1 name, but the component is Astryx's now; modules importing it from here still pass 0.1 props and need the same migration.
+- `src/components/common/Select.test.tsx:5` `label` is required and is a string; a node label needs a string for the accessible name.
+- `src/components/common/index.ts:2` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
+- `src/components/common/index.ts:4` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
+- `src/components/common/index.ts:8` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
+- `src/components/common/index.ts:13` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
 
 ### CSS selectors on 0.1 class names (2)
 
@@ -73,7 +75,7 @@ Query by role, label or data-testid instead.
 
 | Where | What | Detail |
 |---|---|---|
-| `src/components/common/Select.test.tsx:6` | `const trigger = container.querySelector(".select__trigger");` | .select__trigger (Select): gone |
+| `src/components/common/Select.test.tsx:7` | `const trigger = container.querySelector(".select__trigger");` | .select__trigger (Select): gone |
 
 ### Module mocks of @lablup/ui-common (0)
 
@@ -87,12 +89,17 @@ Astryx declares the same name. Whichever rule wins the cascade now restyles both
 |---|---|---|
 | `src/styles/families.css:6` | `:root { --color-text-secondary: #6b7280 }` | --color-text-secondary |
 
+### Local wrappers around 0.1 components (0)
+
+None.
+
 ### 0.1 stylesheet paths left in place (0)
 
 None.
 
 ## Notes
 
+- Imports through `@/` (1) did not resolve: the upgrade reads relative imports and tsconfig `paths`, not bundler aliases. Elements of 0.1 components imported through a project barrel that way were not migrated; check those modules by hand.
 - DataTable → Table (@lablup/ui-common/Table). Sorting, column resizing, column visibility and persisted column state are Table plugins (`plugins`), not props. loading, loadingState and emptyState: render them around the Table. onRowClick, isRowClickable and rowClassName: use the row-interaction plugin or children mode. The .data-table classes are gone.
 - Drawer → Drawer (@lablup/ui-common/lab). lab Drawer renders no header: render the title, subtitle and footer inside children. closeLabel, ariaLabelledBy and ariaDescribedBy have no counterpart. preventDismiss and onDismissAttempt: decline the close in onOpenChange. The .drawer classes are gone.
 - EmptyState → EmptyState (@lablup/ui-common/EmptyState). primaryAction and secondaryAction become `actions`, a node: <Button variant="primary" label={a.label} onClick={a.onClick} /> and a secondary Button, or a Link for a secondaryAction with href. showIllustration={false}: omit `icon`. children has no slot; put it in `actions` or below the EmptyState. The title renders as an h3 by default; set headingLevel to fit the outline. The .empty-state classes are gone.

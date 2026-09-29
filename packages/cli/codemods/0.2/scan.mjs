@@ -303,6 +303,10 @@ export const CATEGORIES = {
     title: "Custom properties that collide with Astryx tokens",
     help: "Astryx declares the same name. Whichever rule wins the cascade now restyles both your CSS and Astryx's components. Rename yours, or set it through a theme (`defineTheme`) on purpose.",
   },
+  "local-wrapper": {
+    title: "Local wrappers around 0.1 components",
+    help: "Your own component renders a 0.1 component and hands its props on, so it now renders the Astryx one. Its call sites pass the wrapper's props, which the upgrade does not rewrite: check the wrapper's props type and what it passes on against the Astryx component. A pure re-export (`export { Button } from …`) is not listed: its call sites were migrated.",
+  },
   "stylesheet-path": {
     title: "0.1 stylesheet paths left in place",
     help: "Scripts, configs or tests that name `@lablup/ui-common/styles/*` directly. base.css and the orange themes are deprecated in 0.2 and removed in 0.3; the Lablup theme replaces them.",

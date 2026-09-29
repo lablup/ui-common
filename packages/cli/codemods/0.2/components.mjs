@@ -19,6 +19,7 @@ import {
 } from "../lib/jsx.mjs";
 import { addTodo } from "../lib/todo.mjs";
 import { ELEMENT_TRANSFORMS } from "./elements.mjs";
+import { importsLocalLegacy, localExports, registerWrapper } from "./local-modules.mjs";
 import { MOVED, REMOVED, REMOVED_TYPES, UIC } from "./map.mjs";
 
 export const meta = {
@@ -167,8 +168,14 @@ function renameReferences(j, root, from, to, programScope) {
       return;
     }
     if (parent?.type === "ExportSpecifier" && parent.local === p.node) {
-      parent.exported = j.identifier(parent.exported?.name ?? from);
-      parent.local = j.identifier(to);
+      // A fresh node: recast prints a parsed specifier from its original
+      // fields, so editing local/exported in place loses the public name.
+      const spec = j.exportSpecifier.from({
+        local: j.identifier(to),
+        exported: j.identifier(parent.exported?.name ?? from),
+      });
+      if (parent.exportKind) spec.exportKind = parent.exportKind;
+      p.parent.replace(spec);
       return;
     }
     if (!isReference(p)) return;
@@ -271,6 +278,62 @@ function reuseNode(path, decls, kindKey) {
   }
 }
 
+/** @param {any} entry a local-module export */
+const isRemovedType = (entry) => entry?.kind === "type" && entry.removed === true;
+
+/**
+ * Remove a top-level statement, handing its comments (TODOs included) to the
+ * statement after it, or before it when it was the last.
+ *
+ * @param {any} j
+ * @param {any} root
+ * @param {any} path
+ */
+function pruneKeepingComments(j, root, path) {
+  const node = path.node;
+  const comments = node.comments ?? [];
+  const body = root.find(j.Program).get().node.body;
+  const index = body.indexOf(node);
+  path.prune();
+  if (comments.length === 0 || index === -1) return;
+  const next = body[index];
+  if (next) {
+    next.comments = [...comments, ...(next.comments ?? [])];
+    return;
+  }
+  const previous = body[index - 1];
+  if (previous) {
+    previous.comments = [
+      ...(previous.comments ?? []),
+      ...comments.map((/** @type {any} */ c) => ({
+        ...c,
+        leading: false,
+        trailing: true,
+      })),
+    ];
+    return;
+  }
+  keepCommentsInEmptyModule(j, root.find(j.Program).get().node, comments);
+}
+
+/**
+ * A module the codemod emptied keeps its TODOs on an `export {};`, which also
+ * keeps it a module.
+ *
+ * @param {any} j
+ * @param {any} program
+ * @param {any[]} comments
+ */
+function keepCommentsInEmptyModule(j, program, comments) {
+  const decl = j.exportNamedDeclaration(null, []);
+  decl.comments = comments.map((/** @type {any} */ c) => ({
+    ...c,
+    leading: true,
+    trailing: false,
+  }));
+  program.body.push(decl);
+}
+
 /**
  * A removed 0.1 type with no Astryx counterpart loses its import. A local
  * re-export of it (`import type { X } from …; export type { X };`) goes too,
@@ -309,20 +372,11 @@ function dropLocalReexports(j, root, dropped, programScope) {
       addTodo(j, path, message);
       return;
     }
-    const comment = j.commentLine(` ${TODO_TAG}: ${message}`, true, false);
-    const comments = [...(node.comments ?? []), comment];
-    const body = path.parent.node.body;
-    const index = body.indexOf(node);
-    path.prune();
-    const next = body[index] ?? null;
-    if (next) next.comments = [...comments, ...(next.comments ?? [])];
-    else if (body[index - 1]) {
-      const previous = body[index - 1];
-      previous.comments = [
-        ...(previous.comments ?? []),
-        ...comments.map((c) => ({ ...c, leading: false, trailing: true })),
-      ];
-    }
+    node.comments = [
+      ...(node.comments ?? []),
+      j.commentLine(` ${TODO_TAG}: ${message}`, true, false),
+    ];
+    pruneKeepingComments(j, root, path);
   });
 }
 
@@ -332,8 +386,12 @@ function dropLocalReexports(j, root, dropped, programScope) {
  * @param {{flags: {packages: Map<string, string>, touched: Set<string>}}} ctx
  */
 export default function transform(file, api, ctx) {
-  if (!file.source.includes(UIC)) return undefined;
+  const direct = file.source.includes(UIC);
+  const viaLocal = importsLocalLegacy(api.jscodeshift, ctx, file.path, file.source);
+  if (!direct && !viaLocal) return undefined;
   const j = api.jscodeshift;
+  // Registers the wrappers this module defines, for the report.
+  if (direct && ctx.source) localExports(j, ctx, file.path);
   const root = j(file.source);
   const isTS = /\.[cm]?tsx?$/.test(file.path);
   const taken = takenNames(j, root);
@@ -391,10 +449,69 @@ export default function transform(file, api, ctx) {
     return local;
   };
 
+  /**
+   * An import from a project module that hands 0.1 components on (a barrel
+   * the codemod rewrites under the 0.1 names): its components get the same
+   * element rewrite as a direct import, and the import itself stays. Its
+   * removed types go, as from ui-common. A wrapper's import is only counted.
+   *
+   * @param {any} path
+   * @param {string} source
+   */
+  const localImport = (path, source) => {
+    const target = ctx.resolveImport?.(file.path, source);
+    const entries = target ? localExports(j, ctx, target) : null;
+    if (!entries || entries.size === 0) return;
+    const declIsType = path.node.importKind === "type";
+    const kept = [];
+    for (const spec of path.node.specifiers ?? []) {
+      const name =
+        spec.type === "ImportSpecifier"
+          ? spec.imported.name
+          : spec.type === "ImportDefaultSpecifier"
+            ? "default"
+            : null;
+      const entry = name == null ? undefined : entries.get(name);
+      if (entry?.kind === "type" && entry.removed) {
+        touched = true;
+        addTodo(
+          j,
+          path,
+          `type ${entry.type} was removed with ${entry.component} in 0.2 and has no Astryx counterpart; ${source} no longer exports it.`,
+        );
+        droppedTypes.set(spec.local.name, {
+          imported: entry.type,
+          component: entry.component,
+        });
+        continue;
+      }
+      kept.push(spec);
+      if (entry?.kind === "wrapper") registerWrapper(ctx, entry, file.path);
+      if (entry?.kind !== "component") continue;
+      if (declIsType || spec.importKind === "type") continue;
+      touched = true;
+      ctx.flags.touched.add(entry.component);
+      bindings.set(spec.local.name, {
+        component: entry.component,
+        entry: REMOVED.get(entry.component),
+        local: spec.local.name,
+        jsxCount: 0,
+        valueRefs: 0,
+        add: null,
+        via: path,
+      });
+    }
+    if (kept.length > 0) path.node.specifiers = kept;
+    else pruneKeepingComments(j, root, path);
+  };
+
   root.find(j.ImportDeclaration).forEach((/** @type {any} */ path) => {
     const source = path.node.source.value;
     const from = typeof source === "string" ? classify(source) : null;
-    if (!from) return;
+    if (!from) {
+      if (viaLocal && typeof source === "string") localImport(path, source);
+      return;
+    }
     const specifiers = path.node.specifiers ?? [];
     if (specifiers.length === 0) return;
     const declIsType = path.node.importKind === "type";
@@ -494,16 +611,54 @@ export default function transform(file, api, ctx) {
     plans.push({ path, keep, adds });
   });
 
+  /**
+   * A type re-export from a project module (`export type { X }` from `./DataTable`)
+   * of a type that module no longer exports (its own import of X from ui-common
+   * was dropped): drop it too.
+   *
+   * @param {any} path
+   * @param {string} source
+   */
+  const localReexport = (path, source) => {
+    const target = ctx.resolveImport?.(file.path, source);
+    const entries = target ? localExports(j, ctx, target) : null;
+    if (!entries || entries.size === 0) return;
+    const specifiers = path.node.specifiers ?? [];
+    const gone = specifiers.filter(
+      (/** @type {any} */ s) =>
+        s.type === "ExportSpecifier" && isRemovedType(entries.get(s.local?.name)),
+    );
+    if (gone.length === 0) return;
+    touched = true;
+    const names = gone.map((/** @type {any} */ s) => s.exported.name);
+    const message = `${names.join(", ")} ${names.length === 1 ? "is" : "are"} no longer re-exported: ${source} does not export ${names.length === 1 ? "it" : "them"} any more (removed in 0.2, no Astryx counterpart).`;
+    const rest = specifiers.filter((/** @type {any} */ s) => !gone.includes(s));
+    if (rest.length > 0) {
+      path.node.specifiers = rest;
+      addTodo(j, path, message);
+    } else {
+      path.node.comments = [
+        ...(path.node.comments ?? []),
+        j.commentLine(` ${TODO_TAG}: ${message}`, true, false),
+      ];
+      pruneKeepingComments(j, root, path);
+    }
+  };
+
   // Re-exports: `export { Select } from "@lablup/ui-common"` keeps its name.
   root.find(j.ExportNamedDeclaration).forEach((/** @type {any} */ path) => {
     const source = path.node.source?.value;
     const from = typeof source === "string" ? classify(source) : null;
-    if (!from) return;
+    if (!from) {
+      if (viaLocal && typeof source === "string") localReexport(path, source);
+      return;
+    }
     const declIsType = path.node.exportKind === "type";
     const keep = [];
     /** @type {Map<string, any[]>} */
     const moved = new Map();
     let reexportedComponent = false;
+    let droppedSpecs = 0;
     for (const spec of path.node.specifiers ?? []) {
       const localName = spec.local?.name ?? spec.exported.name;
       const imported =
@@ -531,6 +686,7 @@ export default function transform(file, api, ctx) {
             `type ${imported} was removed with ${resolved.component} in 0.2 and has no Astryx counterpart.`,
           );
           touched = true;
+          droppedSpecs++;
           continue;
         }
         target = resolved.to;
@@ -554,7 +710,13 @@ export default function transform(file, api, ctx) {
       );
       moved.set(key, list);
     }
-    if (moved.size === 0) return;
+    if (moved.size === 0) {
+      // Only removed types: they go, and the TODO stays where they stood.
+      if (droppedSpecs === 0) return;
+      if (keep.length > 0) path.node.specifiers = keep;
+      else pruneKeepingComments(j, root, path);
+      return;
+    }
     const decls = [...moved.entries()].map(([key, specs]) => {
       const [kind, targetSource] = key.split("\u0000");
       const decl = j.exportNamedDeclaration(null, specs, j.stringLiteral(targetSource));
@@ -564,7 +726,7 @@ export default function transform(file, api, ctx) {
     if (reexportedComponent) {
       decls[0].comments = [
         j.commentLine(
-          " TODO(ui-common-upgrade): re-exported under the 0.1 name, but the component is Astryx's now; modules importing it from here still pass 0.1 props and need the same migration.",
+          " TODO(ui-common-upgrade): re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.",
           true,
           false,
         ),
@@ -587,7 +749,7 @@ export default function transform(file, api, ctx) {
     addTodo(
       j,
       path,
-      `\`export *\` from ${source} now re-exports Astryx's Badge, Button, Tooltip, … under the 0.1 names; modules importing them from here still pass 0.1 props.`,
+      `\`export *\` from ${source} now re-exports Astryx's Badge, Button, Tooltip, … under the 0.1 names. The upgrade migrated the elements of them in the modules it scanned that import them from here; any other importer still passes 0.1 props.`,
     );
   });
 
@@ -664,6 +826,29 @@ export default function transform(file, api, ctx) {
     });
   }
 
+  // A local-barrel import whose every element became another component
+  // (Button → IconButton) is unused now.
+  for (const [local, binding] of bindings) {
+    if (!binding.via || binding.via.pruned) continue;
+    let used = false;
+    root.findJSXElements(local).forEach((/** @type {any} */ p) => {
+      if (isModuleBinding(p, local, programScope)) used = true;
+    });
+    root.find(j.Identifier, { name: local }).forEach((/** @type {any} */ p) => {
+      if (p.node.type === "JSXIdentifier" || !isReference(p)) return;
+      if (isModuleBinding(p, local, programScope)) used = true;
+    });
+    if (used) continue;
+    const node = binding.via.node;
+    node.specifiers = (node.specifiers ?? []).filter(
+      (/** @type {any} */ s) => s.local?.name !== local,
+    );
+    if (node.specifiers.length === 0) {
+      pruneKeepingComments(j, root, binding.via);
+      binding.via.pruned = true;
+    }
+  }
+
   for (const [from, to] of renames) renameReferences(j, root, from, to, programScope);
 
   // Imports: the planned moves, minus a Card import every BaseCard outgrew.
@@ -671,6 +856,7 @@ export default function transform(file, api, ctx) {
     [...bindings.values()]
       .filter(
         (b) =>
+          b.add != null &&
           b.component === "BaseCard" &&
           b.jsxCount === 0 &&
           b.valueRefs === 0 &&
@@ -695,6 +881,7 @@ export default function transform(file, api, ctx) {
         const program = root.find(j.Program).get().node;
         const first = program.body[0];
         if (first) first.comments = [...comments, ...(first.comments ?? [])];
+        else keepCommentsInEmptyModule(j, program, comments);
       }
     }
   }

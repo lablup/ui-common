@@ -88,6 +88,10 @@ Astryx declares the same name. Whichever rule wins the cascade now restyles both
 | `src/themes/violet.css:3` | `[data-theme="violet-light"] { --color-border: #e0dcf5 }` | --color-border |
 | `src/themes/violet.css:4` | `[data-theme="violet-light"] { --color-text-primary: #1b1535 }` | --color-text-primary |
 
+### Local wrappers around 0.1 components (0)
+
+None.
+
 ### 0.1 stylesheet paths left in place (0)
 
 None.

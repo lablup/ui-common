@@ -22,6 +22,7 @@ import { registeredVersions, stepsBetween } from "../codemods/registry.mjs";
 import { TODO_TAG } from "../codemods/lib/jsx.mjs";
 import { diffStat, unifiedDiff } from "./diff.mjs";
 import { cliPackageJson, findProjectDir } from "./paths.mjs";
+import { createResolver } from "./resolve.mjs";
 import { renderReport, REPORT_HEADING } from "./report.mjs";
 import { coerce, compare, parse } from "./semver.mjs";
 
@@ -207,12 +208,43 @@ export async function runUpgrade(options) {
   const errors = [];
   /** @type {string[]} */
   const notices = [];
+  const resolver = createResolver(projectDir);
+  /** @type {Map<string, string | null>} */
+  const unscanned = new Map();
   const ctx = {
     from,
     to,
     flags: { packages: new Map(), touched: new Set() },
     projectDir,
     note: (/** @type {string} */ message) => packageNotes.push(message),
+    /**
+     * A project file as it was before this run: the scanned sources from
+     * memory, anything else from disk (read once). Null outside the project
+     * or when unreadable.
+     *
+     * @param {string} path absolute
+     */
+    source: (path) => {
+      const known = state.get(path);
+      if (known) return known.created ? null : known.original;
+      if (
+        !path.startsWith(projectDir + sep) ||
+        path.split(sep).includes("node_modules")
+      )
+        return null;
+      if (!unscanned.has(path)) {
+        let text = null;
+        try {
+          text = readFileSync(path, "utf8");
+        } catch {
+          // left null
+        }
+        unscanned.set(path, text);
+      }
+      return unscanned.get(path) ?? null;
+    },
+    /** The project file an import specifier names (relative or a tsconfig alias), or null. */
+    resolveImport: resolver.resolveImport,
     /**
      * Edit a project file outside the scanned sources (pnpm-workspace.yaml).
      * `edit` gets its current text (null: absent) and returns the new text,
@@ -348,6 +380,7 @@ export async function runUpgrade(options) {
   const categories = {};
   for (const { step } of steps) {
     Object.assign(categories, step.categories ?? {});
+    if (step.findings) findings.push(...step.findings(ctx, rel));
     if (!step.scan) continue;
     for (const [file, entry] of state) {
       if (entry.created || entry.project) continue;
@@ -402,6 +435,15 @@ export async function runUpgrade(options) {
       writeFileSync(c.abs, c.current);
     }
     if (pkgChanged && pkgAfter != null) writeFileSync(pkgFile, pkgAfter);
+  }
+
+  if (resolver.unresolved.size > 0) {
+    const list = [...resolver.unresolved.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([prefix, n]) => `\`${prefix}\` (${n})`);
+    notices.push(
+      `Imports through ${list.join(", ")} did not resolve: the upgrade reads relative imports and tsconfig \`paths\`, not bundler aliases. Elements of 0.1 components imported through a project barrel that way were not migrated; check those modules by hand.`,
+    );
   }
 
   const report = renderReport({

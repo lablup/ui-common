@@ -59,6 +59,10 @@ None.
 
 None.
 
+### Local wrappers around 0.1 components (0)
+
+None.
+
 ### 0.1 stylesheet paths left in place (0)
 
 None.

@@ -29,6 +29,7 @@ import { compare, parse } from "../cli/semver.mjs";
  * @property {Transform[]} transforms
  * @property {(text: string, ctx: any) => string | undefined} [packageJson]
  * @property {(file: string, source: string) => Array<{category: string, file: string, line: number, text: string, detail?: string}>} [scan]
+ * @property {(ctx: any, rel: (file: string) => string) => Array<{category: string, file: string, line: number, text: string, detail?: string}>} [findings] report findings the transforms collected, after they ran
  * @property {Record<string, {title: string, help: string}>} [categories]
  * @property {string[] | ((ctx: any) => string[])} [notes] report notes, or a function of the run
  */

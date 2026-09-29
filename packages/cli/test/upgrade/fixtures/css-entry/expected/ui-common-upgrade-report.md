@@ -55,6 +55,10 @@ None.
 
 None.
 
+### Local wrappers around 0.1 components (0)
+
+None.
+
 ### 0.1 stylesheet paths left in place (1)
 
 Scripts, configs or tests that name `@lablup/ui-common/styles/*` directly. base.css and the orange themes are deprecated in 0.2 and removed in 0.3; the Lablup theme replaces them.

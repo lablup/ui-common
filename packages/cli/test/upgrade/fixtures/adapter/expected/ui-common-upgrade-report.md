@@ -75,6 +75,10 @@ Astryx declares the same name. Whichever rule wins the cascade now restyles both
 |---|---|---|
 | `src/design-system/common-components.css:6` | `:root { --color-error: #d4380d }` | --color-error |
 
+### Local wrappers around 0.1 components (0)
+
+None.
+
 ### 0.1 stylesheet paths left in place (0)
 
 None.

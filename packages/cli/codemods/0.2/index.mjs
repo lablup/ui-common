@@ -3,6 +3,7 @@
  * `migration/0.1-to-0.2.json` (see ./map.mjs).
  */
 import transformComponents, { meta as componentsMeta } from "./components.mjs";
+import { wrapperFindings } from "./local-modules.mjs";
 import { LAB_CSS, LAB_PACKAGE, REMOVED, UIC } from "./map.mjs";
 import { transformPackageJson } from "./package-json.mjs";
 import { CATEGORIES, scanFile } from "./scan.mjs";
@@ -54,6 +55,7 @@ export default {
   ],
   packageJson: transformPackageJson,
   scan: scanFile,
+  findings: wrapperFindings,
   categories: CATEGORIES,
   notes,
 };
