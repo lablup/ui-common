@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
@@ -63,5 +65,47 @@ describe("DoubleToken", () => {
     const tokens = Array.from(root(container).children);
     expect(tokens[0]).toHaveAttribute("aria-label", "python");
     expect(screen.getByText("py")).toHaveClass("uic-text-highlighter__match");
+  });
+
+  it("renders a value's endContent in place of its visible label", () => {
+    const { container } = render(
+      <DoubleToken
+        values={[
+          { label: "role", color: "default" },
+          {
+            label: "abc-123",
+            endContent: <span data-testid="copyable">abc-123 (copy)</span>,
+          },
+        ]}
+      />,
+    );
+    const tokens = Array.from(root(container).children);
+    expect(tokens[0]).toHaveTextContent("role");
+    expect(tokens[1]).toHaveAttribute("aria-label", "abc-123");
+    expect(tokens[1]).toContainElement(screen.getByTestId("copyable"));
+    // The hidden label is still in the DOM, visually hidden.
+    expect(tokens[1]?.textContent).toBe("abc-123abc-123 (copy)");
+  });
+
+  it("leaves highlighting inside a caller's endContent to the caller", () => {
+    render(
+      <DoubleToken
+        highlightKeyword="py"
+        values={[
+          { label: "python" },
+          { label: "pytorch", endContent: <span data-testid="own">pytorch</span> },
+        ]}
+      />,
+    );
+    expect(screen.getAllByText("py")).toHaveLength(1);
+    expect(screen.getByTestId("own")).toHaveTextContent("pytorch");
+  });
+
+  // A copy control's tooltip renders as a trailing sibling of the tokens, so
+  // `:last-child` would never match the last token and leave its end square.
+  it("squares inner end corners by element type, not child position", () => {
+    const css = readFileSync(join(__dirname, "DoubleToken.css"), "utf8");
+    expect(css).toContain(".uic-double-token__item:not(:last-of-type)");
+    expect(css).not.toContain(":not(:last-child)");
   });
 });

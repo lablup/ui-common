@@ -15,8 +15,9 @@ export default {
   props: [
     {
       name: "values",
-      type: "Array<string> | Array<{ label: string; color?: TokenColor }>",
-      description: "The tokens, in order.",
+      type: "Array<string> | Array<{ label: string; color?: TokenColor; endContent?: ReactNode }>",
+      description:
+        "The tokens, in order. A value's endContent replaces its visible label (the label stays the accessible name); the caller renders the label inside it, and highlightKeyword does not reach into it.",
     },
     {
       name: "highlightKeyword",

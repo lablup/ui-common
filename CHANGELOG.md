@@ -5,7 +5,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- `DoubleToken`: a value's `endContent` renders in place of its visible
+  label (a copy control around the text, say). The label stays the
+  accessible name; `highlightKeyword` does not reach into it.
+
 ### Fixed
+
+- `DoubleToken` squares inner end corners with `:not(:last-of-type)`, so an
+  element trailing the tokens (a copy control's tooltip) no longer squares
+  the last token's outer corners.
 
 - `DataGrid`'s root (`.uic-data-grid`) is `min-width: 0; max-width: 100%`,
   so a wide grid inside a flex or grid parent scrolls itself instead of
