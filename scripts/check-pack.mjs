@@ -13,11 +13,21 @@
  * by nothing, and named by no exports entry, so a consumer had no supported
  * way to load it. Checking that advertised paths resolve says nothing about
  * files that arrive advertised by no one.
+ *
+ * Two tarballs come out of this repository, at one version: the library
+ * (@lablup/ui-common, the root) and its command line (@lablup/ui-common-cli,
+ * packages/cli). Both are packed with pnpm, as the publish workflow packs
+ * them, so the manifests checked are the published ones, with `workspace:`
+ * ranges already rewritten. The library must carry none of the CLI; the CLI
+ * must carry nothing of the library's build.
  */
 import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
+import { builtinModules } from "node:module";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import {
   dirname as posixDirname,
   join as posixJoin,
@@ -25,6 +35,7 @@ import {
 } from "node:path/posix";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const cliRoot = resolve(root, "packages/cli");
 
 const FORBIDDEN_IN_TARBALL = [
   { pattern: /(^|\/)src\//, reason: "package source must not ship" },
@@ -45,26 +56,65 @@ const FORBIDDEN_IN_TARBALL = [
   },
 ];
 
-function packFileList() {
-  const raw = execFileSync("npm", ["pack", "--dry-run", "--json"], {
-    cwd: root,
+/** What only the CLI package ships. */
+const CLI_ONLY = [
+  {
+    pattern: /^(bin|cli|codemods|migration)\//,
+    reason: "the CLI ships in @lablup/ui-common-cli",
+  },
+];
+/** The CLI's toolchain, which must stay out of a consumer's production install. */
+const CLI_DEPENDENCIES = [
+  "@astryxdesign/cli",
+  "jscodeshift",
+  "postcss",
+  "postcss-selector-parser",
+];
+
+const scratch = mkdtempSync(join(tmpdir(), "uic-check-pack-"));
+process.on("exit", () => rmSync(scratch, { recursive: true, force: true }));
+
+/**
+ * Pack `dir` with pnpm and return the packed paths and the packed manifest.
+ *
+ * @param {string} dir
+ */
+function pack(dir) {
+  const raw = execFileSync("pnpm", ["pack", "--pack-destination", scratch, "--json"], {
+    cwd: dir,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   });
   const parsed = JSON.parse(raw);
-  return parsed[0].files.map((f) => f.path);
+  const manifest = JSON.parse(
+    execFileSync("tar", ["-xzOf", parsed.filename, "package/package.json"], {
+      encoding: "utf8",
+    }),
+  );
+  return { files: parsed.files.map((f) => f.path), manifest };
 }
 
-const packed = packFileList();
 const failures = [];
 
+const { files: packed, manifest: pkg } = pack(root);
+
 for (const file of packed) {
-  for (const { pattern, reason } of FORBIDDEN_IN_TARBALL) {
+  for (const { pattern, reason } of [...FORBIDDEN_IN_TARBALL, ...CLI_ONLY]) {
     if (pattern.test(file)) failures.push(`unexpected file "${file}": ${reason}`);
   }
 }
+if (pkg.bin)
+  failures.push(
+    `@lablup/ui-common declares a bin; it belongs to @lablup/ui-common-cli`,
+  );
+for (const name of CLI_DEPENDENCIES) {
+  if (pkg.dependencies?.[name]) {
+    failures.push(
+      `@lablup/ui-common depends on "${name}", which only the CLI needs; it belongs to @lablup/ui-common-cli`,
+    );
+  }
+}
 
-const pkg = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const packedSet = new Set(packed);
 
 /** Turn an exports target into a predicate over packed file paths. */
@@ -232,14 +282,92 @@ for (const { what, file, mustContain } of THIRD_PARTY_NOTICES) {
   }
 }
 
+/**
+ * The CLI tarball: its bin, its modules and the data they read, nothing of the
+ * library's build, and a manifest a consumer can install next to the library.
+ */
+const { files: cliPacked, manifest: cliPkg } = pack(cliRoot);
+const cliPackedSet = new Set(cliPacked);
+
+for (const file of cliPacked) {
+  for (const { pattern, reason } of [
+    ...FORBIDDEN_IN_TARBALL,
+    { pattern: /^dist\//, reason: "the library's build ships in @lablup/ui-common" },
+  ]) {
+    if (pattern.test(file)) failures.push(`unexpected CLI file "${file}": ${reason}`);
+  }
+}
+for (const required of [
+  "migration/0.1-to-0.2.json",
+  "codemods/registry.mjs",
+  "cli/main.mjs",
+  "LICENSE",
+  "NOTICE",
+]) {
+  if (!cliPackedSet.has(required)) failures.push(`the CLI tarball lacks "${required}"`);
+}
+const cliBin = cliPkg.bin?.["ui-common"]?.replace(/^\.\//, "");
+if (!cliBin) failures.push(`@lablup/ui-common-cli declares no "ui-common" bin`);
+else if (!cliPackedSet.has(cliBin))
+  failures.push(`the "ui-common" bin "${cliBin}" is not packed`);
+if (cliPkg.version !== pkg.version) {
+  failures.push(
+    `@lablup/ui-common-cli is ${cliPkg.version} but @lablup/ui-common is ${pkg.version}; they are released in lockstep`,
+  );
+}
+const cliPeer = cliPkg.peerDependencies?.["@lablup/ui-common"];
+if (cliPeer !== pkg.version) {
+  failures.push(
+    `@lablup/ui-common-cli's @lablup/ui-common peer is "${cliPeer}", not exactly ${pkg.version}`,
+  );
+}
+for (const field of ["dependencies", "peerDependencies", "optionalDependencies"]) {
+  for (const [name, range] of Object.entries(cliPkg[field] ?? {})) {
+    if (String(range).startsWith("workspace:"))
+      failures.push(`@lablup/ui-common-cli ${field}["${name}"] is still "${range}"`);
+  }
+}
+
+// Every import in a packed module resolves: a relative one to a packed file,
+// a bare one to a dependency or peer the consumer is guaranteed to install.
+const cliDeclared = new Set([
+  ...Object.keys(cliPkg.dependencies ?? {}),
+  ...Object.keys(cliPkg.peerDependencies ?? {}),
+]);
+const builtins = new Set(builtinModules);
+const anyImport =
+  /(?:\bimport\s*(?:[\w*{}\s,$]+\s*from\s*)?|\bexport\s*[\w*{}\s,$]+\s*from\s*|\bimport\s*\()\s*["']([.@\w][\w@./:-]*)["']/g;
+for (const file of cliPacked.filter((f) => f.endsWith(".mjs"))) {
+  const code = await readFile(resolve(cliRoot, file), "utf8");
+  for (const [, specifier] of code.matchAll(anyImport)) {
+    if (specifier.startsWith(".")) {
+      const target = posixNormalize(posixJoin(posixDirname(file), specifier));
+      if (!cliPackedSet.has(target)) {
+        failures.push(`CLI "${file}" imports "${specifier}", which is not packed`);
+      }
+      continue;
+    }
+    if (specifier.startsWith("node:") || builtins.has(specifier)) continue;
+    const name = packageOf(specifier);
+    if (!cliDeclared.has(name)) {
+      failures.push(
+        `CLI "${file}" imports "${specifier}", but "${name}" is neither a dependency nor a peer`,
+      );
+    }
+  }
+}
+
 if (failures.length > 0) {
   console.error(`Packed artifact check failed (${failures.length}):\n`);
   for (const f of failures) console.error(`  ${f}`);
-  console.error(`\nPacked ${packed.length} file(s).`);
+  console.error(
+    `\nPacked ${packed.length} file(s) in @lablup/ui-common, ${cliPacked.length} in @lablup/ui-common-cli.`,
+  );
   process.exit(1);
 }
 
 console.log(
-  `Packed artifact clean: ${packed.length} file(s), ` +
-    `${Object.keys(pkg.exports ?? {}).length} export path(s) resolve.`,
+  `Packed artifact clean: @lablup/ui-common ${packed.length} file(s), ` +
+    `${Object.keys(pkg.exports ?? {}).length} export path(s) resolve; ` +
+    `@lablup/ui-common-cli ${cliPacked.length} file(s), bin and imports resolve.`,
 );
