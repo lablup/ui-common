@@ -31,6 +31,7 @@ import {
   type InternationalizationContextValue,
 } from "@astryxdesign/core/i18n";
 
+import { registerInstance } from "../instance";
 import { uiCommonCatalog } from "./catalog";
 
 export type UicTranslate = (key: string, values?: Record<string, unknown>) => string;
@@ -66,6 +67,7 @@ function providedByConsumer(
 }
 
 export function useUicTranslator(catalog: Catalog = uiCommonCatalog): UicTranslate {
+  registerInstance();
   const ctx = useContext(InternationalizationContext);
   return useCallback(
     (key, values) => {

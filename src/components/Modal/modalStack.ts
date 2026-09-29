@@ -14,6 +14,8 @@
 import { useEffectEvent, useLayoutEffect, useState, type RefObject } from "react";
 import { devWarn } from "@astryxdesign/core/utils";
 
+import { registerInstance } from "../../instance";
+
 /**
  * Marks an open modal root. Scope document queries to it through this
  * constant rather than retyping the string.
@@ -184,6 +186,7 @@ export function claimModalLevel(
   setIsTopmost: (isTopmost: boolean) => void,
   requestedZIndex?: number,
 ): ModalLevelEntry {
+  registerInstance();
   const topmost = openModals.at(-1);
   const entry: ModalLevelEntry = {
     level: Math.min((topmost?.level ?? -1) + 1, MAX_MODAL_LEVEL),

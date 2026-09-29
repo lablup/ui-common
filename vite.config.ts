@@ -1,5 +1,5 @@
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, isAbsolute, posix, relative, resolve, sep } from "node:path";
 
@@ -13,6 +13,11 @@ import { uiCommonCatalog } from "./src/i18n/catalog.ts";
 import { withLayerOrder } from "./scripts/layer-order.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
+
+const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8")) as {
+  version: string;
+  dependencies: Record<string, string>;
+};
 
 /**
  * Every component and hook barrel is its own Rollup entry. Combined with
@@ -242,6 +247,11 @@ function linkComponentStyles(): Plugin {
 }
 
 export default defineConfig({
+  // Read by the duplicate-copy warning (src/instance.ts).
+  define: {
+    __UI_COMMON_VERSION__: JSON.stringify(pkg.version),
+    __ASTRYX_CORE_VERSION__: JSON.stringify(pkg.dependencies["@astryxdesign/core"]),
+  },
   plugins: [
     react(),
     dts({
