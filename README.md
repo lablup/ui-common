@@ -32,8 +32,10 @@ Peer dependencies:
   `@lablup/ui-common/lab`. It is pinned to the exact canary ui-common is built
   against, and it needs the override below.
 
-Astryx itself (`@astryxdesign/core`, `@astryxdesign/theme-neutral`,
-`@astryxdesign/cli`) comes in as ui-common's own dependencies, pinned exactly.
+Astryx itself (`@astryxdesign/core`, `@astryxdesign/theme-neutral`) comes in
+as ui-common's own dependencies, pinned exactly. The `ui-common` bin and the
+Astryx CLI it wraps are a separate dev-time package, `@lablup/ui-common-cli`
+([The ui-common CLI](#the-ui-common-cli)).
 `lucide-react` (the icon set Astryx's neutral theme already depends on) and
 `intl-messageformat` come in the same way.
 Do not add them to your project. ui-common owns the Astryx version. Two copies
@@ -374,16 +376,22 @@ Removed in 0.2, each replaced by Astryx:
 
 The kept components keep their 0.1 props. Their class names moved to `uic-`
 (`page-header` is `uic-page-header`), so CSS or tests that select the old
-names need updating. [`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json)
+names need updating. [`migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json)
 lists every import, prop, class and stylesheet change in a form the upgrade
 tool reads.
 
-Let the upgrade tool do the mechanical part. After bumping the dependency:
+Let the upgrade tool do the mechanical part. It ships in
+`@lablup/ui-common-cli`, so run it one-off from the project still on 0.1:
 
 ```
-pnpm exec ui-common upgrade --from 0.1 --dry-run   # writes nothing; prints the changes and the report
-pnpm exec ui-common upgrade --from 0.1             # applies it
+pnpm dlx @lablup/ui-common-cli upgrade --from 0.1 --dry-run   # writes nothing; prints the changes and the report
+pnpm dlx @lablup/ui-common-cli upgrade --from 0.1             # applies it
 ```
+
+(`npx @lablup/ui-common-cli upgrade --from 0.1` with npm.) It bumps
+`@lablup/ui-common` in `package.json` and adds `@lablup/ui-common-cli` as a
+devDependency at the same version; then run your install, and later upgrades
+are `pnpm exec ui-common upgrade --from <old version>`.
 
 It moves the imports, reshapes the props it can prove safe, rewrites the
 `styles/base.css` import into the 0.2 stylesheet set, and updates
@@ -413,8 +421,29 @@ Deprecated in 0.2, removed in 0.3:
 
 ## The ui-common CLI
 
-ui-common ships a `ui-common` bin. It wraps the Astryx CLI that ui-common pins,
-so a project needs no `@astryxdesign/*` dependency of its own to use it.
+The `ui-common` bin is its own package, `@lablup/ui-common-cli`, released at
+the same version as `@lablup/ui-common` and taking it as a peer. It wraps the
+Astryx CLI it pins, so a project needs no `@astryxdesign/*` dependency of its
+own to use it. Being separate keeps the Astryx CLI and the codemod toolchain
+(jscodeshift, postcss) out of a production install, the way Astryx splits
+`@astryxdesign/cli` from `@astryxdesign/core`. Keep it a devDependency pinned
+to the same version as `@lablup/ui-common`, and bump the two together:
+
+```
+pnpm add -D @lablup/ui-common-cli@<the @lablup/ui-common version>
+```
+
+Under pnpm 11, allow or decline the Astryx packages' postinstall (it only
+prints an `astryx init` nudge) in `pnpm-workspace.yaml`, or the install stops
+with `ERR_PNPM_IGNORED_BUILDS`:
+
+```yaml
+allowBuilds:
+  "@astryxdesign/core": false
+  "@astryxdesign/cli": false
+```
+
+Then:
 
 ```
 pnpm exec ui-common component Button     # any Astryx command: component, search,
@@ -428,14 +457,16 @@ pnpm exec ui-common upgrade --from 0.1 --dry-run
 | `ui-common <astryx command> …`                                                              | Runs the pinned Astryx CLI and rewrites its output to ui-common: `@astryxdesign/core/<X>` is `@lablup/ui-common/<X>`, `@astryxdesign/lab` is `@lablup/ui-common/lab`, `@astryxdesign/theme-neutral` is `@lablup/ui-common/theme/neutral`, and commands read `ui-common …`. A name ui-common hides gets a note ("Use Modal, not Dialog"). `--json` output stays valid JSON; the note goes to stderr. The exit code is Astryx's. |
 | `ui-common astryx …`                                                                        | The same, without rewriting.                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `ui-common agents [--write <file>] [--check]`                                               | Prints the agent block: Astryx's `init --features agents` block, rewritten, plus ui-common's rules. It sits between `<!-- UI-COMMON:START -->` and `<!-- UI-COMMON:END -->`, which `astryx init` never touches. `--write` replaces the block in place and keeps the rest of the file; `--check` exits 1 when it is stale.                                                                                                      |
-| `ui-common upgrade [--from <v>] [--to <v>] [--dry-run] [--diff] [--report <path>] [paths…]` | Runs the codemods between two ui-common versions over `src/` (or `paths`), updates `package.json`, and writes `ui-common-upgrade-report.md` (a `--dry-run` writes nothing and prints the report, unless `--report` names a file). `--from` defaults to the version `package.json` declares, `--to` to the installed one.                                                                                                       |
+| `ui-common upgrade [--from <v>] [--to <v>] [--dry-run] [--diff] [--report <path>] [paths…]` | Runs the codemods between two ui-common versions over `src/` (or `paths`), updates `package.json`, and writes `ui-common-upgrade-report.md` (a `--dry-run` writes nothing and prints the report, unless `--report` names a file). `--from` defaults to the version `package.json` declares, `--to` to the CLI's own (the ui-common version it ships with).                                                                     |
 | `ui-common sync-astryx <version> [--lab <v>] [--as <v>] [--dry-run]`                        | Maintainers only; see [CONTRIBUTING.md](CONTRIBUTING.md#bumping-astryx).                                                                                                                                                                                                                                                                                                                                                       |
 
 Exit codes: a passed-through command exits with Astryx's code. ui-common's own
 commands exit 0 on success, 1 on a failed check or run, and 2 on bad arguments.
 
 `component`, `search` and the other lookups find `@astryxdesign/core` through
-ui-common, so they work in a project that depends on ui-common alone.
+the project's `@lablup/ui-common`, so they work in a project that depends on
+ui-common (and the CLI) alone. Without the CLI installed, any command runs
+one-off as `pnpm dlx @lablup/ui-common-cli <command>` (or `npx`).
 
 ui-common is also an Astryx CLI integration: `ui-common docs ui-common` (or
 `astryx docs ui-common`) explains the layer, and `ui-common component Modal`
