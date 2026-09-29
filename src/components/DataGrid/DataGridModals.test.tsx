@@ -98,6 +98,38 @@ describe("DataGridSettingsModal", () => {
     );
   });
 
+  it("names each drag handle and keeps it in the accessibility tree", () => {
+    renderSettings();
+    const handle = screen.getByRole("button", { name: "Reorder Size" });
+    expect(handle).toHaveClass("uic-data-grid-dialog__handle");
+    expect(handle).not.toHaveAttribute("aria-hidden");
+    expect(handle).toHaveAttribute("tabindex", "0");
+    expect(screen.getByRole("button", { name: "Reorder Name" })).toBeInTheDocument();
+  });
+
+  it("describes keyboard reordering from the catalog", () => {
+    renderSettings();
+    const handle = screen.getByRole("button", { name: "Reorder Size" });
+    expect(handle).toHaveAccessibleDescription(
+      "Press Space to pick up the column, use the arrow keys to move it, then press Space again to drop it or Escape to cancel.",
+    );
+  });
+
+  it("announces a keyboard pick-up with the column's position", async () => {
+    renderSettings();
+    screen.getByRole("button", { name: "Reorder Owner" }).focus();
+    await userEvent.keyboard(" ");
+    expect(
+      await screen.findByText("Picked up Owner. It is at position 2 of 3."),
+    ).toBeInTheDocument();
+    await userEvent.keyboard("{Escape}");
+    expect(
+      await screen.findByText(
+        "Reordering cancelled. Owner is back at position 2 of 3.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("renders no drag handles when not reorderable", () => {
     renderSettings({ isReorderable: false });
     expect(handles(screen.getByRole("dialog"))).toHaveLength(0);
@@ -133,6 +165,7 @@ describe("DataGridSettingsModal", () => {
     );
     expect(screen.getByRole("dialog")).toHaveAccessibleName("표 설정");
     expect(screen.getByRole("button", { name: "적용" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Name 순서 변경" })).toBeInTheDocument();
   });
 });
 

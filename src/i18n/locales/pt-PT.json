@@ -267,6 +267,30 @@
     "defaultMessage": "Pesquisar colunas da tabela",
     "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
   },
+  "uic.DataGrid.reorderColumn": {
+    "defaultMessage": "Reordenar {column}",
+    "description": "Accessible name of the drag handle beside a column in a data grid's column settings dialog. {column} is the column's label"
+  },
+  "uic.DataGrid.reorderInstructions": {
+    "defaultMessage": "Prima Espaço para pegar na coluna, utilize as teclas de seta para a mover e prima Espaço novamente para a largar ou Esc para cancelar.",
+    "description": "Screen reader instructions for a drag handle in a data grid's column settings dialog"
+  },
+  "uic.DataGrid.reorderPickedUp": {
+    "defaultMessage": "Coluna {column} selecionada. Está na posição {position} de {total}.",
+    "description": "Screen reader announcement when a column is picked up for reordering in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderMoved": {
+    "defaultMessage": "Coluna {column} movida para a posição {position} de {total}.",
+    "description": "Screen reader announcement while a picked-up column moves in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderDropped": {
+    "defaultMessage": "Coluna {column} largada na posição {position} de {total}.",
+    "description": "Screen reader announcement when a column is dropped in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderCancelled": {
+    "defaultMessage": "Reordenação cancelada. A coluna {column} voltou à posição {position} de {total}.",
+    "description": "Screen reader announcement when reordering a column is cancelled in the column settings dialog. {position} is 1-based"
+  },
   "uic.DataGrid.export": {
     "defaultMessage": "Exportar",
     "description": "Primary button of a data grid's CSV export dialog"

@@ -2,7 +2,8 @@
  * DataGridSettingsModal
  *
  * Chooses which columns a grid shows, and in what order: a searchable list of
- * checkboxes with drag handles. Columns marked `isAlwaysVisible` stay checked.
+ * checkboxes with drag handles (pointer, or keyboard: Space, arrow keys,
+ * Space). Columns marked `isAlwaysVisible` stay checked.
  * Dragging is off while a search narrows the list. The working set is fresh
  * on every open; Apply reports it and does not close the dialog.
  *
@@ -19,11 +20,21 @@
  * />
  */
 import { useState, type CSSProperties, type ReactElement, type ReactNode } from "react";
-import { DndContext, type DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type Announcements,
+  type DragEndEvent,
+  type UniqueIdentifier,
+} from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
   SortableContext,
   arrayMove,
+  sortableKeyboardCoordinates,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -86,10 +97,12 @@ const LIST_HEIGHT = "360px";
 function SortableRow({
   id,
   isDragDisabled,
+  handleLabel,
   children,
 }: {
   id: string;
   isDragDisabled: boolean;
+  handleLabel: string;
   children: ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
@@ -111,9 +124,9 @@ function SortableRow({
           {...attributes}
           {...listeners}
           className="uic-data-grid-dialog__handle"
-          aria-hidden
+          aria-label={handleLabel}
         >
-          <GripVertical size={16} />
+          <GripVertical size={16} aria-hidden />
         </span>
       )}
       {children}
@@ -158,6 +171,38 @@ function SettingsBody({
   const searchText = searchLabel ?? t("uic.DataGrid.searchColumns");
   const close = () => onOpenChange?.(false);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const labelOf = (key: UniqueIdentifier) => {
+    const column = columnByKey.get(String(key));
+    return column?.label || String(key);
+  };
+  const positionOf = (key: UniqueIdentifier) => ({
+    column: labelOf(key),
+    position: order.indexOf(String(key)) + 1,
+    total: order.length,
+  });
+  const announcements: Announcements = {
+    onDragStart: ({ active }) =>
+      t("uic.DataGrid.reorderPickedUp", positionOf(active.id)),
+    onDragOver: ({ active, over }) =>
+      over
+        ? t("uic.DataGrid.reorderMoved", {
+            ...positionOf(over.id),
+            column: labelOf(active.id),
+          })
+        : undefined,
+    onDragEnd: ({ active, over }) =>
+      t("uic.DataGrid.reorderDropped", {
+        ...positionOf(over?.id ?? active.id),
+        column: labelOf(active.id),
+      }),
+    onDragCancel: ({ active }) =>
+      t("uic.DataGrid.reorderCancelled", positionOf(active.id)),
+  };
+
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
     const from = order.indexOf(String(active.id));
@@ -172,7 +217,14 @@ function SettingsBody({
         const column = columnByKey.get(key);
         if (!column) return null;
         return (
-          <SortableRow key={key} id={key} isDragDisabled={isDragDisabled}>
+          <SortableRow
+            key={key}
+            id={key}
+            isDragDisabled={isDragDisabled}
+            handleLabel={t("uic.DataGrid.reorderColumn", {
+              column: column.label || key,
+            })}
+          >
             <CheckboxInput
               label={column.label || key}
               size="sm"
@@ -229,7 +281,17 @@ function SettingsBody({
               {isDragDisabled ? (
                 list
               ) : (
-                <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+                <DndContext
+                  sensors={sensors}
+                  modifiers={[restrictToVerticalAxis]}
+                  accessibility={{
+                    announcements,
+                    screenReaderInstructions: {
+                      draggable: t("uic.DataGrid.reorderInstructions"),
+                    },
+                  }}
+                  onDragEnd={onDragEnd}
+                >
                   <SortableContext
                     items={shownKeys}
                     strategy={verticalListSortingStrategy}

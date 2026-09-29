@@ -267,6 +267,30 @@
     "defaultMessage": "Поиск таблицы столбцов",
     "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
   },
+  "uic.DataGrid.reorderColumn": {
+    "defaultMessage": "Изменить порядок: {column}",
+    "description": "Accessible name of the drag handle beside a column in a data grid's column settings dialog. {column} is the column's label"
+  },
+  "uic.DataGrid.reorderInstructions": {
+    "defaultMessage": "Нажмите пробел, чтобы взять столбец, перемещайте его клавишами со стрелками, затем снова нажмите пробел, чтобы отпустить его, или Escape для отмены.",
+    "description": "Screen reader instructions for a drag handle in a data grid's column settings dialog"
+  },
+  "uic.DataGrid.reorderPickedUp": {
+    "defaultMessage": "Столбец {column} взят. Позиция {position} из {total}.",
+    "description": "Screen reader announcement when a column is picked up for reordering in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderMoved": {
+    "defaultMessage": "Столбец {column} перемещён на позицию {position} из {total}.",
+    "description": "Screen reader announcement while a picked-up column moves in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderDropped": {
+    "defaultMessage": "Столбец {column} помещён на позицию {position} из {total}.",
+    "description": "Screen reader announcement when a column is dropped in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderCancelled": {
+    "defaultMessage": "Изменение порядка отменено. Столбец {column} возвращён на позицию {position} из {total}.",
+    "description": "Screen reader announcement when reordering a column is cancelled in the column settings dialog. {position} is 1-based"
+  },
   "uic.DataGrid.export": {
     "defaultMessage": "Экспорт",
     "description": "Primary button of a data grid's CSV export dialog"

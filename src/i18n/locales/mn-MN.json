@@ -263,6 +263,30 @@
     "defaultMessage": "Хүснэгтийн баганыг хайх",
     "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
   },
+  "uic.DataGrid.reorderColumn": {
+    "defaultMessage": "{column} баганын дарааллыг өөрчлөх",
+    "description": "Accessible name of the drag handle beside a column in a data grid's column settings dialog. {column} is the column's label"
+  },
+  "uic.DataGrid.reorderInstructions": {
+    "defaultMessage": "Баганыг авахын тулд Space товчийг дарж, сум товчоор зөөгөөд, дахин Space товчийг дарж байрлуулна уу, эсвэл Escape товчоор цуцална уу.",
+    "description": "Screen reader instructions for a drag handle in a data grid's column settings dialog"
+  },
+  "uic.DataGrid.reorderPickedUp": {
+    "defaultMessage": "{column} баганыг авлаа. Байрлал {position}/{total}.",
+    "description": "Screen reader announcement when a column is picked up for reordering in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderMoved": {
+    "defaultMessage": "{column} баганыг {position}/{total} байрлал руу зөөлөө.",
+    "description": "Screen reader announcement while a picked-up column moves in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderDropped": {
+    "defaultMessage": "{column} баганыг {position}/{total} байрлалд байрлууллаа.",
+    "description": "Screen reader announcement when a column is dropped in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderCancelled": {
+    "defaultMessage": "Дараалал өөрчлөхийг цуцаллаа. {column} багана {position}/{total} байрлалдаа буцлаа.",
+    "description": "Screen reader announcement when reordering a column is cancelled in the column settings dialog. {position} is 1-based"
+  },
   "uic.DataGrid.export": {
     "defaultMessage": "Экспорт",
     "description": "Primary button of a data grid's CSV export dialog"

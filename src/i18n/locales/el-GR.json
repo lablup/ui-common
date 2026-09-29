@@ -267,6 +267,30 @@
     "defaultMessage": "Στήλες πίνακα αναζήτησης",
     "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
   },
+  "uic.DataGrid.reorderColumn": {
+    "defaultMessage": "Αναδιάταξη {column}",
+    "description": "Accessible name of the drag handle beside a column in a data grid's column settings dialog. {column} is the column's label"
+  },
+  "uic.DataGrid.reorderInstructions": {
+    "defaultMessage": "Πατήστε το πλήκτρο διαστήματος για να επιλέξετε τη στήλη, μετακινήστε τη με τα βελάκια και πατήστε ξανά το πλήκτρο διαστήματος για να την αφήσετε ή το Escape για ακύρωση.",
+    "description": "Screen reader instructions for a drag handle in a data grid's column settings dialog"
+  },
+  "uic.DataGrid.reorderPickedUp": {
+    "defaultMessage": "Επιλέχθηκε η στήλη {column}. Βρίσκεται στη θέση {position} από {total}.",
+    "description": "Screen reader announcement when a column is picked up for reordering in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderMoved": {
+    "defaultMessage": "Η στήλη {column} μετακινήθηκε στη θέση {position} από {total}.",
+    "description": "Screen reader announcement while a picked-up column moves in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderDropped": {
+    "defaultMessage": "Η στήλη {column} τοποθετήθηκε στη θέση {position} από {total}.",
+    "description": "Screen reader announcement when a column is dropped in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderCancelled": {
+    "defaultMessage": "Η αναδιάταξη ακυρώθηκε. Η στήλη {column} επέστρεψε στη θέση {position} από {total}.",
+    "description": "Screen reader announcement when reordering a column is cancelled in the column settings dialog. {position} is 1-based"
+  },
   "uic.DataGrid.export": {
     "defaultMessage": "Εξαγωγή",
     "description": "Primary button of a data grid's CSV export dialog"
