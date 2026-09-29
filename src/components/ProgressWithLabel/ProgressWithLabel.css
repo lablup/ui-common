@@ -11,24 +11,12 @@
     /* A hairline between the frame and the fill. */
     padding: var(--border-width);
     border: var(--border-width) solid var(--color-border-emphasized);
-    border-radius: var(--uic-progress-with-label-radius, var(--radius-inner));
+    border-radius: var(--progress-with-label-radius, var(--radius-inner));
     background-color: var(--color-background-muted);
   }
 
   .uic-progress-with-label--grow {
     flex: 1;
-  }
-
-  .uic-progress-with-label--sm {
-    --uic-progress-with-label-font-size: var(--font-size-sm);
-  }
-
-  .uic-progress-with-label--md {
-    --uic-progress-with-label-font-size: var(--font-size-base);
-  }
-
-  .uic-progress-with-label--lg {
-    --uic-progress-with-label-font-size: var(--font-size-lg);
   }
 
   .uic-progress-with-label__fill {
@@ -39,7 +27,7 @@
     height: 100%;
     overflow: hidden;
     opacity: 0.7;
-    background-color: var(--uic-progress-with-label-color, var(--color-success));
+    background-color: var(--color-success);
   }
 
   /* Positioned, so it paints above the fill. */
@@ -52,8 +40,16 @@
     min-width: 0;
   }
 
-  .uic-progress-with-label__text {
-    font-size: var(--uic-progress-with-label-font-size);
+  .uic-progress-with-label--sm .uic-progress-with-label__text {
+    font-size: var(--font-size-sm);
+  }
+
+  .uic-progress-with-label--md .uic-progress-with-label__text {
+    font-size: var(--font-size-base);
+  }
+
+  .uic-progress-with-label--lg .uic-progress-with-label__text {
+    font-size: var(--font-size-lg);
   }
 
   .uic-progress-with-label__value {

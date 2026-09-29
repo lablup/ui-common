@@ -978,10 +978,10 @@ export function DataGrid<T extends object = AnyRow>({
         style={
           {
             ...(isScrollX
-              ? { "--uic-data-grid-scroll-width": toCssLength(scrollWidth) }
+              ? { "--data-grid-scroll-width": toCssLength(scrollWidth) }
               : null),
             ...(isScrollY
-              ? { "--uic-data-grid-max-height": toCssLength(maxHeight) }
+              ? { "--data-grid-max-height": toCssLength(maxHeight) }
               : null),
           } as CSSProperties
         }

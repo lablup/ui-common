@@ -1,11 +1,11 @@
 /*
  * The form item shell and the inline form, laid out like antd's form
  * stylesheet. Hooks a product may set:
- *   --uic-form-item-margin-bottom      space below each item
- *   --uic-form-item-gap                label-to-control gap in a vertical item
- *   --uic-form-item-description-color  explain, extra, tooltip glyph and the
- *                                      "(optional)" suffix
- *   --uic-form-item-line-height        the item's line height
+ *   --form-item-margin-bottom  space below each item
+ *   --form-item-gap            label-to-control gap in a vertical item
+ *   --form-item-line-height    the item's line height
+ * Explain, extra, the tooltip glyph and the "(optional)" suffix take the
+ * theme's `--color-text-description` where it declares one.
  */
 @layer ui-common {
   /* An inline form wraps its items on one line (antd `.ant-form-inline`). */
@@ -27,9 +27,9 @@
   .uic-form-item {
     box-sizing: border-box;
     vertical-align: top;
-    margin-bottom: var(--uic-form-item-margin-bottom, var(--spacing-6));
+    margin-bottom: var(--form-item-margin-bottom, var(--spacing-6));
     font-size: var(--font-size-base);
-    line-height: var(--uic-form-item-line-height, var(--text-body-leading));
+    line-height: var(--form-item-line-height, var(--text-body-leading));
   }
 
   .uic-form-item[data-layout="inline"] {
@@ -74,7 +74,7 @@
 
   .uic-form-item__label-col[data-wrap] {
     overflow: unset;
-    line-height: var(--uic-form-item-line-height, var(--text-body-leading));
+    line-height: var(--form-item-line-height, var(--text-body-leading));
     white-space: unset;
   }
 
@@ -84,7 +84,7 @@
   }
 
   .uic-form-item[data-layout="vertical"] .uic-form-item__label-col {
-    padding: 0 0 var(--uic-form-item-gap, var(--spacing-2));
+    padding: 0 0 var(--form-item-gap, var(--spacing-2));
     margin: 0;
     white-space: initial;
     text-align: start;
@@ -103,7 +103,7 @@
     height: var(--size-element-md);
     color: var(--color-text-primary);
     font-size: var(--font-size-base);
-    line-height: var(--uic-form-item-line-height, var(--text-body-leading));
+    line-height: var(--form-item-line-height, var(--text-body-leading));
   }
 
   .uic-form-item[data-layout="vertical"] .uic-form-item__label {
@@ -155,14 +155,14 @@
   .uic-form-item__optional {
     display: inline-block;
     margin-inline-start: var(--spacing-1);
-    color: var(--uic-form-item-description-color, var(--color-text-secondary));
+    color: var(--color-text-description, var(--color-text-secondary));
   }
 
   .uic-form-item__tooltip {
     display: inline-flex;
     align-items: center;
     margin-inline-start: var(--spacing-1);
-    color: var(--uic-form-item-description-color, var(--color-text-secondary));
+    color: var(--color-text-description, var(--color-text-secondary));
     cursor: help;
     writing-mode: horizontal-tb;
   }
@@ -222,9 +222,9 @@
   .uic-form-item__explain,
   .uic-form-item__extra {
     clear: both;
-    color: var(--uic-form-item-description-color, var(--color-text-secondary));
+    color: var(--color-text-description, var(--color-text-secondary));
     font-size: var(--font-size-base);
-    line-height: var(--uic-form-item-line-height, var(--text-body-leading));
+    line-height: var(--form-item-line-height, var(--text-body-leading));
   }
 
   .uic-form-item__extra {
@@ -252,7 +252,7 @@
     align-items: center;
     justify-content: center;
     height: calc(
-      var(--font-size-base) * var(--uic-form-item-line-height, var(--text-body-leading))
+      var(--font-size-base) * var(--form-item-line-height, var(--text-body-leading))
     );
     color: var(--color-accent);
     font-size: var(--font-size-base);

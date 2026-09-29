@@ -6,9 +6,8 @@
  * table cells and cards ("CPU  3 / 8 cores"). A missing or NaN `value` draws
  * no fill and greys the value label.
  *
- * The fill is `color`, or `--uic-progress-with-label-color` (default Astryx
- * `--color-success`). The frame's corner is `--uic-progress-with-label-radius`
- * (default `--radius-inner`).
+ * The fill is `color`, by default Astryx `--color-success`. The frame's
+ * corner is `--progress-with-label-radius` (default `--radius-inner`).
  *
  * @example
  * <ProgressWithLabel label="CPU" valueLabel="3 / 8" value={37.5} width={160} />
@@ -68,13 +67,13 @@ export function ProgressWithLabel({
         .join(" ")}
       style={{
         ...(hasWidth ? { width } : null),
-        ...(color
-          ? ({ "--uic-progress-with-label-color": color } as CSSProperties)
-          : null),
         ...style,
       }}
     >
-      <div className="uic-progress-with-label__fill" style={{ width: `${fill}%` }} />
+      <div
+        className="uic-progress-with-label__fill"
+        style={{ width: `${fill}%`, ...(color ? { backgroundColor: color } : null) }}
+      />
       <div className="uic-progress-with-label__labels">
         <Text className="uic-progress-with-label__text" style={labelStyle}>
           {label}

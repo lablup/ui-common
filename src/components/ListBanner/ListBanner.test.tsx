@@ -27,7 +27,7 @@ describe("ListBanner", () => {
       <ListBanner status="info" title="t" items={[{ content: "x" }]} />,
     );
     expect(
-      screen.getByRole("list").style.getPropertyValue("--uic-list-banner-max-height"),
+      screen.getByRole("list").style.getPropertyValue("--list-banner-max-height"),
     ).toBe("165px");
     unmount();
 
@@ -35,7 +35,7 @@ describe("ListBanner", () => {
       <ListBanner status="info" title="t" maxHeight={80} items={[{ content: "x" }]} />,
     );
     const list = screen.getByRole("list");
-    expect(list.style.getPropertyValue("--uic-list-banner-max-height")).toBe("80px");
+    expect(list.style.getPropertyValue("--list-banner-max-height")).toBe("80px");
     expect(list).toHaveClass("uic-list-banner__list");
     expect(list).toHaveAttribute("tabindex", "0");
   });

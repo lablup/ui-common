@@ -544,15 +544,7 @@
       "specifiers": ["@lablup/ui-common", "@lablup/ui-common/components/DigitPopIn"],
       "propChanges": [],
       "classRenames": { "digit-pop-in": "uic-digit-pop-in" },
-      "customPropertyRenames": {
-        "--digit-pop-in-duration": "--uic-digit-pop-in-duration",
-        "--digit-pop-in-distance": "--uic-digit-pop-in-distance",
-        "--digit-pop-in-stagger": "--uic-digit-pop-in-stagger",
-        "--digit-pop-in-blur": "--uic-digit-pop-in-blur",
-        "--digit-pop-in-ease": "--uic-digit-pop-in-ease",
-        "--digit-pop-in-index": "--uic-digit-pop-in-index"
-      },
-      "notes": []
+      "notes": ["The --digit-pop-in-* custom properties keep their 0.1 names."]
     },
     {
       "name": "SkeletonCard",

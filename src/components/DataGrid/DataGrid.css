@@ -83,14 +83,14 @@
      inline min-width the table writes once any column has a pixel width. */
   .uic-data-grid__body--scroll-x table:not(table table) {
     table-layout: auto;
-    width: var(--uic-data-grid-scroll-width);
+    width: var(--data-grid-scroll-width);
     min-width: 100% !important;
   }
 
   /* `maxHeight`: caps the table's scroll wrapper, found as the element around
      the table (the resize plugin adds a boxless wrapper, so its depth varies). */
   .uic-data-grid__body--scroll-y div:has(> table):not(table div) {
-    max-height: var(--uic-data-grid-max-height);
+    max-height: var(--data-grid-max-height);
     overflow-y: auto;
   }
 
@@ -117,7 +117,7 @@
   }
 
   .uic-data-grid-dialog__list {
-    max-height: var(--uic-data-grid-dialog-list-height);
+    max-height: var(--data-grid-dialog-list-height);
     overflow-y: auto;
   }
 

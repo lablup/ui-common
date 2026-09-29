@@ -53,9 +53,10 @@ describe("lablup theme", () => {
     ]);
   });
 
-  it("declares the info hue as a theme-local token", () => {
-    const local = (builtTheme as { localTokens?: Record<string, string> }).localTokens;
-    expect(pair(local?.[LABLUP_INFO_TOKEN])).toEqual([
+  it("declares the info hue as --color-info, Astryx's naming", () => {
+    expect(LABLUP_INFO_TOKEN).toBe("--color-info");
+    const tokens = builtTheme.tokens as Record<string, string>;
+    expect(pair(tokens[LABLUP_INFO_TOKEN])).toEqual([
       tokenValue("base.css", "colorInfo"),
       tokenValue("themes/orange-dark.css", "colorInfo"),
     ]);

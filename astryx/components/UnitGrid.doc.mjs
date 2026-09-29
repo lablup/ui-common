@@ -18,7 +18,7 @@ export default {
     "heatmap",
   ],
   description:
-    "Groups of unit squares packed onto one shared lattice, serpentine or word-wrap. Each group is a tinted rounded plate with its initial on one cell; hovering it opens a hover card with the caller's content and, with onHueOverrideChange, a palette picker. Unit colours may be var() or color-mix() strings: the component resolves them to pick the initial's ink by WCAG contrast. The seven default hues and the two inks are --uic-unit-grid-group-1..7 and --uic-unit-grid-ink-dark/-light on the root; --uic-unit-grid-popover-z sets the hover card's z-index.",
+    "Groups of unit squares packed onto one shared lattice, serpentine or word-wrap. Each group is a tinted rounded plate with its initial on one cell; hovering it opens a hover card with the caller's content and, with onHueOverrideChange, a palette picker. Unit colours may be var() or color-mix() strings: the component resolves them to pick the initial's ink by WCAG contrast. The seven default hues and the two inks are --unit-grid-group-1..7 and --unit-grid-ink-dark/-light on the root; --unit-grid-popover-z sets the hover card's z-index.",
   props: [
     {
       name: "groups",
@@ -49,7 +49,7 @@ export default {
       name: "groupPalette",
       type: "string[]",
       description: "Group hues, cycled in flow order.",
-      default: "the seven --uic-unit-grid-group-N hues",
+      default: "the seven --unit-grid-group-N hues",
     },
     {
       name: "hueOverrides",

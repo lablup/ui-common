@@ -4,9 +4,6 @@
  */
 @layer ui-common {
   .uic-stat-card {
-    /* The tone colour, read by the corner accent, the value and the icon. */
-    --uic-stat-card-tone: transparent;
-    --uic-stat-card-tone-muted: var(--color-background-muted);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -16,7 +13,8 @@
     overflow: hidden;
   }
 
-  /* The tone at a glance, visible even when the value is zero. */
+  /* The tone at a glance, visible even when the value is zero. The tone
+     rules at the end colour it; the default tone leaves it clear. */
   .uic-stat-card::before {
     content: "";
     position: absolute;
@@ -24,7 +22,7 @@
     inset-inline-start: 0;
     width: var(--spacing-3);
     height: var(--spacing-3);
-    background-color: var(--uic-stat-card-tone);
+    background-color: transparent;
     clip-path: polygon(0 0, 100% 0, 0 100%);
     pointer-events: none;
   }
@@ -51,7 +49,7 @@
     width: var(--size-element-sm);
     height: var(--size-element-sm);
     border-radius: var(--radius-inner);
-    background: var(--uic-stat-card-tone-muted);
+    background: var(--color-background-muted);
     color: var(--color-icon-secondary);
     flex-shrink: 0;
   }
@@ -162,34 +160,58 @@
     height: var(--size-element-md);
   }
 
-  /* Tones. */
-  .uic-stat-card--tone-success {
-    --uic-stat-card-tone: var(--color-success);
-    --uic-stat-card-tone-muted: var(--color-success-muted);
+  /* Tones: the corner accent, the icon disc and the value and icon colour. */
+  .uic-stat-card--tone-success::before {
+    background-color: var(--color-success);
   }
 
-  .uic-stat-card--tone-warning {
-    --uic-stat-card-tone: var(--color-warning);
-    --uic-stat-card-tone-muted: var(--color-warning-muted);
+  .uic-stat-card--tone-success .uic-stat-card__icon {
+    background: var(--color-success-muted);
   }
 
-  .uic-stat-card--tone-danger {
-    --uic-stat-card-tone: var(--color-error);
-    --uic-stat-card-tone-muted: var(--color-error-muted);
+  .uic-stat-card--tone-success :is(.uic-stat-card__value, .uic-stat-card__icon) {
+    color: var(--color-success);
   }
 
-  /* Info has no Astryx token; the Lablup theme declares `--uic-color-info`. */
-  .uic-stat-card--tone-info {
-    --uic-stat-card-tone: var(--uic-color-info, var(--color-accent));
-    --uic-stat-card-tone-muted: color-mix(
+  .uic-stat-card--tone-warning::before {
+    background-color: var(--color-warning);
+  }
+
+  .uic-stat-card--tone-warning .uic-stat-card__icon {
+    background: var(--color-warning-muted);
+  }
+
+  .uic-stat-card--tone-warning :is(.uic-stat-card__value, .uic-stat-card__icon) {
+    color: var(--color-warning);
+  }
+
+  .uic-stat-card--tone-danger::before {
+    background-color: var(--color-error);
+  }
+
+  .uic-stat-card--tone-danger .uic-stat-card__icon {
+    background: var(--color-error-muted);
+  }
+
+  .uic-stat-card--tone-danger :is(.uic-stat-card__value, .uic-stat-card__icon) {
+    color: var(--color-error);
+  }
+
+  /* Info has no Astryx token: a theme may declare `--color-info` (the Lablup
+     theme does), and the accent stands in where none does. */
+  .uic-stat-card--tone-info::before {
+    background-color: var(--color-info, var(--color-accent));
+  }
+
+  .uic-stat-card--tone-info .uic-stat-card__icon {
+    background: color-mix(
       in srgb,
-      var(--uic-color-info, var(--color-accent)) 12%,
+      var(--color-info, var(--color-accent)) 12%,
       transparent
     );
   }
 
-  .uic-stat-card:not(.uic-stat-card--tone-default) .uic-stat-card__value,
-  .uic-stat-card:not(.uic-stat-card--tone-default) .uic-stat-card__icon {
-    color: var(--uic-stat-card-tone);
+  .uic-stat-card--tone-info :is(.uic-stat-card__value, .uic-stat-card__icon) {
+    color: var(--color-info, var(--color-accent));
   }
 }

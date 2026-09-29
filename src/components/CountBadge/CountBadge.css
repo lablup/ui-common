@@ -15,8 +15,8 @@
        overlay hangs off the wrong edge. */
     inset-inline-end: 0;
     transform: translate(
-      calc(50% + var(--uic-count-badge-offset-x)),
-      calc(-50% + var(--uic-count-badge-offset-y))
+      calc(50% + var(--count-badge-offset-x)),
+      calc(-50% + var(--count-badge-offset-y))
     );
     display: inline-flex;
     align-items: center;

@@ -40,7 +40,7 @@ export default {
   ],
   usage: {
     description:
-      "At the top of a dashboard panel or a board item. Other div attributes (className, style, data-*) reach the row. The --uic-board-item-title-z property sets its z-index (default 50).",
+      "At the top of a dashboard panel or a board item. Other div attributes (className, style, data-*) reach the row. The --board-item-title-z property sets its z-index (default 50).",
   },
   examples: [
     {

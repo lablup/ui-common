@@ -121,7 +121,7 @@ export function DividedRow({
           flexWrap: wrap,
           rowGap: toLength(rowGap),
           columnGap: toLength(columnGap),
-          "--uic-divided-row-column-gap": toLength(columnGap),
+          "--divided-row-column-gap": toLength(columnGap),
           ...style,
         } as CSSProperties
       }

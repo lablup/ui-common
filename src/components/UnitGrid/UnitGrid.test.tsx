@@ -256,12 +256,12 @@ describe("UnitGrid strings and theming", () => {
     expect(screen.getByRole("button", { name: "Hue 4" })).toBeInTheDocument();
   });
 
-  it("paints groups from the --uic-unit-grid-group-N hues unless given a palette", () => {
+  it("paints groups from the --unit-grid-group-N hues unless given a palette", () => {
     const plate = (container: HTMLElement, key: string) =>
       container.querySelector<SVGPathElement>(`path[data-group-key="${key}"]`)!;
     const { container, rerender } = render(<UnitGrid groups={GROUPS} columns={8} />);
-    expect(plate(container, "alpha").style.fill).toBe("var(--uic-unit-grid-group-1)");
-    expect(plate(container, "beta").style.fill).toBe("var(--uic-unit-grid-group-2)");
+    expect(plate(container, "alpha").style.fill).toBe("var(--unit-grid-group-1)");
+    expect(plate(container, "beta").style.fill).toBe("var(--unit-grid-group-2)");
     rerender(
       <UnitGrid
         groups={GROUPS}
@@ -281,10 +281,9 @@ describe("UnitGrid strings and theming", () => {
     );
     expect(inks).toHaveLength(2);
     for (const ink of inks) {
-      expect([
-        "var(--uic-unit-grid-ink-dark)",
-        "var(--uic-unit-grid-ink-light)",
-      ]).toContain(ink);
+      expect(["var(--unit-grid-ink-dark)", "var(--unit-grid-ink-light)"]).toContain(
+        ink,
+      );
     }
   });
 

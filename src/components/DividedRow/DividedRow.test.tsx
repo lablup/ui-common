@@ -81,7 +81,7 @@ describe("DividedRow", () => {
     const row = container.firstElementChild as HTMLElement;
     expect(row.style.rowGap).toBe("var(--spacing-8)");
     expect(row.style.columnGap).toBe("var(--spacing-12)");
-    expect(row.style.getPropertyValue("--uic-divided-row-column-gap")).toBe(
+    expect(row.style.getPropertyValue("--divided-row-column-gap")).toBe(
       "var(--spacing-12)",
     );
     expect(row.style.flexWrap).toBe("wrap");

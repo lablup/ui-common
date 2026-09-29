@@ -80,8 +80,8 @@ describe("CountBadge", () => {
     );
     const overlay = screen.getByRole("status");
     expect(overlay).toHaveClass("uic-count-badge__overlay--sm");
-    expect(overlay.style.getPropertyValue("--uic-count-badge-offset-x")).toBe("4px");
-    expect(overlay.style.getPropertyValue("--uic-count-badge-offset-y")).toBe("-2px");
+    expect(overlay.style.getPropertyValue("--count-badge-offset-x")).toBe("4px");
+    expect(overlay.style.getPropertyValue("--count-badge-offset-y")).toBe("-2px");
   });
 
   it("forwards the remaining props to the Badge", () => {

@@ -54,7 +54,7 @@ const DEFAULT_MAX_UNITS_PER_GROUP = 256;
 /** The seven hues declared in UnitGrid.css. */
 const DEFAULT_PALETTE = Array.from(
   { length: 7 },
-  (_, i) => `var(--uic-unit-grid-group-${i + 1})`,
+  (_, i) => `var(--unit-grid-group-${i + 1})`,
 );
 // Hover card geometry: clamp width, flip threshold, anchor offset, and the
 // hide delay that lets the pointer travel onto the card.
@@ -67,11 +67,11 @@ const PLATE_DASH_PATTERN = "6 4";
 // The initial is vertically centred and fills grow bottom-up, so below this
 // fraction the initial sits on the empty underlay: pick ink against that.
 const LETTER_ON_EMPTY_MAX_FRACTION = 0.6;
-const EMPTY_FILL_COLOR = "var(--uic-unit-grid-cell-empty)";
+const EMPTY_FILL_COLOR = "var(--unit-grid-cell-empty)";
 // The empty fill is translucent; composite it over this before judging it.
 const EMPTY_FILL_BACKDROP = "var(--color-background-card)";
-const INK_DARK = "var(--uic-unit-grid-ink-dark)";
-const INK_LIGHT = "var(--uic-unit-grid-ink-light)";
+const INK_DARK = "var(--unit-grid-ink-dark)";
+const INK_LIGHT = "var(--unit-grid-ink-light)";
 
 const cx = (...names: Array<string | false | undefined>) =>
   names.filter(Boolean).join(" ");
@@ -228,7 +228,7 @@ export interface UnitGridProps extends Omit<
   groups: UnitGridGroup[];
   /** How groups flow along the lattice. @default 'serpentine' */
   layout?: UnitGridLayout;
-  /** Group hues, cycled in flow order. @default the seven --uic-unit-grid-group-N hues */
+  /** Group hues, cycled in flow order. @default the seven --unit-grid-group-N hues */
   groupPalette?: string[];
   /** Controlled palette-index overrides, keyed by group key. */
   hueOverrides?: Record<string, number>;
@@ -566,7 +566,7 @@ export function UnitGrid({
                         fill: isPartial ? EMPTY_FILL_COLOR : cell.unit.color,
                         stroke: cellHovered
                           ? hueFor(cell.groupKey)
-                          : "var(--uic-unit-grid-cell-stroke)",
+                          : "var(--unit-grid-cell-stroke)",
                       }}
                       strokeWidth={cellHovered ? 1 : 0.5}
                     />

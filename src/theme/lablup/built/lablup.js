@@ -189,7 +189,8 @@ export const lablupTheme = {
     "--shadow-inset-warning": "inset 0px 0px 0px 2px #f8d36a4D",
     "--shadow-inset-error": "inset 0px 0px 0px 2px #de47454D",
     "--color-background-inverted": "light-dark(#211A16, #FFFBF8)",
-    "--color-track": "light-dark(#B8A89F, #51443C)"
+    "--color-track": "light-dark(#B8A89F, #51443C)",
+    "--color-info": "light-dark(#0066cc, #009bdd)"
   },
   localTokens: {
     "--astryx-theme-neutral-color-status-fill-accent": "light-dark(#0074e2, #6d9cfe)",
@@ -201,8 +202,7 @@ export const lablupTheme = {
     "--astryx-theme-neutral-color-on-tint-overlay-hover": "light-dark(#fafafa1A, #0a0a0a1A)",
     "--astryx-theme-neutral-color-on-tint-overlay-pressed": "light-dark(#fafafa33, #0a0a0a33)",
     "--astryx-theme-neutral-color-destructive-overlay-hover": "light-dark(#ff7f770D, #ee736c0D)",
-    "--astryx-theme-neutral-color-destructive-overlay-pressed": "light-dark(#ff7f771A, #ee736c1A)",
-    "--uic-color-info": "light-dark(#0066cc, #009bdd)"
+    "--astryx-theme-neutral-color-destructive-overlay-pressed": "light-dark(#ff7f771A, #ee736c1A)"
   },
   __localTokenOwners: {
     "--astryx-theme-neutral-color-status-fill-accent": "neutral",
@@ -214,8 +214,7 @@ export const lablupTheme = {
     "--astryx-theme-neutral-color-on-tint-overlay-hover": "neutral",
     "--astryx-theme-neutral-color-on-tint-overlay-pressed": "neutral",
     "--astryx-theme-neutral-color-destructive-overlay-hover": "neutral",
-    "--astryx-theme-neutral-color-destructive-overlay-pressed": "neutral",
-    "--uic-color-info": "lablup"
+    "--astryx-theme-neutral-color-destructive-overlay-pressed": "neutral"
   },
   __localTokenLineage: ["neutral","lablup"],
   components: {

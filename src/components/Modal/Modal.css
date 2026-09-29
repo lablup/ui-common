@@ -3,13 +3,13 @@
  * top layer and `::backdrop`, restated for a portalled tree.
  */
 @layer ui-common {
-  /* The stack writes `--uic-modal-z` on open (modalStack.ts). The literal is
+  /* The stack writes `--modal-z` on open (modalStack.ts). The literal is
      only the fallback for a root that has not claimed a level yet: the
      default band's base. */
   .uic-modal {
     position: fixed;
     inset: 0;
-    z-index: var(--uic-modal-z, 1100);
+    z-index: var(--modal-z, 1100);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -31,8 +31,8 @@
   /* The animated element, apart from the mask, so only this subtree becomes
      a containing block while the keyframe's transform runs. */
   .uic-modal__wrap {
-    --uic-modal-dir-x: 0px;
-    --uic-modal-dir-y: var(--spacing-4);
+    --modal-dir-x: 0px;
+    --modal-dir-y: var(--spacing-4);
     position: relative;
     display: flex;
     /* The surface can be narrower than the wrap (Dialog caps it), so the
@@ -54,7 +54,7 @@
   @keyframes uic-modal-enter {
     from {
       opacity: 0;
-      transform: translate(var(--uic-modal-dir-x), var(--uic-modal-dir-y)) scale(0.95);
+      transform: translate(var(--modal-dir-x), var(--modal-dir-y)) scale(0.95);
     }
 
     to {

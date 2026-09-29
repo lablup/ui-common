@@ -5,8 +5,9 @@
  * results. The keyword is matched literally (regex characters are escaped).
  * Without a keyword the text renders plain; without text nothing renders.
  *
- * The mark's background is `--uic-text-highlighter-background`, by default
- * Astryx `--color-warning-muted`; set it on any ancestor to change it.
+ * The mark's background is the theme's `--color-warning-border-hover` where
+ * the theme declares one (the Backend.AI WebUI theme does), else Astryx
+ * `--color-warning-muted`.
  *
  * @example
  * <TextHighlighter keyword={search}>{row.name}</TextHighlighter>

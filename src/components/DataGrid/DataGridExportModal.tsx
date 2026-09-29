@@ -172,9 +172,7 @@ function ExportBody({
             />
             <div
               className="uic-data-grid-dialog__list"
-              style={
-                { "--uic-data-grid-dialog-list-height": LIST_HEIGHT } as CSSProperties
-              }
+              style={{ "--data-grid-dialog-list-height": LIST_HEIGHT } as CSSProperties}
             >
               <VStack gap={0} align="stretch">
                 {shownOptions.map((option) => (

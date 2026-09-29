@@ -1,6 +1,6 @@
 @layer ui-common {
   .uic-list-banner__list {
-    max-height: var(--uic-list-banner-max-height);
+    max-height: var(--list-banner-max-height);
     margin: 0;
     padding: 0;
     padding-top: var(--spacing-1);

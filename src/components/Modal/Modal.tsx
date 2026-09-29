@@ -321,12 +321,12 @@ export function Modal({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reduced && trigger instanceof HTMLElement && trigger !== document.body) {
       const { x, y } = getDialogDirection(trigger);
-      node.style.setProperty("--uic-modal-dir-x", `${x}px`);
-      node.style.setProperty("--uic-modal-dir-y", `${y}px`);
+      node.style.setProperty("--modal-dir-x", `${x}px`);
+      node.style.setProperty("--modal-dir-y", `${y}px`);
     }
     return () => {
-      node.style.removeProperty("--uic-modal-dir-x");
-      node.style.removeProperty("--uic-modal-dir-y");
+      node.style.removeProperty("--modal-dir-x");
+      node.style.removeProperty("--modal-dir-y");
     };
   }, [isActive, containerRef]);
 

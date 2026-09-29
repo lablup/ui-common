@@ -82,8 +82,8 @@ export function CountBadge({
             .join(" ")}
           style={
             {
-              "--uic-count-badge-offset-x": `${offset?.[0] ?? 0}px`,
-              "--uic-count-badge-offset-y": `${offset?.[1] ?? 0}px`,
+              "--count-badge-offset-x": `${offset?.[0] ?? 0}px`,
+              "--count-badge-offset-y": `${offset?.[1] ?? 0}px`,
             } as CSSProperties
           }
           role="status"

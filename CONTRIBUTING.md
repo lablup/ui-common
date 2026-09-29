@@ -254,8 +254,24 @@ A string with no prop is a bug. So is a prop with no catalog default.
 - Every rule inside `@layer ui-common`.
 - Class names are BEM with a `uic-` prefix: `uic-page-header__title`.
 - Values come from Astryx tokens, `var(--color-...)`, `var(--spacing-...)`.
-  No new `--token-*` names. A component's own custom properties start with
-  `--uic-`.
+  No new `--token-*` names.
+- Custom properties use Astryx's naming as is, with no ui-common prefix:
+  - A theme value Astryx has no token for is a theme token in Astryx's
+    form, `--color-info`, and a component reads it with an Astryx fallback:
+    `var(--color-info, var(--color-accent))`. The names are the ones the
+    Backend.AI WebUI theme declares, so a product theme that has them needs
+    no setter. The list is `THEME_EXTENSION_TOKENS` in
+    `src/components/componentStyles.test.ts`.
+  - A component knob (z-index, geometry, motion, a value a prop writes) is
+    `--<component>-<property>`, the component name in kebab case, the form
+    Astryx core uses for its own (`--dialog-dir-x`, `--spinner-color`,
+    `--table-sticky-background`): `--modal-z`, `--data-grid-max-height`,
+    `--unit-grid-group-1`.
+  - A value that only picks a token for a variant is not a custom
+    property: the variant rule reads the token.
+  - A name must not be one Astryx core, lab or the neutral theme declares
+    or reads, nor one the WebUI declares (`--bai-*`, `--token-*`, its theme
+    tokens). `componentStyles.test.ts` fails on a collision.
 - No colour literals. A length literal is allowed only where Astryx has no
   token (a media query breakpoint, a page width, a readable measure), with a
   comment saying so.

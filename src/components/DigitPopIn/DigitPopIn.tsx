@@ -44,7 +44,7 @@ export function DigitPopIn({ text, className = "" }: DigitPopInProps): JSX.Eleme
             // the text changes.
             key={index}
             className="uic-digit-pop-in__digit"
-            style={{ "--uic-digit-pop-in-index": index } as CSSProperties}
+            style={{ "--digit-pop-in-index": index } as CSSProperties}
           >
             {char === " " ? " " : char}
           </span>

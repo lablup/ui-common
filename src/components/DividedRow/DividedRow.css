@@ -17,7 +17,7 @@
 
   .uic-divided-row__divider {
     position: absolute;
-    right: calc(-0.5 * var(--uic-divided-row-column-gap, 0px));
+    right: calc(-0.5 * var(--divided-row-column-gap, 0px));
     background: var(--color-border);
     pointer-events: none;
   }

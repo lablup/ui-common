@@ -29,7 +29,7 @@ const renderAlert = (props: Partial<ComponentProps<typeof AlertModal>> = {}) => 
 const getMask = () => document.querySelector(".uic-modal__mask") as HTMLElement;
 
 const levelOf = (root: Element | null | undefined) =>
-  Number((root as HTMLElement).style.getPropertyValue("--uic-modal-level"));
+  Number((root as HTMLElement).style.getPropertyValue("--modal-level"));
 
 describe("AlertModal", () => {
   it("portals to document.body without a native <dialog>", () => {
@@ -158,7 +158,7 @@ describe("AlertModal", () => {
       screen
         .getByRole("alertdialog")
         .closest<HTMLElement>(".uic-modal")
-        ?.style.getPropertyValue("--uic-modal-z"),
+        ?.style.getPropertyValue("--modal-z"),
     ).toBe("5000");
   });
 });

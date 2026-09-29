@@ -102,7 +102,7 @@ export default {
   ],
   usage: {
     description:
-      "Data-entry screens whose state, validation and submit need more than a few controlled fields. Style hooks: .uic-form-item and its __label, __control, __explain-error, __extra elements, and --uic-form-item-margin-bottom, --uic-form-item-gap, --uic-form-item-description-color and --uic-form-item-line-height. A control reaches its item's status through Form.Item.useStatus() or FormItemInputContext.",
+      "Data-entry screens whose state, validation and submit need more than a few controlled fields. Style hooks: .uic-form-item and its __label, __control, __explain-error, __extra elements, and --form-item-margin-bottom, --form-item-gap and --form-item-line-height. Help, extra and the tooltip glyph take the theme's --color-text-description when it declares one (default --color-text-secondary). A control reaches its item's status through Form.Item.useStatus() or FormItemInputContext.",
   },
   examples: [
     {

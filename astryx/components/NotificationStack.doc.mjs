@@ -45,7 +45,7 @@ export default {
   ],
   usage: {
     description:
-      "Mount one per app. Set --uic-notification-stack-z to fit your layer ladder (default 11000, above Modal's band) and --uic-notification-stack-inset-top to keep a header clear.",
+      "Mount one per app. Set --notification-stack-z to fit your layer ladder (default 11000, above Modal's band) and --notification-stack-inset-top to keep a header clear.",
     bestPractices: [
       {
         guidance: true,

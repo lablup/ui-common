@@ -56,7 +56,7 @@ describe("TextHighlighter", () => {
   it("paints the mark from the custom property, defaulting to warning-muted", () => {
     const css = readFileSync(join(__dirname, "TextHighlighter.css"), "utf8");
     expect(css).toMatch(
-      /background-color:\s*var\(\s*--uic-text-highlighter-background,\s*var\(--color-warning-muted\)\s*\)/,
+      /background-color:\s*var\(\s*--color-warning-border-hover,\s*var\(--color-warning-muted\)\s*\)/,
     );
   });
 });

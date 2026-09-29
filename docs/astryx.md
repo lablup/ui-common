@@ -67,7 +67,7 @@ reads the diff. That diff is the upgrade review.
 `@lablup/ui-common/theme/lablup` is an Astryx theme source. It extends neutral
 and changes only the brand: the orange accent seed, the four status hues, and
 the font family name. Info has no Astryx token, so the theme declares
-`--uic-color-info` as a theme-local token.
+`--color-info`, in Astryx's own naming (see CONTRIBUTING, "Styling").
 
 `astryx theme build` compiles it into `theme/lablup/built` (a JS theme object
 marked as pre-built) and `theme/lablup/theme.css`. Both are committed.

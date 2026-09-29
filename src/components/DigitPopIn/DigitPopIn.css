@@ -9,11 +9,11 @@
  */
 @layer ui-common {
   .uic-digit-pop-in {
-    --uic-digit-pop-in-duration: var(--duration-medium-max);
-    --uic-digit-pop-in-distance: 0.5rem;
-    --uic-digit-pop-in-stagger: 70ms;
-    --uic-digit-pop-in-blur: 2px;
-    --uic-digit-pop-in-ease: cubic-bezier(0.34, 1.45, 0.64, 1);
+    --digit-pop-in-duration: var(--duration-medium-max);
+    --digit-pop-in-distance: 0.5rem;
+    --digit-pop-in-stagger: 70ms;
+    --digit-pop-in-blur: 2px;
+    --digit-pop-in-ease: cubic-bezier(0.34, 1.45, 0.64, 1);
     display: inline-block;
     position: relative;
   }
@@ -25,11 +25,9 @@
 
   .uic-digit-pop-in__digit {
     display: inline-block;
-    animation: uic-digit-pop-in var(--uic-digit-pop-in-duration)
-      var(--uic-digit-pop-in-ease) both;
-    animation-delay: calc(
-      var(--uic-digit-pop-in-index, 0) * var(--uic-digit-pop-in-stagger)
-    );
+    animation: uic-digit-pop-in var(--digit-pop-in-duration) var(--digit-pop-in-ease)
+      both;
+    animation-delay: calc(var(--digit-pop-in-index, 0) * var(--digit-pop-in-stagger));
   }
 
   /* The text a screen reader gets in place of the per-character copy. */
@@ -47,9 +45,9 @@
 
   @keyframes uic-digit-pop-in {
     from {
-      transform: translateY(var(--uic-digit-pop-in-distance));
+      transform: translateY(var(--digit-pop-in-distance));
       opacity: 0;
-      filter: blur(var(--uic-digit-pop-in-blur));
+      filter: blur(var(--digit-pop-in-blur));
     }
     to {
       transform: translateY(0);

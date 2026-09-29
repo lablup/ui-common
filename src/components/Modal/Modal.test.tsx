@@ -49,8 +49,8 @@ const rootOf = (name?: string) =>
 
 const getMask = () => document.querySelector(".uic-modal__mask") as HTMLElement;
 const levelOf = (root: HTMLElement) =>
-  Number(root.style.getPropertyValue("--uic-modal-level"));
-const zOf = (root: HTMLElement) => Number(root.style.getPropertyValue("--uic-modal-z"));
+  Number(root.style.getPropertyValue("--modal-level"));
+const zOf = (root: HTMLElement) => Number(root.style.getPropertyValue("--modal-z"));
 
 afterEach(() => {
   configureModalZIndex();

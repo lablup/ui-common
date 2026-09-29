@@ -33,7 +33,7 @@ describe("DigitPopIn", () => {
     const { container } = render(<DigitPopIn text="1,234" />);
     const chars = digits(container);
     expect(chars.map((char) => char.textContent)).toEqual(["1", ",", "2", "3", "4"]);
-    expect(chars[4]?.style.getPropertyValue("--uic-digit-pop-in-index")).toBe("4");
+    expect(chars[4]?.style.getPropertyValue("--digit-pop-in-index")).toBe("4");
   });
 
   it("hides the characters from assistive tech and exposes the whole text", () => {

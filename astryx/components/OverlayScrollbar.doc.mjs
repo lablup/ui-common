@@ -27,7 +27,7 @@ export default {
   ],
   usage: {
     description:
-      "Render it inside the target's positioned ancestor. Raise --uic-overlay-scrollbar-z (default 1) to clear sticky chrome inside the column.",
+      "Render it inside the target's positioned ancestor. Raise --overlay-scrollbar-z (default 1) to clear sticky chrome inside the column.",
     bestPractices: [
       {
         guidance: true,

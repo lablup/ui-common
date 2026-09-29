@@ -69,9 +69,10 @@ describe("ProgressWithLabel", () => {
       />,
     );
     const root = rootOf(container);
-    expect(root.style.getPropertyValue("--uic-progress-with-label-color")).toBe(
-      "var(--color-error)",
-    );
+    expect(
+      container.querySelector<HTMLElement>(".uic-progress-with-label__fill")?.style
+        .backgroundColor,
+    ).toBe("var(--color-error)");
     expect(root).toHaveClass("uic-progress-with-label--lg");
     expect(root.style.borderStyle).toBe("none");
     expect(screen.getByText("x").style.height).toBe("8px");

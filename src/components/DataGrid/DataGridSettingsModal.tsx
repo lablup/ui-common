@@ -286,9 +286,7 @@ function SettingsBody({
             />
             <div
               className="uic-data-grid-dialog__list"
-              style={
-                { "--uic-data-grid-dialog-list-height": LIST_HEIGHT } as CSSProperties
-              }
+              style={{ "--data-grid-dialog-list-height": LIST_HEIGHT } as CSSProperties}
             >
               {isDragDisabled ? (
                 list

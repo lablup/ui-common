@@ -27,7 +27,7 @@
     /* Only the thumb takes pointer events; content under the track stays
        clickable. */
     pointer-events: none;
-    z-index: var(--uic-overlay-scrollbar-z, 1);
+    z-index: var(--overlay-scrollbar-z, 1);
   }
 
   /* Presence is the scrollability cue: the thumb stays while the content

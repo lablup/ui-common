@@ -11,19 +11,17 @@
     min-height: 12.5rem;
   }
 
-  /* The icon disc. Tone sets the two custom properties below.
+  /* The icon disc, in the error tone unless a variant below retones it.
      Literals: Astryx's icon scale stops at `lg`; the disc is the 0.1 size. */
   .uic-error-state__icon {
-    --uic-error-state-tone: var(--color-error);
-    --uic-error-state-tone-muted: var(--color-error-muted);
     display: flex;
     align-items: center;
     justify-content: center;
     width: 4rem;
     height: 4rem;
     margin-bottom: var(--spacing-6);
-    color: var(--uic-error-state-tone);
-    background-color: var(--uic-error-state-tone-muted);
+    color: var(--color-error);
+    background-color: var(--color-error-muted);
     border-radius: var(--radius-full);
   }
 
@@ -33,13 +31,13 @@
   }
 
   .uic-error-state--warning .uic-error-state__icon {
-    --uic-error-state-tone: var(--color-warning);
-    --uic-error-state-tone-muted: var(--color-warning-muted);
+    color: var(--color-warning);
+    background-color: var(--color-warning-muted);
   }
 
   .uic-error-state--accent .uic-error-state__icon {
-    --uic-error-state-tone: var(--color-accent);
-    --uic-error-state-tone-muted: var(--color-accent-muted);
+    color: var(--color-accent);
+    background-color: var(--color-accent-muted);
   }
 
   .uic-error-state__title {

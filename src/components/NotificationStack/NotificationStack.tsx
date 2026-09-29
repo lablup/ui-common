@@ -21,10 +21,10 @@
  *   on screen; the stack scrolls once it reaches the top inset.
  *
  * Layout hooks, set on the stack or an ancestor:
- * `--uic-notification-stack-z` (stacking order, default 11000, one above
- * `Modal`'s default band), `--uic-notification-stack-inset-top` (space kept
+ * `--notification-stack-z` (stacking order, default 11000, one above
+ * `Modal`'s default band), `--notification-stack-inset-top` (space kept
  * free above the stack, such as an app header, default 0) and
- * `--uic-notification-body-max-height` (one notice's scroll cap, default 30vh).
+ * `--notification-stack-body-max-height` (one notice's scroll cap, default 30vh).
  *
  * e2e hooks: each notice carries `data-notification-key`, `data-status` and
  * `data-paused`; its title and description carry `data-testid`

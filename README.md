@@ -305,12 +305,12 @@ const [form] = Form.useForm();
   `__explain`, `__explain-error`, `__explain-warning` and `__extra`.
   The item carries `data-layout`, `data-size` and `data-status`. These
   class names are the public hooks for tests and product CSS.
-- Four custom properties adjust it: `--uic-form-item-margin-bottom`
-  (default `--spacing-6`), `--uic-form-item-gap` (label to control in a
-  vertical item, default `--spacing-2`) and
-  `--uic-form-item-description-color` (help, extra, the tooltip glyph and
-  the optional suffix, default `--color-text-secondary`) and
-  `--uic-form-item-line-height` (default `--text-body-leading`).
+- Three custom properties adjust it: `--form-item-margin-bottom`
+  (default `--spacing-6`), `--form-item-gap` (label to control in a
+  vertical item, default `--spacing-2`) and `--form-item-line-height`
+  (default `--text-body-leading`). Help, extra, the tooltip glyph and the
+  optional suffix take the theme's `--color-text-description` where the
+  theme declares one, else `--color-text-secondary`.
 
 ### What is hidden
 

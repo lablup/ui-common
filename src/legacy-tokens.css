@@ -94,9 +94,9 @@
     --token-colorFillTertiary: #f9fafb;
 
     /* Accent and status. Astryx has no info token; the Lablup theme declares
-       one as `--uic-color-info`, and other themes fall back to the literal. */
+       one as `--color-info`, and other themes fall back to the literal. */
     --token-colorError: var(--color-error);
-    --token-colorInfo: var(--uic-color-info, #0066cc);
+    --token-colorInfo: var(--color-info, #0066cc);
     --token-colorLink: var(--color-text-accent);
     --token-colorLinkHover: #7c3aed;
     --token-colorPrimary: var(--color-accent);

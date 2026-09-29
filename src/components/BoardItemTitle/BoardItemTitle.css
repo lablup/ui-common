@@ -1,5 +1,5 @@
 /*
- * BoardItemTitle: the sticky title row. --uic-board-item-title-z lifts it
+ * BoardItemTitle: the sticky title row. --board-item-title-z lifts it
  * over the panel's own content (sticky table headers and fixed columns);
  * a product with a z-index ladder sets it from there.
  */
@@ -7,7 +7,7 @@
   .uic-board-item-title {
     position: sticky;
     top: 0;
-    z-index: var(--uic-board-item-title-z, 50);
+    z-index: var(--board-item-title-z, 50);
     flex-shrink: 0;
     min-width: 0;
     padding-block: var(--spacing-5);

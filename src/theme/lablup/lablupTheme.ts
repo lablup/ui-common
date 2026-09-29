@@ -19,10 +19,11 @@ import { neutralIconRegistry, neutralTheme } from "@astryxdesign/theme-neutral";
 export const LABLUP_ACCENT: [string, string] = ["#FF7A00", "#DC6B03"];
 
 /**
- * Astryx has no info token, so the info hue is a theme-local token. It is
- * `uic-` prefixed so it cannot collide with a token Astryx adds later.
+ * Astryx has no info token, so the theme declares one under Astryx's naming,
+ * `--color-info`, the same name the Backend.AI WebUI theme uses. Components
+ * read it with an Astryx fallback, so a theme without it still resolves.
  */
-export const LABLUP_INFO_TOKEN = "--uic-color-info";
+export const LABLUP_INFO_TOKEN = "--color-info";
 
 export const lablupTheme = defineTheme({
   name: "lablup",
@@ -41,9 +42,13 @@ export const lablupTheme = defineTheme({
       '"Ubuntu Sans", "Pretendard Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     "--font-family-heading":
       '"Ubuntu Sans", "Pretendard Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  },
-  localTokens: {
-    [LABLUP_INFO_TOKEN]: ["#0066cc", "#009bdd"],
+    // In `tokens`, not `localTokens`: a theme extending this one can then
+    // override it through `tokens`, as the WebUI theme sets it. Astryx's
+    // `TokenName` does not list it, hence the widened map.
+    ...({ [LABLUP_INFO_TOKEN]: ["#0066cc", "#009bdd"] } as Record<
+      string,
+      [string, string]
+    >),
   },
 });
 

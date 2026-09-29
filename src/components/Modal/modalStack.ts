@@ -46,8 +46,8 @@ export function configureModalZIndex(next?: Partial<ModalZIndexBand>): void {
   band = { ...DEFAULT_BAND, ...next };
 }
 
-const LEVEL_CSS_VAR = "--uic-modal-level";
-const Z_INDEX_CSS_VAR = "--uic-modal-z";
+const LEVEL_CSS_VAR = "--modal-level";
+const Z_INDEX_CSS_VAR = "--modal-z";
 
 /** A claim on the stack. Released by reference, never by level. */
 export interface ModalLevelEntry {
@@ -207,7 +207,7 @@ export function releaseModalLevel(entry: ModalLevelEntry): void {
 
 /**
  * Claims a level for `rootRef` while `isOpen`, and writes the level and the
- * resolved z-index onto the root as `--uic-modal-level` and `--uic-modal-z`.
+ * resolved z-index onto the root as `--modal-level` and `--modal-z`.
  * Returns whether this surface is the topmost one; gate a focus trap on it.
  */
 export function useModalLevel(

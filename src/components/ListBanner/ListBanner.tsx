@@ -51,7 +51,7 @@ export function ListBanner({
         className="uic-list-banner__list"
         style={
           {
-            "--uic-list-banner-max-height":
+            "--list-banner-max-height":
               typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight,
             // Inline: product sheets reset `ul` unlayered, which beats any layer.
             listStyle: "circle inside",

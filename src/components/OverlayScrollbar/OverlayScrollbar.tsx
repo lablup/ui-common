@@ -14,7 +14,7 @@
  * `position: absolute`. On touch-primary platforms it renders nothing and
  * leaves the native indicator alone.
  *
- * The track's stacking order is `--uic-overlay-scrollbar-z` (default 1);
+ * The track's stacking order is `--overlay-scrollbar-z` (default 1);
  * raise it to clear sticky chrome inside the scroll column.
  *
  * @example

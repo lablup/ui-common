@@ -447,7 +447,7 @@ describe("DataGrid scrolling", () => {
     const { container } = renderGrid({ data: makeRows(1), scrollWidth: value });
     const body = bodyOf(container);
     expect(body).toHaveClass("uic-data-grid__body--scroll-x");
-    expect(body.style.getPropertyValue("--uic-data-grid-scroll-width")).toBe(expected);
+    expect(body.style.getPropertyValue("--data-grid-scroll-width")).toBe(expected);
   });
 
   it("releases max-width on width-less columns only", () => {
@@ -470,7 +470,7 @@ describe("DataGrid scrolling", () => {
     });
     const body = bodyOf(container);
     expect(body).toHaveClass("uic-data-grid__body--scroll-y");
-    expect(body.style.getPropertyValue("--uic-data-grid-max-height")).toBe("500px");
+    expect(body.style.getPropertyValue("--data-grid-max-height")).toBe("500px");
     const [pinned, plain] =
       container.querySelectorAll<HTMLTableCellElement>("thead th");
     expect(pinned?.style.zIndex).toBe("3");
