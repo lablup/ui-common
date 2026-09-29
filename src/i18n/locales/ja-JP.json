@@ -19,6 +19,10 @@
     "defaultMessage": "再試行",
     "description": "Generic label of a button that retries a failed action or load"
   },
+  "uic.common.apply": {
+    "defaultMessage": "適用",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
   "uic.BooleanToken.true": {
     "defaultMessage": "はい",
     "description": "Default label of a token showing a boolean value that is true"
@@ -234,5 +238,57 @@
   "uic.BulkEditFormItem.undoChanges": {
     "defaultMessage": "変更を元に戻す",
     "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "実行エラー",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "問題が発生しました。",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "表示するデータがありません",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "無効なページ番号です",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "最初のページへ",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "行を展開",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "ページネーション",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "{total}アイテム中 {start} - {end}",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "テーブル設定",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "CSV をエクスポート",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "表示する列を選択します",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "テーブル列を検索します",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "エクスポート",
+    "description": "Primary button of a data grid's CSV export dialog"
   }
 }

@@ -108,6 +108,13 @@ Pick a different name, or use the Astryx component.
 | `ColorPicker`                                                  | `src/components/ColorPicker/`        | `Popover`, `TextInput`, `Button`                   |
 | `Form` (engine, `Form.Item` shell, hooks)                      | `src/components/Form/`               | `Tooltip`, plain CSS                               |
 | `BulkEditFormItem`                                             | `src/components/BulkEditFormItem/`   | `Form.Item`, `TextInput`, `Link`, `HStack`         |
+| `DataGrid`, `DataGridSettingsModal`, `DataGridExportModal`     | `src/components/DataGrid/`           | `Table` + plugins, `Pagination`, `Modal`, dnd-kit  |
+| `BulkErrorModal`                                               | `src/components/BulkErrorModal/`     | `Modal`, `Banner`, `DataGrid`                      |
+| `ProgressWithLabel`                                            | `src/components/ProgressWithLabel/`  | `Text`, plain CSS                                  |
+| `TextHighlighter`                                              | `src/components/TextHighlighter/`    | plain CSS                                          |
+| `CountdownBorder`                                              | `src/components/CountdownBorder/`    | SVG, plain CSS                                     |
+| `DoubleToken`                                                  | `src/components/DoubleToken/`        | `Token`, `HStack`, `TextHighlighter`               |
+| `ListBanner`                                                   | `src/components/ListBanner/`         | `Banner`                                           |
 
 Each has tests beside it. `src/components/componentStyles.test.ts` holds every
 stylesheet to the styling rules below.
@@ -171,6 +178,15 @@ written against antd's form moves over with an import rewrite. Its
   standing for itself.
 - The feedback glyphs are Ant Design Icons path data (MIT, see NOTICE); the
   tooltip glyph is `lucide-react`'s, a dependency.
+
+### Dependencies of the customs
+
+Besides Astryx, the customs depend on `lucide-react` (glyphs),
+`intl-messageformat` (catalog fallback formatting) and `@dnd-kit/core`,
+`@dnd-kit/sortable`, `@dnd-kit/modifiers` and `@dnd-kit/utilities`
+(drag-to-reorder in `DataGridSettingsModal`; Astryx has no sortable list).
+The dnd-kit packages are exact-pinned and move together. A new runtime
+dependency is recorded here and in `CHANGELOG.md`.
 
 ### Things that are never admitted
 

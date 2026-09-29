@@ -1,0 +1,8 @@
+@layer ui-common {
+  .uic-text-highlighter__match {
+    background-color: var(
+      --uic-text-highlighter-background,
+      var(--color-warning-muted)
+    );
+  }
+}

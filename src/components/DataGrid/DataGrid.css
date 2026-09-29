@@ -1,0 +1,147 @@
+/*
+ * DataGrid. Every selector starts at a uic- class of ours and reaches into
+ * Astryx's Table by element and role only, never through an astryx- class.
+ * `:not(table table)` / `:not(table div)` keep each rule off grids nested in
+ * a cell or a detail row.
+ */
+@layer ui-common {
+  .uic-data-grid__body {
+    /* Astryx's Table bleeds into its container's block padding when it is the
+       first or last child. The table is this wrapper's only child, so both
+       would fire wherever the grid sits and pull the rows over the content
+       above and the footer below. Zero the block axis; the inline bleed
+       stays, so rows still run edge to edge in a Card. */
+    --container-padding-block-start: 0px;
+    --container-padding-block-end: 0px;
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+
+  .uic-data-grid__body--loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .uic-data-grid__body--no-header thead {
+    display: none;
+  }
+
+  /* Header and body content clip here: the resize and sticky-column plugins
+     set `overflow: visible` on the cell so their handle and shadow can bleed
+     out, which cancels the cell's own ellipsis. */
+  .uic-data-grid__clip {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* A sortable header nests the clip inside the sort button's label, a flex
+     item whose automatic minimum width would floor it at the full label. */
+  .uic-data-grid__body thead th button > span {
+    min-width: 0;
+  }
+
+  /* The header band: card base under a muted wash, so it stays opaque under
+     the sticky header of a height-capped grid. */
+  .uic-data-grid__body thead th {
+    background-color: var(--color-background-card);
+    background-image: linear-gradient(
+      var(--color-background-muted),
+      var(--color-background-muted)
+    );
+  }
+
+  /* A split between header cells, drawn only where a resize handle exists.
+     A background layer, not a pseudo-element: the sticky-column plugin owns
+     the cell's pseudo-elements. */
+  .uic-data-grid__body--header-split
+    table:not(table table)
+    > thead
+    th:has([role="separator"]) {
+    background-image:
+      linear-gradient(var(--color-border-emphasized), var(--color-border-emphasized)),
+      linear-gradient(var(--color-background-muted), var(--color-background-muted));
+    background-repeat: no-repeat;
+    background-position:
+      right center,
+      0 0;
+    /* 1.6em: the split's height, relative to the header text; no token. */
+    background-size:
+      var(--border-width) 1.6em,
+      100% 100%;
+  }
+
+  /* On a sortable header the resize handle anchors to the wrapper around the
+     sort button, one cell padding inside the cell. Re-anchor it to the cell. */
+  .uic-data-grid__body thead th > div:has(> [role="separator"]) {
+    position: static;
+  }
+
+  /* `scrollWidth`: the table takes that width, at least its container's, and
+     columns without a width size to their content. `!important` beats the
+     inline min-width the table writes once any column has a pixel width. */
+  .uic-data-grid__body--scroll-x table:not(table table) {
+    table-layout: auto;
+    width: var(--uic-data-grid-scroll-width);
+    min-width: 100% !important;
+  }
+
+  /* `maxHeight`: caps the table's scroll wrapper, found as the element around
+     the table (the resize plugin adds a boxless wrapper, so its depth varies). */
+  .uic-data-grid__body--scroll-y div:has(> table):not(table div) {
+    max-height: var(--uic-data-grid-max-height);
+    overflow-y: auto;
+  }
+
+  /* Sticky header: z 2 clears pinned body cells (z 1); pinned header cells
+     are lifted to 3 inline. */
+  .uic-data-grid__body--scroll-y table:not(table table) > thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--color-background-card);
+  }
+
+  .uic-data-grid__detail {
+    padding: var(--spacing-3);
+  }
+
+  .uic-data-grid__footer {
+    margin-top: var(--spacing-3);
+  }
+
+  /* Column settings and CSV export dialogs. */
+  .uic-data-grid-dialog {
+    min-width: 0;
+  }
+
+  .uic-data-grid-dialog__list {
+    max-height: var(--uic-data-grid-dialog-list-height);
+    overflow-y: auto;
+  }
+
+  .uic-data-grid-dialog__row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding-block: var(--spacing-1);
+  }
+
+  .uic-data-grid-dialog__option {
+    padding-block: var(--spacing-1);
+  }
+
+  .uic-data-grid-dialog__handle {
+    display: inline-flex;
+    cursor: grab;
+    color: var(--color-icon-secondary);
+  }
+
+  /* Keeps the checkbox of a row that cannot be dragged aligned with the
+     others: the width of the grip glyph. */
+  .uic-data-grid-dialog__handle-space {
+    width: var(--spacing-4);
+    flex: none;
+  }
+}

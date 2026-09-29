@@ -11,6 +11,10 @@
     "defaultMessage": "Menghapus",
     "description": "Generic label of a button that deletes something"
   },
+  "uic.common.apply": {
+    "defaultMessage": "Terapkan",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Pilih warna",
     "description": "Accessible name of a color picker whose caller gave it no label"
@@ -194,5 +198,57 @@
   "uic.BulkEditFormItem.undoChanges": {
     "defaultMessage": "Batalkan perubahan",
     "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "Eksekusi gagal",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "Terjadi kesalahan",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "Tidak ada data untuk ditampilkan",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "Nomor halaman tidak valid",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "Ke halaman pertama",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "Perluas baris",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "Penomoran halaman",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "{start} - {end} dari {total} item",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "Pengaturan Tabel",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "Ekspor CSV",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "Pilih kolom untuk ditampilkan",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "Kolom Tabel Cari",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "Ekspor",
+    "description": "Primary button of a data grid's CSV export dialog"
   }
 }

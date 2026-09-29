@@ -208,6 +208,13 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `ColorPicker`                                                  | A hex colour field on the platform colour input             | `/components/ColorPicker`        |
 | `Form` and its hooks                                           | A form engine with antd's form API. See below.              | `/Form`                          |
 | `BulkEditFormItem`                                             | A form item that edits one field across many records        | `/components/BulkEditFormItem`   |
+| `DataGrid`, `DataGridSettingsModal`, `DataGridExportModal`     | A table with paging, sorting, selection and column settings | `/components/DataGrid`           |
+| `BulkErrorModal`                                               | The failed items of a bulk operation, in a grid             | `/components/BulkErrorModal`     |
+| `ProgressWithLabel`                                            | A bar that carries its label and value label                | `/components/ProgressWithLabel`  |
+| `TextHighlighter`                                              | Marks a search keyword in a string                          | `/components/TextHighlighter`    |
+| `CountdownBorder`                                              | A border that fills as a countdown to a refresh             | `/components/CountdownBorder`    |
+| `DoubleToken`                                                  | A run of Tokens welded into one chip                        | `/components/DoubleToken`        |
+| `ListBanner`                                                   | A Banner that lists items, scrolling past a height          | `/components/ListBanner`         |
 | `usePrefersReducedMotion`                                      | The `prefers-reduced-motion` media query, as a hook         | root only                        |
 
 Their styles live in `@layer ui-common`, under `uic-` class names.

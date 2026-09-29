@@ -5,6 +5,45 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `DataGrid`: Astryx `Table` with a page bar and range line, client
+    (`compare`) or server (`sort`/`onSortChange`) sorting, row selection by
+    key, resizable and pinnable columns, expandable rows, per-user column
+    settings in one overrides record (`hidden`, `order`, `width`) and a CSV
+    export picker. Rows are paged unless `pagination.totalItems` says they
+    already are one page; a page past the last shows a way back to page 1.
+    `DataGridSettingsModal` (visibility and drag-to-reorder) and
+    `DataGridExportModal` (columns that export the same keys toggle
+    together) are its dialogs, exported on their own; both start fresh on
+    every open. Helpers `dataGridColumnLabel` and `isDataGridColumnVisible`.
+  - `BulkErrorModal`: the failed items of a bulk operation in a `DataGrid`
+    (compact, column rules, ten rows a page, no page bar on one page) under
+    an optional error banner; no footer.
+  - `ProgressWithLabel`: a bar carrying its label and value label over a
+    fill of `value` percent. `--uic-progress-with-label-color` (default
+    `--color-success`) and `--uic-progress-with-label-radius` (default
+    `--radius-inner`).
+  - `TextHighlighter`: marks every case-insensitive occurrence of a keyword.
+    `--uic-text-highlighter-background` (default `--color-warning-muted`).
+  - `CountdownBorder`: a border that fills clockwise over `durationMs`, a
+    countdown to the next refresh; `rx` resolves the theme's
+    `--radius-inner`.
+  - `DoubleToken`: welded Tokens for a settled pair, the Token counterpart
+    of `DoubleBadge`, with keyword highlighting.
+  - `ListBanner`: a `Banner` whose description is a keyboard-scrollable
+    list, capped at `maxHeight`.
+- Dependencies `@dnd-kit/core` 6.3.1, `@dnd-kit/sortable` 10.0.0,
+  `@dnd-kit/modifiers` 9.0.0 and `@dnd-kit/utilities` 3.2.2, exact-pinned,
+  for the column reorder in `DataGridSettingsModal`.
+- Catalog keys `uic.common.apply`, `uic.DataGrid.*` (11) and
+  `uic.BulkErrorModal.*` (2), translated in every shipped locale from
+  backend.ai-ui's locale files. The Mongolian range line
+  (`uic.DataGrid.range`) lost its stray braces on the way.
+
 ## [0.2.0-alpha.9]
 
 A form engine with antd's form API, and the bulk-edit form item, from

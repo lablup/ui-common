@@ -71,6 +71,11 @@ export const docs = {
             "`UnitGrid`: groups of unit squares packed on one lattice, each group a tinted plate with a hover card and an optional palette picker; `UnitGridSkeleton` is its loading stand-in.",
             "`ColorPicker`: a hex colour field on the platform colour input, reporting the settled colour.",
             "`Form` (`@lablup/ui-common/Form`): a form engine with antd's form API (Form.Item, Form.List, Form.useForm, Form.useWatch, rules), its messages from the catalog, its item shell on Astryx tokens. `BulkEditFormItem`: a Form.Item that edits one field across many records (keep / edit / clear).",
+            "`DataGrid`: Astryx Table with a page bar, client or server sorting, row selection, resizable and pinnable columns, expandable rows, per-user column settings and a CSV export picker; `DataGridSettingsModal` and `DataGridExportModal` are its dialogs.",
+            "`BulkErrorModal`: the failed items of a bulk operation in a DataGrid, under an optional error banner.",
+            "`ProgressWithLabel`: a bar carrying its label and value label. `TextHighlighter`: marks a search keyword in a string.",
+            "`CountdownBorder`: a border that fills clockwise as a countdown to the next refresh.",
+            "`DoubleToken`: welded Tokens for a settled pair. `ListBanner`: a Banner listing items, scrolling past a height.",
           ],
         },
         {

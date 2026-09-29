@@ -11,6 +11,10 @@
     "defaultMessage": "Xóa bỏ",
     "description": "Generic label of a button that deletes something"
   },
+  "uic.common.apply": {
+    "defaultMessage": "Áp dụng",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Chọn màu",
     "description": "Accessible name of a color picker whose caller gave it no label"
@@ -194,5 +198,57 @@
   "uic.BulkEditFormItem.undoChanges": {
     "defaultMessage": "Hoàn tác thay đổi",
     "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "Thực thi thất bại",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "Đã xảy ra lỗi",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "Không có dữ liệu để hiển thị",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "Số trang không hợp lệ",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "Đến trang đầu",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "Mở rộng hàng",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "Phân trang",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "{start} - {end} của {total}",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "Cài đặt bảng",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "Xuất CSV",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "Chọn các cột để hiển thị",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "Các cột bảng tìm kiếm",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "Xuất",
+    "description": "Primary button of a data grid's CSV export dialog"
   }
 }

@@ -19,6 +19,10 @@
     "defaultMessage": "다시 시도",
     "description": "Generic label of a button that retries a failed action or load"
   },
+  "uic.common.apply": {
+    "defaultMessage": "적용",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
   "uic.BooleanToken.true": {
     "defaultMessage": "예",
     "description": "Default label of a token showing a boolean value that is true"
@@ -234,5 +238,57 @@
   "uic.BulkEditFormItem.undoChanges": {
     "defaultMessage": "변경 취소",
     "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "실행 오류",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "문제가 발생했습니다.",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "표시할 데이터가 없습니다",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "유효하지 않은 페이지 번호입니다",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "첫 페이지로 이동하기",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "행 펼치기",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "페이지 나누기",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "전체 {total}개 중 {start} - {end}",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "표 설정",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "CSV로 내보내기",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "표시할 열 선택",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "표시할 열 검색",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "내보내기",
+    "description": "Primary button of a data grid's CSV export dialog"
   }
 }

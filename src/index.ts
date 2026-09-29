@@ -1325,6 +1325,10 @@ export type { BooleanTokenProps } from "./components/BooleanToken";
 export { BulkEditFormItem } from "./components/BulkEditFormItem";
 export type { BulkEditFormItemProps } from "./components/BulkEditFormItem";
 
+// BulkErrorModal
+export { BulkErrorModal } from "./components/BulkErrorModal";
+export type { BulkErrorModalProps } from "./components/BulkErrorModal";
+
 // ColorPicker
 export { ColorPicker, toHexColor } from "./components/ColorPicker";
 export type { ColorPickerProps } from "./components/ColorPicker";
@@ -1336,6 +1340,38 @@ export type { ConfirmPopoverProps } from "./components/ConfirmPopover";
 // CountBadge
 export { CountBadge } from "./components/CountBadge";
 export type { CountBadgeProps } from "./components/CountBadge";
+
+// CountdownBorder
+export { CountdownBorder } from "./components/CountdownBorder";
+export type { CountdownBorderProps } from "./components/CountdownBorder";
+
+// DataGrid
+export {
+  DataGrid,
+  DataGridExportModal,
+  DataGridSettingsModal,
+  dataGridColumnLabel,
+  isDataGridColumnVisible,
+} from "./components/DataGrid";
+export type {
+  DataGridColumn,
+  DataGridColumnOverride,
+  DataGridColumnOverrides,
+  DataGridColumnSettings,
+  DataGridCsvExport,
+  DataGridExpansion,
+  DataGridExportColumn,
+  DataGridExportModalProps,
+  DataGridKey,
+  DataGridPagination,
+  DataGridProps,
+  DataGridSelection,
+  DataGridSettingsColumn,
+  DataGridSettingsModalProps,
+  DataGridSettingsResult,
+  DataGridSort,
+  DataGridSortDirection,
+} from "./components/DataGrid";
 
 // DeleteConfirmModal
 export { DeleteConfirmModal } from "./components/DeleteConfirmModal";
@@ -1355,6 +1391,14 @@ export type { DividedRowProps } from "./components/DividedRow";
 // DoubleBadge
 export { DoubleBadge } from "./components/DoubleBadge";
 export type { DoubleBadgeProps, DoubleBadgeValue } from "./components/DoubleBadge";
+
+// DoubleToken
+export { DoubleToken } from "./components/DoubleToken";
+export type {
+  DoubleTokenColor,
+  DoubleTokenProps,
+  DoubleTokenValue,
+} from "./components/DoubleToken";
 
 // ErrorState
 export { ErrorState } from "./components/ErrorState";
@@ -1417,6 +1461,10 @@ export type { IconWithTooltipProps } from "./components/IconWithTooltip";
 export { ImageWithFallback } from "./components/ImageWithFallback";
 export type { ImageWithFallbackProps } from "./components/ImageWithFallback";
 
+// ListBanner
+export { ListBanner } from "./components/ListBanner";
+export type { ListBannerItem, ListBannerProps } from "./components/ListBanner";
+
 // Modal
 export {
   DialogHeader,
@@ -1469,6 +1517,10 @@ export type { PageHeaderProps } from "./components/PageHeader";
 export { PageLayout } from "./components/PageLayout";
 export type { PageLayoutProps, PageLayoutVariant } from "./components/PageLayout";
 
+// ProgressWithLabel
+export { ProgressWithLabel } from "./components/ProgressWithLabel";
+export type { ProgressWithLabelProps } from "./components/ProgressWithLabel";
+
 // SelectionLabel
 export { SelectionLabel } from "./components/SelectionLabel";
 export type { SelectionLabelProps } from "./components/SelectionLabel";
@@ -1517,6 +1569,10 @@ export type {
   StepDirection,
   StepNumberInputProps,
 } from "./components/StepNumberInput";
+
+// TextHighlighter
+export { TextHighlighter } from "./components/TextHighlighter";
+export type { TextHighlighterProps } from "./components/TextHighlighter";
 
 // TokenList
 export { TokenList } from "./components/TokenList";

@@ -19,6 +19,10 @@ export const commonMessages = defineMessages({
     defaultMessage: "Confirm",
     description: "Generic label of a button that confirms an action",
   },
+  "uic.common.apply": {
+    defaultMessage: "Apply",
+    description: "Generic label of a button that applies the changes made in a dialog",
+  },
   "uic.common.delete": {
     defaultMessage: "Delete",
     description: "Generic label of a button that deletes something",

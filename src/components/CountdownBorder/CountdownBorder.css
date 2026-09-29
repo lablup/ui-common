@@ -1,0 +1,37 @@
+/*
+ * CountdownBorder. `pathLength={100}` normalises the outline's length, so the
+ * offset animation draws it clockwise from the top-left in one cycle at any
+ * size.
+ */
+@layer ui-common {
+  @keyframes uic-countdown-border-fill {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* `overflow: visible` with the rect filling the box centres the stroke on
+     the content's edge. */
+  .uic-countdown-border__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .uic-countdown-border__fill {
+    animation-name: uic-countdown-border-fill;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .uic-countdown-border__fill {
+      animation: none;
+    }
+  }
+}

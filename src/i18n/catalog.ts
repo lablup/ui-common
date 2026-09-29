@@ -26,7 +26,9 @@ import type { Catalog, MessageEntry } from "@astryxdesign/core/i18n";
 // it is a function declaration, so it is bound before either module runs.
 import { booleanTokenMessages } from "../components/BooleanToken/BooleanToken.messages";
 import { bulkEditFormItemMessages } from "../components/BulkEditFormItem/BulkEditFormItem.messages";
+import { bulkErrorModalMessages } from "../components/BulkErrorModal/BulkErrorModal.messages";
 import { colorPickerMessages } from "../components/ColorPicker/ColorPicker.messages";
+import { dataGridMessages } from "../components/DataGrid/DataGrid.messages";
 import { deleteConfirmModalMessages } from "../components/DeleteConfirmModal/DeleteConfirmModal.messages";
 import { formMessages } from "../components/Form/Form.messages";
 import { notificationStackMessages } from "../components/NotificationStack/NotificationStack.messages";
@@ -60,7 +62,9 @@ export const uiCommonCatalog: Catalog = {
   ...commonMessages,
   ...booleanTokenMessages,
   ...bulkEditFormItemMessages,
+  ...bulkErrorModalMessages,
   ...colorPickerMessages,
+  ...dataGridMessages,
   ...deleteConfirmModalMessages,
   ...formMessages,
   ...notificationStackMessages,

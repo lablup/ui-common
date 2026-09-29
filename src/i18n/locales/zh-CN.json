@@ -11,6 +11,10 @@
     "defaultMessage": "删除",
     "description": "Generic label of a button that deletes something"
   },
+  "uic.common.apply": {
+    "defaultMessage": "应用",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
   "uic.ColorPicker.label": {
     "defaultMessage": "选择颜色",
     "description": "Accessible name of a color picker whose caller gave it no label"
@@ -194,5 +198,57 @@
   "uic.BulkEditFormItem.undoChanges": {
     "defaultMessage": "撤销更改",
     "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "执行错误",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "发生错误",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "暂无数据",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "无效的页码",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "转到第一页",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "展开行",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "分页",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "{start} - {end} {total}项目",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "表设置",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "导出 CSV",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "选择要显示的列",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "搜索表列",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "导出",
+    "description": "Primary button of a data grid's CSV export dialog"
   }
 }

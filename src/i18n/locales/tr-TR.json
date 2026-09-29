@@ -11,6 +11,10 @@
     "defaultMessage": "Silmek",
     "description": "Generic label of a button that deletes something"
   },
+  "uic.common.apply": {
+    "defaultMessage": "Uygula",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Renk seç",
     "description": "Accessible name of a color picker whose caller gave it no label"
@@ -194,5 +198,57 @@
   "uic.BulkEditFormItem.undoChanges": {
     "defaultMessage": "Değişiklikleri geri al",
     "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "Yürütme başarısız oldu",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "Bir hata oluştu",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "Görüntülenecek veri yok",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "Geçersiz sayfa numarası",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "İlk sayfaya git",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "Satırı genişlet",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "Sayfalama",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "{start} - {end} öğelerinin {total}",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "Masa Ayarları",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "CSV Dışa Aktar",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "Görüntülemek için sütunları seçin",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "Arama Tablosu sütunları",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "Dışa aktar",
+    "description": "Primary button of a data grid's CSV export dialog"
   }
 }
