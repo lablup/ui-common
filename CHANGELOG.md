@@ -5,6 +5,51 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.12]
+
+Custom properties take Astryx's naming as is: no `--uic-` prefix.
+
+### Changed
+
+- **Breaking for alpha consumers: every `--uic-*` custom property is
+  renamed or gone.** `uic-` class names and `data-uic-*` attributes are
+  unchanged. The rule is in CONTRIBUTING ("Styling") and
+  `componentStyles.test.ts` enforces it, including that no name collides
+  with one Astryx core, lab or the neutral theme declares or reads.
+  - The Lablup theme's info hue is `--color-info` (was `--uic-color-info`),
+    the name the Backend.AI WebUI theme uses, declared in the theme's
+    `tokens`. `LABLUP_INFO_TOKEN` carries the new name. `StatCard`'s info
+    tone and the legacy `--token-colorInfo` read it.
+  - Hooks that only carried a theme value are gone; the component reads the
+    theme token, with an Astryx fallback:
+    - `--uic-form-item-description-color` -> `--color-text-description`
+      (fallback `--color-text-secondary`).
+    - `--uic-text-highlighter-background` -> `--color-warning-border-hover`
+      (fallback `--color-warning-muted`).
+    - `--uic-progress-with-label-color` -> removed; the `color` prop paints
+      the fill directly (default `--color-success`).
+    - `--uic-stat-card-tone`, `--uic-stat-card-tone-muted`,
+      `--uic-error-state-tone`, `--uic-error-state-tone-muted` and
+      `--uic-progress-with-label-font-size` -> removed; the variant rules
+      read the tokens.
+  - Component knobs drop the prefix and follow Astryx's component-variable
+    form, `--<component>-<property>`:
+    - `--board-item-title-z`, `--count-badge-offset-x`/`-y`,
+      `--data-grid-scroll-width`, `--data-grid-max-height`,
+      `--data-grid-dialog-list-height`, `--digit-pop-in-duration`/
+      `-distance`/`-stagger`/`-blur`/`-ease`/`-index` (their 0.1 names
+      again), `--divided-row-column-gap`, `--form-item-margin-bottom`,
+      `--form-item-gap`, `--form-item-line-height`,
+      `--list-banner-max-height`, `--modal-z`, `--modal-level`,
+      `--modal-dir-x`/`-y`, `--notification-stack-z`,
+      `--notification-stack-inset-top`, `--overlay-scrollbar-z`,
+      `--progress-with-label-radius`, `--unit-grid-group-1`..`-7`,
+      `--unit-grid-ink-dark`, `--unit-grid-ink-light`,
+      `--unit-grid-cell-stroke`, `--unit-grid-cell-empty`,
+      `--unit-grid-popover-z`: the old name without `uic-`.
+    - `--uic-notification-body-max-height` ->
+      `--notification-stack-body-max-height`.
+
 ## [0.2.0-alpha.11]
 
 Review fixes for the table cluster, and translation fixes.
