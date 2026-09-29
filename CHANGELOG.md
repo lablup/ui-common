@@ -5,8 +5,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.13]
+
 Astryx fixes a product used to carry as pnpm patches now ship in ui-common,
-so its consumers get them without patching.
+so its consumers get them without patching. `DataGrid` and `DoubleToken`
+take two fixes from the same product.
 
 ### Added
 
