@@ -191,6 +191,38 @@ for (const locale of coreLocales) {
   }
 }
 
+/**
+ * Third-party code that ships inside dist carries its licence with it. The MIT
+ * licence asks for its copyright line and permission notice in every copy, so
+ * both have to be in a packed file, not just in the repository.
+ */
+const THIRD_PARTY_NOTICES = [
+  {
+    what: "Ant Design Icons path data (src/components/Form/feedbackIcons.tsx)",
+    file: "NOTICE",
+    mustContain: [
+      "Copyright (c) 2018-present Ant UED, https://xtech.antfin.com/",
+      "Permission is hereby granted, free of charge, to any person obtaining",
+      "The above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.",
+    ],
+  },
+];
+
+for (const { what, file, mustContain } of THIRD_PARTY_NOTICES) {
+  if (!packedSet.has(file)) {
+    failures.push(`${what}: its licence lives in "${file}", which is not packed`);
+    continue;
+  }
+  const text = await readFile(resolve(root, file), "utf8");
+  for (const line of mustContain) {
+    if (!text.includes(line)) {
+      failures.push(
+        `${what}: "${file}" lacks the licence text "${line.split("\n")[0]}"`,
+      );
+    }
+  }
+}
+
 if (failures.length > 0) {
   console.error(`Packed artifact check failed (${failures.length}):\n`);
   for (const f of failures) console.error(`  ${f}`);
