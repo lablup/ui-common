@@ -179,3 +179,54 @@ export function D({ StatusTag }: { StatusTag: any }) {
     expect(out).not.toContain("is used as a value here");
   });
 });
+
+describe("removed types that a module re-exports", () => {
+  it("drops the local re-export with the import, so the file still parses", () => {
+    const out = upgrade(
+      `import { DataTable as BaseDataTable } from "@lablup/ui-common/components/DataTable";
+import type {
+  DataTableProps as BaseProps,
+  DataTablePersistedState,
+  SortDirection,
+} from "@lablup/ui-common/components/DataTable";
+
+export type { DataTablePersistedState, SortDirection };
+
+export function DataTable<T>(props: BaseProps<T>) {
+  return <BaseDataTable {...props} />;
+}
+`,
+    );
+    expect(() => j(out)).not.toThrow();
+    expect(out).not.toMatch(/export type \{[^}]*DataTablePersistedState/);
+    expect(out).toContain(
+      "// TODO(ui-common-upgrade): DataTablePersistedState, SortDirection (removed with DataTable in 0.2, no Astryx counterpart) are no longer re-exported from here;",
+    );
+    // The TODO lands above the statement that followed the re-export.
+    expect(out).toMatch(/no longer re-exported[^\n]*\nexport function DataTable/);
+  });
+
+  it("keeps the other names of a mixed re-export, and an alias", () => {
+    const out = upgrade(
+      `import type { StatusKind } from "@lablup/ui-common/components/StatusTag";
+type Local = string;
+export type { Local, StatusKind as Kind };
+`,
+    );
+    expect(() => j(out)).not.toThrow();
+    expect(out).toContain("export type { Local };");
+    expect(out).toContain(
+      "TODO(ui-common-upgrade): Kind (removed with StatusTag in 0.2, no Astryx counterpart) is no longer re-exported from here",
+    );
+  });
+
+  it("leaves a re-export of a local type with the same name alone", () => {
+    const out = upgrade(
+      `import { Badge } from "@lablup/ui-common";
+export type SortDirection = "asc" | "desc";
+export const B = () => <Badge variant="info">x</Badge>;
+`,
+    );
+    expect(out).toContain('export type SortDirection = "asc" | "desc";');
+  });
+});

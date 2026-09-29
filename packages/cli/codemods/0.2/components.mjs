@@ -15,6 +15,7 @@ import {
   identifierNames,
   renameElement,
   tagName,
+  TODO_TAG,
 } from "../lib/jsx.mjs";
 import { addTodo } from "../lib/todo.mjs";
 import { ELEMENT_TRANSFORMS } from "./elements.mjs";
@@ -271,6 +272,61 @@ function reuseNode(path, decls, kindKey) {
 }
 
 /**
+ * A removed 0.1 type with no Astryx counterpart loses its import. A local
+ * re-export of it (`import type { X } from …; export type { X };`) goes too,
+ * the same way a re-export straight from ui-common does: left behind it names
+ * nothing, and the file no longer parses. No placeholder type is declared in
+ * its place: an `unknown` alias would keep every importer compiling against a
+ * type that no longer exists. The TODO goes on the export, or where it stood.
+ *
+ * @param {any} j
+ * @param {any} root
+ * @param {Map<string, {imported: string, component: string}>} dropped
+ * @param {any} programScope
+ */
+function dropLocalReexports(j, root, dropped, programScope) {
+  root.find(j.ExportNamedDeclaration).forEach((/** @type {any} */ path) => {
+    const node = path.node;
+    if (node.source || node.declaration) return;
+    const specifiers = node.specifiers ?? [];
+    const gone = specifiers.filter(
+      (/** @type {any} */ s) =>
+        s.local?.name &&
+        dropped.has(s.local.name) &&
+        isModuleBinding(path, s.local.name, programScope),
+    );
+    if (gone.length === 0) return;
+    const names = gone.map((/** @type {any} */ s) => s.exported?.name ?? s.local.name);
+    const components = [
+      ...new Set(
+        gone.map((/** @type {any} */ s) => dropped.get(s.local.name)?.component),
+      ),
+    ];
+    const message = `${names.join(", ")} (removed with ${components.join(", ")} in 0.2, no Astryx counterpart) ${names.length === 1 ? "is" : "are"} no longer re-exported from here; modules importing ${names.length === 1 ? "it" : "them"} from here need a type of their own.`;
+    const rest = specifiers.filter((/** @type {any} */ s) => !gone.includes(s));
+    if (rest.length > 0) {
+      node.specifiers = rest;
+      addTodo(j, path, message);
+      return;
+    }
+    const comment = j.commentLine(` ${TODO_TAG}: ${message}`, true, false);
+    const comments = [...(node.comments ?? []), comment];
+    const body = path.parent.node.body;
+    const index = body.indexOf(node);
+    path.prune();
+    const next = body[index] ?? null;
+    if (next) next.comments = [...comments, ...(next.comments ?? [])];
+    else if (body[index - 1]) {
+      const previous = body[index - 1];
+      previous.comments = [
+        ...(previous.comments ?? []),
+        ...comments.map((c) => ({ ...c, leading: false, trailing: true })),
+      ];
+    }
+  });
+}
+
+/**
  * @param {{source: string, path: string}} file
  * @param {{jscodeshift: any}} api
  * @param {{flags: {packages: Map<string, string>, touched: Set<string>}}} ctx
@@ -302,6 +358,13 @@ export default function transform(file, api, ctx) {
   const plans = [];
   /** @type {any[]} */
   const extra = [];
+  /**
+   * Local bindings of removed 0.1 types whose import was dropped: a local
+   * `export type { X }` of one goes with it (see dropLocalReexports).
+   *
+   * @type {Map<string, {imported: string, component: string}>}
+   */
+  const droppedTypes = new Map();
 
   /**
    * The local name to use for `name` from `@lablup/ui-common/<subpath>`,
@@ -413,6 +476,7 @@ export default function transform(file, api, ctx) {
           path,
           `type ${imported} was removed with ${resolved.component} in 0.2 and has no Astryx counterpart.`,
         );
+        droppedTypes.set(local, { imported, component: resolved.component });
         continue;
       }
       let finalLocal = local;
@@ -513,6 +577,8 @@ export default function transform(file, api, ctx) {
       reuseNode(path, decls, "exportKind");
     }
   });
+
+  if (droppedTypes.size > 0) dropLocalReexports(j, root, droppedTypes, programScope);
 
   root.find(j.ExportAllDeclaration).forEach((/** @type {any} */ path) => {
     const source = path.node.source?.value;
