@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { useState, type ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
@@ -678,5 +680,15 @@ describe("DataGrid strings", () => {
     });
     expect(screen.getByRole("button", { name: "Columns" })).toBeInTheDocument();
     expect(screen.getByText("1 total")).toBeInTheDocument();
+  });
+});
+
+describe("DataGrid as a flex or grid item", () => {
+  // jsdom has no layout, so the stylesheet rule itself is the contract.
+  it("lets its root shrink so a wide table scrolls instead of stretching the parent", () => {
+    const css = readFileSync(join(__dirname, "DataGrid.css"), "utf8");
+    const root = /\.uic-data-grid\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
+    expect(root).toMatch(/min-width:\s*0;/);
+    expect(root).toMatch(/max-width:\s*100%;/);
   });
 });

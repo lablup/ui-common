@@ -5,6 +5,13 @@
  * a cell or a detail row.
  */
 @layer ui-common {
+  /* As a flex or grid item the root would otherwise floor at the table's
+     full width and stretch its parent; clamped, the table scrolls itself. */
+  .uic-data-grid {
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .uic-data-grid__body {
     /* Astryx's Table bleeds into its container's block padding when it is the
        first or last child. The table is this wrapper's only child, so both

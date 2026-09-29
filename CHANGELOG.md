@@ -5,6 +5,12 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- `DataGrid`'s root (`.uic-data-grid`) is `min-width: 0; max-width: 100%`,
+  so a wide grid inside a flex or grid parent scrolls itself instead of
+  stretching the parent.
+
 ## [0.2.0-alpha.12]
 
 Custom properties take Astryx's naming as is: no `--uic-` prefix.
