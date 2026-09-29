@@ -26,6 +26,7 @@ Scanned 1 file under `src`.
 - devDependencies["@lablup/ui-common"]: "0.1.0-alpha.0" → "0.2.0-alpha.0".
 - peerDependencies["@lablup/ui-common"]: ">=0.1.0-alpha.0 <0.2.0" → "^0.2.0-alpha.0".
 - peerDependencies["@lablup/ui-common"]: the range ">=0.1.0-alpha.0 <0.2.0" was replaced with "^0.2.0-alpha.0"; widen it again if this package must still accept 0.1.
+- added @lablup/ui-common-cli 0.2.0-alpha.0 to devDependencies: the `ui-common` bin ships in its own package since 0.2, released at the same version as @lablup/ui-common.
 - added @stylexjs/stylex ^0.19.0 to peerDependencies and devDependencies.
 
 ## Manual review

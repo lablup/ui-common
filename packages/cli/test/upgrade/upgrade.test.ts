@@ -155,6 +155,19 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     expect(readFileSync(join(dir, "reports/dry.md"), "utf8")).toContain("dry run");
   });
 
+  it("pins @lablup/ui-common-cli to the target, wherever the project lists it", async () => {
+    const dir = copyFixture("root-barrel");
+    const pkgFile = join(dir, "package.json");
+    const pkg = JSON.parse(readFileSync(pkgFile, "utf8"));
+    pkg.dependencies["@lablup/ui-common-cli"] = "^0.1.0";
+    writeFileSync(pkgFile, `${JSON.stringify(pkg, null, 2)}\n`);
+    const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+    expect(result.code, JSON.stringify(result.errors)).toBe(0);
+    const after = JSON.parse(readFileSync(pkgFile, "utf8"));
+    expect(after.dependencies["@lablup/ui-common-cli"]).toBe(TO);
+    expect(after.devDependencies?.["@lablup/ui-common-cli"]).toBeUndefined();
+  });
+
   describe("points lab's core peer at ui-common's core when it adds lab", () => {
     // The repository root: the @lablup/ui-common the CLI ships with.
     const own = JSON.parse(

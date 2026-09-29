@@ -25,6 +25,7 @@ Scanned 2 files under `src`.
 ## package.json
 
 - dependencies["@lablup/ui-common"]: "0.1.0-alpha.23" → "0.2.0-alpha.0".
+- added @lablup/ui-common-cli 0.2.0-alpha.0 to devDependencies: the `ui-common` bin ships in its own package since 0.2, released at the same version as @lablup/ui-common.
 
 ## Manual review
 

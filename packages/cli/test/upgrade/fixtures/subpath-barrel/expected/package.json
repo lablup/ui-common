@@ -9,6 +9,7 @@
     "react": "^19.2.0"
   },
   "devDependencies": {
+    "@lablup/ui-common-cli": "0.2.0-alpha.0",
     "vitest": "^4.0.0"
   }
 }

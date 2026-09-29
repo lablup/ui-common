@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@lablup/ui-common": "0.2.0-alpha.0",
+    "@lablup/ui-common-cli": "0.2.0-alpha.0",
     "@stylexjs/stylex": "^0.19.0",
     "react": "^19.2.0"
   }

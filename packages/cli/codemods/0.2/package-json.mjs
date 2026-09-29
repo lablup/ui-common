@@ -1,6 +1,8 @@
 /**
  * 0.1 -> 0.2 package.json edits:
  * - bump @lablup/ui-common to the target version (keeping `^`/`~`);
+ * - add @lablup/ui-common-cli, the `ui-common` bin, to devDependencies at
+ *   exactly the target version (0.1 shipped the bin inside ui-common);
  * - add the @stylexjs/stylex peer ui-common 0.2 needs, when missing;
  * - add @astryxdesign/lab, pinned to the canary ui-common is built against,
  *   when a Drawer import was moved to `@lablup/ui-common/lab`, and point its
@@ -10,6 +12,9 @@
 import { applyLabOverride, CORE, detectPackageManager } from "../../cli/lab-peer.mjs";
 import { targetUiCommonRoot, uiCommonPackageJson } from "../../cli/paths.mjs";
 import { LAB_PACKAGE, stylexPeer, UIC } from "./map.mjs";
+
+/** The CLI package, released in lockstep with ui-common. */
+export const CLI_PACKAGE = "@lablup/ui-common-cli";
 
 const FIELDS = /** @type {const} */ ([
   "dependencies",
@@ -111,6 +116,28 @@ export function transformPackageJson(text, ctx) {
 
   const has = (/** @type {string} */ name) =>
     FIELDS.some((f) => pkg[f]?.[name] != null);
+
+  // The bin moved out of ui-common into its own package. It is a dev-time
+  // tool, pinned exactly: it upgrades to and reads the ui-common of its own
+  // version.
+  const cliField = FIELDS.find((f) => pkg[f]?.[CLI_PACKAGE] != null);
+  if (!cliField) {
+    addDependency(pkg, "devDependencies", CLI_PACKAGE, ctx.to);
+    ctx.note(
+      `added ${CLI_PACKAGE} ${ctx.to} to devDependencies: the \`ui-common\` bin ships in its own package since 0.2, released at the same version as ${UIC}.`,
+    );
+  } else {
+    const spec = pkg[cliField][CLI_PACKAGE];
+    const bumped = bumpSpec(spec, ctx.to);
+    if (!bumped) {
+      ctx.note(
+        `${cliField}["${CLI_PACKAGE}"] is "${spec}"; not a version, so it was left alone.`,
+      );
+    } else if (spec !== ctx.to) {
+      pkg[cliField][CLI_PACKAGE] = ctx.to;
+      ctx.note(`${cliField}["${CLI_PACKAGE}"]: "${spec}" → "${ctx.to}".`);
+    }
+  }
   // A library that takes ui-common as a peer takes StyleX as a peer too;
   // an application depends on it.
   const library = fields.includes("peerDependencies");
