@@ -13,13 +13,14 @@
  * - `styles/themes/orange-{light,dark}.css` imports are dropped: the Lablup
  *   theme covers both colour schemes.
  */
-import { basename, dirname, join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 
 import postcss from "postcss";
 
 import { TODO_TAG } from "../lib/jsx.mjs";
 import { addTodo } from "../lib/todo.mjs";
-import { LAB_CSS, LAB_PACKAGE, STYLESHEETS } from "./map.mjs";
+import { LAB_CSS, LAB_PACKAGE, STYLESHEETS, UIC } from "./map.mjs";
 
 const { base, layerOrder, imports: replacement, entryFile } = STYLESHEETS;
 const DROPPED = STYLESHEETS.dropped;
@@ -236,6 +237,71 @@ export function transformStylesheet(file, _api, ctx) {
   return transformPreprocessed(file.source, file.path, ctx);
 }
 
+const STYLESHEET = /\.(css|scss|sass|less)(\?.*)?$/;
+
+/**
+ * Whether an import has to come after the stylesheet entry: a stylesheet
+ * (the entry's `@layer` statement must be the first one the page sees), a
+ * @lablup/ui-common module (its components' styles), or a module of the
+ * project's own, which loads both.
+ *
+ * @param {string} source
+ */
+function loadsStyles(source) {
+  return (
+    STYLESHEET.test(source) ||
+    source === UIC ||
+    source.startsWith(`${UIC}/`) ||
+    source.startsWith(".") ||
+    source.startsWith("/")
+  );
+}
+
+/**
+ * Put the import of `specifier` before every import that loads styles, or
+ * add it there: after the last import that does not, else first. Vite
+ * injects stylesheets in import order, and the `@layer` order statement only
+ * holds if it comes first.
+ *
+ * @param {any} j
+ * @param {any} root
+ * @param {string} specifier
+ * @returns {boolean} whether anything moved or was added
+ */
+export function placeEntryImport(j, root, specifier) {
+  const program = root.find(j.Program).get().node;
+  const body = program.body;
+  const isImport = (/** @type {any} */ n) => n.type === "ImportDeclaration";
+  const existing = body.find(
+    (/** @type {any} */ n) => isImport(n) && n.source.value === specifier,
+  );
+  const first = body.find(
+    (/** @type {any} */ n) =>
+      isImport(n) && n !== existing && loadsStyles(String(n.source.value)),
+  );
+  if (existing) {
+    if (!first || body.indexOf(existing) < body.indexOf(first)) return false;
+    body.splice(body.indexOf(existing), 1);
+  }
+  const decl = existing ?? j.importDeclaration([], j.stringLiteral(specifier));
+  if (first) {
+    const at = body.indexOf(first);
+    // A header comment on the first import stays on top.
+    if (at === 0 && first.comments?.length) {
+      decl.comments = [...first.comments, ...(decl.comments ?? [])];
+      first.comments = [];
+    }
+    body.splice(at, 0, decl);
+    return true;
+  }
+  let last = -1;
+  body.forEach((/** @type {any} */ n, /** @type {number} */ i) => {
+    if (isImport(n)) last = i;
+  });
+  body.splice(last + 1, 0, decl);
+  return true;
+}
+
 export const jsMeta = {
   id: "script-stylesheet-imports",
   title:
@@ -256,6 +322,8 @@ export function transformScriptImports(file, api, ctx) {
   const entrySpecifier = `./${entryFile}`;
   const alreadyImportsEntry =
     root.find(j.ImportDeclaration, { source: { value: entrySpecifier } }).size() > 0;
+  /** @type {string[]} */
+  const entryImports = [];
 
   root.find(j.ImportDeclaration).forEach((/** @type {any} */ path) => {
     const source = path.node.source.value;
@@ -281,7 +349,9 @@ export function transformScriptImports(file, api, ctx) {
     // which is a numbered sibling when the project has its own entry there.
     const entry = ctx.createFile(join(dirname(file.path), entryFile), entryCss(ctx));
     path.node.source = j.stringLiteral(`./${basename(entry)}`);
+    entryImports.push(`./${basename(entry)}`);
   });
+  for (const specifier of entryImports) placeEntryImport(j, root, specifier);
 
   root.find(j.CallExpression).forEach((/** @type {any} */ path) => {
     const node = path.node;
@@ -302,4 +372,108 @@ export function transformScriptImports(file, api, ctx) {
     quote: file.source.includes("from '") ? "single" : "double",
   });
   return file.source.endsWith("\n") && !out.endsWith("\n") ? `${out}\n` : out;
+}
+
+/** What loading the 0.2 stylesheets looks like, in a script or a stylesheet. */
+const WIRED = new RegExp(
+  [...replacement, `${UIC}/styles/`, entryFile.replace(/\.css$/, "")]
+    .map((r) => r.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&"))
+    .join("|"),
+);
+
+/**
+ * The app's entry script: the module script `index.html` loads, else the
+ * package's `main`, else the usual `src/main.*` / `src/index.*`.
+ *
+ * @param {string} projectDir
+ * @param {any} pkg
+ * @returns {{file: string, how: string} | null}
+ */
+export function findEntryScript(projectDir, pkg) {
+  const html = join(projectDir, "index.html");
+  if (existsSync(html)) {
+    const text = readFileSync(html, "utf8");
+    for (const tag of text.matchAll(/<script\b[^>]*>/gi)) {
+      const src = /\bsrc\s*=\s*["']([^"']+)["']/i.exec(tag[0])?.[1];
+      if (!src || /^[a-z]+:|^\/\//i.test(src)) continue;
+      if (!/type\s*=\s*["']module["']/i.test(tag[0]) && !/\.[cm]?[jt]sx?$/.test(src))
+        continue;
+      const file = src.startsWith("/")
+        ? join(projectDir, src.replace(/^\/+/, ""))
+        : resolve(projectDir, src);
+      if (existsSync(file)) return { file, how: "the module script index.html loads" };
+    }
+  }
+  const main = typeof pkg?.main === "string" ? resolve(projectDir, pkg.main) : null;
+  if (
+    main &&
+    /\.[cm]?[jt]sx?$/.test(main) &&
+    existsSync(main) &&
+    !relative(projectDir, main)
+      .split(sep)
+      .some((d) => ["dist", "build", "out"].includes(d))
+  )
+    return { file: main, how: "package.json main" };
+  for (const name of ["main", "index"]) {
+    for (const ext of [".tsx", ".ts", ".jsx", ".js"]) {
+      const file = join(projectDir, "src", `${name}${ext}`);
+      if (existsSync(file)) return { file, how: `the conventional entry` };
+    }
+  }
+  return null;
+}
+
+/**
+ * A 0.1 app that never imported styles/base.css relied on each component
+ * loading its own CSS; 0.2 components load none, so after the upgrade
+ * nothing would load Astryx's stylesheets or the theme. When no file of the
+ * project loads them, write the same ui-common-entry.css the base.css
+ * rewrite writes beside the app's entry script and import it there, first.
+ * With no entry to be found, the report opens with the manual step.
+ * Libraries are left alone: the app that uses them loads the stylesheets.
+ *
+ * @param {any} ctx
+ * @param {{jscodeshift: any}} api
+ */
+export function wireStylesheets(ctx, api) {
+  const pkg = ctx.pkg ?? {};
+  if (pkg.peerDependencies?.[UIC] != null) return;
+  const declared = ["dependencies", "devDependencies"].some(
+    (f) => pkg[f]?.[UIC] != null,
+  );
+  if (!declared) return;
+  for (const file of ctx.projectFiles()) {
+    const text = ctx.current(file);
+    if (text && WIRED.test(text)) return;
+  }
+  const rel = (/** @type {string} */ f) =>
+    relative(ctx.projectDir, f).split(sep).join("/");
+  const entry = findEntryScript(ctx.projectDir, pkg);
+  if (!entry) {
+    ctx.alert(
+      `**Load @lablup/ui-common's stylesheets.** Nothing in this project loads them, and the upgrade found no entry script to import them from (no index.html module script, package.json \`main\`, or \`src/main.*\` / \`src/index.*\`). 0.1 components loaded their own CSS; 0.2 components load none, so the app renders unstyled until its entry stylesheet starts with: \`${[layerOrder, ...replacement.map((r) => `@import "${r}";`)].join(" ")}\``,
+    );
+    return;
+  }
+  const j = api.jscodeshift.withParser(
+    /\.[cm]?tsx?$/.test(entry.file) ? "tsx" : "babel",
+  );
+  const cssFile = ctx.createFile(join(dirname(entry.file), entryFile), entryCss(ctx));
+  const specifier = `./${basename(cssFile)}`;
+  ctx.editFile(
+    entry.file,
+    (/** @type {string | null} */ current) => {
+      if (current == null) return undefined;
+      const root = j(current);
+      if (!placeEntryImport(j, root, specifier)) return undefined;
+      const out = root.toSource({
+        quote: current.includes("from '") ? "single" : "double",
+      });
+      return current.endsWith("\n") && !out.endsWith("\n") ? `${out}\n` : out;
+    },
+    "stylesheet-entry",
+  );
+  ctx.notice(
+    `No file loaded @lablup/ui-common's stylesheets (0.1 components loaded their own CSS; 0.2's load none), so the upgrade wrote ${rel(cssFile)} and imported it first in ${rel(entry.file)} (${entry.how}). Move the import if your app loads its stylesheets elsewhere.`,
+  );
 }

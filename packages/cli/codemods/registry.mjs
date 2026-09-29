@@ -27,6 +27,7 @@ import { compare, parse } from "../cli/semver.mjs";
  * @typedef {object} Step
  * @property {string} title
  * @property {Transform[]} transforms
+ * @property {(ctx: any, api: {jscodeshift: any}) => void} [afterTransforms] project-level edits once every file is transformed
  * @property {(text: string, ctx: any) => string | undefined} [packageJson]
  * @property {(files: Array<[string, string]>) => any} [prepareScan] a context for `scan`, from every file it will read ([relative path, content])
  * @property {(file: string, source: string, context?: any) => Array<{category: string, file: string, line: number, text: string, detail?: string}>} [scan]

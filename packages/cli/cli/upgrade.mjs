@@ -311,6 +311,8 @@ export async function runUpgrade(options) {
   const errors = [];
   /** @type {string[]} */
   const notices = [];
+  /** @type {string[]} */
+  const alerts = [];
   const resolver = createResolver(projectDir);
   /** @type {Map<string, string | null>} */
   const unscanned = new Map();
@@ -348,6 +350,33 @@ export async function runUpgrade(options) {
     },
     /** The project file an import specifier names (relative or a tsconfig alias), or null. */
     resolveImport: resolver.resolveImport,
+    /** The project's package.json, parsed, as it was before this run. */
+    pkg,
+    /**
+     * Something the person has to do before the upgraded app works: the
+     * report opens with these.
+     *
+     * @param {string} message
+     */
+    alert: (message) => alerts.push(message),
+    /** @param {string} message where the run did something other than the usual */
+    notice: (message) => notices.push(message),
+    /** Every file the finding scan would read (the whole project), absolute. */
+    projectFiles: () => collectProjectFiles([projectDir], projectDir),
+    /**
+     * A file's content as this run has it now (edits included), or from disk.
+     *
+     * @param {string} path absolute
+     */
+    current: (path) => {
+      const known = state.get(path);
+      if (known) return known.current;
+      try {
+        return readFileSync(path, "utf8");
+      } catch {
+        return null;
+      }
+    },
     /**
      * Edit a project file outside the scanned sources (pnpm-workspace.yaml).
      * `edit` gets its current text (null: absent) and returns the new text,
@@ -356,8 +385,9 @@ export async function runUpgrade(options) {
      *
      * @param {string} path
      * @param {(current: string | null) => string | undefined} edit
+     * @param {string} [id] the transform named in the report
      */
-    editFile: (path, edit) => {
+    editFile: (path, edit, id = "package-json") => {
       const known = state.get(path);
       const current = known
         ? known.current
@@ -368,14 +398,13 @@ export async function runUpgrade(options) {
       if (next == null || next === current) return;
       if (known) {
         known.current = next;
-        if (!known.transforms.includes("package-json"))
-          known.transforms.push("package-json");
+        if (!known.transforms.includes(id)) known.transforms.push(id);
         return;
       }
       state.set(path, {
         original: current ?? "",
         current: next,
-        transforms: ["package-json"],
+        transforms: [id],
         created: current == null,
         project: true,
       });
@@ -456,6 +485,20 @@ export async function runUpgrade(options) {
         if (!entry.transforms.includes(transform.id))
           entry.transforms.push(transform.id);
       }
+    }
+  }
+
+  // Project-level edits that need every file transformed first.
+  for (const { step } of steps) {
+    if (!step.afterTransforms) continue;
+    try {
+      step.afterTransforms(ctx, { jscodeshift });
+    } catch (err) {
+      errors.push({
+        file: ".",
+        transform: "after-transforms",
+        error: /** @type {Error} */ (err).message,
+      });
     }
   }
 
@@ -595,6 +638,7 @@ export async function runUpgrade(options) {
     categories,
     errors,
     notices,
+    alerts,
     tokenReads,
   });
   if (writeReport) {
@@ -618,6 +662,7 @@ export async function runUpgrade(options) {
       log(unifiedDiff("package.json", pkgText, pkgAfter));
   }
   for (const e of errors) warn(`  ! ${e.file} [${e.transform}]: ${e.error}`);
+  for (const alert of alerts) warn(`  ACTION REQUIRED: ${alert}`);
   for (const notice of notices) warn(`  note: ${notice}`);
   if (writeReport) log(`Report: ${relative(cwd, reportFile) || reportFile}`);
   else log(`\n${report}`);

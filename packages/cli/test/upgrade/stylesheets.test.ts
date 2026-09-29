@@ -7,10 +7,14 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import jscodeshift from "jscodeshift";
 import { compileString } from "sass";
 import { describe, expect, it } from "vitest";
 
-import { transformStylesheet } from "../../codemods/0.2/stylesheets.mjs";
+import {
+  transformScriptImports,
+  transformStylesheet,
+} from "../../codemods/0.2/stylesheets.mjs";
 
 const ctx = { flags: { packages: new Map() } };
 const LAYER =
@@ -85,5 +89,50 @@ $pad: 2px;
       `@charset "utf-8";\n@import "@lablup/ui-common/styles/base.css";\n.d { color: red; }\n`,
     );
     expect(out.startsWith(`@charset "utf-8";\n${LAYER}`)).toBe(true);
+  });
+});
+
+describe("the stylesheet entry import in a script", () => {
+  const j = jscodeshift.withParser("tsx");
+  const scriptCtx = {
+    flags: { packages: new Map() },
+    createFile: (path: string) => path,
+  };
+  const script = (source: string) => {
+    const out = transformScriptImports(
+      { path: "src/main.tsx", source },
+      { jscodeshift: j },
+      scriptCtx,
+    );
+    if (out == null) throw new Error("the codemod left the file alone");
+    return out as string;
+  };
+  const order = (out: string) =>
+    [...out.matchAll(/^import .*?["']([^"']+)["'];$/gm)].map((m) => m[1]);
+
+  it("moves ahead of @lablup/ui-common modules, stylesheets and the app's own modules", () => {
+    const out = script(`// entry
+import { createRoot } from "react-dom/client";
+import { Theme } from "@lablup/ui-common";
+import "./app.css";
+import { App } from "./App";
+import "@lablup/ui-common/styles/base.css";
+`);
+    expect(order(out)).toEqual([
+      "react-dom/client",
+      "./ui-common-entry.css",
+      "@lablup/ui-common",
+      "./app.css",
+      "./App",
+    ]);
+    expect(out.startsWith("// entry\n")).toBe(true);
+  });
+
+  it("stays where it is when nothing that loads styles comes first", () => {
+    const out = script(`import { createRoot } from "react-dom/client";
+import "@lablup/ui-common/styles/base.css";
+import { App } from "./App";
+`);
+    expect(order(out)).toEqual(["react-dom/client", "./ui-common-entry.css", "./App"]);
   });
 });

@@ -4,6 +4,10 @@
 
 Ran the codemods over 4 files under `src`; searched 4 files under the project root for manual-review findings.
 
+## Action required
+
+- **Load @lablup/ui-common's stylesheets.** Nothing in this project loads them, and the upgrade found no entry script to import them from (no index.html module script, package.json `main`, or `src/main.*` / `src/index.*`). 0.1 components loaded their own CSS; 0.2 components load none, so the app renders unstyled until its entry stylesheet starts with: `@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities; @import "@lablup/ui-common/reset.css"; @import "@lablup/ui-common/astryx.css"; @import "@lablup/ui-common/theme/lablup/theme.css"; @import "@lablup/ui-common/ui-common.css"; @import "@lablup/ui-common/legacy-tokens.css";`
+
 ## Summary
 
 | | Count |

@@ -12,6 +12,7 @@ import {
   jsMeta,
   transformScriptImports,
   transformStylesheet,
+  wireStylesheets,
 } from "./stylesheets.mjs";
 
 /**
@@ -53,6 +54,7 @@ export default {
     { ...jsMeta, run: transformScriptImports, parse: true },
     { ...cssMeta, run: transformStylesheet, parse: false },
   ],
+  afterTransforms: wireStylesheets,
   packageJson: transformPackageJson,
   prepareScan,
   scan: scanFile,

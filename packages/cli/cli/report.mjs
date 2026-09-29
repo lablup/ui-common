@@ -37,6 +37,7 @@ function escapeCell(text) {
  * @param {Record<string, {title: string, help: string}>} data.categories
  * @param {Array<{file: string, transform: string, error: string}>} data.errors
  * @param {string[]} [data.notices] where the run did something other than the usual
+ * @param {string[]} [data.alerts] what has to be done before the app works; first in the report
  * @param {number} data.tokenReads
  */
 export function renderReport(data) {
@@ -52,6 +53,12 @@ export function renderReport(data) {
         : "."),
     "",
   );
+
+  if (data.alerts && data.alerts.length > 0) {
+    out.push("## Action required", "");
+    for (const alert of data.alerts) out.push(`- ${alert}`);
+    out.push("");
+  }
 
   const manual = data.findings.length;
   out.push("## Summary", "");
