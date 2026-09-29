@@ -91,6 +91,34 @@
     "defaultMessage": "오류 닫기",
     "description": "Accessible name of the icon button that closes the error banner"
   },
+  "uic.PagedSelector.placeholder": {
+    "defaultMessage": "{label}을(를) 선택해주세요",
+    "description": "Placeholder of a selector with nothing selected; {label} is the field's label"
+  },
+  "uic.PagedSelector.searchOptions": {
+    "defaultMessage": "옵션 검색",
+    "description": "Accessible name of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.searchPlaceholder": {
+    "defaultMessage": "검색",
+    "description": "Placeholder of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.clearSearch": {
+    "defaultMessage": "옵션 검색 지우기",
+    "description": "Accessible name of the button that empties a selector's search box"
+  },
+  "uic.PagedSelector.noResults": {
+    "defaultMessage": "결과 없음",
+    "description": "Shown in a selector's option list when no option matches"
+  },
+  "uic.PagedSelector.loading": {
+    "defaultMessage": "로딩 중...",
+    "description": "Shown in a selector's empty option list while options are being fetched"
+  },
+  "uic.PagedSelector.totalItems": {
+    "defaultMessage": "총 {total} 항목",
+    "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  },
   "uic.SelectionLabel.selectedCount": {
     "defaultMessage": "{count}개 선택됨",
     "description": "How many items are selected, e.g. rows of a table; {count} is the number"

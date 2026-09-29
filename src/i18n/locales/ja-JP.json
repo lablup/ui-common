@@ -91,6 +91,34 @@
     "defaultMessage": "エラーを閉じる",
     "description": "Accessible name of the icon button that closes the error banner"
   },
+  "uic.PagedSelector.placeholder": {
+    "defaultMessage": "{label}を選択してください",
+    "description": "Placeholder of a selector with nothing selected; {label} is the field's label"
+  },
+  "uic.PagedSelector.searchOptions": {
+    "defaultMessage": "オプションを検索",
+    "description": "Accessible name of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.searchPlaceholder": {
+    "defaultMessage": "検索",
+    "description": "Placeholder of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.clearSearch": {
+    "defaultMessage": "オプションを検索 をクリア",
+    "description": "Accessible name of the button that empties a selector's search box"
+  },
+  "uic.PagedSelector.noResults": {
+    "defaultMessage": "結果がありません",
+    "description": "Shown in a selector's option list when no option matches"
+  },
+  "uic.PagedSelector.loading": {
+    "defaultMessage": "読み込み中...",
+    "description": "Shown in a selector's empty option list while options are being fetched"
+  },
+  "uic.PagedSelector.totalItems": {
+    "defaultMessage": "合計 {total}アイテム",
+    "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  },
   "uic.SelectionLabel.selectedCount": {
     "defaultMessage": "{count}選択",
     "description": "How many items are selected, e.g. rows of a table; {count} is the number"

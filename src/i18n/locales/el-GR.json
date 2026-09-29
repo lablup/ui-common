@@ -294,5 +294,33 @@
   "uic.DataGrid.export": {
     "defaultMessage": "Εξαγωγή",
     "description": "Primary button of a data grid's CSV export dialog"
+  },
+  "uic.PagedSelector.placeholder": {
+    "defaultMessage": "Επιλέξτε {label}",
+    "description": "Placeholder of a selector with nothing selected; {label} is the field's label"
+  },
+  "uic.PagedSelector.searchOptions": {
+    "defaultMessage": "Αναζήτηση επιλογών",
+    "description": "Accessible name of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.searchPlaceholder": {
+    "defaultMessage": "Αναζήτηση",
+    "description": "Placeholder of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.clearSearch": {
+    "defaultMessage": "Εκκαθάριση Αναζήτηση επιλογών",
+    "description": "Accessible name of the button that empties a selector's search box"
+  },
+  "uic.PagedSelector.noResults": {
+    "defaultMessage": "Δεν βρέθηκαν αποτελέσματα",
+    "description": "Shown in a selector's option list when no option matches"
+  },
+  "uic.PagedSelector.loading": {
+    "defaultMessage": "Φόρτωση...",
+    "description": "Shown in a selector's empty option list while options are being fetched"
+  },
+  "uic.PagedSelector.totalItems": {
+    "defaultMessage": "Σύνολο {total} στοιχεία",
+    "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
   }
 }

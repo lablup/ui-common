@@ -43,6 +43,8 @@ The forks of Astryx components under src/forks/ (shipped in dist/forks/),
 including their generated *.styles files, are copies of Astryx source from
 @astryxdesign/core and @astryxdesign/lab (https://github.com/facebook/astryx),
 with fixes applied; src/forks/provenance.json records each one's origin.
+src/components/PagedSelector/PanelSearchInput.tsx is adapted from
+@astryxdesign/core's Field/PanelSearchInput and utils/interactionModality.
 Astryx is licensed under the MIT License:
 
 --------------------------------------------------------------------------------

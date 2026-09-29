@@ -156,46 +156,47 @@ the recorded version or file. On an Astryx bump:
 
 ## Components
 
-| Component                                                      | Source                               | Built on                                           |
-| -------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------- |
-| `Modal`                                                        | `src/components/Modal/`              | `Dialog` (inline), `DialogHeader`, `Layout`        |
-| `PageLayout`                                                   | `src/components/PageLayout/`         | plain CSS                                          |
-| `PageHeader`                                                   | `src/components/PageHeader/`         | `Heading`, `Text`, `Button`, `IconButton`          |
-| `StatCard`                                                     | `src/components/StatCard/`           | `Card`, `ClickableCard`, `Text`, `Skeleton`        |
-| `ErrorState`                                                   | `src/components/ErrorState/`         | `Icon`, `Heading`, `Text`, `Button`                |
-| `SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow` | `src/components/Skeleton/`           | `Skeleton`                                         |
-| `SmoothHeight`                                                 | `src/components/SmoothHeight/`       | plain CSS                                          |
-| `DigitPopIn`                                                   | `src/components/DigitPopIn/`         | plain CSS                                          |
-| `CountBadge`                                                   | `src/components/CountBadge/`         | `Badge`                                            |
-| `DoubleBadge`                                                  | `src/components/DoubleBadge/`        | `Badge`, `HStack`                                  |
-| `BooleanToken`                                                 | `src/components/BooleanToken/`       | `Token`                                            |
-| `IconWithTooltip`                                              | `src/components/IconWithTooltip/`    | `Tooltip`, `Text`                                  |
-| `ImageWithFallback`                                            | `src/components/ImageWithFallback/`  | plain `<img>`                                      |
-| `NotificationStack`                                            | `src/components/NotificationStack/`  | `Banner`, `Button`, `ProgressBar`, `Stack`, `Text` |
-| `OverlayScrollbar`                                             | `src/components/OverlayScrollbar/`   | plain CSS                                          |
-| `ConfirmPopover`                                               | `src/components/ConfirmPopover/`     | `Popover`, `Button`, `Stack`, `Text`               |
-| `SelectionLabel`                                               | `src/components/SelectionLabel/`     | `Text`, `IconButton`, `HStack`                     |
-| `UncontrolledInput`                                            | `src/components/UncontrolledInput/`  | `TextInput`, `NumberInput`                         |
-| `AlertModal`                                                   | `src/components/AlertModal/`         | `Modal`, `Heading`, `Text`, `Button`, `Layout`     |
-| `DeleteConfirmModal`                                           | `src/components/DeleteConfirmModal/` | `Modal`, `TextInput`, `Token`, `Banner`, `Text`    |
-| `StepNumberInput`, `NumberStepper`                             | `src/components/StepNumberInput/`    | `InputGroup`, `NumberInput`, `Icon`                |
-| `BoardItemTitle`                                               | `src/components/BoardItemTitle/`     | `HStack`, `Heading`, `Icon`, `IconWithTooltip`     |
-| `Statistic`                                                    | `src/components/Statistic/`          | `Stack`, `Text`, `Tooltip`                         |
-| `DividedRow`                                                   | `src/components/DividedRow/`         | plain CSS                                          |
-| `TokenList`                                                    | `src/components/TokenList/`          | `Token`, `Badge`, `Link`, `HoverCard`, `Popover`   |
-| `TokenRow`                                                     | `src/components/TokenRow/`           | `Token`, `HStack`                                  |
-| `NotificationItem`                                             | `src/components/NotificationItem/`   | `Stack`, `Text`                                    |
-| `UnitGrid`, `UnitGridSkeleton`                                 | `src/components/UnitGrid/`           | `Stack`, `Text`, `VisuallyHidden`, `Skeleton`      |
-| `ColorPicker`                                                  | `src/components/ColorPicker/`        | `Popover`, `TextInput`, `Button`                   |
-| `Form` (engine, `Form.Item` shell, hooks)                      | `src/components/Form/`               | `Tooltip`, plain CSS                               |
-| `BulkEditFormItem`                                             | `src/components/BulkEditFormItem/`   | `Form.Item`, `TextInput`, `Link`, `HStack`         |
-| `DataGrid`, `DataGridSettingsModal`, `DataGridExportModal`     | `src/components/DataGrid/`           | `Table` + plugins, `Pagination`, `Modal`, dnd-kit  |
-| `BulkErrorModal`                                               | `src/components/BulkErrorModal/`     | `Modal`, `Banner`, `DataGrid`                      |
-| `ProgressWithLabel`                                            | `src/components/ProgressWithLabel/`  | `Text`, plain CSS                                  |
-| `TextHighlighter`                                              | `src/components/TextHighlighter/`    | plain CSS                                          |
-| `CountdownBorder`                                              | `src/components/CountdownBorder/`    | SVG, plain CSS                                     |
-| `DoubleToken`                                                  | `src/components/DoubleToken/`        | `Token`, `HStack`, `TextHighlighter`               |
-| `ListBanner`                                                   | `src/components/ListBanner/`         | `Banner`                                           |
+| Component                                                      | Source                               | Built on                                            |
+| -------------------------------------------------------------- | ------------------------------------ | --------------------------------------------------- |
+| `Modal`                                                        | `src/components/Modal/`              | `Dialog` (inline), `DialogHeader`, `Layout`         |
+| `PageLayout`                                                   | `src/components/PageLayout/`         | plain CSS                                           |
+| `PageHeader`                                                   | `src/components/PageHeader/`         | `Heading`, `Text`, `Button`, `IconButton`           |
+| `StatCard`                                                     | `src/components/StatCard/`           | `Card`, `ClickableCard`, `Text`, `Skeleton`         |
+| `ErrorState`                                                   | `src/components/ErrorState/`         | `Icon`, `Heading`, `Text`, `Button`                 |
+| `SkeletonCard`, `SkeletonText`, `SkeletonChart`, `SkeletonRow` | `src/components/Skeleton/`           | `Skeleton`                                          |
+| `SmoothHeight`                                                 | `src/components/SmoothHeight/`       | plain CSS                                           |
+| `DigitPopIn`                                                   | `src/components/DigitPopIn/`         | plain CSS                                           |
+| `CountBadge`                                                   | `src/components/CountBadge/`         | `Badge`                                             |
+| `DoubleBadge`                                                  | `src/components/DoubleBadge/`        | `Badge`, `HStack`                                   |
+| `BooleanToken`                                                 | `src/components/BooleanToken/`       | `Token`                                             |
+| `IconWithTooltip`                                              | `src/components/IconWithTooltip/`    | `Tooltip`, `Text`                                   |
+| `ImageWithFallback`                                            | `src/components/ImageWithFallback/`  | plain `<img>`                                       |
+| `NotificationStack`                                            | `src/components/NotificationStack/`  | `Banner`, `Button`, `ProgressBar`, `Stack`, `Text`  |
+| `OverlayScrollbar`                                             | `src/components/OverlayScrollbar/`   | plain CSS                                           |
+| `ConfirmPopover`                                               | `src/components/ConfirmPopover/`     | `Popover`, `Button`, `Stack`, `Text`                |
+| `PagedSelector`                                                | `src/components/PagedSelector/`      | `ComplexSelector` (fork), `SelectorOption`, `Token` |
+| `SelectionLabel`                                               | `src/components/SelectionLabel/`     | `Text`, `IconButton`, `HStack`                      |
+| `UncontrolledInput`                                            | `src/components/UncontrolledInput/`  | `TextInput`, `NumberInput`                          |
+| `AlertModal`                                                   | `src/components/AlertModal/`         | `Modal`, `Heading`, `Text`, `Button`, `Layout`      |
+| `DeleteConfirmModal`                                           | `src/components/DeleteConfirmModal/` | `Modal`, `TextInput`, `Token`, `Banner`, `Text`     |
+| `StepNumberInput`, `NumberStepper`                             | `src/components/StepNumberInput/`    | `InputGroup`, `NumberInput`, `Icon`                 |
+| `BoardItemTitle`                                               | `src/components/BoardItemTitle/`     | `HStack`, `Heading`, `Icon`, `IconWithTooltip`      |
+| `Statistic`                                                    | `src/components/Statistic/`          | `Stack`, `Text`, `Tooltip`                          |
+| `DividedRow`                                                   | `src/components/DividedRow/`         | plain CSS                                           |
+| `TokenList`                                                    | `src/components/TokenList/`          | `Token`, `Badge`, `Link`, `HoverCard`, `Popover`    |
+| `TokenRow`                                                     | `src/components/TokenRow/`           | `Token`, `HStack`                                   |
+| `NotificationItem`                                             | `src/components/NotificationItem/`   | `Stack`, `Text`                                     |
+| `UnitGrid`, `UnitGridSkeleton`                                 | `src/components/UnitGrid/`           | `Stack`, `Text`, `VisuallyHidden`, `Skeleton`       |
+| `ColorPicker`                                                  | `src/components/ColorPicker/`        | `Popover`, `TextInput`, `Button`                    |
+| `Form` (engine, `Form.Item` shell, hooks)                      | `src/components/Form/`               | `Tooltip`, plain CSS                                |
+| `BulkEditFormItem`                                             | `src/components/BulkEditFormItem/`   | `Form.Item`, `TextInput`, `Link`, `HStack`          |
+| `DataGrid`, `DataGridSettingsModal`, `DataGridExportModal`     | `src/components/DataGrid/`           | `Table` + plugins, `Pagination`, `Modal`, dnd-kit   |
+| `BulkErrorModal`                                               | `src/components/BulkErrorModal/`     | `Modal`, `Banner`, `DataGrid`                       |
+| `ProgressWithLabel`                                            | `src/components/ProgressWithLabel/`  | `Text`, plain CSS                                   |
+| `TextHighlighter`                                              | `src/components/TextHighlighter/`    | plain CSS                                           |
+| `CountdownBorder`                                              | `src/components/CountdownBorder/`    | SVG, plain CSS                                      |
+| `DoubleToken`                                                  | `src/components/DoubleToken/`        | `Token`, `HStack`, `TextHighlighter`                |
+| `ListBanner`                                                   | `src/components/ListBanner/`         | `Banner`                                            |
 
 Each has tests beside it. `src/components/componentStyles.test.ts` holds every
 stylesheet to the styling rules below.

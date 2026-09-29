@@ -1526,6 +1526,16 @@ export type { PageHeaderProps } from "./components/PageHeader";
 export { PageLayout } from "./components/PageLayout";
 export type { PageLayoutProps, PageLayoutVariant } from "./components/PageLayout";
 
+// PagedSelector
+export { PagedSelector } from "./components/PagedSelector";
+export type {
+  PagedSelectorMultipleProps,
+  PagedSelectorOption,
+  PagedSelectorProps,
+  PagedSelectorSelectedItem,
+  PagedSelectorSingleProps,
+} from "./components/PagedSelector";
+
 // ProgressWithLabel
 export { ProgressWithLabel } from "./components/ProgressWithLabel";
 export type { ProgressWithLabelProps } from "./components/ProgressWithLabel";

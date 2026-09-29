@@ -40,6 +40,7 @@
   { "name": "OverlayScrollbar", "source": "components/OverlayScrollbar/index.ts" },
   { "name": "PageHeader", "source": "components/PageHeader/index.ts" },
   { "name": "PageLayout", "source": "components/PageLayout/index.ts" },
+  { "name": "PagedSelector", "source": "components/PagedSelector/index.ts" },
   { "name": "ProgressWithLabel", "source": "components/ProgressWithLabel/index.ts" },
   { "name": "SelectionLabel", "source": "components/SelectionLabel/index.ts" },
   { "name": "Skeleton composites", "source": "components/Skeleton/index.ts" },

@@ -193,6 +193,7 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `NotificationStack`                                            | Floating notices with task progress and actions             | `/components/NotificationStack`  |
 | `OverlayScrollbar`                                             | A persistent scroll thumb drawn over a scroll container     | `/components/OverlayScrollbar`   |
 | `ConfirmPopover`                                               | A one-click confirmation anchored to its trigger            | `/components/ConfirmPopover`     |
+| `PagedSelector`                                                | A searchable selector over options loaded a page at a time  | `/components/PagedSelector`      |
 | `SelectionLabel`                                               | "3 selected", with a button that clears the selection       | `/components/SelectionLabel`     |
 | `UncontrolledInput`                                            | A field that reports its value on Enter or blur             | `/components/UncontrolledInput`  |
 | `AlertModal`                                                   | An alert dialog, in place of Astryx `AlertDialog`           | `/AlertModal`                    |

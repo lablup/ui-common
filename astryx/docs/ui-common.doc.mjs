@@ -46,7 +46,7 @@ export const docs = {
         },
         {
           type: "prose",
-          text: "The exception is a fixed copy of an Astryx component, carrying an upstream fix Astryx has not shipped yet. It keeps Astryx's name, props and import path, and replaces Astryx's in ui-common's exports: `ComplexSelector` (`@lablup/ui-common/ComplexSelector`) adds `hasClear` and `onClear`; lab's `Drawer` keeps an Escape from a layer opened inside it, or one ending an IME composition, from closing it and passes `aria-modal` through; lab's `Tour` keeps a step's spotlight under its callout in StrictMode (both at `@lablup/ui-common/lab`).",
+          text: "The exception is a fixed copy of an Astryx component, carrying an upstream fix Astryx has not shipped yet. It keeps Astryx's name, props and import path, and replaces Astryx's in ui-common's exports: `ComplexSelector` (`@lablup/ui-common/ComplexSelector`) adds `hasClear` and `onClear`; lab's `Drawer` routes Escape through core's layer-dismissal stack, so a popover, selector or modal inside it closes first, and passes `aria-modal` through; lab's `Tour` keeps a step's spotlight under its callout in StrictMode (both at `@lablup/ui-common/lab`).",
         },
         {
           type: "list",
@@ -63,6 +63,7 @@ export const docs = {
             "`NotificationStack`: floating notices with task progress, Cancel/Retry and an action; the caller owns the list.",
             "`OverlayScrollbar`: a persistent scroll thumb over a scroll container, in place of its native bar.",
             "`ConfirmPopover`: a one-click confirmation on Popover, for reversible actions.",
+            "`PagedSelector`: a searchable selector, single or multiple, over options loaded a page at a time; scrolling near the end calls `onEndReached`. Built on ComplexSelector, drawn like Selector.",
             '`SelectionLabel`: "3 selected" with a button that clears the selection.',
             "`UncontrolledInput`: a text or number field that reports its value on Enter or blur.",
             "`AlertModal`: the alert-dialog pattern on Modal, in its level stack. ui-common hides AlertDialog; use this.",

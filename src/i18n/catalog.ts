@@ -33,6 +33,7 @@ import { deleteConfirmModalMessages } from "../components/DeleteConfirmModal/Del
 import { formMessages } from "../components/Form/Form.messages";
 import { notificationStackMessages } from "../components/NotificationStack/NotificationStack.messages";
 import { pageHeaderMessages } from "../components/PageHeader/PageHeader.messages";
+import { pagedSelectorMessages } from "../components/PagedSelector/PagedSelector.messages";
 import { selectionLabelMessages } from "../components/SelectionLabel/SelectionLabel.messages";
 import { skeletonMessages } from "../components/Skeleton/Skeleton.messages";
 import { statisticMessages } from "../components/Statistic/Statistic.messages";
@@ -70,6 +71,7 @@ export const uiCommonCatalog: Catalog = {
   ...notificationStackMessages,
   ...numberStepperMessages,
   ...pageHeaderMessages,
+  ...pagedSelectorMessages,
   ...selectionLabelMessages,
   ...skeletonMessages,
   ...statisticMessages,

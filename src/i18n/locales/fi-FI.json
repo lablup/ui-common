@@ -294,5 +294,33 @@
   "uic.DataGrid.export": {
     "defaultMessage": "Vie",
     "description": "Primary button of a data grid's CSV export dialog"
+  },
+  "uic.PagedSelector.placeholder": {
+    "defaultMessage": "Valitse {label}",
+    "description": "Placeholder of a selector with nothing selected; {label} is the field's label"
+  },
+  "uic.PagedSelector.searchOptions": {
+    "defaultMessage": "Hae vaihtoehdoista",
+    "description": "Accessible name of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.searchPlaceholder": {
+    "defaultMessage": "Hae",
+    "description": "Placeholder of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.clearSearch": {
+    "defaultMessage": "Tyhjennä Hae vaihtoehdoista",
+    "description": "Accessible name of the button that empties a selector's search box"
+  },
+  "uic.PagedSelector.noResults": {
+    "defaultMessage": "Ei tuloksia",
+    "description": "Shown in a selector's option list when no option matches"
+  },
+  "uic.PagedSelector.loading": {
+    "defaultMessage": "Ladataan...",
+    "description": "Shown in a selector's empty option list while options are being fetched"
+  },
+  "uic.PagedSelector.totalItems": {
+    "defaultMessage": "Yhteensä {total} kohteet",
+    "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
   }
 }
