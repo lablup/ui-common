@@ -34,6 +34,8 @@ import {
   normalize as posixNormalize,
 } from "node:path/posix";
 
+import { LAYER_ORDER_STATEMENT, startsWithLayerOrder } from "./layer-order.mjs";
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const cliRoot = resolve(root, "packages/cli");
 
@@ -190,6 +192,24 @@ for (const stylesheet of packed.filter((f) => f.endsWith(".css"))) {
     `"${stylesheet}" is packed but unreachable: no packed module imports it and no ` +
       `exports entry names it, so a consumer cannot load its rules`,
   );
+}
+
+/**
+ * Every packed stylesheet opens with the full cascade layer order. A layer's
+ * position is fixed by the first sheet that names it, and a consumer usually
+ * loads a component's sheet (through its module) before its own entry
+ * stylesheet, so a packed sheet that opens `@layer ui-common{…}` first makes
+ * ui-common the lowest layer, below Astryx's base and theme. The build
+ * prepends the statement (`prependLayerOrder` in vite.config.ts).
+ */
+for (const stylesheet of packed.filter((f) => f.endsWith(".css"))) {
+  const css = await readFile(resolve(root, stylesheet), "utf8");
+  if (!startsWithLayerOrder(css)) {
+    failures.push(
+      `"${stylesheet}" does not start with "${LAYER_ORDER_STATEMENT}", so loaded ` +
+        `before the app's own order statement it can reorder the cascade layers`,
+    );
+  }
 }
 
 /**

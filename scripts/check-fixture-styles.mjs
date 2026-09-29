@@ -20,10 +20,22 @@
  * through ui-common's one-line `@import` mirrors and has no @astryxdesign/*
  * dependency of its own, so their presence proves the mirror resolved the
  * Astryx sheet from ui-common's install location.
+ *
+ * And it asserts the cascade layer order the bundle actually establishes. A
+ * layer's position is fixed by the first rule that names it, and the fixture,
+ * like a product, imports ui-common's modules (each importing its own sheet)
+ * before its entry stylesheet with the order statement. Until every packed
+ * sheet carried the statement itself, the bundle opened with
+ * `@layer ui-common{…}` and ui-common became the lowest layer, below Astryx's
+ * base and theme. The check reads the order rather than looking for the
+ * statement's text, because Lightning CSS folds a leading layer statement into
+ * the blocks that follow it.
  */
 import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
+
+import { LAYER_ORDER, effectiveLayerOrder } from "./layer-order.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const fixtureDist = resolve(root, process.argv[2] ?? "fixture/dist");
@@ -46,7 +58,8 @@ async function collectCss(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) out.push(...(await collectCss(path)));
-    else if (entry.name.endsWith(".css")) out.push(await readFile(path, "utf8"));
+    else if (entry.name.endsWith(".css"))
+      out.push({ path, css: await readFile(path, "utf8") });
   }
   return out;
 }
@@ -58,7 +71,8 @@ function firstClassSelector(css, source) {
   return match[0];
 }
 
-const bundled = (await collectCss(fixtureDist)).join("\n");
+const sheets = await collectCss(fixtureDist);
+const bundled = sheets.map((sheet) => sheet.css).join("\n");
 if (bundled.trim() === "") {
   console.error(`No stylesheet found under ${fixtureDist}. Build the fixture first.`);
   process.exit(1);
@@ -88,6 +102,19 @@ for (const { name, marker } of SHEETS) {
   }
 }
 
+for (const { path, css } of sheets) {
+  const order = effectiveLayerOrder(css);
+  if (!order.includes("ui-common")) continue;
+  const known = order.filter((name) => LAYER_ORDER.includes(name));
+  if (known.join(", ") !== LAYER_ORDER.join(", ")) {
+    missing.push(
+      `${relative(fixtureDist, path)} establishes the layers as "${order.join(", ")}", ` +
+        `not "${LAYER_ORDER.join(", ")}", so ui-common does not sit between ` +
+        `Astryx's layers and the app's`,
+    );
+  }
+}
+
 if (missing.length > 0) {
   console.error(`Consumer stylesheet check failed (${missing.length}):\n`);
   for (const line of missing) console.error(`  ${line}`);
@@ -95,5 +122,6 @@ if (missing.length > 0) {
 }
 
 console.log(
-  `Consumer stylesheets present: ${[...COMPONENTS, ...SHEETS.map((s) => s.name)].join(", ")}.`,
+  `Consumer stylesheets present: ${[...COMPONENTS, ...SHEETS.map((s) => s.name)].join(", ")}. ` +
+    `Layer order: ${LAYER_ORDER.join(", ")}.`,
 );
