@@ -22,7 +22,7 @@ Ran the codemods over 4 files under `src`; searched 4 files under the project ro
 - `src/design-system/common-adapters.tsx`: +39 −23, components
 - `src/design-system/common-components.css`: +0 −2, stylesheet-entry
 - `src/index.scss`: +8 −1, stylesheet-entry
-- `src/main.tsx`: +1 −1, script-stylesheet-imports
+- `src/main.tsx`: +6 −2, script-stylesheet-imports, theme
 - `src/ui-common-entry.css` (new): +15 −0, stylesheet-entry
 
 ## package.json
@@ -75,6 +75,10 @@ Astryx declares the same name. Whichever rule wins the cascade now restyles both
 |---|---|---|
 | `src/design-system/common-components.css:6` | `:root { --color-error: #d4380d }` | --color-error |
 
+### 0.1 theme switches and theme selectors (0)
+
+None.
+
 ### 0.1 class names your own CSS also defines (lower confidence) (0)
 
 None.
@@ -89,6 +93,7 @@ None.
 
 ## Notes
 
+- No module used `<Theme>`, so the upgrade wrapped the root render in src/main.tsx in `<Theme theme={lablupTheme}>`. Its mode defaults to "system"; pass `mode="light" | "dark"` where the app switches colour schemes (see "0.1 theme switches and theme selectors").
 - Button → Button (@lablup/ui-common/Button); or IconButton (@lablup/ui-common/IconButton) when iconOnly is set; the accessible name moves from ariaLabel to label. `label` is required. A non-string child needs `label` for the accessible name and the node as children. variant="success" has no Button variant; use primary. iconPosition="right" becomes `endContent` (an Icon or Badge element only). shape="circle", inline and active have no counterpart. The .button / .button--* classes are gone; Astryx's stable class is .astryx-button.
 - Drawer → Drawer (@lablup/ui-common/lab). lab Drawer renders no header: render the title, subtitle and footer inside children. closeLabel, ariaLabelledBy and ariaDescribedBy have no counterpart. preventDismiss and onDismissAttempt: decline the close in onOpenChange. The .drawer classes are gone.
 - EmptyState → EmptyState (@lablup/ui-common/EmptyState). primaryAction and secondaryAction become `actions`, a node: <Button variant="primary" label={a.label} onClick={a.onClick} /> and a secondary Button, or a Link for a secondaryAction with href. showIllustration={false}: omit `icon`. children has no slot; put it in `actions` or below the EmptyState. The title renders as an h3 by default; set headingLevel to fit the outline. The .empty-state classes are gone.

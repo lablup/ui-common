@@ -4,6 +4,10 @@
 
 Ran the codemods over 2 files under `src`; searched 2 files under the project root for manual-review findings.
 
+## Action required
+
+- **Wrap the app in `<Theme theme={lablupTheme}>` (`import { Theme } from "@lablup/ui-common"`, `import { lablupTheme } from "@lablup/ui-common/theme/lablup/built"`).** No module uses `<Theme>`, and the upgrade found no `createRoot(…).render(…)` to wrap. Without it Astryx components get no theme; pass `mode` ("light" | "dark" | "system", the default) where the app switches colour schemes.
+
 ## Summary
 
 | | Count |
@@ -52,6 +56,10 @@ None.
 None.
 
 ### Custom properties that collide with Astryx tokens (0)
+
+None.
+
+### 0.1 theme switches and theme selectors (0)
 
 None.
 

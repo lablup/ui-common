@@ -4,6 +4,10 @@
 
 Ran the codemods over 6 files under `src`; searched 6 files under the project root for manual-review findings.
 
+## Action required
+
+- **Wrap the app in `<Theme theme={lablupTheme}>` (`import { Theme } from "@lablup/ui-common"`, `import { lablupTheme } from "@lablup/ui-common/theme/lablup/built"`).** No module uses `<Theme>`, and the upgrade found no `createRoot(…).render(…)` to wrap. Without it Astryx components get no theme; pass `mode` ("light" | "dark" | "system", the default) where the app switches colour schemes.
+
 ## Summary
 
 | | Count |
@@ -11,7 +15,7 @@ Ran the codemods over 6 files under `src`; searched 6 files under the project ro
 | Files changed | 5 |
 | package.json changed | yes |
 | TODO markers left in code | 12 |
-| Manual-review findings | 5 |
+| Manual-review findings | 7 |
 
 ## Steps
 
@@ -88,6 +92,15 @@ Astryx declares the same name. Whichever rule wins the cascade now restyles both
 | Where | What | Detail |
 |---|---|---|
 | `src/styles/families.css:6` | `:root { --color-text-secondary: #6b7280 }` | --color-text-secondary |
+
+### 0.1 theme switches and theme selectors (2)
+
+0.1 switched themes by stylesheet and `html[data-theme="orange-…"]`. In 0.2 `<Theme theme={lablupTheme} mode=…>` owns `html[data-theme]` and sets it to `light` or `dark`, so code that writes another value fights it, and selectors on another value never match.
+
+| Where | What | Detail |
+|---|---|---|
+| `src/styles/families.css:1` | `[data-theme="orange-light"] .tabs__tab--active {` | data-theme = "orange-light": `<Theme>` only ever sets `html[data-theme]` to "light" or "dark": select on `html[data-theme="dark"]` (or "light"), and put brand colours in the theme. |
+| `src/styles/theme.ts:5` | `export const THEMES = ["orange-light", "orange-dark"] as const;` | 0.1 theme name "orange-light". `<Theme>` sets `html[data-theme]` to "light" or "dark" itself: pass the mode as `<Theme theme={lablupTheme} mode="light" \| "dark" \| "system">` instead of writing the attribute. |
 
 ### 0.1 class names your own CSS also defines (lower confidence) (0)
 

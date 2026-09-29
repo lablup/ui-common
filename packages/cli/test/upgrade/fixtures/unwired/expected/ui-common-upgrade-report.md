@@ -2,7 +2,7 @@
 
 `ui-common upgrade` 0.1.0-alpha.20 → 0.2.0-alpha.0 (@lablup/ui-common-cli <version>).
 
-Ran the codemods over 3 files under `src`; searched 3 files under the project root for manual-review findings.
+Ran the codemods over 4 files under `src`; searched 4 files under the project root for manual-review findings.
 
 ## Summary
 
@@ -11,7 +11,7 @@ Ran the codemods over 3 files under `src`; searched 3 files under the project ro
 | Files changed | 3 |
 | package.json changed | yes |
 | TODO markers left in code | 0 |
-| Manual-review findings | 0 |
+| Manual-review findings | 2 |
 
 ## Steps
 
@@ -20,7 +20,7 @@ Ran the codemods over 3 files under `src`; searched 3 files under the project ro
 ## Changed files
 
 - `src/App.tsx`: +2 −6, components
-- `src/main.tsx`: +1 −0, stylesheet-entry
+- `src/main.tsx`: +6 −1, stylesheet-entry, theme
 - `src/ui-common-entry.css` (new): +14 −0, stylesheet-entry
 
 ## package.json
@@ -55,6 +55,15 @@ None.
 
 None.
 
+### 0.1 theme switches and theme selectors (2)
+
+0.1 switched themes by stylesheet and `html[data-theme="orange-…"]`. In 0.2 `<Theme theme={lablupTheme} mode=…>` owns `html[data-theme]` and sets it to `light` or `dark`, so code that writes another value fights it, and selectors on another value never match.
+
+| Where | What | Detail |
+|---|---|---|
+| `src/index.css:7` | `[data-theme="orange-dark"] .app {` | data-theme = "orange-dark": `<Theme>` only ever sets `html[data-theme]` to "light" or "dark": select on `html[data-theme="dark"]` (or "light"), and put brand colours in the theme. |
+| `src/themeToggle.ts:2` | `document.documentElement.dataset.theme = dark ? "orange-dark" : "orange-light";` | writes data-theme from an expression. `<Theme>` sets `html[data-theme]` to "light" or "dark" itself: pass the mode as `<Theme theme={lablupTheme} mode="light" \| "dark" \| "system">` instead of writing the attribute. |
+
 ### 0.1 class names your own CSS also defines (lower confidence) (0)
 
 None.
@@ -70,5 +79,6 @@ None.
 ## Notes
 
 - No file loaded @lablup/ui-common's stylesheets (0.1 components loaded their own CSS; 0.2's load none), so the upgrade wrote src/ui-common-entry.css and imported it first in src/main.tsx (the module script index.html loads). Move the import if your app loads its stylesheets elsewhere.
+- No module used `<Theme>`, so the upgrade wrapped the root render in src/main.tsx in `<Theme theme={lablupTheme}>`. Its mode defaults to "system"; pass `mode="light" | "dark"` where the app switches colour schemes (see "0.1 theme switches and theme selectors").
 - Button → Button (@lablup/ui-common/Button); or IconButton (@lablup/ui-common/IconButton) when iconOnly is set; the accessible name moves from ariaLabel to label. `label` is required. A non-string child needs `label` for the accessible name and the node as children. variant="success" has no Button variant; use primary. iconPosition="right" becomes `endContent` (an Icon or Badge element only). shape="circle", inline and active have no counterpart. The .button / .button--* classes are gone; Astryx's stable class is .astryx-button.
 - Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps them resolving until 0.3.

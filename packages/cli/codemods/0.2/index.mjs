@@ -4,6 +4,7 @@
  */
 import transformComponents, { meta as componentsMeta } from "./components.mjs";
 import { wrapperFindings } from "./local-modules.mjs";
+import { ensureTheme } from "./theme.mjs";
 import { LAB_CSS, LAB_PACKAGE, REMOVED, UIC } from "./map.mjs";
 import { transformPackageJson } from "./package-json.mjs";
 import { CATEGORIES, prepareScan, scanFile } from "./scan.mjs";
@@ -54,7 +55,10 @@ export default {
     { ...jsMeta, run: transformScriptImports, parse: true },
     { ...cssMeta, run: transformStylesheet, parse: false },
   ],
-  afterTransforms: wireStylesheets,
+  afterTransforms: (ctx, api) => {
+    wireStylesheets(ctx, api);
+    ensureTheme(ctx, api);
+  },
   packageJson: transformPackageJson,
   prepareScan,
   scan: scanFile,

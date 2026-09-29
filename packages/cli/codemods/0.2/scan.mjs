@@ -18,6 +18,7 @@ import selectorParser from "postcss-selector-parser";
 
 import { dependencyDir, targetUiCommonRoot } from "../../cli/paths.mjs";
 import { keptClassRename } from "./map.mjs";
+import { scanTheme } from "./theme.mjs";
 
 const legacy = JSON.parse(
   readFileSync(
@@ -333,6 +334,7 @@ export function scanFile(file, source, context) {
     findings.push(...scanStylesheet(file, source));
   else findings.push(...scanScript(file, source));
 
+  findings.push(...scanTheme(file, source));
   source.split("\n").forEach((line, i) => {
     if (/@lablup\/ui-common\/styles\//.test(line)) {
       findings.push({
@@ -375,6 +377,10 @@ export const CATEGORIES = {
   "custom-property": {
     title: "Custom properties that collide with Astryx tokens",
     help: "Astryx declares the same name. Whichever rule wins the cascade now restyles both your CSS and Astryx's components. Rename yours, or set it through a theme (`defineTheme`) on purpose.",
+  },
+  theme: {
+    title: "0.1 theme switches and theme selectors",
+    help: '0.1 switched themes by stylesheet and `html[data-theme="orange-…"]`. In 0.2 `<Theme theme={lablupTheme} mode=…>` owns `html[data-theme]` and sets it to `light` or `dark`, so code that writes another value fights it, and selectors on another value never match.',
   },
   "own-class": {
     title: "0.1 class names your own CSS also defines (lower confidence)",

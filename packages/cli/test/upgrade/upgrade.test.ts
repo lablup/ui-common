@@ -377,6 +377,56 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     expect(result.report).toContain("| test query: .tabs__tab");
   });
 
+  describe("<Theme>", () => {
+    it("goes on the root the entry renders when several modules render one", async () => {
+      const dir = copyFixture("unwired");
+      writeFileSync(
+        join(dir, "src/popup.tsx"),
+        `import { createRoot } from "react-dom/client";\ncreateRoot(document.body).render(<div />);\n`,
+      );
+      // A test's root is not a candidate at all.
+      writeFileSync(
+        join(dir, "src/App.test.tsx"),
+        `import { createRoot } from "react-dom/client";\ncreateRoot(document.body).render(<p />);\n`,
+      );
+      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(readFileSync(join(dir, "src/main.tsx"), "utf8")).toContain(
+        "<Theme theme={lablupTheme}>",
+      );
+      expect(result.report).not.toContain("App.test.tsx also");
+      expect(readFileSync(join(dir, "src/popup.tsx"), "utf8")).not.toContain("<Theme");
+      expect(result.report).toContain("src/popup.tsx also renders a root");
+      expect(result.report).not.toContain("## Action required");
+    });
+
+    it("is left to the person when no entry tells the roots apart", async () => {
+      const dir = copyFixture("unwired");
+      rmSync(join(dir, "index.html"));
+      rmSync(join(dir, "src/main.tsx"));
+      for (const name of ["a", "b"])
+        writeFileSync(
+          join(dir, `src/${name}.tsx`),
+          `import { createRoot } from "react-dom/client";\ncreateRoot(document.body).render(<div />);\n`,
+        );
+      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(readFileSync(join(dir, "src/a.tsx"), "utf8")).not.toContain("<Theme");
+      expect(result.report).toMatch(
+        /## Action required\n\n(- .*\n)*- \*\*Wrap the app in `<Theme theme=\{lablupTheme\}>`.*2 modules render a root \(src\/a\.tsx, src\/b\.tsx\)/,
+      );
+    });
+
+    it("is not added when a module already uses one", async () => {
+      const dir = copyFixture("unwired");
+      writeFileSync(
+        join(dir, "src/Shell.tsx"),
+        `import { Theme } from "@lablup/ui-common";\nexport const Shell = ({ children }: any) => <Theme theme={{} as any}>{children}</Theme>;\n`,
+      );
+      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+      expect(readFileSync(join(dir, "src/main.tsx"), "utf8")).not.toContain("<Theme");
+      expect(result.report).not.toContain("Wrap the app in");
+    });
+  });
+
   it("reads --from from package.json", async () => {
     // css-entry declares "@lablup/ui-common": "0.1.0-alpha.23".
     const dir = copyFixture("css-entry");

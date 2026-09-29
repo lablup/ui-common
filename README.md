@@ -395,15 +395,20 @@ are `pnpm exec ui-common upgrade --from <old version>`.
 
 It moves the imports, reshapes the props it can prove safe, rewrites the
 `styles/base.css` import into the 0.2 stylesheet set (or, in an app that
-never imported it, imports that set first in the app's entry script), and
-updates `package.json`. Code that imports a moved component through a module of your
+never imported it, imports that set first in the app's entry script), wraps
+the app's root render (`createRoot(…).render(<App />)`) in
+`<Theme theme={lablupTheme}>` when no module uses `<Theme>` yet, and updates
+`package.json`. Code that imports a moved component through a module of your
 own that re-exports it (a barrel such as `@/components/common`, found through
 relative paths and your tsconfig `paths`) gets the same rewrite. A component of
 yours that wraps one and takes its props is listed in the report instead: its
 props are yours to change. Everything else is a `TODO(ui-common-upgrade)` comment in the
 code and a line in `ui-common-upgrade-report.md`, together with the CSS, DOM
-queries, tests and module mocks that still name 0.1 classes, and custom
-properties of yours that Astryx declares too.
+queries, tests and module mocks that still name 0.1 classes, custom
+properties of yours that Astryx declares too, and code that switches 0.1
+themes through `data-theme`. Steps the app cannot work without (the
+stylesheets or `<Theme>`, where the upgrade could not add them) open the
+report under "Action required".
 
 Deprecated in 0.2, removed in 0.3:
 

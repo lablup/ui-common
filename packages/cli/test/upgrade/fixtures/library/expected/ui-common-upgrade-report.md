@@ -59,6 +59,10 @@ None.
 
 None.
 
+### 0.1 theme switches and theme selectors (0)
+
+None.
+
 ### 0.1 class names your own CSS also defines (lower confidence) (0)
 
 None.

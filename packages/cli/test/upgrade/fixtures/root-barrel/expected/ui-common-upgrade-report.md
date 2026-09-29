@@ -7,6 +7,7 @@ Ran the codemods over 4 files under `src`; searched 4 files under the project ro
 ## Action required
 
 - **Load @lablup/ui-common's stylesheets.** Nothing in this project loads them, and the upgrade found no entry script to import them from (no index.html module script, package.json `main`, or `src/main.*` / `src/index.*`). 0.1 components loaded their own CSS; 0.2 components load none, so the app renders unstyled until its entry stylesheet starts with: `@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities; @import "@lablup/ui-common/reset.css"; @import "@lablup/ui-common/astryx.css"; @import "@lablup/ui-common/theme/lablup/theme.css"; @import "@lablup/ui-common/ui-common.css"; @import "@lablup/ui-common/legacy-tokens.css";`
+- **Wrap the app in `<Theme theme={lablupTheme}>` (`import { Theme } from "@lablup/ui-common"`, `import { lablupTheme } from "@lablup/ui-common/theme/lablup/built"`).** No module uses `<Theme>`, and the upgrade found no `createRoot(…).render(…)` to wrap. Without it Astryx components get no theme; pass `mode` ("light" | "dark" | "system", the default) where the app switches colour schemes.
 
 ## Summary
 
@@ -15,7 +16,7 @@ Ran the codemods over 4 files under `src`; searched 4 files under the project ro
 | Files changed | 1 |
 | package.json changed | yes |
 | TODO markers left in code | 10 |
-| Manual-review findings | 9 |
+| Manual-review findings | 10 |
 
 ## Steps
 
@@ -91,6 +92,14 @@ Astryx declares the same name. Whichever rule wins the cascade now restyles both
 | `src/chat/InputPopup.tsx:11` | `document.documentElement.style.setProperty("--color-error", "#c82333");` | --color-error |
 | `src/themes/violet.css:3` | `[data-theme="violet-light"] { --color-border: #e0dcf5 }` | --color-border |
 | `src/themes/violet.css:4` | `[data-theme="violet-light"] { --color-text-primary: #1b1535 }` | --color-text-primary |
+
+### 0.1 theme switches and theme selectors (1)
+
+0.1 switched themes by stylesheet and `html[data-theme="orange-…"]`. In 0.2 `<Theme theme={lablupTheme} mode=…>` owns `html[data-theme]` and sets it to `light` or `dark`, so code that writes another value fights it, and selectors on another value never match.
+
+| Where | What | Detail |
+|---|---|---|
+| `src/themes/violet.css:1` | `[data-theme="violet-light"] {` | data-theme = "violet-light" (2 selectors in this file): `<Theme>` only ever sets `html[data-theme]` to "light" or "dark": select on `html[data-theme="dark"]` (or "light"), and put brand colours in the theme. |
 
 ### 0.1 class names your own CSS also defines (lower confidence) (0)
 
