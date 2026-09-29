@@ -1,0 +1,8 @@
+@lablup/ui-common-cli
+Copyright 2026 Lablup Inc.
+
+This product includes software developed at Lablup Inc.
+(https://www.lablup.com/).
+
+It runs the Astryx CLI (@astryxdesign/cli, MIT-licensed by Meta Platforms,
+Inc.), which it depends on and does not vendor.

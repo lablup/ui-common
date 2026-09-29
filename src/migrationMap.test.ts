@@ -1,5 +1,6 @@
 /**
- * `migration/0.1-to-0.2.json` is read by `ui-common upgrade`. It has to agree
+ * `packages/cli/migration/0.1-to-0.2.json` is read by `ui-common upgrade`
+ * (@lablup/ui-common-cli). It has to agree
  * with the package it describes: every removed component is gone, every
  * replacement import resolves to a runtime export, and every kept component's
  * class rename matches the classes its stylesheet declares.
@@ -21,7 +22,7 @@ interface KeptEntry {
 }
 
 const map = JSON.parse(
-  readFileSync(join(ROOT, "migration", "0.1-to-0.2.json"), "utf8"),
+  readFileSync(join(ROOT, "packages", "cli", "migration", "0.1-to-0.2.json"), "utf8"),
 ) as { removedComponents: RemovedEntry[]; keptComponents: KeptEntry[] };
 
 const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as {
