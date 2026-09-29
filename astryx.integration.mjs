@@ -26,7 +26,7 @@ export default {
     append: [
       "Import Astryx through @lablup/ui-common, never @astryxdesign/*: same subpaths (@lablup/ui-common/Button, /theme/tokens.stylex, /reset.css, /lab).",
       "Use Modal, not Dialog. ui-common hides Astryx Dialog (exports.exclude.json) so every product has one dialog surface.",
-      "Theme with <Theme theme={lablupTheme}> from @lablup/ui-common/theme/lablup. Declare @layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities; first.",
+      "Theme with <Theme theme={lablupTheme}> from @lablup/ui-common/theme/lablup/built (pairs with theme.css). Declare @layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities; first.",
       "ui-common strings resolve through Astryx InternationalizationProvider: pass uiCommonMessages from @lablup/ui-common/i18n-catalog in its messages.",
       "ComplexSelector, and lab's Drawer and Tour, come from ui-common: fixed copies of Astryx's, same API and import paths. ComplexSelector adds hasClear/onClear.",
     ],

@@ -24,7 +24,7 @@ export const docs = {
           items: [
             "Import Astryx components from @lablup/ui-common, at the root or at the same subpath Astryx uses.",
             "Import StyleX tokens from `@lablup/ui-common/theme/tokens.stylex`. The `.stylex` suffix is what the StyleX compiler looks for.",
-            "Wrap the app in `<Theme theme={lablupTheme}>` from `@lablup/ui-common/theme/lablup`.",
+            "Wrap the app in `<Theme theme={lablupTheme}>` from `@lablup/ui-common/theme/lablup/built`, which pairs with `theme/lablup/theme.css`.",
           ],
         },
         {
