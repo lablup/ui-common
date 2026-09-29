@@ -5,6 +5,35 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.14]
+
+A paged selector moves in from a product, and `Drawer` hands Escape to the
+layer on top.
+
+### Added
+
+- `PagedSelector`: a searchable selector, single or multiple
+  (`isMultiple`), over options loaded a page at a time. Scrolling the panel
+  within `endReachedThreshold` px (30) of its end calls `onEndReached` once
+  per arrival; `onSearchChange` reports each keystroke; `totalCount` and
+  `isLoadingMore` fill the foot. `value` holds option values (`string |
+null`, or `string[]`), `onChange` also hands over each chosen value's
+  `{ value, label }`, and a selected value missing from `options` is named
+  from `labels`. Built on `ComplexSelector`, with Astryx's own panel search
+  row and Selector-shaped option rows. Strings are `uic.PagedSelector.*`,
+  translated in every shipped locale.
+
+### Changed
+
+- `Drawer` from `@lablup/ui-common/lab` routes Escape through Astryx core's
+  layer-dismissal stack, as core's `Dialog` does, instead of handling it on
+  its own element. An Escape in a popover, selector or modal opened inside
+  the drawer now closes that layer only, and a second Escape closes the
+  drawer; a drawer opened inside another closes first. **Behaviour change:**
+  a scrimless drawer closes on Escape wherever focus is, as the top-most
+  layer, not only while focus is inside it. The native `cancel` closes it
+  only while it is on top and no IME composition runs.
+
 ## [0.2.0-alpha.13]
 
 Astryx fixes a product used to carry as pnpm patches now ship in ui-common,
