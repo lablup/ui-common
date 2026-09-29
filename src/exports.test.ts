@@ -83,11 +83,20 @@ describe("export surface rules", () => {
     }
   });
 
+  it("mirrors lab name by name, so single lab names can be excluded", () => {
+    const lab = result.files.get("src/astryx/lab.ts") ?? "";
+    expect(lab).not.toMatch(/export \*/);
+    expect(lab).toMatch(/^\s+Chart,$/m);
+    expect(lab).toMatch(/^\s+ChartProps,$/m);
+  });
+
   it("hides every excluded subpath and keeps its names out of the root barrel", () => {
     const exclusions = JSON.parse(
       readFileSync(join(ROOT, "exports.exclude.json"), "utf8"),
-    ) as { name: string }[];
-    for (const { name } of exclusions) {
+    ) as { name: string; exports?: string[]; replacedBy: string | null }[];
+    for (const { name, exports, replacedBy } of exclusions) {
+      // Names hidden from a mirror, and a same-name fork, keep the subpath.
+      if (exports || replacedBy === name) continue;
       expect(Object.keys(result.exports)).not.toContain(`./${name}`);
     }
     const barrel = result.files.get("src/index.ts") ?? "";

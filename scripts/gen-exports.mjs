@@ -4,13 +4,16 @@
  * ui-common mirrors Astryx 1:1. Every subpath in the `exports` map of
  * `@astryxdesign/core` becomes the same subpath here, `@astryxdesign/lab`
  * becomes `lab`, and `@astryxdesign/theme-neutral` becomes `theme/neutral`.
- * Nothing is curated by hand. The only way to hide a subpath is an entry in
- * `exports.exclude.json`.
+ * Nothing is curated by hand. The only way to hide a subpath, or single names
+ * of one, is an entry in `exports.exclude.json`.
  *
  * Outputs, all committed:
  *
  * - `src/astryx/**`: one re-export file per mirrored subpath. A JS subpath is
- *   `export * from "<astryx specifier>"`. A CSS subpath is one `@import`.
+ *   `export * from "<astryx specifier>"`, except `lab` and any subpath with
+ *   excluded names: those are explicit named re-exports, minus the excluded
+ *   names, plus the ui-common fork that replaces them. A CSS subpath is one
+ *   `@import`.
  * - `src/index.ts`: the root barrel. Explicit named re-exports of core's root
  *   (minus the names of excluded subpaths), plus the ui-common customs listed
  *   in `exports.customs.json`.
@@ -75,6 +78,13 @@ export const OWN_EXPORTS = {
   "./styles/themes/*.css": "./dist/styles/themes/*.css",
 };
 
+/**
+ * Mirrors written as explicit named re-exports even with nothing excluded, so
+ * a name can be excluded from them one at a time. Astryx ships `lab` as one
+ * namespace, with no per-component subpath to exclude.
+ */
+export const NAMED_MIRRORS = ["lab"];
+
 /** The locale catalogs are JSON, so they are merged at build time instead. */
 const LOCALES_PATTERN = "./locales/*.json";
 
@@ -98,7 +108,11 @@ function posix(path) {
   return path.split(sep).join("/");
 }
 
-/** `{ name, replacedBy, reason }[]` from exports.exclude.json, validated. */
+/**
+ * `{ name, exports?, replacedBy, reason }[]` from exports.exclude.json,
+ * validated. Without `exports` the entry hides the whole subpath `name`; with
+ * it, only those names of that subpath.
+ */
 async function readExclusions() {
   const list = await readJson(join(root, "exports.exclude.json"));
   if (!Array.isArray(list)) throw new Error("exports.exclude.json must be an array");
@@ -111,6 +125,16 @@ async function readExclusions() {
     if (!("replacedBy" in entry)) {
       throw new Error(
         `exports.exclude.json: "${entry.name}" needs "replacedBy" (use null when nothing replaces it)`,
+      );
+    }
+    if (
+      "exports" in entry &&
+      (!Array.isArray(entry.exports) ||
+        entry.exports.length === 0 ||
+        entry.exports.some((n) => typeof n !== "string"))
+    ) {
+      throw new Error(
+        `exports.exclude.json: "${entry.name}" has "exports", which must be a non-empty list of names`,
       );
     }
   }
@@ -263,10 +287,42 @@ function cssFile(subpath) {
   return `${MIRROR_DIR}/${subpath}`;
 }
 
-/** Relative import specifier from src/index.ts to a custom's source file. */
-function customSpecifier(source) {
-  const withoutExt = source.replace(/\.tsx?$/, "").replace(/\/index$/, "");
-  return `./${withoutExt}`;
+/**
+ * Relative import specifier to a custom's source file, from src/index.ts or
+ * from another file under src/.
+ */
+function customSpecifier(source, fromFile = "src/index.ts") {
+  const target = posix(
+    relative(dirname(join(root, fromFile)), join(root, "src", source)),
+  );
+  const withoutExt = target.replace(/\.tsx?$/, "").replace(/\/index$/, "");
+  return withoutExt.startsWith(".") ? withoutExt : `./${withoutExt}`;
+}
+
+/** `a` and `b` hold the same names. */
+function sameNames(a, b) {
+  return (
+    JSON.stringify([...new Set(a)].sort()) === JSON.stringify([...new Set(b)].sort())
+  );
+}
+
+/**
+ * A module's runtime export names, for the value/type cross-check. A mismatch
+ * means a type-only name would be emitted as a value (a runtime SyntaxError
+ * for consumers) or the reverse.
+ */
+async function checkRuntimeValues(label, file, values) {
+  const runtime = Object.keys(await import(pathToFileURL(file).href))
+    .filter((n) => n !== "default")
+    .sort();
+  if (JSON.stringify(runtime) !== JSON.stringify(values)) {
+    const onlyRuntime = runtime.filter((n) => !values.includes(n));
+    const onlyTypes = values.filter((n) => !runtime.includes(n));
+    throw new Error(
+      `Value/type classification of ${label} disagrees with its runtime exports. ` +
+        `Runtime only: ${onlyRuntime.join(", ") || "-"}. Declared only: ${onlyTypes.join(", ") || "-"}.`,
+    );
+  }
 }
 
 /** A list as ` * `-prefixed comment lines of at most 80 columns. */
@@ -303,11 +359,14 @@ async function format(content, filepath) {
 export async function generate() {
   const exclusions = await readExclusions();
   const customs = await readCustoms();
-  const excludedNames = new Set(exclusions.map((e) => e.name));
+  // Whole subpaths hidden, and single names hidden from a subpath.
+  const subpathExclusions = exclusions.filter((e) => !e.exports);
+  const nameExclusions = exclusions.filter((e) => e.exports);
+  const excludedNames = new Set(subpathExclusions.map((e) => e.name));
   const all = await collectMirroredSubpaths();
 
   const known = new Set(all.map((s) => s.subpath));
-  for (const name of excludedNames) {
+  for (const { name } of exclusions) {
     if (!known.has(name)) {
       throw new Error(
         `exports.exclude.json names "${name}", which no mirrored package exports any more. ` +
@@ -335,6 +394,87 @@ export async function generate() {
       );
     }
   }
+  for (const e of nameExclusions) {
+    const s = mirrored.find((m) => m.subpath === e.name);
+    if (!s || s.kind !== "js" || !s.types) {
+      throw new Error(
+        `exports.exclude.json: "${e.name}" excludes names, which needs a mirrored script subpath ` +
+          `with type declarations.`,
+      );
+    }
+  }
+
+  // A replacement has to exist: a custom, or a subpath that is still mirrored.
+  const customNames = new Set(customs.map((c) => c.name));
+  const mirroredSubpaths = new Set(mirrored.map((s) => s.subpath));
+  for (const e of exclusions) {
+    if (e.replacedBy === null) continue;
+    if (!customNames.has(e.replacedBy) && !mirroredSubpaths.has(e.replacedBy)) {
+      throw new Error(
+        `exports.exclude.json: "${e.name}" is replacedBy "${e.replacedBy}", which is ` +
+          `neither a custom in exports.customs.json nor a mirrored subpath.`,
+      );
+    }
+  }
+
+  // A custom that replaces names of a mirror is emitted into that mirror, not
+  // into the root barrel: `@lablup/ui-common/lab` keeps exporting `Drawer`,
+  // now ui-common's. One custom replaces the names of one entry.
+  /** custom name -> the name exclusion it replaces */
+  const mirrorForks = new Map();
+  for (const e of nameExclusions) {
+    if (e.replacedBy === null) continue;
+    const custom = customs.find((c) => c.name === e.replacedBy);
+    if (!custom) {
+      throw new Error(
+        `exports.exclude.json: names excluded from "${e.name}" are replacedBy ` +
+          `"${e.replacedBy}", which must be a custom in exports.customs.json.`,
+      );
+    }
+    if (mirrorForks.has(custom.name)) {
+      throw new Error(
+        `exports.customs.json: "${custom.name}" replaces the names of more than one exclusion.`,
+      );
+    }
+    if (custom.subpath) {
+      throw new Error(
+        `exports.customs.json: "${custom.name}" replaces names of "${e.name}" and ships ` +
+          `there; it cannot also have a subpath of its own.`,
+      );
+    }
+    mirrorForks.set(custom.name, e);
+  }
+
+  /**
+   * A same-name fork: the custom whose own subpath is an excluded Astryx
+   * subpath, excluded with replacedBy = that custom. It keeps the Astryx
+   * subpath and names (`@lablup/ui-common/ComplexSelector`), which is safe only
+   * because the exclusion removes Astryx's from the mirror.
+   */
+  const subpathForkOf = (custom) =>
+    custom.subpath
+      ? subpathExclusions.find(
+          (e) => e.name === custom.subpath && e.replacedBy === custom.name,
+        )
+      : undefined;
+
+  // `fork` names the Astryx module a fork stands in for (the CLI and the
+  // agent block read it). It is required on a fork and refused elsewhere.
+  for (const custom of customs) {
+    const isFork = mirrorForks.has(custom.name) || subpathForkOf(custom) !== undefined;
+    if (isFork && typeof custom.fork !== "string") {
+      throw new Error(
+        `exports.customs.json: "${custom.name}" replaces Astryx names with its own, so it ` +
+          `needs "fork": the Astryx module it stands in for.`,
+      );
+    }
+    if (!isFork && custom.fork !== undefined) {
+      throw new Error(
+        `exports.customs.json: "${custom.name}" has "fork" but replaces no Astryx subpath ` +
+          `or names in exports.exclude.json.`,
+      );
+    }
+  }
 
   // Type information: every mirrored JS module (to find default exports),
   // core's root, the excluded modules (their names leave the root barrel),
@@ -358,6 +498,15 @@ export async function generate() {
     if (!file) throw new Error(`TypeScript could not load ${relative(root, path)}`);
     return file;
   };
+  const customExportsOf = (custom) =>
+    moduleExports(checker, sourceOf(join(root, "src", custom.source)));
+
+  const report = {
+    droppedFromRoot: [],
+    legacyCollisions: [],
+    reinstated: [],
+    replaced: [],
+  };
 
   const files = new Map();
 
@@ -367,7 +516,61 @@ export async function generate() {
       const path = jsFile(s.subpath);
       const types = typesPath(s);
       const hasDefault = types ? hasDefaultExport(checker, sourceOf(types)) : false;
-      let body = `// ${GENERATED_HEADER}\nexport * from "${s.specifier}";\n`;
+      const excludedHere = nameExclusions.filter((e) => e.name === s.subpath);
+      let body = `// ${GENERATED_HEADER}\n`;
+      if (types && (NAMED_MIRRORS.includes(s.subpath) || excludedHere.length > 0)) {
+        const names = moduleExports(checker, sourceOf(types));
+        await checkRuntimeValues(
+          s.specifier,
+          join(s.packageDir, s.target),
+          names.values,
+        );
+        const all = [...names.values, ...names.types];
+        const dropped = new Set();
+        for (const e of excludedHere) {
+          for (const n of e.exports) {
+            if (!all.includes(n)) {
+              throw new Error(
+                `exports.exclude.json: "${e.name}" excludes "${n}", which ${s.specifier} ` +
+                  `does not export any more. Update the entry.`,
+              );
+            }
+            dropped.add(n);
+          }
+        }
+        body +=
+          exportList(
+            "export",
+            names.values.filter((n) => !dropped.has(n)),
+            s.specifier,
+          ) +
+          exportList(
+            "export type",
+            names.types.filter((n) => !dropped.has(n)),
+            s.specifier,
+          );
+        for (const e of excludedHere) {
+          if (e.replacedBy === null) continue;
+          const custom = customs.find((c) => c.name === e.replacedBy);
+          const own = customExportsOf(custom);
+          const ownNames = [...own.values, ...own.types];
+          if (!sameNames(ownNames, e.exports)) {
+            throw new Error(
+              `exports.customs.json: "${custom.name}" replaces ${e.exports.join(", ")} of ` +
+                `"${e.name}", so it must export exactly those names; it exports ` +
+                `${ownNames.join(", ") || "nothing"}.`,
+            );
+          }
+          report.replaced.push(...ownNames);
+          const from = customSpecifier(custom.source, path);
+          body +=
+            `\n// ${custom.name}: ui-common's own copy, in place of Astryx's.\n` +
+            exportList("export", own.values, from) +
+            exportList("export type", own.types, from);
+        }
+      } else {
+        body += `export * from "${s.specifier}";\n`;
+      }
       if (hasDefault) body += `export { default } from "${s.specifier}";\n`;
       files.set(path, await format(body, path));
     } else if (s.kind === "css") {
@@ -384,32 +587,26 @@ export async function generate() {
   const labRoot = moduleExports(checker, sourceOf(labRootTypes));
 
   // Cross-check the classification against what core actually exports at
-  // runtime. A mismatch means a type-only name would be emitted as a value
-  // (a runtime SyntaxError for consumers) or the reverse.
-  const runtime = Object.keys(
-    await import(pathToFileURL(join(coreDir, "dist/index.js")).href),
-  )
-    .filter((n) => n !== "default")
-    .sort();
-  if (JSON.stringify(runtime) !== JSON.stringify(coreRoot.values)) {
-    const onlyRuntime = runtime.filter((n) => !coreRoot.values.includes(n));
-    const onlyTypes = coreRoot.values.filter((n) => !runtime.includes(n));
-    throw new Error(
-      `Value/type classification of @astryxdesign/core disagrees with its runtime exports. ` +
-        `Runtime only: ${onlyRuntime.join(", ") || "-"}. Declared only: ${onlyTypes.join(", ") || "-"}.`,
-    );
-  }
+  // runtime.
+  await checkRuntimeValues(
+    "@astryxdesign/core",
+    join(coreDir, "dist/index.js"),
+    coreRoot.values,
+  );
 
   const droppedFromRoot = new Set();
   // name -> the exclusion that dropped it, and the declaration it names.
   const droppedBy = new Map();
+  // excluded subpath -> every name it exports.
+  const excludedSubpathNames = new Map();
   for (const s of excluded.filter(
     (e) => e.kind === "js" && e.package === "@astryxdesign/core",
   )) {
     const types = typesPath(s);
     if (!types) continue;
-    const exclusion = exclusions.find((e) => e.name === s.subpath);
+    const exclusion = subpathExclusions.find((e) => e.name === s.subpath);
     const names = moduleExports(checker, sourceOf(types));
+    excludedSubpathNames.set(s.subpath, [...names.values, ...names.types]);
     for (const n of [...names.values, ...names.types]) {
       droppedFromRoot.add(n);
       droppedBy.set(n, {
@@ -418,48 +615,55 @@ export async function generate() {
       });
     }
   }
-
-  // A replacement has to exist: a custom, or a subpath that is still mirrored.
-  const customNames = new Set(customs.map((c) => c.name));
-  const mirroredSubpaths = new Set(mirrored.map((s) => s.subpath));
-  for (const e of exclusions) {
-    if (e.replacedBy === null) continue;
-    if (!customNames.has(e.replacedBy) && !mirroredSubpaths.has(e.replacedBy)) {
-      throw new Error(
-        `exports.exclude.json: "${e.name}" is replacedBy "${e.replacedBy}", which is ` +
-          `neither a custom in exports.customs.json nor a mirrored subpath.`,
-      );
-    }
-  }
+  report.droppedFromRoot = [...droppedFromRoot].sort();
 
   /**
    * The replacement of an excluded subpath may re-export that subpath's own
    * names unchanged (Modal re-exports `DialogHeader`), so moving an import to
    * it is a rename of the specifier only. Only the identical declaration
-   * qualifies: a name that means something else still breaks the name rule.
+   * qualifies: a name that means something else still breaks the name rule,
+   * unless the custom is that subpath's same-name fork.
    */
-  const isReinstated = (custom, n) => {
+  const droppedFor = (custom, n) => {
     const dropped = droppedBy.get(n);
-    if (!dropped || dropped.exclusion?.replacedBy !== custom.name) return false;
+    return dropped && dropped.exclusion?.replacedBy === custom.name
+      ? dropped
+      : undefined;
+  };
+  const isReinstated = (custom, n) => {
+    const dropped = droppedFor(custom, n);
+    if (!dropped) return false;
     const own = exportTarget(checker, sourceOf(join(root, "src", custom.source)), n);
     return own !== undefined && own === dropped.target;
   };
+  const isForkedName = (custom, n) =>
+    subpathForkOf(custom) !== undefined && droppedFor(custom, n) !== undefined;
 
   const coreValues = coreRoot.values.filter((n) => !droppedFromRoot.has(n));
   const coreTypes = coreRoot.types.filter((n) => !droppedFromRoot.has(n));
   const coreNames = new Set([...coreRoot.values, ...coreRoot.types]);
   const labNames = new Set([...labRoot.values, ...labRoot.types]);
 
-  const report = {
-    droppedFromRoot: [...droppedFromRoot].sort(),
-    legacyCollisions: [],
-    reinstated: [],
-  };
   const customBlocks = [];
   const rootNames = new Set([...coreValues, ...coreTypes]);
+  const forkedInRoot = [];
 
   for (const custom of customs) {
-    const names = moduleExports(checker, sourceOf(join(root, "src", custom.source)));
+    // Emitted into the mirror whose names it replaces, above.
+    if (mirrorForks.has(custom.name)) continue;
+    const names = customExportsOf(custom);
+    const fork = subpathForkOf(custom);
+    if (fork) {
+      const upstream = excludedSubpathNames.get(fork.name) ?? [];
+      const own = [...names.values, ...names.types];
+      if (!sameNames(own, upstream)) {
+        throw new Error(
+          `exports.customs.json: "${custom.name}" takes the Astryx subpath "${fork.name}", so ` +
+            `it must export exactly the names Astryx's does (${upstream.join(", ")}); it ` +
+            `exports ${own.join(", ") || "nothing"}.`,
+        );
+      }
+    }
     // A legacy entry deprecates the names it lists, or its whole module when
     // it lists none. Only a deprecated name may collide with Astryx.
     const deprecated = (n) =>
@@ -471,13 +675,15 @@ export async function generate() {
       ["types", names.types],
     ]) {
       for (const n of list) {
-        if (isReinstated(custom, n)) {
+        const reinstated = isReinstated(custom, n);
+        if (reinstated || isForkedName(custom, n)) {
           if (rootNames.has(n)) {
             throw new Error(
               `exports.customs.json: "${n}" is exported twice from the root barrel.`,
             );
           }
-          report.reinstated.push(n);
+          if (reinstated) report.reinstated.push(n);
+          else forkedInRoot.push(n);
           rootNames.add(n);
           keep[bucket].push(n);
           continue;
@@ -488,7 +694,9 @@ export async function generate() {
           throw new Error(
             `exports.customs.json: "${custom.name}" exports "${n}", which ${
               clashCore ? "@astryxdesign/core" : "@astryxdesign/lab"
-            } also exports. ui-common customs never share a name with Astryx.`,
+            } also exports. ui-common customs never share a name with Astryx, except a ` +
+              `same-name fork whose Astryx subpath or names are excluded with ` +
+              `replacedBy = that custom.`,
           );
         }
         if (clashCore) {
@@ -507,6 +715,8 @@ export async function generate() {
     if (keep.values.length + keep.types.length === 0) continue;
     const from = customSpecifier(custom.source);
     let comment = `// ${custom.name}\n`;
+    if (fork)
+      comment = `// ${custom.name}: ui-common's own copy, in place of Astryx's.\n`;
     if (custom.legacy) {
       const what = custom.legacy.names ? custom.legacy.names.join(", ") : "this module";
       comment += `// Deprecated, removed in 0.3: ${what}. Replaced by ${custom.legacy.replacedBy}.\n`;
@@ -517,14 +727,18 @@ export async function generate() {
         exportList("export type", keep.types, from),
     );
   }
+  report.replaced = [...forkedInRoot, ...report.replaced].sort();
 
+  // Names forked in the root barrel are no longer "left out": they are back,
+  // as ui-common's.
+  const leftOut = report.droppedFromRoot.filter((n) => !forkedInRoot.includes(n));
   const barrel =
     `/**\n * ${GENERATED_HEADER}\n *\n` +
     ` * The root barrel: Astryx core's root exports, minus the names of the\n` +
     ` * subpaths in exports.exclude.json, then the ui-common customs listed in\n` +
     ` * exports.customs.json. Edit those files and run \`pnpm run gen:exports\`.\n` +
-    (report.droppedFromRoot.length > 0
-      ? ` *\n * Left out because their subpath is excluded:\n${wrapComment(report.droppedFromRoot)}`
+    (leftOut.length > 0
+      ? ` *\n * Left out because their subpath is excluded:\n${wrapComment(leftOut)}`
       : "") +
     (report.legacyCollisions.length > 0
       ? ` *\n * Deprecated customs whose names Astryx owns. The Astryx export wins\n` +
@@ -534,6 +748,10 @@ export async function generate() {
     (report.reinstated.length > 0
       ? ` *\n * Excluded Astryx names re-exported unchanged by their replacement:\n` +
         wrapComment(report.reinstated)
+      : "") +
+    (forkedInRoot.length > 0
+      ? ` *\n * Astryx names exported from ui-common's own copy of the component:\n` +
+        wrapComment([...forkedInRoot].sort())
       : "") +
     ` */\n\n` +
     exportList("export", coreValues, "@astryxdesign/core") +
@@ -564,9 +782,10 @@ export async function generate() {
         `exports.customs.json: subpath "${custom.subpath}" is already taken.`,
       );
     }
-    if (known.has(custom.subpath)) {
+    if (known.has(custom.subpath) && !subpathForkOf(custom)) {
       throw new Error(
-        `exports.customs.json: subpath "${custom.subpath}" is an Astryx subpath (even if excluded).`,
+        `exports.customs.json: subpath "${custom.subpath}" is an Astryx subpath. Only its ` +
+          `same-name fork may take it, with the subpath excluded and replacedBy "${custom.name}".`,
       );
     }
     const base = custom.source.replace(/\.tsx?$/, "");
@@ -622,6 +841,11 @@ async function main() {
   if (report.reinstated.length > 0) {
     console.log(
       `Excluded names re-exported unchanged by their replacement: ${report.reinstated.join(", ")}`,
+    );
+  }
+  if (report.replaced.length > 0) {
+    console.log(
+      `Astryx names exported from ui-common's own copies: ${report.replaced.join(", ")}`,
     );
   }
 }

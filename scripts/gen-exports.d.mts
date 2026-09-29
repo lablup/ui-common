@@ -4,6 +4,9 @@ export declare const MIRROR_DIR: string;
 
 export declare const MIRRORED_PACKAGES: readonly { name: string; prefix: string }[];
 
+/** Mirrors written as explicit named re-exports even with nothing excluded. */
+export declare const NAMED_MIRRORS: readonly string[];
+
 export type ExportTarget = string | { types: string; import: string };
 
 export declare const OWN_EXPORTS: Record<string, ExportTarget>;
@@ -20,6 +23,8 @@ export interface GenerateResult {
     legacyCollisions: string[];
     /** Excluded Astryx names a replacement custom re-exports unchanged. */
     reinstated: string[];
+    /** Astryx names exported from a ui-common fork, in the root or a mirror. */
+    replaced: string[];
   };
 }
 
