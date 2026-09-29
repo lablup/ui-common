@@ -502,7 +502,11 @@ export async function runUpgrade(options) {
     Object.assign(categories, step.categories ?? {});
     if (step.findings) findings.push(...step.findings(ctx, rel));
     if (!step.scan) continue;
-    for (const [file, text] of scanned) findings.push(...step.scan(rel(file), text));
+    const context = step.prepareScan?.(
+      scanned.map(([file, text]) => [rel(file), text]),
+    );
+    for (const [file, text] of scanned)
+      findings.push(...step.scan(rel(file), text, context));
   }
   /** @type {Array<{file: string, line: number, text: string}>} */
   const todos = [];

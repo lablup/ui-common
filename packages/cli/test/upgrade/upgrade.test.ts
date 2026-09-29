@@ -348,6 +348,35 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     });
   });
 
+  it("lists 0.1 class names the project's own CSS defines apart", async () => {
+    const dir = copyFixture("root-barrel");
+    const files = {
+      // The project's own tab strip, rendered and styled by the project.
+      "src/tabs/Tabs.tsx": `export const Tab = () => <button className="tabs__tab">x</button>;\n`,
+      "src/tabs/Tabs.css":
+        ".tabs__tab {\n  color: red;\n}\n.tabs__tab:hover {\n  color: blue;\n}\n",
+      "src/tabs/Tabs.test.tsx": `it("x", () => {\n  expect(document.querySelector(".tabs__tab")).toBeNull();\n});\n`,
+      // Overrides of ui-common's own select: nothing here renders it, so
+      // even a rule of its own is not a definition.
+      "src/pages/page.css":
+        ".page .select__trigger {\n  color: red;\n}\n.select__trigger {\n  color: blue;\n}\n",
+    };
+    for (const [file, text] of Object.entries(files)) {
+      mkdirSync(dirname(join(dir, file)), { recursive: true });
+      writeFileSync(join(dir, file), text);
+    }
+    const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+    const at = (file: string) =>
+      (result.findings ?? []).filter((f) => f.file === file).map((f) => f.category);
+    expect(at("src/tabs/Tabs.css")).toEqual(["own-class", "own-class"]);
+    expect(at("src/tabs/Tabs.test.tsx")).toEqual(["own-class"]);
+    expect(at("src/pages/page.css")).toEqual(["css-selector", "css-selector"]);
+    expect(result.report).toContain(
+      "### 0.1 class names your own CSS also defines (lower confidence)",
+    );
+    expect(result.report).toContain("| test query: .tabs__tab");
+  });
+
   it("reads --from from package.json", async () => {
     // css-entry declares "@lablup/ui-common": "0.1.0-alpha.23".
     const dir = copyFixture("css-entry");

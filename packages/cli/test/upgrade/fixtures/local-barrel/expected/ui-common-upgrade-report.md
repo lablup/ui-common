@@ -73,6 +73,10 @@ None.
 
 None.
 
+### 0.1 class names your own CSS also defines (lower confidence) (0)
+
+None.
+
 ### Local wrappers around 0.1 components (1)
 
 Your own component renders a 0.1 component and hands its props on, so it now renders the Astryx one. Its call sites pass the wrapper's props, which the upgrade does not rewrite: check the wrapper's props type and what it passes on against the Astryx component. A pure re-export (`export { Button } from …`) is not listed: its call sites were migrated.

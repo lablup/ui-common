@@ -118,7 +118,7 @@ function classesIn(selector) {
 }
 
 /**
- * @typedef {{category: string, file: string, line: number, text: string, detail?: string}} Finding
+ * @typedef {{category: string, file: string, line: number, text: string, detail?: string, classes?: string[]}} Finding
  */
 
 /**
@@ -151,6 +151,7 @@ function scanStylesheet(file, source) {
           line: rule.source?.start?.line ?? 0,
           text: rule.selector.replace(/\s+/g, " "),
           detail: hits.map(describeClass).join(", "),
+          classes: hits,
         });
       }
     });
@@ -193,6 +194,7 @@ function scanStylesheet(file, source) {
         line: i + 1,
         text: code.trim().replace(/\s*[{,]$/, ""),
         detail: [...new Set(hits)].map(describeClass).join(", "),
+        classes: hits,
       });
     }
   });
@@ -224,6 +226,7 @@ function scanScript(file, source) {
       line,
       text: (lines[line - 1] ?? "").trim(),
       detail: [...new Set(hits)].map(describeClass).join(", "),
+      classes: hits,
     });
   };
   for (const m of source.matchAll(SELECTOR_CALL)) {
@@ -258,12 +261,72 @@ function scanScript(file, source) {
   return findings;
 }
 
+/** A selector that is one class, with pseudo-classes at most: `.tabs__tab:hover`. */
+const DEFINITION = /^\.(-?[_a-zA-Z][\w-]*)(?::{1,2}[\w-]+(?:\([^)]*\))?)*$/;
+
+/**
+ * The 0.1 class names the project owns: it defines each in a stylesheet of
+ * its own as a rule by itself (`.tabs__tab { … }`) and renders it in its own
+ * markup (`className="tabs__tab"`, outside tests). Such a project most likely
+ * has its own `.tabs__tab`, so findings on it are listed apart, as lower
+ * confidence. A definition alone is not enough: an override of ui-common's
+ * class (`.drawer__content { padding: 0 }`) looks the same.
+ *
+ * @param {Array<[string, string]>} files [relative path, content]
+ * @returns {{ownClasses: Set<string>}}
+ */
+export function prepareScan(files) {
+  const defined = new Set();
+  /** @param {string} selectors */
+  const collect = (selectors) => {
+    for (const part of selectors.split(",")) {
+      const m = DEFINITION.exec(part.trim());
+      if (m && isLegacyClass(m[1])) defined.add(m[1]);
+    }
+  };
+  for (const [file, source] of files) {
+    if (file.endsWith(".css")) {
+      try {
+        postcss
+          .parse(source, { from: file })
+          .walkRules((rule) => collect(rule.selector));
+      } catch {
+        // unparseable: nothing defined
+      }
+    } else if (/\.(scss|sass|less)$/.test(file)) {
+      for (const line of source.split("\n")) {
+        const m = /^\s*([^{}/@]+?)\s*\{\s*$/.exec(line);
+        if (m) collect(m[1]);
+      }
+    }
+  }
+  const own = new Set();
+  if (defined.size === 0) return { ownClasses: own };
+  const escape = (/** @type {string} */ c) => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(
+    `(?:^|[\\s"'\`])(${[...defined].map(escape).join("|")})(?=[\\s"'\`]|$)`,
+    "gm",
+  );
+  for (const [file, source] of files) {
+    if (/\.(css|scss|sass|less)$/.test(file) || isTestFile(file)) continue;
+    for (const m of source.matchAll(pattern)) own.add(m[1]);
+  }
+  return { ownClasses: own };
+}
+
+const ORIGIN = {
+  "css-selector": "CSS selector",
+  "dom-hook": "DOM hook",
+  "test-query": "test query",
+};
+
 /**
  * @param {string} file relative path
  * @param {string} source final content
+ * @param {{ownClasses?: Set<string>}} [context] from prepareScan
  * @returns {Finding[]}
  */
-export function scanFile(file, source) {
+export function scanFile(file, source, context) {
   /** @type {Finding[]} */
   const findings = [];
   if (/\.(css|scss|sass|less)$/.test(file))
@@ -281,6 +344,14 @@ export function scanFile(file, source) {
       });
     }
   });
+  const own = context?.ownClasses;
+  for (const f of findings) {
+    if (f.classes && own && f.classes.every((c) => own.has(c))) {
+      f.detail = `${/** @type {Record<string, string>} */ (ORIGIN)[f.category]}: ${f.detail}`;
+      f.category = "own-class";
+    }
+    delete f.classes;
+  }
   return findings;
 }
 
@@ -304,6 +375,10 @@ export const CATEGORIES = {
   "custom-property": {
     title: "Custom properties that collide with Astryx tokens",
     help: "Astryx declares the same name. Whichever rule wins the cascade now restyles both your CSS and Astryx's components. Rename yours, or set it through a theme (`defineTheme`) on purpose.",
+  },
+  "own-class": {
+    title: "0.1 class names your own CSS also defines (lower confidence)",
+    help: "The same names as above, but your own stylesheets define each of them as a rule of its own (`.tabs__tab { … }`), so they most likely belong to markup you render, not to ui-common's. Skim them; most need nothing.",
   },
   "local-wrapper": {
     title: "Local wrappers around 0.1 components",

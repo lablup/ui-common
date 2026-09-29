@@ -6,7 +6,7 @@ import transformComponents, { meta as componentsMeta } from "./components.mjs";
 import { wrapperFindings } from "./local-modules.mjs";
 import { LAB_CSS, LAB_PACKAGE, REMOVED, UIC } from "./map.mjs";
 import { transformPackageJson } from "./package-json.mjs";
-import { CATEGORIES, scanFile } from "./scan.mjs";
+import { CATEGORIES, prepareScan, scanFile } from "./scan.mjs";
 import {
   cssMeta,
   jsMeta,
@@ -54,6 +54,7 @@ export default {
     { ...cssMeta, run: transformStylesheet, parse: false },
   ],
   packageJson: transformPackageJson,
+  prepareScan,
   scan: scanFile,
   findings: wrapperFindings,
   categories: CATEGORIES,

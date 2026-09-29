@@ -89,6 +89,10 @@ Astryx declares the same name. Whichever rule wins the cascade now restyles both
 |---|---|---|
 | `src/styles/families.css:6` | `:root { --color-text-secondary: #6b7280 }` | --color-text-secondary |
 
+### 0.1 class names your own CSS also defines (lower confidence) (0)
+
+None.
+
 ### Local wrappers around 0.1 components (0)
 
 None.
