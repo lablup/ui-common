@@ -4,6 +4,8 @@
 // Forked from @astryxdesign/lab 0.6.2-canary.c9fb1ad, src/Drawer/Drawer.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
 // in the *.fork.test.tsx beside it.
+// Changed: the LIFO test's Escape in the bottom drawer, which the fork hands to
+// the top drawer through core's layer-dismissal stack (marked `ui-common:`).
 // Provenance and the drift guard: src/forks/provenance.json.
 
 /**
@@ -503,18 +505,13 @@ describe("Drawer", () => {
         </>,
       );
 
-      // Escape inside the first (bottom-of-stack) drawer is ignored.
+      // ui-common: Escape goes through core's layer-dismissal stack, which
+      // hands the press to the top-most layer wherever it happened. Upstream
+      // ignored an Escape inside the bottom drawer instead.
       fireEvent.keyDown(screen.getByRole("dialog", { name: "First" }), {
         key: "Escape",
       });
-      expect(closeFirst).not.toHaveBeenCalled();
-      expect(closeSecond).not.toHaveBeenCalled();
-
-      // Escape inside the last-opened drawer closes it.
-      fireEvent.keyDown(screen.getByRole("dialog", { name: "Second" }), {
-        key: "Escape",
-      });
-      expect(closeSecond).toHaveBeenCalledWith(false);
+      expect(closeSecond).toHaveBeenCalledExactlyOnceWith(false);
       expect(closeFirst).not.toHaveBeenCalled();
     });
 

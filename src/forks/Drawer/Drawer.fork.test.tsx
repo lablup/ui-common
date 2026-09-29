@@ -1,14 +1,19 @@
 /**
- * ui-common's tests for its Drawer fork: the fixes it carries (Escape
- * containment, `aria-modal` passthrough), and that everything else renders
+ * ui-common's tests for its Drawer fork: the changes it carries (Escape
+ * through core's layer-dismissal stack, `aria-modal` passthrough), and that everything else renders
  * exactly as lab's does.
  */
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Popover } from "@astryxdesign/core/Popover";
+import { Selector } from "@astryxdesign/core/Selector";
 import { Drawer as UpstreamDrawer } from "@astryxdesign/lab";
 
+import { Modal } from "../../components/Modal";
+import { ComplexSelector } from "../ComplexSelector";
 import { comparableMarkup } from "../../test/forkParity";
 import { Drawer } from "./Drawer";
 
@@ -46,26 +51,127 @@ function renderDrawer(DrawerImpl: typeof Drawer, onOpenChange = vi.fn()) {
   return onOpenChange;
 }
 
-describe("Drawer fork: Escape containment", () => {
-  it("still closes on an Escape from inside the drawer", () => {
+/** Mock the Popover API, which jsdom does not implement. */
+function mockPopoverApi() {
+  const originalMatches = HTMLElement.prototype.matches;
+  HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
+    this.setAttribute("popover-open", "");
+    const event = new Event("toggle");
+    Object.defineProperty(event, "newState", { value: "open" });
+    this.dispatchEvent(event);
+  });
+  HTMLElement.prototype.hidePopover = vi.fn(function (this: HTMLElement) {
+    this.removeAttribute("popover-open");
+    const event = new Event("toggle");
+    Object.defineProperty(event, "newState", { value: "closed" });
+    this.dispatchEvent(event);
+  });
+  vi.spyOn(HTMLElement.prototype, "matches").mockImplementation(function (
+    this: HTMLElement,
+    selector: string,
+  ) {
+    if (selector === ":popover-open") return this.hasAttribute("popover-open");
+    return originalMatches.call(this, selector);
+  });
+}
+
+/** A drawer holding a Popover, a Selector and a ComplexSelector, each closable on its own. */
+function DrawerWithLayers({ impl: Impl = Drawer }: { impl?: typeof Drawer }) {
+  const [isDrawerOpen, setDrawerOpen] = useState(true);
+  const [isPopoverOpen, setPopoverOpen] = useState(false);
+  const [fruit, setFruit] = useState<string | undefined>(undefined);
+  return (
+    <Impl isOpen={isDrawerOpen} onOpenChange={setDrawerOpen} label="Details">
+      <Popover
+        isOpen={isPopoverOpen}
+        onOpenChange={setPopoverOpen}
+        label="Filters"
+        content={<input aria-label="Popover field" />}
+      >
+        <button type="button">Open filters</button>
+      </Popover>
+      <Selector
+        label="Fruit"
+        value={fruit}
+        onChange={setFruit}
+        options={[
+          { value: "apple", label: "Apple" },
+          { value: "banana", label: "Banana" },
+        ]}
+      />
+      <ComplexSelector label="Owner" value="alice" triggerLabel="Alice">
+        {() => <input aria-label="Owner search" />}
+      </ComplexSelector>
+    </Impl>
+  );
+}
+
+const drawerIsOpen = () =>
+  document.querySelector('dialog[aria-label="Details"]')!.hasAttribute("open");
+
+describe("Drawer fork: Escape goes through core's layer-dismissal stack", () => {
+  beforeEach(mockPopoverApi);
+
+  it("closes on an Escape from inside the drawer", () => {
     const onOpenChange = renderDrawer(Drawer);
     fireEvent.keyDown(screen.getByLabelText("Drawer field"), { key: "Escape" });
     expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false);
   });
 
-  it("ignores an Escape from a layer portalled out of its children", () => {
-    const onOpenChange = renderDrawer(Drawer);
-    const layerInput = screen.getByTestId("layer-input");
-    expect(screen.getByRole("dialog").contains(layerInput)).toBe(false);
-    const event = new KeyboardEvent("keydown", {
-      key: "Escape",
-      bubbles: true,
-      cancelable: true,
-    });
-    layerInput.dispatchEvent(event);
-    expect(onOpenChange).not.toHaveBeenCalled();
-    // Left for the layer's own dismissal to act on.
-    expect(event.defaultPrevented).toBe(false);
+  it("closes only an open Popover inside it, then itself on a second Escape", async () => {
+    const user = userEvent.setup();
+    render(<DrawerWithLayers />);
+    const trigger = screen.getByRole("button", { name: "Open filters" });
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    (await screen.findByLabelText("Popover field")).focus();
+    await user.keyboard("{Escape}");
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(drawerIsOpen()).toBe(true);
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(drawerIsOpen()).toBe(false));
+  });
+
+  it("closes only an open Selector inside it, then itself on a second Escape", async () => {
+    const user = userEvent.setup();
+    render(<DrawerWithLayers />);
+    const trigger = screen.getByRole("combobox", { name: /Fruit/ });
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    await user.keyboard("{Escape}");
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(drawerIsOpen()).toBe(true);
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(drawerIsOpen()).toBe(false));
+  });
+
+  it("closes only an open ComplexSelector inside it, then itself on a second Escape", async () => {
+    const user = userEvent.setup();
+    render(<DrawerWithLayers />);
+    const trigger = screen.getByRole("button", { name: "Owner" });
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    (await screen.findByLabelText("Owner search")).focus();
+    await user.keyboard("{Escape}");
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(drawerIsOpen()).toBe(true);
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(drawerIsOpen()).toBe(false));
+  });
+
+  it("closes nested drawers top-first", () => {
+    const closeOuter = vi.fn();
+    const closeInner = vi.fn();
+    render(
+      <Drawer isOpen onOpenChange={closeOuter} label="Outer">
+        <Drawer isOpen onOpenChange={closeInner} label="Inner">
+          <input aria-label="Inner field" />
+        </Drawer>
+      </Drawer>,
+    );
+    fireEvent.keyDown(screen.getByLabelText("Inner field"), { key: "Escape" });
+    expect(closeInner).toHaveBeenCalledExactlyOnceWith(false);
+    expect(closeOuter).not.toHaveBeenCalled();
   });
 
   it("ignores an Escape that ends an IME composition", () => {
@@ -77,12 +183,49 @@ describe("Drawer fork: Escape containment", () => {
     expect(onOpenChange).not.toHaveBeenCalled();
   });
 
-  // When these fail, lab has shipped the fix: delete the fork and its
-  // exports.exclude.json entry (CONTRIBUTING, "Forks of Astryx components").
-  it("still differs from lab's, which acts on the portalled Escape", () => {
-    const onOpenChange = renderDrawer(UpstreamDrawer);
-    fireEvent.keyDown(screen.getByTestId("layer-input"), { key: "Escape" });
-    expect(onOpenChange).toHaveBeenCalledWith(false);
+  it("answers a native close request only while it is the top layer", () => {
+    const closeOuter = vi.fn();
+    render(
+      <Drawer isOpen onOpenChange={closeOuter} label="Outer">
+        <Drawer isOpen onOpenChange={() => {}} label="Inner">
+          Inner
+        </Drawer>
+      </Drawer>,
+    );
+    const cancel = new Event("cancel", { cancelable: true });
+    fireEvent(screen.getByRole("dialog", { name: "Outer" }), cancel);
+    expect(cancel.defaultPrevented).toBe(true);
+    expect(closeOuter).not.toHaveBeenCalled();
+  });
+
+  it("leaves an Escape in a modal portalled out of it to that modal", async () => {
+    const closeDrawer = vi.fn();
+    const closeModal = vi.fn();
+    render(
+      <Drawer isOpen onOpenChange={closeDrawer} label="Details">
+        <Modal isOpen onOpenChange={closeModal} title="Edit">
+          <input aria-label="Modal field" />
+        </Modal>
+      </Drawer>,
+    );
+    const field = await screen.findByLabelText("Modal field");
+    expect(
+      screen.getByRole("dialog", { name: "Details", hidden: true }).contains(field),
+    ).toBe(false);
+    fireEvent.keyDown(field, { key: "Escape" });
+    expect(closeModal).toHaveBeenCalledWith(false);
+    expect(closeDrawer).not.toHaveBeenCalled();
+  });
+
+  // When this fails, lab has moved Drawer onto the stack: delete the fork's
+  // Escape change (CONTRIBUTING, "Forks of Astryx components").
+  it("still differs from lab's, which closes itself along with the Popover", async () => {
+    const user = userEvent.setup();
+    render(<DrawerWithLayers impl={UpstreamDrawer} />);
+    await user.click(screen.getByRole("button", { name: "Open filters" }));
+    (await screen.findByLabelText("Popover field")).focus();
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(drawerIsOpen()).toBe(false));
   });
 });
 

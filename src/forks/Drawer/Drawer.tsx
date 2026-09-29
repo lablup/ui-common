@@ -7,17 +7,19 @@
 "use client";
 
 /**
- * Drawer, ui-common's copy of Astryx lab's, with two fixes applied (not yet
- * upstream):
+ * Drawer, ui-common's copy of Astryx lab's, with two changes (not upstream):
  *
- * - **Escape stays inside.** The drawer's Escape handler acts only on an
- *   Escape that happened in its own DOM subtree and did not end an IME
- *   composition. React events follow the React tree, so a layer portalled out
- *   of the drawer's children (a modal opened from inside it) bubbled its
- *   Escape through here; acting on it, and preventing its default, made the
- *   shared layer-dismissal stack stand down, so neither the layer nor the
- *   drawer closed. An Escape that ends a composition cancels the composition,
- *   as the layer stack already treats it.
+ * - **Escape goes through core's layer-dismissal stack.** Lab's drawer runs
+ *   its own element-level Escape handler, which claims the press before the
+ *   stack's document listener sees it, so an Escape in a popover, selector or
+ *   modal opened inside the drawer closed the drawer too (or, for a portalled
+ *   modal, neither). The drawer now registers with `useLayerDismissal` the way
+ *   core's `Dialog` does and wraps its content in `LayerDepthProvider`: one
+ *   press closes exactly the top-most layer, nested drawers close top-first,
+ *   an IME Escape closes nothing, and the native `cancel` answers only while
+ *   this drawer is on top. A non-modal drawer therefore closes on Escape
+ *   wherever focus is, as core's non-modal popovers do, not only while focus
+ *   is inside it.
  * - **`aria-modal` passes through.** A scrimless drawer is non-modal, but a
  *   consumer that restores modality by hand (its own mask and focus trap) can
  *   now say so; the default is unchanged.
@@ -25,10 +27,11 @@
  * Everything else is upstream's. Its style namespaces are Astryx's compiled
  * output (src/forks/compiled.ts). The LIFO drawer registry is module-level,
  * so this copy stacks with other drawers from this copy only; lab's own
- * `Drawer` is not exported by ui-common.
+ * `Drawer` is not exported by ui-common. Escape no longer consults it: it
+ * only assigns non-modal z-indexes.
  *
  * Delete this fork, and its exports.exclude.json entry, once lab ships both
- * fixes (CONTRIBUTING, "Forks of Astryx components").
+ * (CONTRIBUTING, "Forks of Astryx components").
  */
 
 /*
@@ -69,6 +72,7 @@ import type { StyleXStyles } from "@stylexjs/stylex";
 import type { BaseProps } from "@astryxdesign/core";
 import { Icon } from "@astryxdesign/core/Icon";
 import { IconButton } from "@astryxdesign/core/IconButton";
+import { LayerDepthProvider, useLayerDismissal } from "@astryxdesign/core/Layer";
 import { useScrollLock } from "@astryxdesign/core/hooks";
 import {
   composeEventHandlers,
@@ -87,9 +91,9 @@ import { useDrawerDialogPresence } from "./useDrawerDialogPresence";
 // =============================================================================
 
 // Module-level registry of currently open drawers, in open order (last entry
-// is the top of the stack). SSR-safe: only mutated inside effects. Escape
-// handling consults isTopDrawer() so sibling drawers close innermost-first,
-// and non-modal (show()) drawers get incrementing z-indexes so the
+// is the top of the stack). SSR-safe: only mutated inside effects.
+// ui-common: Escape no longer consults it (core's layer stack orders that);
+// non-modal (show()) drawers get incrementing z-indexes so the
 // last-opened one paints on top; modal drawers rely on the native top
 // layer's chronological stacking instead.
 type DrawerRegistryEntry = { id: string; close: () => void };
@@ -116,10 +120,6 @@ function unregisterDrawer(id: string): void {
   if (openDrawerStack.length === 0) {
     registrationCounter = 0;
   }
-}
-
-function isTopDrawer(id: string): boolean {
-  return openDrawerStack[openDrawerStack.length - 1]?.id === id;
 }
 
 // =============================================================================
@@ -203,7 +203,8 @@ export interface DrawerProps extends BaseProps<HTMLDialogElement> {
    * - `true` (default) — `showModal()`: top layer, focus trap, body scroll
    *   lock, click-outside-to-close.
    * - `false` — `show()`: non-modal overlay; the page behind stays
-   *   interactive. Escape still closes while focus is inside the drawer.
+   *   interactive. Escape still closes it (ui-common: wherever focus is, as
+   *   the top-most layer).
    * @default true
    */
   hasScrim?: boolean;
@@ -314,44 +315,27 @@ export function Drawer({
   // Lock body scroll while a modal drawer is open (iOS Safari workaround).
   useScrollLock(isOpen && hasScrim);
 
-  // Escape closes. The native `cancel` event only fires for showModal();
-  // this React keydown handler covers the non-modal show() path too. Only the
-  // top of the drawer stack closes, so stacked siblings peel off
-  // innermost-first.
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLDialogElement>) => {
-      // ui-common: React events follow the REACT tree, so a layer portalled
-      // out of this drawer's children bubbles its Escape through here although
-      // it is not in this dialog's DOM subtree. Acting on it (and preventing
-      // its default) makes the shared layer-dismissal stack stand down, so
-      // neither the layer nor the drawer closes. An Escape that ends an IME
-      // composition cancels the composition, not the drawer.
-      if (
-        event.key === "Escape" &&
-        !event.nativeEvent.isComposing &&
-        event.currentTarget.contains(event.target as Node)
-      ) {
-        event.preventDefault();
-        if (isTopDrawer(drawerId)) {
-          onOpenChange(false);
-        }
-      }
-    },
-    [onOpenChange, drawerId],
-  );
+  // ui-common: Escape goes through core's shared layer-dismissal stack, as in
+  // core's Dialog. The stack owns the one Escape listener and hands each press
+  // to the top-most layer, so a popover or modal opened inside this drawer
+  // closes first, and nested drawers peel off top-first.
+  const { shouldDismissOnCloseRequest } = useLayerDismissal({
+    isActive: isOpen,
+    escapeBehavior: "close",
+    onDismiss: () => onOpenChangeRef.current(false),
+  });
 
-  // Native cancel event (browser Escape handling) — prevent the browser
-  // from closing the dialog directly and route through onOpenChange so the
-  // caller's state stays the source of truth. Same top-of-stack rule as
-  // the keydown path.
+  // Native cancel event (a close request the stack never saw a press for) —
+  // prevent the browser from closing the dialog directly, then answer it by
+  // the stack's rules: only the top-most layer, never mid-composition.
   const handleCancel = useCallback(
     (event: React.SyntheticEvent<HTMLDialogElement>) => {
       event.preventDefault();
-      if (isTopDrawer(drawerId)) {
+      if (shouldDismissOnCloseRequest()) {
         onOpenChange(false);
       }
     },
-    [onOpenChange, drawerId],
+    [onOpenChange, shouldDismissOnCloseRequest],
   );
 
   // Clicks on the ::backdrop target the <dialog> element itself; clicks on
@@ -417,13 +401,13 @@ export function Drawer({
         (hasScrim ? "true" : undefined)
       }
       onClick={composeEventHandlers(onClickProp, handleClick)}
-      onKeyDown={composeEventHandlers(onKeyDownProp, handleKeyDown)}
+      onKeyDown={onKeyDownProp}
       onCancel={handleCancel}
     >
       {/* Scrollable content area — tabIndex so the dialog's focusing steps
           land on the panel body rather than the first button inside. */}
       <div tabIndex={-1} className={CONTENT_CLASS_NAME}>
-        {children}
+        <LayerDepthProvider>{children}</LayerDepthProvider>
       </div>
       {hasCloseButton && (
         <div className={CONTROLS_CLASS_NAME}>
