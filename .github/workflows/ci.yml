@@ -78,20 +78,38 @@ jobs:
         run: |
           pnpm run build
           pnpm pack --pack-destination "$RUNNER_TEMP"
+          pnpm --filter @lablup/ui-common-cli pack --pack-destination "$RUNNER_TEMP"
 
-      - name: Install the tarball into a clean React project
+      # pnpm, as every consumer installs: pnpm 11 fails the install with
+      # ERR_PNPM_IGNORED_BUILDS when a dependency's build script is neither
+      # allowed nor declined, which npm never reports. fixture/pnpm-workspace.yaml
+      # holds the allowBuilds block a consumer needs, and makes the fixture its
+      # own workspace, apart from this repository's.
+      - name: Install the tarballs into a clean React project
         working-directory: fixture
         run: |
-          TARBALL=$(find "$RUNNER_TEMP" -name 'lablup-ui-common-*.tgz' | head -1)
-          echo "Installing $TARBALL"
-          npm install --no-package-lock "$TARBALL"
-          npm install --no-package-lock
+          LIB=$(find "$RUNNER_TEMP" -name 'lablup-ui-common-[0-9]*.tgz' | head -1)
+          CLI=$(find "$RUNNER_TEMP" -name 'lablup-ui-common-cli-*.tgz' | head -1)
+          echo "Installing $LIB and $CLI"
+          pnpm add "$LIB"
+          pnpm add --save-dev "$CLI"
 
       - name: Type-check and build the fixture against the packed artifact
         working-directory: fixture
         run: |
-          npx tsc --noEmit
-          npx vite build
+          pnpm exec tsc --noEmit
+          pnpm exec vite build
+
+      # The CLI resolves the project's @lablup/ui-common and the Astryx CLI it
+      # pins from two different packages; this runs it where a consumer would.
+      - name: Run the ui-common bin from the fixture
+        working-directory: fixture
+        run: |
+          pnpm exec ui-common --version --verbose
+          pnpm exec ui-common --help > /dev/null
+          pnpm exec ui-common agents > /dev/null
+          pnpm exec ui-common component Button --json > /dev/null
+          pnpm exec ui-common upgrade --from 0.1 --dry-run > /dev/null
 
       # Building is not the same as being styled. 0.1.0-alpha.0 built here
       # green while shipping every component's CSS as an asset nothing could

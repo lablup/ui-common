@@ -7,3 +7,4 @@ coverage/
 .eslintcache
 fixture/node_modules/
 fixture/dist/
+fixture/pnpm-lock.yaml
