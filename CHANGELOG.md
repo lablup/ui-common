@@ -5,6 +5,33 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.11]
+
+Review fixes for the table cluster, and translation fixes.
+
+### Fixed
+
+- `DataGrid` select-all honours `selection.getIsItemEnabled`: it adds and
+  removes enabled rows only, a disabled row keeps its state, and the header's
+  checked and indeterminate states count enabled rows only.
+- `DataGrid` passes a column's `getCellProps(item, index)` the row's index on
+  the page; it always received 0.
+- `DataGridSettingsModal` drag handles are named (`uic.DataGrid.reorderColumn`,
+  "Reorder {column}") instead of focusable but `aria-hidden`, move through the
+  list by keyboard (Space, arrow keys, Space; Escape cancels), and announce
+  pick-up, moves, drop and cancel with the column's label and position.
+  Five more catalog keys (`uic.DataGrid.reorderInstructions`,
+  `reorderPickedUp`, `reorderMoved`, `reorderDropped`, `reorderCancelled`),
+  all six translated in every shipped locale.
+- `uic.common.cancel` and `uic.common.delete` read as button labels, not
+  infinitives or the wrong word, in de, el, fi, id, it, ja, mn, ms, pl,
+  pt-PT, tr and vi; `uic.common.apply` in ms and th.
+- `uic.common.ok`, `uic.common.retry` and the Card, Row and Text skeletons'
+  "Loading" are translated in the 18 locales that lacked them (Mongolian
+  OK excepted).
+- NOTICE carries the MIT licence text of Ant Design Icons, whose path data
+  the form feedback glyphs use, and `check:pack` asserts it is packed.
+
 ## [0.2.0-alpha.10]
 
 backend.ai-ui's table cluster (DataGrid, its dialogs, BulkErrorModal) and
