@@ -256,7 +256,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: true,
-    // Consumer source the upgrade codemods run on, not tests of this package.
-    exclude: [...configDefaults.exclude, "test/upgrade/fixtures/**"],
+    // Consumer source the upgrade codemods run on, not tests of this package;
+    // and agent worktrees, which are other checkouts of this repository.
+    exclude: [...configDefaults.exclude, "test/upgrade/fixtures/**", ".claude/**"],
   },
 });

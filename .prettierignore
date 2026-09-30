@@ -4,3 +4,4 @@ pnpm-lock.yaml
 LICENSE
 src/theme/*/built/
 test/upgrade/fixtures/
+.claude/
