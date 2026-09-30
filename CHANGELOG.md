@@ -5,6 +5,41 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Changed
+
+- **The `ui-common` CLI is its own package, `@lablup/ui-common-cli`**, in
+  this repository under `packages/cli` and released in lockstep with the
+  library, the way Astryx ships `@astryxdesign/cli` beside
+  `@astryxdesign/core`. `@lablup/ui-common` no longer has a `bin` and no
+  longer depends on `@astryxdesign/cli`, `jscodeshift` or `postcss`: a
+  production install of an app on the library alone drops from 196 MB (132
+  packages) to 31 MB (25). Run the 0.1 upgrade with
+  `pnpm dlx @lablup/ui-common-cli upgrade --from 0.1`; after it,
+  `@lablup/ui-common-cli` is a devDependency and `pnpm exec ui-common` works
+  as before. The CLI needs Node 22.13 or later, as `@astryxdesign/cli` does.
+- Prereleases publish under the `next` dist-tag; only a plain version moves
+  `latest`. The 0.1 line's `alpha` tag stays where it is.
+- `ui-common upgrade --from 0.1`:
+  - migrates elements a project imports through its own barrels (relative
+    imports and tsconfig `paths`), and lists local wrapper components around
+    a 0.1 component for review instead of rewriting their call sites;
+  - drops a local re-export of a removed type together with its import (it
+    used to refuse to write such a file);
+  - wires the 0.2 stylesheets into the app entry when the project never
+    imported `styles/base.css`, and places that import before any
+    `@lablup/ui-common` import;
+  - adds `<Theme theme={lablupTheme}>` at a single clear root render and
+    reports 0.1 theme switches (`data-theme="orange-*"`, `[data-theme]`
+    selectors);
+  - searches the whole project for manual-review findings (tests, e2e,
+    scripts), not only `src/`; `--scan <path>` narrows it;
+  - drops React 18 from a library's `react` / `react-dom` peers;
+  - adds `allowBuilds` for `@astryxdesign/core` and `@astryxdesign/cli` to a
+    pnpm project's `pnpm-workspace.yaml`;
+  - adds `@lablup/ui-common-cli` as a devDependency;
+  - lists class names the project also defines and uses itself as lower
+    confidence.
+
 ### Fixed
 
 - **`ui-common` was the lowest cascade layer in consumer bundles.** Each
@@ -45,12 +80,13 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 ## Upgrading from 0.1
 
 The 0.2 alphas below add up to these changes for a 0.1 consumer. Run
-`pnpm exec ui-common upgrade --from 0.1 --dry-run` for the mechanical part;
-[`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json) lists every import,
+`pnpm dlx @lablup/ui-common-cli upgrade --from 0.1 --dry-run` for the
+mechanical part;
+[`migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every import,
 prop, class and stylesheet change it reads.
 
-- **Dependencies.** Astryx (`@astryxdesign/core`, `theme-neutral`, `cli`) is
-  an exact-pinned dependency; import it only through `@lablup/ui-common`.
+- **Dependencies.** Astryx (`@astryxdesign/core`, `theme-neutral`) is an
+  exact-pinned dependency (the CLI moved to `@lablup/ui-common-cli`); import it only through `@lablup/ui-common`.
   `@stylexjs/stylex` ^0.19 is a new peer, `@astryxdesign/lab` an optional
   exact peer (with an `overrides` entry for its core), and React 19 is
   required. (0.2.0-alpha.0)
@@ -596,7 +632,7 @@ upgrade tool.
 The component layer moves onto Astryx: the 0.1 look-alikes are gone, the
 components Astryx has no counterpart for are rebuilt on it with their 0.1
 props, and `Modal` takes the place of the hidden `Dialog`.
-[`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json) lists every change
+[`migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every change
 below in the form `ui-common upgrade` reads.
 
 ### Removed
