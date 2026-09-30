@@ -42,6 +42,23 @@ Do not add them to your project. ui-common owns the Astryx version. Two copies
 of Astryx means two copies of its React contexts, and components stop seeing
 the theme.
 
+### pnpm 10 and later
+
+`@astryxdesign/core` and `@astryxdesign/cli` have `postinstall` scripts. pnpm
+10 and later run no dependency's install scripts until the project decides
+about each one: pnpm 10 installs and prints a warning, pnpm 11 fails
+`pnpm install` with `ERR_PNPM_IGNORED_BUILDS`. The scripts only print an
+`astryx init` hint, so decline them, in `pnpm-workspace.yaml`:
+
+```yaml
+allowBuilds:
+  "@astryxdesign/cli": false
+  "@astryxdesign/core": false
+```
+
+This repository's own `pnpm-workspace.yaml` does the same. npm runs the
+scripts, or asks about them, and needs nothing.
+
 ### With `@lablup/ui-common/lab`
 
 The lab canary declares an exact peer on the core canary it was cut from, not
@@ -104,8 +121,8 @@ Locally, use a personal access token with `read:packages`, in your user
 
 ## Set up
 
-Declare the layer order once, first, in your app's entry stylesheet. Then load
-the stylesheets:
+Declare the layer order first in your app's entry stylesheet, then load the
+stylesheets in this order:
 
 ```css
 @layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
@@ -118,6 +135,16 @@ the stylesheets:
 @import "@lablup/ui-common/lab/lab.css";
 ```
 
+Every stylesheet ui-common ships starts with the same `@layer` statement too,
+component sheets included. A layer's place is fixed by the first stylesheet
+that names it, and a component's sheet (imported by its module) usually
+reaches the page before your entry stylesheet does. Without the statement in
+the component sheets, `ui-common` would be the lowest layer and Astryx's base
+styles would beat ui-common's. Declaring it in your entry stylesheet as well
+is still recommended: it documents the order, and it places your own
+`components` and `utilities` layers wherever your sheets load. Repeating an
+identical statement changes nothing.
+
 Wrap the app in the theme:
 
 ```tsx
@@ -129,6 +156,17 @@ import { lablupTheme } from "@lablup/ui-common/theme/lablup/built";
 </Theme>;
 ```
 
+`<Theme theme={lablupTheme}>` is required. `theme.css` is scoped to
+`[data-astryx-theme="lablup"]`, which only `<Theme>` sets, so without it the
+app renders Astryx's default palette. No error is raised.
+
+Dark mode is the `mode` prop: `<Theme theme={lablupTheme} mode="dark">`,
+`"light"`, or `"system"` (the default, which follows the OS). The root
+`<Theme>` owns `html[data-theme]`: it sets `light` or `dark`, removes the
+attribute for `system`, and removes it on unmount. A 0.1-style toggle that
+writes its own value there, such as `data-theme="orange-dark"`, no longer
+works. Switch `mode` instead.
+
 `/theme/lablup/built` pairs with `theme.css` and injects nothing at runtime.
 `@lablup/ui-common/theme/lablup` is the same theme as source, for runtime
 injection or for extending it with `defineTheme`. Use one or the other.
@@ -136,6 +174,31 @@ Astryx's neutral theme is mirrored the same way at `/theme/neutral`.
 
 The theme names its font family (Ubuntu Sans, then Pretendard Variable) but
 does not load it. Loading fonts is the app's job.
+
+### Tests (Vitest with jsdom)
+
+ui-common's modules import their stylesheets, and Node cannot load a `.css`
+import from `node_modules`. Vitest externalises dependencies by default, so a
+test that imports ui-common fails with `Unknown file extension ".css"`.
+Let Vitest process the package instead:
+
+```ts
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    environment: "jsdom",
+    server: { deps: { inline: [/@lablup\/ui-common/] } },
+  },
+});
+```
+
+### Two copies
+
+In development, ui-common warns in the console when a second copy of itself
+is loaded, and says whether the copies also run on separate copies of
+`@astryxdesign/core`. Two copies do not share the modal stack, and with two
+Astryx cores the `Theme` and i18n providers stop reaching components. Dedupe
+until `pnpm why @lablup/ui-common` lists one version.
 
 ### Layers
 
