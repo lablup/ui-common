@@ -378,6 +378,9 @@ names need updating. [`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json)
 lists every import, prop, class and stylesheet change in a form the upgrade
 tool reads.
 
+Before you start, read [docs/migrating-to-0.2.md](docs/migrating-to-0.2.md):
+the problems the first app hit when it moved onto 0.2, and a checklist.
+
 Let the upgrade tool do the mechanical part. After bumping the dependency:
 
 ```
