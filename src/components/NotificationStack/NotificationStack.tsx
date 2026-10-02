@@ -129,7 +129,11 @@ function NotificationStackItemView({
 
   // A notice that closes under the pointer the reader moved there to read it
   // is lost; focus counts too, so keyboard users get the same reprieve.
-  const [isPaused, setIsPaused] = useState(false);
+  // Each holds the countdown on its own: leaving one must not resume it while
+  // the other still holds.
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const isPaused = isHovered || isFocused;
 
   // Derived, not a default: a task is updated in place under the same key
   // (pending, then failed), so the item never remounts. `null` means the
@@ -208,12 +212,12 @@ function NotificationStackItemView({
       data-notification-key={String(key)}
       data-status={item.status ?? "info"}
       data-paused={isPaused ? "true" : "false"}
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       // React's onFocus/onBlur are the delegated focusin/focusout pair, so
       // focus anywhere inside the notice counts.
-      onFocus={() => setIsPaused(true)}
-      onBlur={() => setIsPaused(false)}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
     >
       <Banner
         status={item.status ?? "info"}
