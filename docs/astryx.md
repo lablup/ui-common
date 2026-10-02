@@ -155,9 +155,12 @@ ui-common's own bin.
 
 ## The ui-common CLI
 
-`bin/ui-common.mjs` wraps the pinned `@astryxdesign/cli`. It resolves that CLI
-from ui-common's own install location, so a consumer needs no Astryx
-dependency.
+`@lablup/ui-common-cli` (`packages/cli`, released at ui-common's version and
+taking it as a peer) wraps the pinned `@astryxdesign/cli`. It resolves that CLI
+from its own install location, and the Astryx packages ui-common pins from the
+project's `@lablup/ui-common`, so a consumer needs no Astryx dependency. Kept
+apart from the library, the CLI toolchain stays out of production installs, as
+`@astryxdesign/cli` stays apart from `@astryxdesign/core`.
 
 - **Passthrough.** Any Astryx command runs the pinned bin; its output is
   rewritten from `@astryxdesign/*` to `@lablup/ui-common/*` and from `astryx …`
@@ -177,20 +180,20 @@ dependency.
 
 `agents` and the upstream codemods use Astryx CLI internals
 (`foundation/agent-docs`, `assets/codemods/registry.mjs`) that are not its
-public API. The pin is exact, and `test/cli/` exercises both, so a bump that
+public API. The pin is exact, and `packages/cli/test/cli/` exercises both, so a bump that
 moves them fails the tests.
 
 ## Checks
 
-| Command                                  | What it guards                                                                                                 |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `src/exports.test.ts`                    | generated surface matches the installed Astryx                                                                 |
-| `pnpm run theme:check`                   | built Lablup theme matches its source                                                                          |
-| `src/globalStyles.test.ts`               | legacy tokens cover all 122 names; layers; real tokens                                                         |
-| `src/components/componentStyles.test.ts` | every component sheet: one `@layer ui-common`, `uic-` classes, Astryx tokens, no colour literal, no focus rule |
-| `src/migrationMap.test.ts`               | `migration/0.1-to-0.2.json` matches what was removed, what replaces it, and the renamed classes                |
-| `pnpm run check:pack`                    | every export target is packed; every bare import is a dependency or peer; every Astryx locale is mirrored      |
-| `pnpm run check:integration`             | the CLI accepts the manifest, and the tarball carries it                                                       |
-| `test/upgrade/`                          | the upgrade codemods turn each fixture project into its expected output, and a second run changes nothing      |
-| `test/cli/`                              | output rewriting, the agent block, the registry, upstream codemods, and `sync-astryx`'s guards                 |
-| CI `external-install`                    | the tarball installs, type-checks and builds in a clean project, with Astryx's sheets in the bundle            |
+| Command                                  | What it guards                                                                                                                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/exports.test.ts`                    | generated surface matches the installed Astryx                                                                                                                                                         |
+| `pnpm run theme:check`                   | built Lablup theme matches its source                                                                                                                                                                  |
+| `src/globalStyles.test.ts`               | legacy tokens cover all 122 names; layers; real tokens                                                                                                                                                 |
+| `src/components/componentStyles.test.ts` | every component sheet: one `@layer ui-common`, `uic-` classes, Astryx tokens, no colour literal, no focus rule                                                                                         |
+| `src/migrationMap.test.ts`               | `packages/cli/migration/0.1-to-0.2.json` matches what was removed, what replaces it, and the renamed classes                                                                                           |
+| `pnpm run check:pack`                    | both tarballs: every export target is packed; every bare import is a dependency or peer; every Astryx locale is mirrored; the library carries none of the CLI, the CLI none of `dist/`, at one version |
+| `pnpm run check:integration`             | the CLI accepts the manifest, and the tarball carries it                                                                                                                                               |
+| `packages/cli/test/upgrade/`             | the upgrade codemods turn each fixture project into its expected output, and a second run changes nothing                                                                                              |
+| `packages/cli/test/cli/`                 | output rewriting, the agent block, the registry, upstream codemods, and `sync-astryx`'s guards                                                                                                         |
+| CI `external-install`                    | both tarballs install with pnpm in a clean project, which type-checks and builds with Astryx's sheets in the bundle and runs the `ui-common` bin                                                       |

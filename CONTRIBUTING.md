@@ -393,20 +393,22 @@ pre-built CSS at runtime.
 ## Bumping Astryx
 
 `@astryxdesign/core`, `@astryxdesign/theme-neutral` and `@astryxdesign/cli`
-move together, exact-pinned. `@astryxdesign/lab` is an exact canary pin, as
+move together, exact-pinned. The Astryx CLI is pinned twice: as a dependency
+of `packages/cli` (`@lablup/ui-common-cli`, which runs it for consumers) and as
+a devDependency of the root (its `theme:*` and `check:integration` scripts). `@astryxdesign/lab` is an exact canary pin, as
 both a devDependency and an optional peer.
 
 `ui-common sync-astryx` does the bump:
 
 ```
-node bin/ui-common.mjs sync-astryx 0.6.3 --dry-run   # plan, and Astryx's codemods on src/ as a dry run
-node bin/ui-common.mjs sync-astryx 0.6.3 --lab 0.6.3-canary.abc1234
+node packages/cli/bin/ui-common.mjs sync-astryx 0.6.3 --dry-run   # plan, and Astryx's codemods on src/ as a dry run
+node packages/cli/bin/ui-common.mjs sync-astryx 0.6.3 --lab 0.6.3-canary.abc1234
 ```
 
-It moves the pins, runs `pnpm install`, `pnpm run gen:exports` and
+It moves the pins in both `package.json` files, runs `pnpm install`, `pnpm run gen:exports` and
 `pnpm run theme:build`, runs Astryx's own codemods on `src/` (a dry run, then
 applied), runs the tests, and records the Astryx codemods consumers need in
-`codemods/<next version>/upstream.json` (`--as <version>` picks the version;
+`packages/cli/codemods/<next version>/upstream.json` (`--as <version>` picks the version;
 release under that version). `ui-common upgrade` runs them for a consumer that
 crosses it, with the `@lablup/ui-common` specifiers swapped for Astryx's so
 Astryx's codemods recognise them. It runs Astryx's codemods before the tests,
@@ -424,26 +426,26 @@ Then, by hand:
 
 ## The upgrade tool
 
-`ui-common upgrade` runs the steps in `codemods/registry.mjs`, keyed by the
+`ui-common upgrade` runs the steps in `packages/cli/codemods/registry.mjs`, keyed by the
 ui-common version that made the change, over a consumer's source.
 
-- **0.1 → 0.2** (`codemods/0.2/`) takes all of its data from
-  [`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json): replacement
+- **0.1 → 0.2** (`packages/cli/codemods/0.2/`) takes all of its data from
+  [`packages/cli/migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json): replacement
   imports, prop renames, value maps, required packages, stylesheet entry
   points, class renames and the manual notes its TODO markers quote. Change
   the map, not the codemods, when the migration changes.
-  `codemods/0.2/legacy-classes.json` lists the 0.1 class names; regenerate it
-  from a 0.1 checkout with `scripts/extract-legacy-classes.mjs`.
-- **Upstream steps** are `codemods/<version>/upstream.json`, written by
+  `packages/cli/codemods/0.2/legacy-classes.json` lists the 0.1 class names; regenerate it
+  from a 0.1 checkout with `packages/cli/scripts/extract-legacy-classes.mjs`.
+- **Upstream steps** are `packages/cli/codemods/<version>/upstream.json`, written by
   `sync-astryx`.
 
 A codemod that cannot prove a rewrite safe leaves the code as it was, with a
-`TODO(ui-common-upgrade):` comment and a report entry. `test/upgrade/` runs
+`TODO(ui-common-upgrade):` comment and a report entry. `packages/cli/test/upgrade/` runs
 every step over fixture projects and compares the result with `expected/`,
 report included. After an intended change:
 
 ```
-UPDATE_FIXTURES=1 pnpm vitest run test/upgrade
+UPDATE_FIXTURES=1 pnpm vitest run packages/cli/test/upgrade
 ```
 
 and read the diff. Fixtures are consumer code: keep them free of product

@@ -1,0 +1,10 @@
+{
+  // Feature code imports shared UI as "@/components/common".
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"],
+    },
+  },
+  "include": ["src"],
+}

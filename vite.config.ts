@@ -1,5 +1,5 @@
-import { cp, mkdir, writeFile } from "node:fs/promises";
-import { existsSync, statSync } from "node:fs";
+import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, isAbsolute, posix, relative, resolve, sep } from "node:path";
 
@@ -10,8 +10,14 @@ import dts from "vite-plugin-dts";
 import { globSync } from "tinyglobby";
 
 import { uiCommonCatalog } from "./src/i18n/catalog.ts";
+import { withLayerOrder } from "./scripts/layer-order.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
+
+const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8")) as {
+  version: string;
+  dependencies: Record<string, string>;
+};
 
 /**
  * Every component and hook barrel is its own Rollup entry. Combined with
@@ -110,8 +116,37 @@ function copyAssets(): Plugin {
       const english = resolve(root, "dist/ui-common-locales/en.json");
       await mkdir(dirname(english), { recursive: true });
       await writeFile(english, `${JSON.stringify(uiCommonCatalog, null, 2)}\n`);
+
+      // Last, so it sees the copies above as well as Rollup's emitted assets.
+      await prependLayerOrder(resolve(root, "dist"));
     },
   };
+}
+
+/**
+ * Put the cascade layer order statement at the top of every stylesheet in
+ * `dist`: the component sheets Rollup emitted, the copied package sheets, the
+ * pre-built theme and the one-line Astryx `@import` mirrors (a layer
+ * statement may precede `@import`).
+ *
+ * A layer's position is fixed by the first sheet that names it. Each component
+ * module imports its own sheet, and a consumer imports ui-common's modules
+ * before its entry stylesheet runs, so without this the first thing a bundle
+ * says about layers is `@layer ui-common{…}` and ui-common becomes the lowest
+ * layer, below Astryx's base and theme. The statement comes from
+ * `scripts/layer-order.mjs`; repeating it is a no-op.
+ */
+async function prependLayerOrder(dir: string): Promise<void> {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const path = resolve(dir, entry.name);
+    if (entry.isDirectory()) {
+      await prependLayerOrder(path);
+    } else if (entry.name.endsWith(".css")) {
+      const css = await readFile(path, "utf8");
+      const next = withLayerOrder(css);
+      if (next !== css) await writeFile(path, next);
+    }
+  }
 }
 
 /** Strip a query suffix and express an id relative to the repository root. */
@@ -212,6 +247,11 @@ function linkComponentStyles(): Plugin {
 }
 
 export default defineConfig({
+  // Read by the duplicate-copy warning (src/instance.ts).
+  define: {
+    __UI_COMMON_VERSION__: JSON.stringify(pkg.version),
+    __ASTRYX_CORE_VERSION__: JSON.stringify(pkg.dependencies["@astryxdesign/core"]),
+  },
   plugins: [
     react(),
     dts({
@@ -256,8 +296,13 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: true,
-    // Consumer source the upgrade codemods run on, not tests of this package;
-    // and agent worktrees, which are other checkouts of this repository.
-    exclude: [...configDefaults.exclude, "test/upgrade/fixtures/**", ".claude/**"],
+    // The CLI package's tests (packages/cli/test) run here too, under the same
+    // setup. Its upgrade fixtures are consumer source the codemods run on, not
+    // tests; agent worktrees are other checkouts of this repository.
+    exclude: [
+      ...configDefaults.exclude,
+      "packages/cli/test/upgrade/fixtures/**",
+      ".claude/**",
+    ],
   },
 });

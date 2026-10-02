@@ -1,0 +1,13 @@
+@layer components {
+  .app {
+    padding: 8px;
+  }
+}
+
+[data-theme="orange-dark"] .app {
+  background: black;
+}
+
+html[data-theme="dark"] .app {
+  color: white;
+}

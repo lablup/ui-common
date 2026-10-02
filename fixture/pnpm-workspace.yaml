@@ -1,0 +1,12 @@
+# The fixture is a consumer, so it is its own pnpm workspace rather than a
+# package of this repository's, and installs under a consumer's settings.
+#
+# This is the block a pnpm 11 consumer of @lablup/ui-common needs: Astryx's
+# packages have a postinstall that only prints an `astryx init` nudge, and
+# pnpm refuses to install (ERR_PNPM_IGNORED_BUILDS) until each one is either
+# allowed or declined. Nothing needs to run, so both are declined.
+allowBuilds:
+  # A dependency of @lablup/ui-common.
+  "@astryxdesign/core": false
+  # A dependency of @lablup/ui-common-cli (the ui-common bin).
+  "@astryxdesign/cli": false

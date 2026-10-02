@@ -5,8 +5,64 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Changed
+
+- **The `ui-common` CLI is its own package, `@lablup/ui-common-cli`**, in
+  this repository under `packages/cli` and released in lockstep with the
+  library, the way Astryx ships `@astryxdesign/cli` beside
+  `@astryxdesign/core`. `@lablup/ui-common` no longer has a `bin` and no
+  longer depends on `@astryxdesign/cli`, `jscodeshift` or `postcss`: a
+  production install of an app on the library alone drops from 196 MB (132
+  packages) to 31 MB (25). Run the 0.1 upgrade with
+  `pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1` (`@next` until
+  0.2.0 is published: npm points a new package's `latest` at its first
+  prerelease); after it,
+  `@lablup/ui-common-cli` is a devDependency and `pnpm exec ui-common` works
+  as before. The CLI needs Node 22.13 or later, as `@astryxdesign/cli` does.
+- Prereleases publish under the `next` dist-tag; only a plain version moves
+  `latest`. The 0.1 line's `alpha` tag stays where it is. The registry sets
+  a new package's `latest` on its first publish regardless, so until 0.2.0
+  `@lablup/ui-common-cli`'s `latest` is its first alpha: name `@next`.
+- `ui-common upgrade --from 0.1`:
+  - migrates elements a project imports through its own barrels (relative
+    imports and tsconfig `paths`), and lists local wrapper components around
+    a 0.1 component for review instead of rewriting their call sites;
+  - drops a local re-export of a removed type together with its import (it
+    used to refuse to write such a file);
+  - wires the 0.2 stylesheets into the app entry when the project never
+    imported `styles/base.css`, and places that import before any
+    `@lablup/ui-common` import;
+  - adds `<Theme theme={lablupTheme}>` at a single clear root render and
+    reports 0.1 theme switches (`data-theme="orange-*"`, `[data-theme]`
+    selectors);
+  - searches the whole project for manual-review findings (tests, e2e,
+    scripts), not only `src/`; `--scan <path>` narrows it;
+  - narrows a library's `react` / `react-dom` peers to the React ui-common's
+    own peer starts at, alternative by alternative (`>=18 <21 || ^22` →
+    `>=19.2.0 <21 || ^22`), and reports a range with no such React;
+  - adds `allowBuilds` for `@astryxdesign/core` and `@astryxdesign/cli` to a
+    pnpm project's `pnpm-workspace.yaml`;
+  - adds `@lablup/ui-common-cli` as a devDependency;
+  - lists class names the project also defines and uses itself as lower
+    confidence.
+
 ### Fixed
 
+- **`ui-common` was the lowest cascade layer in consumer bundles.** Each
+  component module imports its own stylesheet, and each opened
+  `@layer ui-common{…}`. A product imports ui-common's modules before its
+  entry stylesheet, where the order statement lives, and a layer's position is
+  fixed by first appearance, so the bundle ranked `ui-common` below `reset`
+  and Astryx's `astryx-base` and `astryx-theme`: Astryx's rules beat
+  ui-common's composites (`StatCard`'s `overflow: hidden` lost to `Card`'s
+  `overflow: clip`). Every stylesheet the package ships (component sheets,
+  `ui-common.css`, `legacy-tokens.css`, `styles/`, the Lablup `theme.css` and
+  the Astryx `@import` mirrors) now opens with
+  `@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;`,
+  defined once in `scripts/layer-order.mjs` and prepended by the build.
+  Keep declaring it in the app's entry stylesheet too; repeating it is a
+  no-op. `check:pack` fails on a packed stylesheet without it, and CI's
+  fixture check fails when the consumer bundle establishes any other order.
 - **The `react` and `react-dom` peers are `^19.2.0`.** `Modal`,
   `NotificationStack`, `UnitGrid` and `Form` import `useEffectEvent`, stable
   since React 19.2; `^19.0.0` let 19.0 and 19.1 install and then fail.
@@ -27,6 +83,70 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `label` (`{n} items`), and text next to an element given a TODO, lost their
   leading spaces. For a library it adds the StyleX (and lab) peer even when
   a devDependency already names the package.
+
+### Added
+
+- In development, a warning when a second copy of `@lablup/ui-common` is
+  loaded, naming each copy and saying whether they also run on separate
+  copies of `@astryxdesign/core`. Each copy registers under
+  `globalThis[Symbol.for("@lablup/ui-common/instance")]` on first use of its
+  string translator or modal stack; production builds drop it.
+
+### Documentation
+
+- README: `allowBuilds` for Astryx's postinstall scripts under pnpm 10 and
+  later (pnpm 11 fails with `ERR_PNPM_IGNORED_BUILDS` without it), the
+  shipped layer statement, why `<Theme theme={lablupTheme}>` is required and
+  how dark mode works (`<Theme mode>`; 0.1's `data-theme="orange-dark"`
+  toggles no longer work), and Vitest's `server.deps.inline` for jsdom tests.
+- The Astryx integration's agent docs and doc page name
+  `@lablup/ui-common/theme/lablup/built`, the theme that pairs with
+  `theme.css`, instead of the source theme.
+
+## Upgrading from 0.1
+
+The 0.2 alphas below add up to these changes for a 0.1 consumer. Run
+`pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1 --dry-run` (plain
+`@lablup/ui-common-cli` once 0.2.0 is published) for the
+mechanical part;
+[`packages/cli/migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every import,
+prop, class and stylesheet change it reads.
+
+- **Dependencies.** Astryx (`@astryxdesign/core`, `theme-neutral`) is an
+  exact-pinned dependency (the CLI moved to `@lablup/ui-common-cli`); import it only through `@lablup/ui-common`.
+  `@stylexjs/stylex` ^0.19 is a new peer, `@astryxdesign/lab` an optional
+  exact peer (with an `overrides` entry for its core), and React 19.2 or
+  later is required. (0.2.0-alpha.0; 19.2 since the release after
+  0.2.0-alpha.14)
+- **The root barrel is Astryx's**, and `@lablup/ui-common/hooks` is Astryx's
+  hooks; `usePrefersReducedMotion` moved to the root. (0.2.0-alpha.0,
+  0.2.0-alpha.2)
+- **Removed components, each replaced by Astryx:** `Badge`, `BaseCard`,
+  `Button`, `DataTable`, `Drawer` (lab), `EmptyState`, `ProgressBar`,
+  `Select` (`Selector`), `Skeleton`, `StatusTag` (`StatusDot`), `Tabs`
+  (`TabList`) and `Tooltip`, with their props renamed to Astryx's
+  (`children` → `label`, `disabled` → `isDisabled`, …). (0.2.0-alpha.1)
+- **Kept components keep their props** but render Astryx, style in
+  `@layer ui-common` and take `uic-` class names (`page-header` →
+  `uic-page-header`). CSS, tests and DOM queries on the old names need
+  updating. (0.2.0-alpha.1)
+- **Dialogs:** Astryx `Dialog` and `AlertDialog` are hidden; use `Modal` and
+  `AlertModal`. An open `Modal` makes the rest of the page `inert`; an
+  overlay of the app's own that must stay usable over it needs
+  `data-uic-modal-live`. (0.2.0-alpha.1, 0.2.0-alpha.5, 0.2.0-alpha.7)
+- **Stylesheets and theme:** `styles/base.css` becomes the layer statement
+  plus `reset.css`, `astryx.css`, `theme/lablup/theme.css`, `ui-common.css`
+  (and `legacy-tokens.css` while `--token-*` names are still read); drop
+  `styles/themes/*.css`. Wrap the app in `<Theme theme={lablupTheme}>` from
+  `theme/lablup/built`. `--token-*`, `styles/base.css` and
+  `styles/themes/*.css` are deprecated and go in 0.3. (0.2.0-alpha.0)
+- **Strings** resolve through Astryx's `InternationalizationProvider`; pass
+  `uiCommonMessages` from `@lablup/ui-common/i18n-catalog`. Shared keys are
+  `uic.common.*`. (0.2.0-alpha.0, 0.2.0-alpha.3)
+- **Custom properties** follow Astryx's naming: the theme's info hue is
+  `--color-info`, component knobs are `--<component>-<property>`
+  (DigitPopIn's are their 0.1 names again), and no `--uic-*` name remains.
+  (0.2.0-alpha.12)
 
 ## [0.2.0-alpha.14]
 
@@ -540,7 +660,7 @@ upgrade tool.
 The component layer moves onto Astryx: the 0.1 look-alikes are gone, the
 components Astryx has no counterpart for are rebuilt on it with their 0.1
 props, and `Modal` takes the place of the hidden `Dialog`.
-[`migration/0.1-to-0.2.json`](migration/0.1-to-0.2.json) lists every change
+[`migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every change
 below in the form `ui-common upgrade` reads.
 
 ### Removed
@@ -1309,7 +1429,26 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.19...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.14...HEAD
+[0.2.0-alpha.14]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.13...v0.2.0-alpha.14
+[0.2.0-alpha.13]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.12...v0.2.0-alpha.13
+[0.2.0-alpha.12]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.11...v0.2.0-alpha.12
+[0.2.0-alpha.11]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.10...v0.2.0-alpha.11
+[0.2.0-alpha.10]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.9...v0.2.0-alpha.10
+[0.2.0-alpha.9]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.8...v0.2.0-alpha.9
+[0.2.0-alpha.8]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.7...v0.2.0-alpha.8
+[0.2.0-alpha.7]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.6...v0.2.0-alpha.7
+[0.2.0-alpha.6]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.5...v0.2.0-alpha.6
+[0.2.0-alpha.5]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.4...v0.2.0-alpha.5
+[0.2.0-alpha.4]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.3...v0.2.0-alpha.4
+[0.2.0-alpha.3]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.2...v0.2.0-alpha.3
+[0.2.0-alpha.2]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.1...v0.2.0-alpha.2
+[0.2.0-alpha.1]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.0...v0.2.0-alpha.1
+[0.2.0-alpha.0]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.23...v0.2.0-alpha.0
+[0.1.0-alpha.23]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.22...v0.1.0-alpha.23
+[0.1.0-alpha.22]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.21...v0.1.0-alpha.22
+[0.1.0-alpha.21]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.20...v0.1.0-alpha.21
+[0.1.0-alpha.20]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.19...v0.1.0-alpha.20
 [0.1.0-alpha.19]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.18...v0.1.0-alpha.19
 [0.1.0-alpha.18]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.17...v0.1.0-alpha.18
 [0.1.0-alpha.17]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.16...v0.1.0-alpha.17

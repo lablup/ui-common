@@ -3,5 +3,5 @@ coverage/
 pnpm-lock.yaml
 LICENSE
 src/theme/*/built/
-test/upgrade/fixtures/
+packages/cli/test/upgrade/fixtures/
 .claude/

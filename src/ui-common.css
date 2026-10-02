@@ -5,7 +5,9 @@
  * not live here: each component imports its own stylesheet. This file holds
  * only rules that have no component to hang on.
  *
- * Declare the layer order once in your app, before any of these imports:
+ * The build puts the layer order statement (scripts/layer-order.mjs) at the
+ * top of this and every other shipped stylesheet, since a component's sheet
+ * usually reaches the page before the app's own statement does:
  *
  *   @layer reset, theme, base, astryx-base, astryx-theme, ui-common,
  *     components, utilities;

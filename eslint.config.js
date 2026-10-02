@@ -13,7 +13,7 @@ export default tseslint.config(
       // `astryx theme build` output, committed as generated.
       "src/theme/*/built/**",
       // Consumer code the upgrade codemods run on, and their expected output.
-      "test/upgrade/fixtures/**",
+      "packages/cli/test/upgrade/fixtures/**",
       // Agent worktrees: other checkouts of this repository, with their own dist.
       ".claude/**",
     ],
@@ -77,9 +77,7 @@ export default tseslint.config(
   {
     files: [
       "scripts/**/*.mjs",
-      "bin/**/*.mjs",
-      "cli/**/*.mjs",
-      "codemods/**/*.mjs",
+      "packages/cli/{bin,cli,codemods,scripts}/**/*.mjs",
       "*.config.{js,ts}",
     ],
     languageOptions: { globals: globals.node },

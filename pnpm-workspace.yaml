@@ -2,6 +2,12 @@
 # published package; consumers resolve @lablup/ui-common's dependencies under
 # their own pnpm settings.
 
+# The library is the repository root; its CLI is packages/cli
+# (@lablup/ui-common-cli), published separately at the same version.
+packages:
+  - "."
+  - "packages/*"
+
 # @astryxdesign/lab is a canary build. Canary releases never age out of a
 # release-age quarantine by design, so it is excluded for as long as the exact
 # pin exists (the same exclusion backend.ai-webui carries).
