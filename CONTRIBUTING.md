@@ -170,7 +170,7 @@ the recorded version or file. On an Astryx bump:
 | `DoubleBadge`                                                  | `src/components/DoubleBadge/`        | `Badge`, `HStack`                                   |
 | `BooleanToken`                                                 | `src/components/BooleanToken/`       | `Token`                                             |
 | `IconWithTooltip`                                              | `src/components/IconWithTooltip/`    | `Tooltip`, `Text`                                   |
-| `ImageWithFallback`                                            | `src/components/ImageWithFallback/`  | plain `<img>`                                       |
+| `ImageWithFallback`                                            | `src/components/ImageWithFallback/`  | plain `<img>`, plain CSS                            |
 | `NotificationStack`                                            | `src/components/NotificationStack/`  | `Banner`, `Button`, `ProgressBar`, `Stack`, `Text`  |
 | `OverlayScrollbar`                                             | `src/components/OverlayScrollbar/`   | plain CSS                                           |
 | `ConfirmPopover`                                               | `src/components/ConfirmPopover/`     | `Popover`, `Button`, `Stack`, `Text`                |

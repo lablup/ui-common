@@ -14,7 +14,13 @@ export default {
     "An img that renders a fallback node, typically an icon, once the image fails to load. The failure is remembered per src. Astryx Avatar and Thumbnail fall back to another image; this falls back to any node.",
   props: [
     { name: "src", type: "string", description: "Image source.", required: true },
-    { name: "alt", type: "string", description: "Alternative text.", required: true },
+    {
+      name: "alt",
+      type: "string",
+      description:
+        "Alternative text. It also names the fallback; an empty alt hides the fallback from assistive technology.",
+      required: true,
+    },
     {
       name: "fallbackIcon",
       type: "ReactNode",

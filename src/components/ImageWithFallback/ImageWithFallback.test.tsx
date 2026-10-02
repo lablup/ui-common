@@ -24,7 +24,7 @@ describe("ImageWithFallback", () => {
   it("swaps in the fallback once the image fails to load", () => {
     render(<ImageWithFallback src="/a.png" alt="Vendor" fallbackIcon={fallback} />);
     fireEvent.error(screen.getByRole("img"));
-    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(document.querySelector("img")).not.toBeInTheDocument();
     expect(screen.getByTestId("fallback")).toBeInTheDocument();
   });
 
@@ -36,5 +36,21 @@ describe("ImageWithFallback", () => {
     rerender(<ImageWithFallback src="/b.png" alt="Vendor" fallbackIcon={fallback} />);
     expect(screen.getByRole("img")).toHaveAttribute("src", "/b.png");
     expect(screen.queryByTestId("fallback")).not.toBeInTheDocument();
+  });
+
+  it("keeps the image's accessible name on the fallback", () => {
+    render(<ImageWithFallback src="/a.png" alt="Vendor" fallbackIcon={fallback} />);
+    fireEvent.error(screen.getByRole("img"));
+    const named = screen.getByRole("img", { name: "Vendor" });
+    expect(named).toContainElement(screen.getByTestId("fallback"));
+  });
+
+  it("keeps a decorative image's fallback out of the accessibility tree", () => {
+    render(<ImageWithFallback src="/a.png" alt="" fallbackIcon={fallback} />);
+    fireEvent.error(document.querySelector("img") as HTMLImageElement);
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("fallback").closest("[aria-hidden='true']"),
+    ).not.toBeNull();
   });
 });
