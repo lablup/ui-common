@@ -66,17 +66,16 @@ jobs:
             exit 1
           fi
 
+      # Every release from this branch is a patch of the 0.1 line, published
+      # under `release-0.1` only: `next` and `latest` belong to main's line,
+      # and `alpha` is no longer moved (scripts/dist-tag.mjs).
       - name: Choose the dist-tag from the version
         id: tag
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          case "$VERSION" in
-            *-alpha*) TAG=alpha ;;
-            *-beta*)  TAG=beta ;;
-            *-rc*)    TAG=rc ;;
-            *-*)      TAG=next ;;
-            *)        TAG=latest ;;
-          esac
+          git fetch --no-tags --depth=1 origin main
+          MAIN_VERSION=$(git show FETCH_HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+          TAG=$(node scripts/dist-tag.mjs "$VERSION" "$MAIN_VERSION")
           echo "Publishing $VERSION under dist-tag $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
@@ -140,17 +139,16 @@ jobs:
             exit 1
           fi
 
+      # Every release from this branch is a patch of the 0.1 line, published
+      # under `release-0.1` only: `next` and `latest` belong to main's line,
+      # and `alpha` is no longer moved (scripts/dist-tag.mjs).
       - name: Choose the dist-tag from the version
         id: tag
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          case "$VERSION" in
-            *-alpha*) TAG=alpha ;;
-            *-beta*)  TAG=beta ;;
-            *-rc*)    TAG=rc ;;
-            *-*)      TAG=next ;;
-            *)        TAG=latest ;;
-          esac
+          git fetch --no-tags --depth=1 origin main
+          MAIN_VERSION=$(git show FETCH_HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+          TAG=$(node scripts/dist-tag.mjs "$VERSION" "$MAIN_VERSION")
           echo "Publishing $VERSION under dist-tag $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 

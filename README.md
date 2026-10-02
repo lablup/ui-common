@@ -1,5 +1,12 @@
 # @lablup/ui-common
 
+> **This is the 0.1 maintenance branch.** 0.1 gets fixes only, released as
+> patches of the 0.1 line under the `release-0.1` dist-tag. New work is 0.2,
+> on [`main`](https://github.com/lablup/ui-common/tree/main), which rebuilds
+> the package on Astryx; its README explains the upgrade. To fix a 0.1 bug,
+> open the pull request against `release/0.1`
+> ([CONTRIBUTING.md](CONTRIBUTING.md#releasing)).
+
 Product-neutral UI components and design tokens shared across Lablup products.
 
 Consumers are Lablup product frontends, including
@@ -11,8 +18,13 @@ a component impossible to share.
 ## Install
 
 ```
-pnpm add @lablup/ui-common
+pnpm add @lablup/ui-common@release-0.1
 ```
+
+`release-0.1` is the newest 0.1 patch. Without it, `latest` resolves to 0.1
+only until 0.2.0 is published. 0.1 has no plain release, so its patches
+continue the prerelease sequence (`0.1.0-alpha.24`, …): a `^0.1.0-alpha.N`
+range picks them up, and an exact pin moves by hand.
 
 That is npmjs, which needs no authentication and is the right route for
 essentially everyone, including open-source consumers and forked CI.
