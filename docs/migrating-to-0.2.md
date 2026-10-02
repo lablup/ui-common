@@ -6,6 +6,11 @@ WebUI) moved onto 0.2, and how to avoid each problem. Every item below
 happened at least once. Read it before you start, and use the checklist at the
 end before you merge.
 
+An app that imports Astryx directly, rather than ui-common 0.1, follows
+[adopting-from-astryx.md](adopting-from-astryx.md): `ui-common adopt --from astryx`
+does the mechanical part of sections 1, 2 and 4 below, and `ui-common doctor`
+checks most of the list at the end, in any project on 0.2.
+
 ## 1. Dependencies and install
 
 **Two copies of Astryx core, silently.** The lab canary peers on an exact

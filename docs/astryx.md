@@ -172,6 +172,11 @@ apart from the library, the CLI toolchain stays out of production installs, as
 - **`agents`.** Astryx renders its agent block in memory; ui-common rewrites
   it, adds its own rules, and keeps it between UI-COMMON markers, which
   `astryx init` and `astryx upgrade` leave alone.
+- **`adopt --from astryx`** and **`doctor`.** The move of an app that imports
+  Astryx directly onto ui-common, and read-only checks of a project's wiring;
+  [adopting-from-astryx.md](adopting-from-astryx.md). The `ui-common-adopt`
+  agent skill (`packages/cli/skill/`) ships with them; `agents --skill`
+  installs it.
 - **`upgrade`.** Codemod steps keyed by ui-common version, on jscodeshift and
   postcss (the engines the Astryx CLI uses). See
   [CONTRIBUTING.md](../CONTRIBUTING.md#the-upgrade-tool).
@@ -196,4 +201,6 @@ moves them fails the tests.
 | `pnpm run check:integration`             | the CLI accepts the manifest, and the tarball carries it                                                                                                                                               |
 | `packages/cli/test/upgrade/`             | the upgrade codemods turn each fixture project into its expected output, and a second run changes nothing                                                                                              |
 | `packages/cli/test/cli/`                 | output rewriting, the agent block, the registry, upstream codemods, and `sync-astryx`'s guards                                                                                                         |
+| `packages/cli/test/adopt/`               | `adopt --from astryx` turns each direct-Astryx fixture (app, workspace, npm) into its expected output, a second run changes nothing, and `--check` fails until it has run                              |
+| `packages/cli/test/doctor/`              | each `doctor` check passes on a correctly wired project and fails on the breakage it exists for, with pnpm, npm and workspaces                                                                         |
 | CI `external-install`                    | both tarballs install with pnpm in a clean project, which type-checks and builds with Astryx's sheets in the bundle and runs the `ui-common` bin                                                       |
