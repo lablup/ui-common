@@ -529,13 +529,17 @@ new components, props or exports, and no Astryx bump.
    `release/0.1`, bump `package.json` and add the `CHANGELOG.md` entry there.
    0.1 has no plain release, so its patches continue the prerelease sequence
    (`0.1.0-alpha.24`, …); a line that has a plain release patches as
-   `<line>.<n+1>` (`0.2.1`). A version from another line is refused at publish.
+   `<line>.<n+1>` (`0.2.1`). Publishing refuses only a version ahead of
+   `main`'s line, not one from another older line, so check the version
+   before tagging.
 3. **Release.** Create the GitHub release on the branch, never on `main`:
 
    ```
    gh release create v0.1.0-alpha.24 --target release/0.1 --prerelease --latest=false \
-     --title v0.1.0-alpha.24 --notes-file <the CHANGELOG entry>
+     --title v0.1.0-alpha.24 --notes-file notes.md
    ```
+
+   `notes.md` holds the CHANGELOG entry.
 
    A release runs the publish workflow as it is at the tagged commit, so the
    branch's own `publish.yml` publishes, and it moves only `release-0.1`.
