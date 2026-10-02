@@ -37,7 +37,7 @@ function isSorted(object) {
  * @param {string} name
  * @param {string} range
  */
-function addDependency(pkg, field, name, range) {
+export function addDependency(pkg, field, name, range) {
   const current = pkg[field] ?? {};
   const next = { ...current, [name]: range };
   pkg[field] = isSorted(current)
@@ -166,7 +166,7 @@ export function narrowReactRange(range, floor) {
  * @param {any} pkg parsed package.json, edited in place
  * @param {{projectDir?: string, note: (message: string) => void, editFile?: (path: string, edit: (current: string | null) => string | undefined) => void}} ctx
  */
-function addLabOverride(pkg, ctx) {
+export function addLabOverride(pkg, ctx) {
   const pin = uiCommonPackageJson(targetUiCommonRoot(ctx.projectDir)).dependencies?.[
     CORE
   ];

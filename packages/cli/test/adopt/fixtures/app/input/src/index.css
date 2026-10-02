@@ -1,0 +1,13 @@
+/* App entry stylesheet. */
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
+
+@import "@astryxdesign/core/reset.css";
+@import "@astryxdesign/core/astryx.css";
+@import "@astryxdesign/theme-neutral/theme.css";
+@import "@astryxdesign/lab/lab.css";
+
+@layer components {
+  .console-shell {
+    min-height: 100vh;
+  }
+}

@@ -1,0 +1,9 @@
+@use "sass:math";
+
+@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
+
+@import "@lablup/ui-common/reset.css";
+
+.panel {
+  padding: math.div(16px, 2);
+}

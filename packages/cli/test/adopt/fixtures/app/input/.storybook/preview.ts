@@ -1,0 +1,4 @@
+import "@astryxdesign/core/reset.css";
+import "@astryxdesign/core/astryx.css";
+
+export default {};

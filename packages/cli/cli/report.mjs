@@ -6,6 +6,8 @@
 
 /** The report's first line; `ui-common upgrade` overwrites only a file that starts with it. */
 export const REPORT_HEADING = "# ui-common upgrade report";
+/** The same for `ui-common adopt`, which writes the same format. */
+export const ADOPT_REPORT_HEADING = "# ui-common adopt report";
 
 /** @param {string} text */
 function code(text) {
@@ -39,12 +41,15 @@ function escapeCell(text) {
  * @param {string[]} [data.notices] where the run did something other than the usual
  * @param {string[]} [data.alerts] what has to be done before the app works; first in the report
  * @param {number} data.tokenReads
+ * @param {string} [data.heading] the first line (default: the upgrade report's)
+ * @param {string} [data.command] the command the report names (default: `ui-common upgrade`)
+ * @param {Array<{row: string, count: number}>} [data.rewrites] specifier rewrites by kind
  */
 export function renderReport(data) {
   const out = [];
-  out.push(REPORT_HEADING, "");
+  out.push(data.heading ?? REPORT_HEADING, "");
   out.push(
-    `\`ui-common upgrade\` ${data.from} → ${data.to} (@lablup/ui-common-cli ${data.version})` +
+    `\`${data.command ?? "ui-common upgrade"}\` ${data.from} → ${data.to} (@lablup/ui-common-cli ${data.version})` +
       `${data.dryRun ? ", **dry run: nothing was written**" : ""}.`,
     "",
     `Ran the codemods over ${data.fileCount} file${data.fileCount === 1 ? "" : "s"} under ${data.roots.map(code).join(", ")}` +
@@ -78,6 +83,13 @@ export function renderReport(data) {
   out.push("## Steps", "");
   for (const step of data.steps) out.push(`- ${step.version}: ${step.title}`);
   out.push("");
+
+  if (data.rewrites && data.rewrites.length > 0) {
+    out.push("## Rewritten specifiers", "");
+    out.push("| Kind | Count |", "|---|---:|");
+    for (const r of data.rewrites) out.push(`| ${escapeCell(r.row)} | ${r.count} |`);
+    out.push("");
+  }
 
   if (data.errors.length > 0) {
     out.push(

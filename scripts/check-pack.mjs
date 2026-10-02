@@ -61,7 +61,7 @@ const FORBIDDEN_IN_TARBALL = [
 /** What only the CLI package ships. */
 const CLI_ONLY = [
   {
-    pattern: /^(bin|cli|codemods|migration)\//,
+    pattern: /^(bin|cli|codemods|migration|skill)\//,
     reason: "the CLI ships in @lablup/ui-common-cli",
   },
 ];
@@ -321,6 +321,7 @@ for (const required of [
   "migration/0.1-to-0.2.json",
   "codemods/registry.mjs",
   "cli/main.mjs",
+  "skill/ui-common-adopt/SKILL.md",
   "LICENSE",
   "NOTICE",
 ]) {
