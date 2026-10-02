@@ -122,7 +122,8 @@ const DISCLOSURE = [
   },
 ];
 
-// The CLI package ships its sources as they are, so they are scanned like docs.
+// The CLI package ships its sources (and its agent skill) as they are, so they
+// are scanned like docs; so are the guides under docs/.
 const docFiles = globSync(
   [
     "*.md",
@@ -131,6 +132,8 @@ const docFiles = globSync(
     "packages/*/*.md",
     "packages/*/NOTICE",
     "packages/cli/{bin,cli,codemods,migration}/**/*.{mjs,json}",
+    "packages/cli/skill/**/*.md",
+    "docs/**/*.md",
   ],
   { cwd: root, absolute: true },
 );

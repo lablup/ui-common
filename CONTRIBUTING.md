@@ -451,6 +451,18 @@ UPDATE_FIXTURES=1 pnpm vitest run packages/cli/test/upgrade
 and read the diff. Fixtures are consumer code: keep them free of product
 names, like the rest of this repository.
 
+`ui-common adopt --from astryx` (`packages/cli/cli/adopt.mjs`, codemods in
+`packages/cli/codemods/adopt/`) is not a version step: it moves a project from
+Astryx itself, so it is its own command and needs no registry entry. Its
+fixtures are under `packages/cli/test/adopt/fixtures/` and regenerate the same
+way (`UPDATE_FIXTURES=1 pnpm vitest run packages/cli/test/adopt`).
+`ui-common doctor` (`packages/cli/cli/doctor.mjs`) shares its project reading
+(`packages/cli/cli/project.mjs`). A new doctor check gets a section of
+[docs/adopting-from-astryx.md](docs/adopting-from-astryx.md#doctor-checks)
+headed by its id, which is the anchor the check prints. The agent skill
+(`packages/cli/skill/ui-common-adopt/SKILL.md`) names the commands' judgement
+calls only; keep it under ~150 lines and in step with both.
+
 ## Versioning
 
 Semver. The public surface is: exported components and their props, exported

@@ -5,6 +5,41 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`ui-common adopt --from astryx`**: moves an app that imports Astryx
+  directly (`@astryxdesign/core`, `/lab`, `/theme-neutral`) onto ui-common in
+  one pass. It rewrites every module specifier in scripts (imports,
+  `export … from`, `import()`, `require()`, `typeof import()`, `vi.mock()`) and
+  stylesheets to the ui-common mirror, renames `Dialog` / `AlertDialog` to
+  `Modal` / `AlertModal`, adds `ui-common` to the cascade-layer order (and the
+  statement to an entry stylesheet or `index.html` without one), edits
+  `package.json` in every workspace member (`@lablup/ui-common` and the CLI at
+  the CLI's version, core kept only at ui-common's pin, theme-neutral and an
+  unused lab dropped, the lab override, pnpm `allowBuilds`), and writes
+  `ui-common-adopt-report.md` in the upgrade report's format: local Astryx
+  patches (and which a ui-common fork covers), `Modal` refs, body overlays,
+  global shortcuts, Escape handlers, ASTRYX agent blocks and tools anchored on
+  them, `astryx` CLI calls, and i18n wiring. `--dry-run`, `--check` (exit 1
+  while anything is left, for CI), `--ignore`; `upgrade --from astryx` is an
+  alias.
+- **`ui-common doctor [--json]`**: read-only checks with a fix and a doc
+  section each, exit 1 on a failure: one `@astryxdesign/core` (lockfile and
+  disk, pnpm and npm) with lab on it, the lab override, no direct Astryx
+  import, the layer order (present, first, with `ui-common`, identical in every
+  copy), the Vite pre-bundle fix under `@stylexjs/unplugin`, Vitest inlining
+  ui-common, i18n wiring, the agent block, matching ui-common / ui-common-cli
+  versions, and Node for the CLI. It covers every member of a workspace, and
+  run from a member it reads the workspace root. `doctor <subcommand>` still
+  reaches Astryx's doctor.
+- **The `ui-common-adopt` agent skill**, shipped in `@lablup/ui-common-cli`
+  and installed with `ui-common agents --skill [--dir <dir>]`: the adopt,
+  doctor and verification sequence, with the decisions only a person makes.
+  The agent block names it once it is installed in the project.
+- [docs/adopting-from-astryx.md](docs/adopting-from-astryx.md): the guide for
+  direct-Astryx apps, with each doctor check explained and a prompt for a
+  coding agent.
+
 ### Changed
 
 - 0.1 is maintained on the `release/0.1` branch. Its patch releases publish
