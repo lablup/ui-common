@@ -14,6 +14,8 @@ export default tseslint.config(
       "src/theme/*/built/**",
       // Consumer code the upgrade codemods run on, and their expected output.
       "packages/cli/test/upgrade/fixtures/**",
+      // Agent worktrees: other checkouts of this repository, with their own dist.
+      ".claude/**",
     ],
   },
   js.configs.recommended,

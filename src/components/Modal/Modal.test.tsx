@@ -9,8 +9,9 @@
 import { StrictMode, useState, type ComponentProps } from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DialogHeader as CoreDialogHeader } from "@astryxdesign/core/Dialog";
+import { IconButton } from "@astryxdesign/core/IconButton";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
 import { Layout, LayoutContent } from "@astryxdesign/core/Layout";
 import { Theme, defineTheme } from "@astryxdesign/core/theme";
@@ -245,6 +246,106 @@ describe("Modal dismissal", () => {
     view.unmount();
     expect(document.activeElement).toBe(trigger);
     trigger.remove();
+  });
+});
+
+/**
+ * A tooltip is a layer on Astryx's dismissal stack while it shows, so Escape
+ * closes it before the modal. These pin that the modal is never left behind a
+ * tooltip that is gone. jsdom has no Popover API; the stub stands in for it.
+ */
+describe("Modal dismissal with a tooltip inside", () => {
+  const openTooltip = () => document.querySelector('[role="tooltip"][popover-open]');
+
+  beforeEach(() => {
+    const originalMatches = HTMLElement.prototype.matches;
+    HTMLElement.prototype.showPopover = function (this: HTMLElement) {
+      this.setAttribute("popover-open", "");
+    };
+    HTMLElement.prototype.hidePopover = function (this: HTMLElement) {
+      this.removeAttribute("popover-open");
+    };
+    vi.spyOn(HTMLElement.prototype, "matches").mockImplementation(function (
+      this: HTMLElement,
+      selector: string,
+    ) {
+      if (selector === ":popover-open") return this.hasAttribute("popover-open");
+      return originalMatches.call(this, selector);
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(HTMLElement.prototype, "showPopover");
+    Reflect.deleteProperty(HTMLElement.prototype, "hidePopover");
+  });
+
+  // A control that swaps itself for an editor on click, as an inline rename's
+  // pencil does: the trigger unmounts, and its tooltip with it.
+  function InlineEdit() {
+    const [isEditing, setIsEditing] = useState(false);
+    return isEditing ? (
+      <input
+        aria-label="name"
+        autoFocus
+        onKeyDown={(event) => {
+          if (event.key !== "Escape") return;
+          event.stopPropagation();
+          setIsEditing(false);
+        }}
+      />
+    ) : (
+      <IconButton
+        label="Edit"
+        tooltip="Edit"
+        icon={<span />}
+        onClick={() => setIsEditing(true)}
+      />
+    );
+  }
+
+  function renderInlineEdit() {
+    const onOpenChange = vi.fn();
+    render(
+      <Modal isOpen onOpenChange={onOpenChange} title="Folder">
+        <InlineEdit />
+      </Modal>,
+    );
+    return onOpenChange;
+  }
+
+  it("gives one Escape to an open tooltip and the next to the modal", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = renderInlineEdit();
+
+    await user.hover(screen.getByRole("button", { name: "Edit" }));
+    await waitFor(() => expect(openTooltip()).toHaveTextContent("Edit"));
+
+    await user.keyboard("{Escape}");
+    expect(openTooltip()).toBeNull();
+    expect(onOpenChange).not.toHaveBeenCalled();
+
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false);
+  });
+
+  it("owes nothing to the tooltip of a trigger that unmounted while hovered", async () => {
+    const user = userEvent.setup();
+    const onOpenChange = renderInlineEdit();
+
+    await user.hover(screen.getByRole("button", { name: "Edit" }));
+    await waitFor(() => expect(openTooltip()).toHaveTextContent("Edit"));
+    await user.click(screen.getByRole("button", { name: "Edit" }));
+    expect(openTooltip()).toBeNull();
+
+    // The editor claims this press for itself and puts the trigger back.
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
+    expect(openTooltip()).toBeNull();
+
+    await user.keyboard("{Escape}");
+    expect(onOpenChange).toHaveBeenCalledExactlyOnceWith(false);
   });
 });
 

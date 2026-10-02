@@ -298,7 +298,11 @@ export default defineConfig({
     css: true,
     // The CLI package's tests (packages/cli/test) run here too, under the same
     // setup. Its upgrade fixtures are consumer source the codemods run on, not
-    // tests.
-    exclude: [...configDefaults.exclude, "packages/cli/test/upgrade/fixtures/**"],
+    // tests; agent worktrees are other checkouts of this repository.
+    exclude: [
+      ...configDefaults.exclude,
+      "packages/cli/test/upgrade/fixtures/**",
+      ".claude/**",
+    ],
   },
 });
