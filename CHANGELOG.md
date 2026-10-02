@@ -5,6 +5,14 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Changed
+
+- 0.1 is maintained on the `release/0.1` branch. Its patch releases publish
+  under the `release-0.1` dist-tag and never move `next` or `latest`; the
+  publish workflow picks the tag by comparing the version with `main`'s
+  (`scripts/dist-tag.mjs`). README's Install now names `@next`, since
+  `latest` is still 0.1 until 0.2.0.
+
 ## [0.2.0-alpha.15]
 
 Hardening for the apps moving off 0.1: ui-common's styles now sit in their

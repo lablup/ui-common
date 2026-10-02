@@ -15,13 +15,41 @@ Consumers are Lablup product frontends, including
 only. It has no API client, no application state, no router, and no
 desktop-shell integration.
 
+## Versions
+
+| Line | Branch        | State                        | Install                         |
+| ---- | ------------- | ---------------------------- | ------------------------------- |
+| 0.2  | `main`        | Developed here (prereleases) | `@lablup/ui-common@next`        |
+| 0.1  | `release/0.1` | Maintained: fixes only       | `@lablup/ui-common@release-0.1` |
+
+Until 0.2.0 is published, the `latest` dist-tag still points at 0.1's last
+alpha, so a bare `pnpm add @lablup/ui-common` installs 0.1: name `@next` for
+0.2.
+
+An app that stays on 0.1 keeps getting fixes as patch releases of the 0.1
+line, published under the `release-0.1` dist-tag, never under `next` or
+`latest`. 0.1 never had a plain release, so its fixes continue its prerelease
+sequence (`0.1.0-alpha.24`, `0.1.0-alpha.25`, …), which a `^0.1.0-alpha.N`
+range already accepts; an exact pin moves by hand:
+
+```
+pnpm add @lablup/ui-common@release-0.1
+```
+
+0.1's own README and CHANGELOG are on the
+[`release/0.1`](https://github.com/lablup/ui-common/tree/release/0.1) branch.
+To fix a bug in 0.1, open the pull request against `release/0.1`
+([CONTRIBUTING.md](CONTRIBUTING.md#patching-an-older-line)). Moving to 0.2 is
+[Upgrading from 0.1](#upgrading-from-01).
+
 ## Install
 
 ```
-pnpm add @lablup/ui-common @stylexjs/stylex
+pnpm add @lablup/ui-common@next @stylexjs/stylex
 ```
 
-That is npmjs, which needs no authentication.
+That is npmjs, which needs no authentication. Drop `@next` once 0.2.0 is
+published ([Versions](#versions)).
 
 Peer dependencies:
 

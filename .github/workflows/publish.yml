@@ -22,12 +22,45 @@ permissions:
   contents: read
 
 jobs:
+  # Decided once, before either registry publishes: two jobs each reading
+  # main could disagree if main moved to a new line between them.
+  # main's line publishes a prerelease under `next` and a plain version
+  # under `latest`; an older line, released from its release/<line>
+  # branch, under `release-<line>` only (scripts/dist-tag.mjs). 0.1's
+  # alphas before the release/0.1 branch went out under `alpha`; that tag
+  # is no longer moved. The registry still sets `latest` on a package's
+  # first publish, so @lablup/ui-common-cli's `latest` is its first alpha
+  # until 0.2.0; the docs say `@next` until then. Do not move `latest` here.
+  dist-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      version: ${{ steps.tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - name: Choose the dist-tag from the version
+        id: tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git fetch --no-tags --depth=1 origin main
+          MAIN_VERSION=$(git show FETCH_HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+          TAG=$(node scripts/dist-tag.mjs "$VERSION" "$MAIN_VERSION")
+          echo "Publishing $VERSION under dist-tag $TAG (main is at $MAIN_VERSION)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
   # Consumed by internal projects that already authenticate to GitHub.
   github-packages:
     if: >-
       github.event_name == 'release' ||
       inputs.target == 'both' || inputs.target == 'github-packages'
     runs-on: ubuntu-latest
+    needs: dist-tag
     environment: release
     permissions:
       contents: read
@@ -80,23 +113,6 @@ jobs:
             fi
           done
 
-      # Any prerelease goes to `next`, a plain version to `latest`. 0.1's
-      # prereleases went out under `alpha`; that tag is no longer moved.
-      # The registry still sets `latest` on a package's first publish, so
-      # @lablup/ui-common-cli's `latest` is its first alpha until 0.2.0; the
-      # docs say `@next` until then. Do not move `latest` here.
-      - name: Choose the dist-tag from the version
-        id: tag
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          case "$VERSION" in
-            *-*) TAG=next ;;
-            *)   TAG=latest ;;
-          esac
-          echo "Publishing $VERSION under dist-tag $TAG"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       # pnpm packs both, rewriting the CLI's `workspace:*` peer to the exact
       # version; the library goes first so the CLI's peer exists when it lands.
       - name: Pack both packages
@@ -110,7 +126,7 @@ jobs:
         if: github.event_name == 'release' || inputs.dry_run == false
         run: |
           for PKG in lablup-ui-common lablup-ui-common-cli; do
-            npm publish "$RUNNER_TEMP/packed/$PKG-${{ steps.tag.outputs.version }}.tgz" --access public --tag ${{ steps.tag.outputs.tag }} --registry https://npm.pkg.github.com
+            npm publish "$RUNNER_TEMP/packed/$PKG-${{ needs.dist-tag.outputs.version }}.tgz" --access public --tag ${{ needs.dist-tag.outputs.tag }} --registry https://npm.pkg.github.com
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -119,7 +135,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
         run: |
           for PKG in lablup-ui-common lablup-ui-common-cli; do
-            npm publish "$RUNNER_TEMP/packed/$PKG-${{ steps.tag.outputs.version }}.tgz" --dry-run --access public --tag ${{ steps.tag.outputs.tag }} --registry https://npm.pkg.github.com
+            npm publish "$RUNNER_TEMP/packed/$PKG-${{ needs.dist-tag.outputs.version }}.tgz" --dry-run --access public --tag ${{ needs.dist-tag.outputs.tag }} --registry https://npm.pkg.github.com
           done
 
   # GitHub Packages requires authentication even for public packages, so an
@@ -131,6 +147,7 @@ jobs:
       github.event_name == 'release' ||
       inputs.target == 'both' || inputs.target == 'npmjs'
     runs-on: ubuntu-latest
+    needs: dist-tag
     environment: release
     permissions:
       contents: read
@@ -186,23 +203,6 @@ jobs:
             fi
           done
 
-      # Any prerelease goes to `next`, a plain version to `latest`. 0.1's
-      # prereleases went out under `alpha`; that tag is no longer moved.
-      # The registry still sets `latest` on a package's first publish, so
-      # @lablup/ui-common-cli's `latest` is its first alpha until 0.2.0; the
-      # docs say `@next` until then. Do not move `latest` here.
-      - name: Choose the dist-tag from the version
-        id: tag
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          case "$VERSION" in
-            *-*) TAG=next ;;
-            *)   TAG=latest ;;
-          esac
-          echo "Publishing $VERSION under dist-tag $TAG"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       # pnpm packs both, rewriting the CLI's `workspace:*` peer to the exact
       # version; the library goes first so the CLI's peer exists when it lands.
       - name: Pack both packages
@@ -224,7 +224,7 @@ jobs:
         if: github.event_name == 'release' || inputs.dry_run == false
         run: |
           for PKG in lablup-ui-common lablup-ui-common-cli; do
-            npm publish "$RUNNER_TEMP/packed/$PKG-${{ steps.tag.outputs.version }}.tgz" --provenance --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
+            npm publish "$RUNNER_TEMP/packed/$PKG-${{ needs.dist-tag.outputs.version }}.tgz" --provenance --access public --tag ${{ needs.dist-tag.outputs.tag }} --registry https://registry.npmjs.org
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -233,7 +233,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
         run: |
           for PKG in lablup-ui-common lablup-ui-common-cli; do
-            npm publish "$RUNNER_TEMP/packed/$PKG-${{ steps.tag.outputs.version }}.tgz" --dry-run --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
+            npm publish "$RUNNER_TEMP/packed/$PKG-${{ needs.dist-tag.outputs.version }}.tgz" --dry-run --access public --tag ${{ needs.dist-tag.outputs.tag }} --registry https://registry.npmjs.org
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
