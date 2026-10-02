@@ -99,6 +99,38 @@ describe("NotificationStack", () => {
     expect(renderedKeys()).toEqual(["n0"]);
   });
 
+  it("unmounts a removed notice after its exit when maxVisible is set", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(
+      <NotificationStack data-testid="stack" notifications={items(2)} maxVisible={3} />,
+    );
+    rerender(
+      <NotificationStack data-testid="stack" notifications={items(1)} maxVisible={3} />,
+    );
+    expect(renderedKeys()).toEqual(["n1", "n0"]);
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+    expect(renderedKeys()).toEqual(["n0"]);
+  });
+
+  it("unmounts a removed notice although the list changes during its exit", () => {
+    vi.useFakeTimers();
+    const { rerender } = render(
+      <NotificationStack data-testid="stack" notifications={items(2)} />,
+    );
+    rerender(<NotificationStack data-testid="stack" notifications={items(1)} />);
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+    // A running task rebuilds the array without changing what is in it.
+    rerender(<NotificationStack data-testid="stack" notifications={[...items(1)]} />);
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+    expect(renderedKeys()).toEqual(["n0"]);
+  });
+
   it("closes through the dismiss button", async () => {
     const onClose = vi.fn();
     render(
