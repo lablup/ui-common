@@ -450,11 +450,15 @@ Let the upgrade tool do the mechanical part. It ships in
 `@lablup/ui-common-cli`, so run it one-off from the project still on 0.1:
 
 ```
-pnpm dlx @lablup/ui-common-cli upgrade --from 0.1 --dry-run   # writes nothing; prints the changes and the report
-pnpm dlx @lablup/ui-common-cli upgrade --from 0.1             # applies it
+pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1 --dry-run   # writes nothing; prints the changes and the report
+pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1             # applies it
 ```
 
-(`npx @lablup/ui-common-cli upgrade --from 0.1` with npm.) It bumps
+(`npx @lablup/ui-common-cli@next upgrade --from 0.1` with npm.) Keep the
+`@next` while 0.2 is in prerelease: the CLI has published only prereleases,
+which go to the `next` dist-tag, and npm points `latest` at a package's first
+publish, so a bare `@lablup/ui-common-cli` resolves to its first alpha. Drop
+`@next` once 0.2.0 is published. It bumps
 `@lablup/ui-common` in `package.json` and adds `@lablup/ui-common-cli` as a
 devDependency at the same version; then run your install, and later upgrades
 are `pnpm exec ui-common upgrade --from <old version>`.
@@ -543,7 +547,8 @@ commands exit 0 on success, 1 on a failed check or run, and 2 on bad arguments.
 `component`, `search` and the other lookups find `@astryxdesign/core` through
 the project's `@lablup/ui-common`, so they work in a project that depends on
 ui-common (and the CLI) alone. Without the CLI installed, any command runs
-one-off as `pnpm dlx @lablup/ui-common-cli <command>` (or `npx`).
+one-off as `pnpm dlx @lablup/ui-common-cli@next <command>` (or `npx`; plain
+`@lablup/ui-common-cli` once 0.2.0 is published).
 
 ui-common is also an Astryx CLI integration: `ui-common docs ui-common` (or
 `astryx docs ui-common`) explains the layer, and `ui-common component Modal`

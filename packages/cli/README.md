@@ -9,11 +9,16 @@ postcss) stays out of a consumer's production install. It is released at the
 same version as `@lablup/ui-common` and takes it as a peer.
 
 ```
-pnpm dlx @lablup/ui-common-cli upgrade --from 0.1   # one-off (npx @lablup/ui-common-cli …)
+pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1   # one-off (npx @lablup/ui-common-cli@next …)
 
-pnpm add -D @lablup/ui-common-cli                   # or keep it next to ui-common
+pnpm add -D @lablup/ui-common-cli@<the @lablup/ui-common version>   # or keep it next to ui-common
 pnpm exec ui-common --help
 ```
+
+While 0.2 is in prerelease, name the `next` dist-tag (or an exact version):
+only prereleases are published, and npm points `latest` at a package's first
+publish, so a bare `@lablup/ui-common-cli` resolves to its first alpha. Plain
+`@lablup/ui-common-cli` works once 0.2.0 is published.
 
 Documentation: [The ui-common CLI](https://github.com/lablup/ui-common#the-ui-common-cli)
 in the repository README.

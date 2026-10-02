@@ -14,11 +14,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   longer depends on `@astryxdesign/cli`, `jscodeshift` or `postcss`: a
   production install of an app on the library alone drops from 196 MB (132
   packages) to 31 MB (25). Run the 0.1 upgrade with
-  `pnpm dlx @lablup/ui-common-cli upgrade --from 0.1`; after it,
+  `pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1` (`@next` until
+  0.2.0 is published: npm points a new package's `latest` at its first
+  prerelease); after it,
   `@lablup/ui-common-cli` is a devDependency and `pnpm exec ui-common` works
   as before. The CLI needs Node 22.13 or later, as `@astryxdesign/cli` does.
 - Prereleases publish under the `next` dist-tag; only a plain version moves
-  `latest`. The 0.1 line's `alpha` tag stays where it is.
+  `latest`. The 0.1 line's `alpha` tag stays where it is. The registry sets
+  a new package's `latest` on its first publish regardless, so until 0.2.0
+  `@lablup/ui-common-cli`'s `latest` is its first alpha: name `@next`.
 - `ui-common upgrade --from 0.1`:
   - migrates elements a project imports through its own barrels (relative
     imports and tsconfig `paths`), and lists local wrapper components around
@@ -82,7 +86,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 ## Upgrading from 0.1
 
 The 0.2 alphas below add up to these changes for a 0.1 consumer. Run
-`pnpm dlx @lablup/ui-common-cli upgrade --from 0.1 --dry-run` for the
+`pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1 --dry-run` (plain
+`@lablup/ui-common-cli` once 0.2.0 is published) for the
 mechanical part;
 [`packages/cli/migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every import,
 prop, class and stylesheet change it reads.

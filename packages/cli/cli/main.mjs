@@ -19,8 +19,9 @@ export const HELP = `Usage: ui-common <command> [options]
 @lablup/ui-common's CLI (@lablup/ui-common-cli). Astryx commands run the
 Astryx CLI it pins, with its output rewritten to ui-common import paths.
 
-One-off, before ui-common is installed or bumped:
-  pnpm dlx @lablup/ui-common-cli upgrade --from 0.1   (npx: npx @lablup/ui-common-cli …)
+One-off, before ui-common is installed or bumped (\`@next\` until 0.2.0 is
+published; npm's \`latest\` for this package is its first alpha):
+  pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1   (npx: npx @lablup/ui-common-cli@next …)
 Installed as a devDependency next to @lablup/ui-common:
   pnpm exec ui-common <command>
 

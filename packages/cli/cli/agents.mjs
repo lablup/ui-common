@@ -99,7 +99,7 @@ function uiCommonSection({ version, astryxVersion, invocation }) {
     );
   }
   lines.push(
-    `- The \`ui-common\` bin is @lablup/ui-common-cli, a devDependency pinned to the same version as @lablup/ui-common; bump both together. Without it installed, \`pnpm dlx @lablup/ui-common-cli <cmd>\` (or \`npx @lablup/ui-common-cli <cmd>\`).`,
+    `- The \`ui-common\` bin is @lablup/ui-common-cli, a devDependency pinned to the same version as @lablup/ui-common; bump both together. Without it installed, \`pnpm dlx @lablup/ui-common-cli@next <cmd>\` (or \`npx @lablup/ui-common-cli@next <cmd>\`); drop \`@next\` once 0.2.0 is published.`,
     `- After bumping @lablup/ui-common and @lablup/ui-common-cli: \`${invocation} upgrade --from <old version>\`, then read ui-common-upgrade-report.md.`,
   );
   return lines;

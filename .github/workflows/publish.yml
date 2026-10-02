@@ -82,6 +82,9 @@ jobs:
 
       # Any prerelease goes to `next`, a plain version to `latest`. 0.1's
       # prereleases went out under `alpha`; that tag is no longer moved.
+      # The registry still sets `latest` on a package's first publish, so
+      # @lablup/ui-common-cli's `latest` is its first alpha until 0.2.0; the
+      # docs say `@next` until then. Do not move `latest` here.
       - name: Choose the dist-tag from the version
         id: tag
         run: |
@@ -185,6 +188,9 @@ jobs:
 
       # Any prerelease goes to `next`, a plain version to `latest`. 0.1's
       # prereleases went out under `alpha`; that tag is no longer moved.
+      # The registry still sets `latest` on a package's first publish, so
+      # @lablup/ui-common-cli's `latest` is its first alpha until 0.2.0; the
+      # docs say `@next` until then. Do not move `latest` here.
       - name: Choose the dist-tag from the version
         id: tag
         run: |

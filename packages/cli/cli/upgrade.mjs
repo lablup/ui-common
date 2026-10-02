@@ -691,9 +691,9 @@ source (TS/TSX/JS/JSX through jscodeshift, CSS through postcss), update
 package.json, and write a manual-review report. From 0.1, package.json also
 gains @lablup/ui-common-cli (this bin) as a devDependency at the new version.
 
-One-off, from a project still on 0.1:
-  pnpm dlx @lablup/ui-common-cli upgrade --from 0.1 --dry-run
-  (npx @lablup/ui-common-cli upgrade --from 0.1 --dry-run)
+One-off, from a project still on 0.1 (\`@next\` until 0.2.0 is published):
+  pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1 --dry-run
+  (npx @lablup/ui-common-cli@next upgrade --from 0.1 --dry-run)
 
   --from <version>  The ui-common version the code is written against.
                     Default: the version package.json declares.
