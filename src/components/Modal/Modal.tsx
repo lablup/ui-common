@@ -13,7 +13,9 @@
  *   `aria-modal`, as `showModal()` would make them, but an element marked
  *   `MODAL_LIVE_ATTRIBUTE` (`NotificationStack` is) stays reachable, so
  *   notices stay visible and clickable over an open modal. Covered modal
- *   roots are inert too; see modalStack.ts.
+ *   roots are inert too; see modalStack.ts. Inside a modal `<dialog>` (a
+ *   scrimmed `Drawer`) it renders into that dialog and enters the top layer
+ *   as a manual popover instead, since the rest of the page is inert there.
  * - **Nesting.** A modal opened from inside another paints above it, and
  *   only the topmost one traps focus and answers Escape.
  * - **Content lifecycle.** Children mount on first open and stay mounted
@@ -39,6 +41,7 @@
  * </Modal>
  */
 import {
+  useContext,
   useEffect,
   useEffectEvent,
   useId,
@@ -70,7 +73,7 @@ import { devWarn, isFocusDetached, mergeRefs } from "@astryxdesign/core/utils";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
 import { SkeletonText } from "../Skeleton/SkeletonText";
-import { MODAL_OPEN_ATTRIBUTE, useModalLevel } from "./modalStack";
+import { MODAL_OPEN_ATTRIBUTE, ModalPortalContext, useModalLevel } from "./modalStack";
 import "./Modal.css";
 
 const HEADING_SELECTOR = '[role="heading"], h1, h2, h3, h4, h5, h6';
@@ -189,7 +192,31 @@ function resolvePosition(position: Readonly<DialogPosition>): CSSProperties {
   };
 }
 
-export function Modal({
+/** One key per portal host, so a Modal remounts when its host changes. */
+const hostKeys = new WeakMap<HTMLElement, string>();
+let hostCount = 0;
+function hostKey(host: HTMLElement | null): string {
+  if (!host) return "body";
+  let key = hostKeys.get(host);
+  if (!key) {
+    hostCount += 1;
+    key = `dialog-${hostCount}`;
+    hostKeys.set(host, key);
+  }
+  return key;
+}
+
+export function Modal(props: ModalProps) {
+  // Inside a modal <dialog> (a scrimmed Drawer) the page outside it is inert,
+  // so the surface renders into that dialog and enters the top layer. A new
+  // host remounts the surface: its level claim, inert background and popover
+  // all belong to one root element.
+  const dialogHost = useContext(ModalPortalContext);
+  return <ModalSurface key={hostKey(dialogHost)} {...props} dialogHost={dialogHost} />;
+}
+
+function ModalSurface({
+  dialogHost,
   isOpen,
   onOpenChange,
   isInline = false,
@@ -226,7 +253,7 @@ export function Modal({
   style,
   ref,
   ...rest
-}: ModalProps) {
+}: ModalProps & { dialogHost: HTMLElement | null }) {
   const t = useUicTranslator();
 
   // Content mounts on the first open and then follows `unmountOnClose`.
@@ -271,6 +298,16 @@ export function Modal({
 
   const isActive = isOpen && !isInline;
   const isTopmost = useModalLevel(rootRef, isActive, zIndex);
+
+  // Inside a modal <dialog>, the top layer is the only way above it.
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!isActive || !dialogHost || typeof root?.showPopover !== "function") return;
+    root.showPopover();
+    return () => {
+      if (root.matches(":popover-open")) root.hidePopover();
+    };
+  }, [isActive, dialogHost]);
 
   const { containerRef, focusFirst } = useFocusTrap<HTMLDivElement>({
     isActive: isActive && isTopmost,
@@ -455,6 +492,7 @@ export function Modal({
   return createPortal(
     <div
       ref={rootRef}
+      popover={dialogHost ? "manual" : undefined}
       className={["uic-modal", !isOpen && "uic-modal--closed"]
         .filter(Boolean)
         .join(" ")}
@@ -504,7 +542,7 @@ export function Modal({
         </Dialog>
       </div>
     </div>,
-    document.body,
+    dialogHost ?? document.body,
   );
 }
 
