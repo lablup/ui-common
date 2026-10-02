@@ -5,6 +5,29 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **The `react` and `react-dom` peers are `^19.2.0`.** `Modal`,
+  `NotificationStack`, `UnitGrid` and `Form` import `useEffectEvent`, stable
+  since React 19.2; `^19.0.0` let 19.0 and 19.1 install and then fail.
+- A `Modal` opened inside a scrimmed `Drawer` from `@lablup/ui-common/lab`
+  opens above it. It rendered behind the drawer's modal `<dialog>`, inert:
+  it could not be clicked, focused or typed into.
+- `NotificationStack` unmounts a closed notice once its exit has played. With
+  `maxVisible`, or a new `notifications` array during the exit, it stayed
+  mounted for good, buttons still tabbable. Its countdown stays paused while
+  either hover or focus holds it, not until the first of them leaves.
+- `DataGrid`'s settings dialog can re-show a column `defaultOverrides` hides
+  and restore the natural order over a default order; both came back.
+- `ImageWithFallback`'s fallback keeps the image's semantics: an `img` named
+  by `alt`, or hidden when `alt` is empty.
+- `DoubleBadge` and `DoubleToken` take string and object values mixed in one
+  `values` list, as documented.
+- `ui-common upgrade` keeps JSX text whitespace: Badge children moved into
+  `label` (`{n} items`), and text next to an element given a TODO, lost their
+  leading spaces. For a library it adds the StyleX (and lab) peer even when
+  a devDependency already names the package.
+
 ## [0.2.0-alpha.14]
 
 A paged selector moves in from a product, and `Drawer` hands Escape to the
