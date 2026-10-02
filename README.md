@@ -25,7 +25,8 @@ That is npmjs, which needs no authentication.
 
 Peer dependencies:
 
-- `react` and `react-dom` 19.
+- `react` and `react-dom` ^19.2. Components use `useEffectEvent`, which
+  React 19.2 made stable.
 - `@stylexjs/stylex` ^0.19. It is the one runtime copy that Astryx, ui-common
   and your own StyleX code share.
 - `@astryxdesign/lab`, optional. Install it only if you use
