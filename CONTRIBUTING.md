@@ -171,8 +171,10 @@ procedure is in `main`'s CONTRIBUTING.md, "Patching an older line".
 
    ```
    gh release create v0.1.0-alpha.24 --target release/0.1 --prerelease --latest=false \
-     --title v0.1.0-alpha.24 --notes-file <the CHANGELOG entry>
+     --title v0.1.0-alpha.24 --notes-file notes.md
    ```
+
+   `notes.md` holds the CHANGELOG entry.
 
    The publish workflow verifies that the tag matches `package.json`, and
    publishes under `release-0.1` only (`scripts/dist-tag.mjs` compares the
