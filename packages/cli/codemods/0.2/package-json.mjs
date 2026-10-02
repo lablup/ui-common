@@ -13,6 +13,7 @@
  */
 import { applyLabOverride, CORE, detectPackageManager } from "../../cli/lab-peer.mjs";
 import { targetUiCommonRoot, uiCommonPackageJson } from "../../cli/paths.mjs";
+import { coerce, narrowToFloor } from "../../cli/semver.mjs";
 import { LAB_PACKAGE, stylexPeer, UIC } from "./map.mjs";
 
 /** The CLI package, released in lockstep with ui-common. */
@@ -140,22 +141,21 @@ export function applyAllowBuilds(yaml, names) {
   return next === yaml ? { notes } : { yaml: next, notes };
 }
 
+/** React's floor when the target ui-common's peer cannot be read. */
+const REACT_FLOOR = "19.2.0";
+
 /**
- * `range` without its alternatives that accept React below 19
- * (`^18.2.0 || ^19.0.0` → `^19.0.0`); `fallback` when none is left.
+ * A React range narrowed to `floor` and up (`>=18 <21 || ^22` →
+ * `>=19.2.0 <21 || ^22`); null when it admits no version that high, the
+ * range itself when it already starts there or is not a version range.
  *
  * @param {string} range
- * @param {string} fallback
+ * @param {string} floor
+ * @returns {string | null}
  */
-export function dropBelow19(range, fallback) {
+export function narrowReactRange(range, floor) {
   if (/^(workspace:|link:|file:|npm:|catalog:)/.test(range.trim())) return range;
-  const alternatives = range.split("||").map((a) => a.trim());
-  const kept = alternatives.filter((a) => {
-    const major = /(\d+)/.exec(a)?.[1];
-    return major != null && Number(major) >= 19 && !/^<|^\*|^x/i.test(a);
-  });
-  if (kept.length === alternatives.length) return range;
-  return kept.length > 0 ? kept.join(" || ") : fallback;
+  return narrowToFloor(range, floor);
 }
 
 /**
@@ -259,25 +259,30 @@ export function transformPackageJson(text, ctx) {
     }
   }
 
-  // 0.2 needs React 19: a library that still accepts 18 in its peers would
-  // install beside a React 18 app and break there.
+  // 0.2 needs React 19.2: a library that still accepts older React in its
+  // peers would install beside such an app and break there.
   const reactPeers =
     uiCommonPackageJson(targetUiCommonRoot(ctx.projectDir)).peerDependencies ?? {};
   for (const name of ["react", "react-dom"]) {
+    const floor = coerce(reactPeers[name] ?? "") ?? REACT_FLOOR;
     const spec = pkg.peerDependencies?.[name];
     if (library && typeof spec === "string") {
-      const next = dropBelow19(spec, reactPeers[name] ?? "^19.0.0");
-      if (next !== spec) {
+      const next = narrowReactRange(spec, floor);
+      if (next == null) {
+        ctx.note(
+          `peerDependencies["${name}"] is "${spec}", which admits no React ${floor} or later; ${UIC} 0.2 needs it, so move the range up by hand.`,
+        );
+      } else if (next !== spec) {
         pkg.peerDependencies[name] = next;
         ctx.note(
-          `peerDependencies["${name}"]: "${spec}" → "${next}": ${UIC} 0.2 needs React 19.`,
+          `peerDependencies["${name}"]: "${spec}" → "${next}": ${UIC} 0.2 needs React ${floor} or later.`,
         );
       }
     }
     const own = pkg.dependencies?.[name] ?? pkg.devDependencies?.[name];
-    if (typeof own === "string" && dropBelow19(own, "") !== own) {
+    if (typeof own === "string" && narrowReactRange(own, floor) !== own) {
       ctx.note(
-        `${pkg.dependencies?.[name] ? "dependencies" : "devDependencies"}["${name}"] is "${own}": ${UIC} 0.2 needs React 19; upgrade React too.`,
+        `${pkg.dependencies?.[name] ? "dependencies" : "devDependencies"}["${name}"] is "${own}": ${UIC} 0.2 needs React ${floor} or later; upgrade React too.`,
       );
     }
   }

@@ -8,7 +8,7 @@ import jscodeshift from "jscodeshift";
 import { describe, expect, it, vi } from "vitest";
 
 import transformComponents from "../../codemods/0.2/components.mjs";
-import { dropBelow19 } from "../../codemods/0.2/package-json.mjs";
+import { narrowReactRange } from "../../codemods/0.2/package-json.mjs";
 
 const j = jscodeshift.withParser("tsx");
 
@@ -234,15 +234,25 @@ export const B = () => <Badge variant="info">x</Badge>;
 
 describe("React peers of a library", () => {
   it.each([
-    ["^18.2.0 || ^19.0.0", "^19.0.0"],
-    ["^18 || ^19.1 || ^20", "^19.1 || ^20"],
-    [">=18", "^19.0.0"],
-    [">=18.2.0 <20", "^19.0.0"],
-    ["*", "^19.0.0"],
-    ["^19.0.0", "^19.0.0"],
-    [">=19", ">=19"],
+    ["^18.2.0 || ^19.0.0", "^19.2.0"],
+    [">=18 <21 || ^22", ">=19.2.0 <21 || ^22"],
+    ["^19.0.0", "^19.2.0"],
+    ["*", ">=19.2.0"],
+    [">=19.3", ">=19.3"],
+    ["^18 || ^19.1 || ^20", "^19.2.0 || ^20"],
+    [">=18.2.0 <20", "^19.2.0"],
+    ["18 - 20", "19.2.0 - 20"],
+    ["^19.2.0", "^19.2.0"],
     ["workspace:*", "workspace:*"],
+    ["latest", "latest"],
   ])("%s -> %s", (range, expected) => {
-    expect(dropBelow19(range, "^19.0.0")).toBe(expected);
+    expect(narrowReactRange(range, "19.2.0")).toBe(expected);
   });
+
+  it.each(["^17", "~19.1", ">=18 <=19.1"])(
+    "%s admits no React 19.2: reported, not emptied",
+    (range) => {
+      expect(narrowReactRange(range, "19.2.0")).toBeNull();
+    },
+  );
 });

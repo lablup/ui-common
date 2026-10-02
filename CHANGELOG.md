@@ -33,7 +33,9 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
     selectors);
   - searches the whole project for manual-review findings (tests, e2e,
     scripts), not only `src/`; `--scan <path>` narrows it;
-  - drops React 18 from a library's `react` / `react-dom` peers;
+  - narrows a library's `react` / `react-dom` peers to the React ui-common's
+    own peer starts at, alternative by alternative (`>=18 <21 || ^22` →
+    `>=19.2.0 <21 || ^22`), and reports a range with no such React;
   - adds `allowBuilds` for `@astryxdesign/core` and `@astryxdesign/cli` to a
     pnpm project's `pnpm-workspace.yaml`;
   - adds `@lablup/ui-common-cli` as a devDependency;
