@@ -5,6 +5,823 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.15]
+
+Hardening for the apps moving off 0.1: ui-common's styles now sit in their
+cascade layer in every bundle, the CLI ships as its own package,
+`@lablup/ui-common-cli`, React 19.2 is the floor, and the upgrade tool and
+several components get the fixes a pre-merge review found.
+
+### Changed
+
+- **The `ui-common` CLI is its own package, `@lablup/ui-common-cli`**, in
+  this repository under `packages/cli` and released in lockstep with the
+  library, the way Astryx ships `@astryxdesign/cli` beside
+  `@astryxdesign/core`. `@lablup/ui-common` no longer has a `bin` and no
+  longer depends on `@astryxdesign/cli`, `jscodeshift` or `postcss`: a
+  production install of an app on the library alone drops from 196 MB (132
+  packages) to 31 MB (25). Run the 0.1 upgrade with
+  `pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1` (`@next` until
+  0.2.0 is published: npm points a new package's `latest` at its first
+  prerelease); after it,
+  `@lablup/ui-common-cli` is a devDependency and `pnpm exec ui-common` works
+  as before. The CLI needs Node 22.13 or later, as `@astryxdesign/cli` does.
+- Prereleases publish under the `next` dist-tag; only a plain version moves
+  `latest`. The 0.1 line's `alpha` tag stays where it is. The registry sets
+  a new package's `latest` on its first publish regardless, so until 0.2.0
+  `@lablup/ui-common-cli`'s `latest` is its first alpha: name `@next`.
+- `ui-common upgrade --from 0.1`:
+  - migrates elements a project imports through its own barrels (relative
+    imports and tsconfig `paths`), and lists local wrapper components around
+    a 0.1 component for review instead of rewriting their call sites;
+  - drops a local re-export of a removed type together with its import (it
+    used to refuse to write such a file);
+  - wires the 0.2 stylesheets into the app entry when the project never
+    imported `styles/base.css`, and places that import before any
+    `@lablup/ui-common` import;
+  - adds `<Theme theme={lablupTheme}>` at a single clear root render and
+    reports 0.1 theme switches (`data-theme="orange-*"`, `[data-theme]`
+    selectors);
+  - searches the whole project for manual-review findings (tests, e2e,
+    scripts), not only `src/`; `--scan <path>` narrows it;
+  - narrows a library's `react` / `react-dom` peers to the React ui-common's
+    own peer starts at, alternative by alternative (`>=18 <21 || ^22` →
+    `>=19.2.0 <21 || ^22`), and reports a range with no such React;
+  - adds `allowBuilds` for `@astryxdesign/core` and `@astryxdesign/cli` to a
+    pnpm project's `pnpm-workspace.yaml`;
+  - adds `@lablup/ui-common-cli` as a devDependency;
+  - lists class names the project also defines and uses itself as lower
+    confidence.
+
+### Fixed
+
+- **`ui-common` was the lowest cascade layer in consumer bundles.** Each
+  component module imports its own stylesheet, and each opened
+  `@layer ui-common{…}`. A product imports ui-common's modules before its
+  entry stylesheet, where the order statement lives, and a layer's position is
+  fixed by first appearance, so the bundle ranked `ui-common` below `reset`
+  and Astryx's `astryx-base` and `astryx-theme`: Astryx's rules beat
+  ui-common's composites (`StatCard`'s `overflow: hidden` lost to `Card`'s
+  `overflow: clip`). Every stylesheet the package ships (component sheets,
+  `ui-common.css`, `legacy-tokens.css`, `styles/`, the Lablup `theme.css` and
+  the Astryx `@import` mirrors) now opens with
+  `@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;`,
+  defined once in `scripts/layer-order.mjs` and prepended by the build.
+  Keep declaring it in the app's entry stylesheet too; repeating it is a
+  no-op. `check:pack` fails on a packed stylesheet without it, and CI's
+  fixture check fails when the consumer bundle establishes any other order.
+- **The `react` and `react-dom` peers are `^19.2.0`.** `Modal`,
+  `NotificationStack`, `UnitGrid` and `Form` import `useEffectEvent`, stable
+  since React 19.2; `^19.0.0` let 19.0 and 19.1 install and then fail.
+- A `Modal` opened inside a scrimmed `Drawer` from `@lablup/ui-common/lab`
+  opens above it. It rendered behind the drawer's modal `<dialog>`, inert:
+  it could not be clicked, focused or typed into.
+- `NotificationStack` unmounts a closed notice once its exit has played. With
+  `maxVisible`, or a new `notifications` array during the exit, it stayed
+  mounted for good, buttons still tabbable. Its countdown stays paused while
+  either hover or focus holds it, not until the first of them leaves.
+- `DataGrid`'s settings dialog can re-show a column `defaultOverrides` hides
+  and restore the natural order over a default order; both came back.
+- `ImageWithFallback`'s fallback keeps the image's semantics: an `img` named
+  by `alt`, or hidden when `alt` is empty.
+- `DoubleBadge` and `DoubleToken` take string and object values mixed in one
+  `values` list, as documented.
+- `ui-common upgrade` keeps JSX text whitespace: Badge children moved into
+  `label` (`{n} items`), and text next to an element given a TODO, lost their
+  leading spaces. For a library it adds the StyleX (and lab) peer even when
+  a devDependency already names the package.
+
+### Added
+
+- In development, a warning when a second copy of `@lablup/ui-common` is
+  loaded, naming each copy and saying whether they also run on separate
+  copies of `@astryxdesign/core`. Each copy registers under
+  `globalThis[Symbol.for("@lablup/ui-common/instance")]` on first use of its
+  string translator or modal stack; production builds drop it.
+
+### Documentation
+
+- README: `allowBuilds` for Astryx's postinstall scripts under pnpm 10 and
+  later (pnpm 11 fails with `ERR_PNPM_IGNORED_BUILDS` without it), the
+  shipped layer statement, why `<Theme theme={lablupTheme}>` is required and
+  how dark mode works (`<Theme mode>`; 0.1's `data-theme="orange-dark"`
+  toggles no longer work), and Vitest's `server.deps.inline` for jsdom tests.
+- The Astryx integration's agent docs and doc page name
+  `@lablup/ui-common/theme/lablup/built`, the theme that pairs with
+  `theme.css`, instead of the source theme.
+
+## Upgrading from 0.1
+
+The 0.2 alphas below add up to these changes for a 0.1 consumer. Run
+`pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1 --dry-run` (plain
+`@lablup/ui-common-cli` once 0.2.0 is published) for the
+mechanical part;
+[`packages/cli/migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every import,
+prop, class and stylesheet change it reads.
+
+- **Dependencies.** Astryx (`@astryxdesign/core`, `theme-neutral`) is an
+  exact-pinned dependency (the CLI moved to `@lablup/ui-common-cli`); import it only through `@lablup/ui-common`.
+  `@stylexjs/stylex` ^0.19 is a new peer, `@astryxdesign/lab` an optional
+  exact peer (with an `overrides` entry for its core), and React 19.2 or
+  later is required. (0.2.0-alpha.0; 19.2 since the release after
+  0.2.0-alpha.14)
+- **The root barrel is Astryx's**, and `@lablup/ui-common/hooks` is Astryx's
+  hooks; `usePrefersReducedMotion` moved to the root. (0.2.0-alpha.0,
+  0.2.0-alpha.2)
+- **Removed components, each replaced by Astryx:** `Badge`, `BaseCard`,
+  `Button`, `DataTable`, `Drawer` (lab), `EmptyState`, `ProgressBar`,
+  `Select` (`Selector`), `Skeleton`, `StatusTag` (`StatusDot`), `Tabs`
+  (`TabList`) and `Tooltip`, with their props renamed to Astryx's
+  (`children` → `label`, `disabled` → `isDisabled`, …). (0.2.0-alpha.1)
+- **Kept components keep their props** but render Astryx, style in
+  `@layer ui-common` and take `uic-` class names (`page-header` →
+  `uic-page-header`). CSS, tests and DOM queries on the old names need
+  updating. (0.2.0-alpha.1)
+- **Dialogs:** Astryx `Dialog` and `AlertDialog` are hidden; use `Modal` and
+  `AlertModal`. An open `Modal` makes the rest of the page `inert`; an
+  overlay of the app's own that must stay usable over it needs
+  `data-uic-modal-live`. (0.2.0-alpha.1, 0.2.0-alpha.5, 0.2.0-alpha.7)
+- **Stylesheets and theme:** `styles/base.css` becomes the layer statement
+  plus `reset.css`, `astryx.css`, `theme/lablup/theme.css`, `ui-common.css`
+  (and `legacy-tokens.css` while `--token-*` names are still read); drop
+  `styles/themes/*.css`. Wrap the app in `<Theme theme={lablupTheme}>` from
+  `theme/lablup/built`. `--token-*`, `styles/base.css` and
+  `styles/themes/*.css` are deprecated and go in 0.3. (0.2.0-alpha.0)
+- **Strings** resolve through Astryx's `InternationalizationProvider`; pass
+  `uiCommonMessages` from `@lablup/ui-common/i18n-catalog`. Shared keys are
+  `uic.common.*`. (0.2.0-alpha.0, 0.2.0-alpha.3)
+- **Custom properties** follow Astryx's naming: the theme's info hue is
+  `--color-info`, component knobs are `--<component>-<property>`
+  (DigitPopIn's are their 0.1 names again), and no `--uic-*` name remains.
+  (0.2.0-alpha.12)
+
+## [0.2.0-alpha.14]
+
+A paged selector moves in from a product, and `Drawer` hands Escape to the
+layer on top.
+
+### Added
+
+- `PagedSelector`: a searchable selector, single or multiple
+  (`isMultiple`), over options loaded a page at a time. Scrolling the panel
+  within `endReachedThreshold` px (30) of its end calls `onEndReached` once
+  per arrival; `onSearchChange` reports each keystroke; `totalCount` and
+  `isLoadingMore` fill the foot. `value` holds option values (`string |
+null`, or `string[]`), `onChange` also hands over each chosen value's
+  `{ value, label }`, and a selected value missing from `options` is named
+  from `labels`. Built on `ComplexSelector`, with Astryx's own panel search
+  row and Selector-shaped option rows. Strings are `uic.PagedSelector.*`,
+  translated in every shipped locale.
+
+### Changed
+
+- `Drawer` from `@lablup/ui-common/lab` routes Escape through Astryx core's
+  layer-dismissal stack, as core's `Dialog` does, instead of handling it on
+  its own element. An Escape in a popover, selector or modal opened inside
+  the drawer now closes that layer only, and a second Escape closes the
+  drawer; a drawer opened inside another closes first. **Behaviour change:**
+  a scrimless drawer closes on Escape wherever focus is, as the top-most
+  layer, not only while focus is inside it. The native `cancel` closes it
+  only while it is on top and no IME composition runs.
+
+## [0.2.0-alpha.13]
+
+Astryx fixes a product used to carry as pnpm patches now ship in ui-common,
+so its consumers get them without patching. `DataGrid` and `DoubleToken`
+take two fixes from the same product.
+
+### Added
+
+- `ComplexSelector` (`@lablup/ui-common/ComplexSelector` and the root) is
+  ui-common's own copy of Astryx's, same API, adding `hasClear` and
+  `onClear`: a clear button between the spinner and the chevron while
+  `triggerLabel` is set, as `Selector` has. `onClear` runs, or
+  `onChange(undefined)` without it. Upstream: facebook/astryx#6362.
+- `DoubleToken`: a value's `endContent` renders in place of its visible
+  label (a copy control around the text, say). The label stays the
+  accessible name; `highlightKeyword` does not reach into it.
+- `exports.exclude.json` can hide single names of a subpath (`exports`), and
+  `@lablup/ui-common/lab` is now written as named re-exports. Same names as
+  before.
+
+### Fixed
+
+- `Drawer` from `@lablup/ui-common/lab` is ui-common's own copy of lab's,
+  same API. An Escape from a layer opened inside the drawer (a modal
+  portalled out of it) no longer reaches the drawer, so the layer closes and
+  the drawer stays; an Escape that ends an IME composition no longer closes
+  it; and a consumer's `aria-modal` passes through on a scrimless drawer.
+- `Tour`, `TourStep` and `useTour` from `@lablup/ui-common/lab` are
+  ui-common's own copies of lab's, same API. A step's highlight is promoted
+  into the top layer once and never hidden and re-shown, so under React
+  StrictMode the spotlight dim no longer paints over the callout.
+- `DoubleToken` squares inner end corners with `:not(:last-of-type)`, so an
+  element trailing the tokens (a copy control's tooltip) no longer squares
+  the last token's outer corners.
+- `DataGrid`'s root (`.uic-data-grid`) is `min-width: 0; max-width: 100%`,
+  so a wide grid inside a flex or grid parent scrolls itself instead of
+  stretching the parent.
+
+## [0.2.0-alpha.12]
+
+Custom properties take Astryx's naming as is: no `--uic-` prefix.
+
+### Changed
+
+- **Breaking for alpha consumers: every `--uic-*` custom property is
+  renamed or gone.** `uic-` class names and `data-uic-*` attributes are
+  unchanged. The rule is in CONTRIBUTING ("Styling") and
+  `componentStyles.test.ts` enforces it, including that no name collides
+  with one Astryx core, lab or the neutral theme declares or reads.
+  - The Lablup theme's info hue is `--color-info` (was `--uic-color-info`),
+    the name the Backend.AI WebUI theme uses, declared in the theme's
+    `tokens`. `LABLUP_INFO_TOKEN` carries the new name. `StatCard`'s info
+    tone and the legacy `--token-colorInfo` read it.
+  - Hooks that only carried a theme value are gone; the component reads the
+    theme token, with an Astryx fallback:
+    - `--uic-form-item-description-color` -> `--color-text-description`
+      (fallback `--color-text-secondary`).
+    - `--uic-text-highlighter-background` -> `--color-warning-border-hover`
+      (fallback `--color-warning-muted`).
+    - `--uic-progress-with-label-color` -> removed; the `color` prop paints
+      the fill directly (default `--color-success`).
+    - `--uic-stat-card-tone`, `--uic-stat-card-tone-muted`,
+      `--uic-error-state-tone`, `--uic-error-state-tone-muted` and
+      `--uic-progress-with-label-font-size` -> removed; the variant rules
+      read the tokens.
+  - Component knobs drop the prefix and follow Astryx's component-variable
+    form, `--<component>-<property>`:
+    - `--board-item-title-z`, `--count-badge-offset-x`/`-y`,
+      `--data-grid-scroll-width`, `--data-grid-max-height`,
+      `--data-grid-dialog-list-height`, `--digit-pop-in-duration`/
+      `-distance`/`-stagger`/`-blur`/`-ease`/`-index` (their 0.1 names
+      again), `--divided-row-column-gap`, `--form-item-margin-bottom`,
+      `--form-item-gap`, `--form-item-line-height`,
+      `--list-banner-max-height`, `--modal-z`, `--modal-level`,
+      `--modal-dir-x`/`-y`, `--notification-stack-z`,
+      `--notification-stack-inset-top`, `--overlay-scrollbar-z`,
+      `--progress-with-label-radius`, `--unit-grid-group-1`..`-7`,
+      `--unit-grid-ink-dark`, `--unit-grid-ink-light`,
+      `--unit-grid-cell-stroke`, `--unit-grid-cell-empty`,
+      `--unit-grid-popover-z`: the old name without `uic-`.
+    - `--uic-notification-body-max-height` ->
+      `--notification-stack-body-max-height`.
+
+## [0.2.0-alpha.11]
+
+Review fixes for the table cluster, and translation fixes.
+
+### Fixed
+
+- `DataGrid` select-all honours `selection.getIsItemEnabled`: it adds and
+  removes enabled rows only, a disabled row keeps its state, and the header's
+  checked and indeterminate states count enabled rows only.
+- `DataGrid` passes a column's `getCellProps(item, index)` the row's index on
+  the page; it always received 0.
+- `DataGridSettingsModal` drag handles are named (`uic.DataGrid.reorderColumn`,
+  "Reorder {column}") instead of focusable but `aria-hidden`, move through the
+  list by keyboard (Space, arrow keys, Space; Escape cancels), and announce
+  pick-up, moves, drop and cancel with the column's label and position.
+  Five more catalog keys (`uic.DataGrid.reorderInstructions`,
+  `reorderPickedUp`, `reorderMoved`, `reorderDropped`, `reorderCancelled`),
+  all six translated in every shipped locale.
+- `uic.common.cancel` and `uic.common.delete` read as button labels, not
+  infinitives or the wrong word, in de, el, fi, id, it, ja, mn, ms, pl,
+  pt-PT, tr and vi; `uic.common.apply` in ms and th.
+- `uic.common.ok`, `uic.common.retry` and the Card, Row and Text skeletons'
+  "Loading" are translated in the 18 locales that lacked them (Mongolian
+  OK excepted).
+- NOTICE carries the MIT licence text of Ant Design Icons, whose path data
+  the form feedback glyphs use, and `check:pack` asserts it is packed.
+
+## [0.2.0-alpha.10]
+
+backend.ai-ui's table cluster (DataGrid, its dialogs, BulkErrorModal) and
+five single components, the moves its theme shim had held back.
+
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `DataGrid`: Astryx `Table` with a page bar and range line, client
+    (`compare`) or server (`sort`/`onSortChange`) sorting, row selection by
+    key, resizable and pinnable columns, expandable rows, per-user column
+    settings in one overrides record (`hidden`, `order`, `width`) and a CSV
+    export picker. Rows are paged unless `pagination.totalItems` says they
+    already are one page; a page past the last shows a way back to page 1.
+    `DataGridSettingsModal` (visibility and drag-to-reorder) and
+    `DataGridExportModal` (columns that export the same keys toggle
+    together) are its dialogs, exported on their own; both start fresh on
+    every open. Helpers `dataGridColumnLabel` and `isDataGridColumnVisible`.
+  - `BulkErrorModal`: the failed items of a bulk operation in a `DataGrid`
+    (compact, column rules, ten rows a page, no page bar on one page) under
+    an optional error banner; no footer.
+  - `ProgressWithLabel`: a bar carrying its label and value label over a
+    fill of `value` percent. `--uic-progress-with-label-color` (default
+    `--color-success`) and `--uic-progress-with-label-radius` (default
+    `--radius-inner`).
+  - `TextHighlighter`: marks every case-insensitive occurrence of a keyword.
+    `--uic-text-highlighter-background` (default `--color-warning-muted`).
+  - `CountdownBorder`: a border that fills clockwise over `durationMs`, a
+    countdown to the next refresh; `rx` resolves the theme's
+    `--radius-inner`.
+  - `DoubleToken`: welded Tokens for a settled pair, the Token counterpart
+    of `DoubleBadge`, with keyword highlighting.
+  - `ListBanner`: a `Banner` whose description is a keyboard-scrollable
+    list, capped at `maxHeight`.
+- Dependencies `@dnd-kit/core` 6.3.1, `@dnd-kit/sortable` 10.0.0,
+  `@dnd-kit/modifiers` 9.0.0 and `@dnd-kit/utilities` 3.2.2, exact-pinned,
+  for the column reorder in `DataGridSettingsModal`.
+- Catalog keys `uic.common.apply`, `uic.DataGrid.*` (11) and
+  `uic.BulkErrorModal.*` (2), translated in every shipped locale from
+  backend.ai-ui's locale files. The Mongolian range line
+  (`uic.DataGrid.range`) lost its stray braces on the way.
+
+## [0.2.0-alpha.9]
+
+A form engine with antd's form API, and the bulk-edit form item, from
+backend.ai-ui.
+
+### Added
+
+- `@lablup/ui-common/Form` (also at the root): `Form` with `Form.Item`,
+  `Form.List`, `Form.ErrorList`, `Form.Provider`, `Form.useForm`,
+  `Form.useWatch`, `Form.useFormInstance` and `Form.Item.useStatus`;
+  `FormItem`, `FormList`, `ErrorList`, `FormProvider`, `useForm`,
+  `useWatch`, `useFormInstance`; `FormItemVisual` (the item shell);
+  `FormConfigProvider`, `FormConfigContext`, `useFormValidateMessages`;
+  `FormItemInputContext`, `NoStyleItemContext`; `FormStore`,
+  `defaultValidateMessages`; and the types `FormInstance`, `FormProps`,
+  `FormRef`, `FormItemProps`, `FormListProps`, `ListField`,
+  `ListOperations`, `ErrorListProps`, `WatchOptions`, `FieldData`,
+  `FieldError`, `Meta`, `NamePath`, `InternalNamePath`, `Rule`,
+  `RuleObject`, `RuleRender`, `RuleType`, `Store`, `StoreValue`,
+  `ValidateErrorEntity`, `ValidateMessages`, `ValidatorRule`,
+  `FormConfig`, `FormItemStatusContextValue`, `RequiredMark` and
+  `FormItemVisualProps`. It keeps antd's form API on purpose (a form-state
+  API, not a component vocabulary); see README, "Form". Its tests,
+  including the acceptance suite, came with it.
+- `BulkEditFormItem`: a `Form.Item` that edits one field across many
+  records: "Keep as is", edit, and with `hasClear` a "Clear" that sets
+  `null`. `keepValueLabel`, `clearValueLabel`, `clearLabel` and
+  `undoLabel` override its strings.
+- Catalog keys `uic.Form.*` (the 21 validation message templates and the
+  `(optional)` suffix) and `uic.BulkEditFormItem.*` (3), translated for all
+  20 locales from backend.ai-ui. Four Malay templates (`stringMin`,
+  `stringMax`, `numberMin`, `numberMax`) gained the field name they had
+  dropped, and a Mongolian one (`arrayMin`) its `{min}` placeholder, which
+  had been translated into a name that never resolved.
+- `lucide-react` (^1.18.0, the range `@astryxdesign/theme-neutral` already
+  requires) is a dependency, for the form item's help glyph.
+
+## [0.2.0-alpha.8]
+
+One `Modal` focus fix.
+
+### Fixed
+
+- `Modal` returned focus to `<body>` instead of the opener when its content
+  took focus as it mounted: the first open of a `DeleteConfirmModal` with a
+  confirm field (or any autofocusing input), and every open with
+  `unmountOnClose`. The opener was read after the content's autofocus had
+  already run, so the modal recorded its own field as the opener. It is now
+  read before the content commits, and focus returns to it on close by
+  Escape, Cancel, the action or the backdrop, nested modals included.
+
+## [0.2.0-alpha.7]
+
+Review fixes: `Modal` now makes the page behind it inert, and the upgrade
+tool stops overwriting files, capturing names and hiding lab's second core.
+
+### Changed
+
+- **`Modal` makes the page behind it inert** while it is open, and the
+  topmost dialog is `aria-modal="true"`, as `showModal()` would make them.
+  Every other child of `document.body` goes `inert` (and, where a kept
+  element is nested, every sibling on the way down to it), except modal
+  roots claimed through `useModalLevel` (a drawer portal's too) and elements
+  marked `data-uic-modal-live`. Closing the last modal removes only the
+  `inert` it set. Nested modals behave as before: only the topmost is
+  interactive. **Breaking:** an overlay of the app's own that must stay
+  usable over a modal (a toaster, a chat widget) needs `data-uic-modal-live`,
+  and `refreshModalBackground()` if it mounts while a modal is open.
+- `NotificationStack` marks its root `data-uic-modal-live`, so notices stay
+  readable and dismissible over a modal.
+- New exports from the root and `@lablup/ui-common/Modal`:
+  `MODAL_LIVE_ATTRIBUTE` and `refreshModalBackground`.
+- `ui-common upgrade --dry-run` writes nothing: it prints the report after
+  the summary, and writes it only to a path given with `--report`.
+- `ui-common upgrade` points `@astryxdesign/lab`'s core peer at ui-common's
+  core whenever it adds lab: an `overrides` entry in the nearest
+  `pnpm-workspace.yaml` (created when missing) for pnpm, in package.json for
+  npm, and a report note with both recipes otherwise. README's install
+  section documents the same recipes, and `ui-common sync-astryx` moves them
+  with the core pin.
+
+### Fixed
+
+- The lab canary (`0.6.2-canary.c9fb1ad`) peers on exactly the core canary
+  it was cut from, so a consumer got a second `@astryxdesign/core` and
+  `@lablup/ui-common/lab` ran on it. The documented overrides resolve it to
+  ui-common's core (verified with pnpm 11 and 12, and npm 11); a test fails
+  when lab's peer differs from the core pin and README's recipes are missing
+  or stale.
+- Codemods: the Drawer `onClose` → `onOpenChange` wrapper named its
+  parameter `isOpen`, capturing a handler's own `isOpen`
+  (`() => { if (isOpen) close(); }` never ran). The parameter now takes a
+  name the file does not use.
+- Codemods: a component rename (`BaseCard` → `Card`, `Tabs` → `TabList`)
+  checked only module-level names, so a function-local `const Card` captured
+  the import, and locals or parameters shadowing a 0.1 name were migrated.
+  The import now takes a free `Uic`-prefixed alias when any scope uses the
+  new name, and only references that resolve to the import are rewritten.
+- `ui-common upgrade` overwrote an existing `ui-common-entry.css` outside
+  the scanned paths. A file this run did not read is never written: an
+  identical entry is reused, otherwise the entry goes to
+  `ui-common-entry-2.css` and the report says so. The report path is
+  replaced only when it holds an earlier report.
+- The SCSS rewrite put the `@layer` order above `@use`, which Sass rejects.
+  It now follows the leading `@use`/`@forward` rules.
+- Upstream Astryx codemods rewrote every mention of `@lablup/ui-common` and
+  `@astryxdesign/core` in a file, comments and strings included; only module
+  specifiers are swapped now.
+
+## [0.2.0-alpha.6]
+
+The last component moves from backend.ai-ui that do not wait on its theme
+shim: its unit grid and its colour picker.
+
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `UnitGrid`: groups of unit squares packed on one lattice (`serpentine`
+    or `wordwrap`), each group a tinted plate with its initial, a hover card
+    (`renderGroupPopover`), an optional palette picker (`hueOverrides`,
+    `onHueOverrideChange`), a legend row and a partial fill per unit. The
+    seven default hues are `--uic-unit-grid-group-1` to `-7` (Astryx
+    `--color-icon-*` by default), the initial's inks
+    `--uic-unit-grid-ink-dark`/`-light` (`--color-on-light`/`--color-on-dark`),
+    and `--uic-unit-grid-popover-z` places the hover card.
+    `UnitGridSkeleton` is its loading stand-in.
+  - `ColorPicker`: a hex colour field on the platform colour input, with a
+    hex text field and an optional clear button (`value`, `onChange` on the
+    settled colour, `hasValueLabel`, `hasClear`, `onClear`, `isDisabled`,
+    `label`). `toHexColor` normalises `#rgb`, `#rrggbbaa`, `rgb()` and
+    `rgba()` to `#rrggbb`. It had no tests in the origin and gets them here.
+- Catalog keys `uic.UnitGrid.label`, `uic.UnitGrid.changeGroupColor`,
+  `uic.UnitGrid.useColor` (ICU `{index}`), `uic.ColorPicker.label`,
+  `uic.ColorPicker.hexValue`, `uic.ColorPicker.clear` and
+  `uic.ColorPicker.noColor`, translated in every shipped locale from
+  backend.ai-ui's locale files.
+
+## [0.2.0-alpha.5]
+
+Six more components move in from backend.ai-ui, the ones its theme shim
+and its flex primitive held back, and Astryx `AlertDialog` is hidden behind
+`AlertModal`.
+
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`. Their layout is Astryx
+  `Stack`/`HStack`/`VStack` and `@layer ui-common` CSS on Astryx tokens:
+  - `BoardItemTitle`: a dashboard panel's sticky title row (`title`,
+    `tooltip`, `tooltipIcon`, `endContent`); `--uic-board-item-title-z`
+    sets its z-index (default 50).
+  - `Statistic`: a metric with a caption, a large value and a notched usage
+    bar (`label`, `value`, `total`, `unit`, `precision`, `progressMode`
+    `hidden`/`placeholder`/`visible`, `progressSteps`, `color`,
+    `unlimitedLabel`, `infinityLabel`).
+  - `DividedRow`: a wrapping row that draws a divider between neighbours on
+    the same line only (`wrap`, `rowGap`, `columnGap`, `dividerWidth`,
+    `dividerColor`, `dividerInset`, `itemStyle`).
+  - `TokenList`: values inline, the rest behind `+N` on hover or click
+    (`items`, `maxInline`, `emptyText`, `variant`, `trigger`).
+  - `TokenRow`: tokens cut off with "and N more" (`items`, `maxCount`,
+    `totalCount`, `color`, `emptyText`, `moreLabel`).
+  - `NotificationItem`: the title, description, actions and footer of one
+    notice.
+- Catalog keys `uic.Statistic.unlimited` and `uic.TokenRow.more` (ICU
+  `{count}`), translated in every shipped locale from backend.ai-ui's locale
+  files.
+
+### Removed
+
+- **Breaking:** `AlertDialog` is no longer mirrored. The
+  `@lablup/ui-common/AlertDialog` subpath is gone, and `AlertDialog`,
+  `AlertDialogProps`, `useImperativeAlertDialog` and
+  `ImperativeAlertDialogReturn` leave the root barrel. Dialog-based surfaces
+  go through `Modal`'s level stack; a raw `AlertDialog` bypasses it. Use
+  `AlertModal`, which now also has the top-level subpath
+  `@lablup/ui-common/AlertModal`, the way `Modal` stands in for `Dialog`.
+
+## [0.2.0-alpha.4]
+
+Three more components move in from backend.ai-ui: the rest of its dialog
+family and its list-stepped number field.
+
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `AlertModal`: the WAI-ARIA alert-dialog pattern on `Modal`'s portalled
+    surface and level stack (`title`, `description`, `actionLabel`,
+    `onAction`, `actionVariant`, `isActionLoading`, `isActionDisabled`,
+    `cancelLabel`, `isCancelDisabled`, plus `Modal`'s own props). Cancel
+    takes focus first; Escape cancels, the backdrop does not. Use it instead
+    of `AlertDialog` beside `Modal`.
+  - `DeleteConfirmModal`: confirms a deletion on `Modal` (`items`, `target`,
+    `description`, `title`, `titleIcon`, `onAction`, `actionLabel`), with a
+    typed confirmation (`isConfirmInputRequired`, `confirmText`,
+    `inputLabel`, `inputPlaceholder`, `isInputDisabled`) for irreversible
+    deletions and `isReversible` for undoable ones. `inputLabel` takes a node
+    or a function that places the confirm-text token.
+  - `StepNumberInput`: a number field that steps along `steps` on its
+    stepper and on ArrowUp/ArrowDown. `NumberStepper` (the stepper column for
+    an `InputGroup`) and `getNextStepIndex` are exported with it.
+- Catalog keys `uic.common.delete`, `uic.DeleteConfirmModal.{title,
+titleMany,description,targetDescription,typeToConfirm,confirmText,
+cannotBeUndone}` and `uic.NumberStepper.{increase,decrease}`, translated
+  in every shipped locale from backend.ai-ui's locale files.
+  `uic.DeleteConfirmModal.titleMany` is an ICU plural.
+- `Modal`: `headerClassName` and `footerClassName`, class names on the
+  header and footer it generates.
+
+## [0.2.0-alpha.3]
+
+Three more components move in from backend.ai-ui, and ui-common's strings
+are translated into every language backend.ai-ui ships.
+
+### Added
+
+- **Components moved from backend.ai-ui**, with Astryx-shaped props and
+  their tests, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `ConfirmPopover`: a one-click confirmation on `Popover` for reversible
+    actions: `title`, `description`, `icon`, `onAction` (may be async; the
+    popover closes when it resolves), `actionLabel`, `actionVariant`,
+    `isActionDisabled`, `onCancel`, `cancelLabel`. Cancel takes focus first
+    and focus returns to the trigger on close. Every other `Popover` prop,
+    the render-prop trigger included, passes through.
+  - `SelectionLabel`: "3 selected" with an optional clear button (`count`,
+    `onClear`, `label`, `clearLabel`, `clearIcon`).
+  - `UncontrolledInput`: a `TextInput`, or a `NumberInput` for
+    `type="number"`, that calls `onCommit` on Enter and on blur only.
+- Shared catalog keys `uic.common.{ok,cancel,confirm,retry}` for the generic
+  action labels, and `uic.SelectionLabel.{selectedCount,clear}` and
+  `uic.UncontrolledInput.label`.
+- Translations for every language backend.ai-ui ships, carried over from its
+  locale files: `de-DE`, `el-GR`, `es-ES`, `fi-FI`, `fr-FR`, `id-ID`,
+  `it-IT`, `mn-MN`, `ms-MY`, `pl-PL`, `pt-BR`, `pt-PT`, `ru-RU`, `th-TH`,
+  `tr-TR`, `vi-VN`, `zh-CN` and `zh-TW`, next to `ko-KR` and `ja-JP`.
+  `id-ID`, `mn-MN`, `ms-MY` and `th-TH` have no Astryx catalog; they are the
+  names backend.ai-ui gives Astryx's provider. Strings those languages have
+  no translation for yet are an explicit allowlist in the catalog test.
+
+### Changed
+
+- **Catalog keys renamed** to the shared keys. A consumer that overrides one
+  under its old name must use the new one:
+  `uic.Modal.ok` → `uic.common.ok`; `uic.Modal.cancel` and
+  `uic.NotificationStack.cancel` → `uic.common.cancel`;
+  `uic.NotificationStack.retry` and `uic.PageHeader.retry` →
+  `uic.common.retry`. The English and the `ko-KR`/`ja-JP` text are unchanged.
+
+### Fixed
+
+- `UncontrolledInput` with `type="number"` commits the value just entered.
+  The backend.ai-ui original committed the previous one, because
+  `NumberInput` reports the new value in the same event as Enter or blur.
+
+## [0.2.0-alpha.2]
+
+Seven components move in from backend.ai-ui, and the `ui-common` bin ships:
+the Astryx CLI under ui-common's paths, the agent block, and the 0.1 → 0.2
+upgrade tool.
+
+### Added
+
+- **Components moved from backend.ai-ui**, each built on Astryx with
+  Astryx-shaped props, exported from the root and from
+  `@lablup/ui-common/components/<Name>`:
+  - `CountBadge`: a count or a dot overlaid on its child's top-end corner,
+    with `max` overflow (`99+`), `isZeroShown`, `offset`, `size` (`sm`/`md`)
+    and a named `role="status"` region. `className` goes on the wrapper.
+  - `DoubleBadge`: a run of Badges welded into one chip.
+  - `BooleanToken`: an on/off value as a Token (green for true), with a
+    `fallback` for a value that is not a boolean.
+  - `IconWithTooltip`: a glyph in an unstyled, focusable button, named by its
+    Tooltip's text; `focusable={false}` renders a span.
+  - `ImageWithFallback`: an `<img>` that renders a fallback node once it
+    fails to load.
+  - `OverlayScrollbar`: a persistent, draggable thumb drawn over a scroll
+    container, which hides the native bar through
+    `data-uic-overlay-scrollbar`. Its stacking order is
+    `--uic-overlay-scrollbar-z`.
+  - `NotificationStack`: floating Banner notices with task progress,
+    Cancel/Retry and an action, auto-close that pauses on hover and focus,
+    `maxVisible`, and enter/exit motion. `--uic-notification-stack-z`
+    (default 11000, above Modal's band) and
+    `--uic-notification-stack-inset-top` place it.
+- Catalog strings `uic.BooleanToken.{true,false}` and
+  `uic.NotificationStack.{cancel,retry,progress}`, with `ko-KR` and `ja-JP`
+  translations.
+- **The `ui-common` bin**, wrapping the Astryx CLI ui-common pins:
+  - `ui-common <astryx command>` runs any Astryx command with its output
+    rewritten to `@lablup/ui-common` paths and `ui-common` commands, and a note
+    when it names a hidden subpath ("Use Modal, not Dialog"). `--json` stays
+    valid JSON and exit codes are Astryx's. `component`, `search` and the
+    other lookups work in a project that depends on ui-common alone.
+    `ui-common astryx …` runs Astryx without rewriting.
+  - `ui-common agents [--write <file>] [--check]` writes the agent block
+    between `UI-COMMON` markers: Astryx's block, rewritten, plus ui-common's
+    rules.
+  - `ui-common upgrade` runs the 0.1 → 0.2 codemods from the migration map:
+    imports of the removed components move to their Astryx counterparts,
+    provable prop renames are applied and the rest marked
+    `TODO(ui-common-upgrade)`, the `styles/base.css` import becomes the 0.2
+    stylesheet set, and `package.json` gets the new version, the StyleX peer
+    and, with a Drawer, the lab canary. `ui-common-upgrade-report.md` lists
+    every TODO, the selectors, DOM queries and tests on 0.1 class names (with
+    the `uic-` name where the component was kept), module mocks, and custom
+    properties that collide with Astryx's. `--dry-run` writes only the report.
+  - `ui-common sync-astryx <version>`, the maintainer's Astryx bump, which
+    records the Astryx codemods consumers need for later `upgrade` runs.
+- Component docs for the CLI: `ui-common component Modal`,
+  `ui-common component PageHeader`, and one for each component above.
+
+### Changed
+
+- `migration/0.1-to-0.2.json` is corrected and extended: it records that
+  `usePrefersReducedMotion` moved from `/hooks` (Astryx's hooks barrel from
+  0.2) to the root, maps `SelectOption` to Astryx's `SelectorOptionData`, and
+  Button `title` to `tooltip`. The codemods read all of their data from it.
+
+## [0.2.0-alpha.1]
+
+The component layer moves onto Astryx: the 0.1 look-alikes are gone, the
+components Astryx has no counterpart for are rebuilt on it with their 0.1
+props, and `Modal` takes the place of the hidden `Dialog`.
+[`migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every change
+below in the form `ui-common upgrade` reads.
+
+### Removed
+
+These 0.1 components are removed, source, styles and
+`@lablup/ui-common/components/<Name>` subpath alike. Each is replaced by
+Astryx, reached through ui-common. 0.2.0-alpha.0 announced their removal for
+0.3; it lands in 0.2 so the prerelease line never ships two components under
+one name:
+
+- `Badge`: Astryx `Badge` (`@lablup/ui-common/Badge`), or `Token` for a chip.
+  `children` becomes `label`; `danger` becomes `error`.
+- `BaseCard`: Astryx `Card`, or `ClickableCard` when it is clickable.
+- `Button`: Astryx `Button`, or `IconButton` for an icon-only button.
+  `children` becomes `label`, `disabled` `isDisabled`, `loading` `isLoading`,
+  `danger` `destructive`; sizes are `sm`, `md`, `lg`.
+- `DataTable`: Astryx `Table`. `rows` becomes `data`, `getRowKey` `idKey`, a
+  column's `id` `key` and `render` `renderCell`. Sorting and resizing are
+  Table plugins.
+- `Drawer`: lab `Drawer` (`@lablup/ui-common/lab`, needs the optional
+  `@astryxdesign/lab` peer). `onClose` becomes `onOpenChange`.
+- `EmptyState`: Astryx `EmptyState`. `illustration` becomes `icon`; the two
+  action objects become an `actions` node.
+- `ProgressBar`: Astryx `ProgressBar`. `value={null}` becomes
+  `isIndeterminate`; `label` is required.
+- `Select`: Astryx `Selector`. `searchable` becomes `hasSearch`, `disabled`
+  `isDisabled`; `label` is a required string.
+- `Skeleton` (the base shape only): Astryx `Skeleton`. `variant="circle"`
+  becomes `radius="rounded"`. It is always decorative; announce the wait on
+  the region around it.
+- `StatusTag`: Astryx `StatusDot`, with `state` mapped onto `variant` and
+  `pulse` onto `isPulsing`. The dot carries the label as its accessible name
+  only; render the text beside it.
+- `Tabs`: Astryx `TabList`. It renders the strip; the caller renders the
+  panel. `activeTab` becomes `value`, `onTabChange` `onChange`.
+- `Tooltip`: Astryx `Tooltip`. `placement` `top`/`bottom` becomes
+  `above`/`below`.
+
+### Changed
+
+- **`PageHeader`, `PageLayout`, `StatCard`, `ErrorState`, `SmoothHeight`,
+  `DigitPopIn`, `SkeletonCard`, `SkeletonText`, `SkeletonChart` and
+  `SkeletonRow` are rebuilt on Astryx**, with the same props. They render
+  Astryx `Heading`, `Text`, `Button`, `IconButton`, `Icon`, `Card`,
+  `ClickableCard` and `Skeleton`, and their styles now live in
+  `@layer ui-common` and read Astryx tokens only.
+- **Their class names moved to `uic-`**: `page-header` is `uic-page-header`,
+  `stat-card__value` is `uic-stat-card__value`, and so on. The shapes inside
+  the Skeleton composites are `uic-skeleton-shape` (on Astryx's
+  `astryx-skeleton`). `ErrorState`'s `error-state__action-btn` is
+  `uic-error-state__action`. DigitPopIn's tuning properties are
+  `--uic-digit-pop-in-*`. StatCard no longer sets `corner-accent` or reads
+  `--corner-accent-color`; its tone draws its own corner.
+- **Built-in strings come from the catalog**: PageHeader's Retry and Dismiss
+  labels and the Skeleton composites' loading names resolve through
+  `uic.PageHeader.*` and `uic.Skeleton*.loading`. The props that set them
+  still win.
+- `StatCard` with `onClick` renders Astryx `ClickableCard`; its accessible name
+  sits on the card's inner button.
+- `ErrorState`'s default icon is Astryx's `error` glyph.
+
+### Added
+
+- **`Modal`**, at `@lablup/ui-common/Modal` and the root: ui-common's dialog in
+  place of Astryx `Dialog`. It takes every `Dialog` prop, renders into a
+  `document.body` portal so layers above the modal band stay reachable, stacks
+  nested modals (only the topmost traps focus and takes Escape, through
+  Astryx's layer stack), keeps content mounted while closed unless
+  `unmountOnClose`, and reports each edge through `afterOpenChange`. With
+  `title`, `onAction` or `footer` it lays out a header, the body and a footer
+  with a primary action (pending while `onAction`'s promise runs) and Cancel.
+  `ModalHeader`, `ModalPosition`, `ModalPurpose` and `ModalVariant` are
+  Astryx's Dialog parts under Modal names; `DialogHeader`, `DialogPosition`,
+  `DialogPurpose` and `DialogVariant` are re-exported unchanged, so a `Dialog`
+  import moves by changing the specifier and `Dialog`/`DialogProps`.
+  `configureModalZIndex` sets the z-index band (default 1100 to 10999) and
+  `useModalLevel` lets another portalled surface join the stack.
+- Catalog strings `uic.Modal.ok`, `uic.Modal.cancel`, `uic.PageHeader.retry`,
+  `uic.PageHeader.dismissError` and `uic.Skeleton{Card,Text,Row,Chart}.loading`,
+  with `ko-KR` and `ja-JP` translations in `ui-common-locales/`.
+- `migration/0.1-to-0.2.json`, the 0.1 → 0.2 map for the upgrade tool.
+- The export generator checks that an exclusion's `replacedBy` exists, and lets
+  the replacement re-export the excluded subpath's own names when they resolve
+  to Astryx's declaration.
+
+## [0.2.0-alpha.0]
+
+ui-common is now Lablup's layer on top of Astryx. This release lays the
+foundation: the mirrored Astryx surface, the Lablup theme, the new stylesheets
+and the string catalog. The 0.1 components stay in place for now; the ones
+Astryx covers are deprecated and go in 0.3. See [docs/astryx.md](docs/astryx.md)
+for the architecture.
+
+### Breaking
+
+- **Astryx is a dependency.** `@astryxdesign/core`, `@astryxdesign/theme-neutral`
+  and `@astryxdesign/cli` 0.6.2 are exact-pinned dependencies.
+  `@stylexjs/stylex` ^0.19 is a new peer. `@astryxdesign/lab`
+  0.6.2-canary.c9fb1ad is an optional exact peer.
+- **React 19 only.** The `react` and `react-dom` peer range is now `^19.0.0`,
+  which Astryx requires. React 18 is no longer supported.
+- **The root barrel is Astryx's.** `import { Button } from "@lablup/ui-common"`
+  now gives Astryx's `Button`. The same holds for `Badge`, `EmptyState`,
+  `ProgressBar`, `Skeleton` and `Tooltip`, and their props types. The 0.1
+  components of those names are still at
+  `@lablup/ui-common/components/<Name>` until 0.3.
+- **`@lablup/ui-common/hooks` is Astryx's hooks.** `usePrefersReducedMotion`
+  is still exported from the package root.
+
+### Added
+
+- **The Astryx surface, mirrored 1:1.** Every `@astryxdesign/core` subpath
+  exists under the same name (`@lablup/ui-common/Button`,
+  `@lablup/ui-common/Table/utils`, `@lablup/ui-common/theme/tokens.stylex`,
+  `@lablup/ui-common/astryx.css`, `@lablup/ui-common/locales/<locale>.json`).
+  Lab is at `@lablup/ui-common/lab` and `lab/lab.css`, and the neutral theme
+  at `theme/neutral`, `theme/neutral/built` and `theme/neutral/theme.css`. The
+  surface is generated by `scripts/gen-exports.mjs` and guarded by a drift
+  test. `Dialog` is hidden (use `Modal` once it ships), along with two Astryx
+  CLI data files; see `exports.exclude.json`.
+- **The Lablup theme.** `@lablup/ui-common/theme/lablup` (source),
+  `theme/lablup/built` and `theme/lablup/theme.css` (pre-built). It extends
+  neutral with the orange accent (`#FF7A00` / `#DC6B03`), the 0.1 status hues,
+  and the 0.1 font family name. Info is the theme-local `--uic-color-info`,
+  since Astryx has no info token.
+- **`@lablup/ui-common/ui-common.css`**, the global sheet, in
+  `@layer ui-common`. It carries the scrollbar rules, now on Astryx tokens.
+  The canonical layer order is
+  `@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;`.
+- **`@lablup/ui-common/legacy-tokens.css`**, a deprecated bridge. It declares
+  all 122 0.1 `--token-*` names inside `@layer ui-common`, each as the matching
+  Astryx token where one exists and as its 0.1 value otherwise.
+- **String catalog.** `@lablup/ui-common/i18n-catalog` exports
+  `uiCommonMessages`, `uiCommonCatalog` and `mergeMessages`, and
+  `@lablup/ui-common/ui-common-locales/<locale>.json` ships the catalog per
+  locale. Custom components resolve their built-in strings through Astryx's
+  `InternationalizationProvider`, with English as the fallback. The catalog is
+  empty until the first component moves its strings in.
+- **Astryx CLI integration.** `astryx.integration.mjs` gives consumers
+  `astryx docs ui-common` and four agent-block lines, including "Use Modal,
+  not Dialog".
+
+### Deprecated (removed in 0.3)
+
+- The `--token-*` contract, `styles/base.css` and `styles/themes/*.css`. Use
+  the Lablup theme and Astryx tokens; `legacy-tokens.css` bridges meanwhile.
+- These 0.1 components, each with its Astryx replacement: `Badge` → `Badge` or
+  `Token`, `BaseCard` → `Card`, `Button` → `Button`, `DataTable` → `Table`,
+  `Drawer` → lab `Drawer`, `EmptyState` → `EmptyState`, `ProgressBar` →
+  `ProgressBar`, `Select` → `Selector`, `Skeleton` → `Skeleton`, `StatusTag` →
+  `StatusDot`, `Tabs` → `TabList`, `Tooltip` → `Tooltip`.
+  `PageHeader`, `PageLayout`, `StatCard`, `ErrorState`, `SmoothHeight`,
+  `DigitPopIn` and the Skeleton composites stay, and are rebuilt on Astryx.
+
 ## [0.1.0-alpha.23]
 
 ### Added
@@ -619,7 +1436,27 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.19...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.15...HEAD
+[0.2.0-alpha.15]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.14...v0.2.0-alpha.15
+[0.2.0-alpha.14]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.13...v0.2.0-alpha.14
+[0.2.0-alpha.13]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.12...v0.2.0-alpha.13
+[0.2.0-alpha.12]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.11...v0.2.0-alpha.12
+[0.2.0-alpha.11]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.10...v0.2.0-alpha.11
+[0.2.0-alpha.10]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.9...v0.2.0-alpha.10
+[0.2.0-alpha.9]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.8...v0.2.0-alpha.9
+[0.2.0-alpha.8]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.7...v0.2.0-alpha.8
+[0.2.0-alpha.7]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.6...v0.2.0-alpha.7
+[0.2.0-alpha.6]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.5...v0.2.0-alpha.6
+[0.2.0-alpha.5]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.4...v0.2.0-alpha.5
+[0.2.0-alpha.4]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.3...v0.2.0-alpha.4
+[0.2.0-alpha.3]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.2...v0.2.0-alpha.3
+[0.2.0-alpha.2]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.1...v0.2.0-alpha.2
+[0.2.0-alpha.1]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.0...v0.2.0-alpha.1
+[0.2.0-alpha.0]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.23...v0.2.0-alpha.0
+[0.1.0-alpha.23]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.22...v0.1.0-alpha.23
+[0.1.0-alpha.22]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.21...v0.1.0-alpha.22
+[0.1.0-alpha.21]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.20...v0.1.0-alpha.21
+[0.1.0-alpha.20]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.19...v0.1.0-alpha.20
 [0.1.0-alpha.19]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.18...v0.1.0-alpha.19
 [0.1.0-alpha.18]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.17...v0.1.0-alpha.18
 [0.1.0-alpha.17]: https://github.com/lablup/ui-common/compare/v0.1.0-alpha.16...v0.1.0-alpha.17

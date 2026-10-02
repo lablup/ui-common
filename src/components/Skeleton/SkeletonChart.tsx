@@ -1,51 +1,44 @@
 /**
- * SkeletonChart Component
+ * SkeletonChart
  *
- * Skeleton placeholder for chart components.
- * Shows a simplified chart-like shape with bars or circular elements.
+ * Loading placeholder for a chart: eight bars, a pie with a four-item legend,
+ * or one block for line and area charts.
  *
  * @example
- * // Bar chart skeleton
  * <SkeletonChart variant="bar" />
- *
- * @example
- * // Pie chart skeleton
- * <SkeletonChart variant="pie" />
+ * <SkeletonChart variant="pie" height="20rem" />
  */
-
-import { Skeleton } from "./Skeleton";
+import { useUicTranslator } from "../../i18n/useUicTranslator";
+import { SkeletonShape } from "./SkeletonShape";
 import "./SkeletonChart.css";
 
 export interface SkeletonChartProps {
   /** Chart type variant */
   variant?: "bar" | "line" | "pie" | "area";
-  /** Chart height */
+  /** Chart height, any CSS length. Default: "300px" */
   height?: string;
   /** Additional CSS class names */
   className?: string;
   /** Test ID for testing */
   testId?: string;
-  /** Accessible label announced while the chart is loading. Default: "Loading chart" */
+  /**
+   * Accessible label announced while the chart is loading. Defaults to the
+   * catalog's `uic.SkeletonChart.loading` ("Loading chart").
+   */
   loadingLabel?: string;
 }
 
-/**
- * SkeletonChart provides a loading placeholder for chart components.
- *
- * Variants:
- * - bar: Vertical bars of varying heights
- * - line: Line graph placeholder
- * - pie: Circular chart placeholder
- * - area: Area chart placeholder
- */
+const BAR_HEIGHTS = [60, 80, 45, 90, 70, 55, 85, 65];
+
 export function SkeletonChart({
   variant = "bar",
   height = "300px",
   className = "",
   testId,
-  loadingLabel = "Loading chart",
+  loadingLabel,
 }: SkeletonChartProps) {
-  const classNames = ["skeleton-chart", `skeleton-chart--${variant}`, className]
+  const t = useUicTranslator();
+  const classNames = ["uic-skeleton-chart", `uic-skeleton-chart--${variant}`, className]
     .filter(Boolean)
     .join(" ");
 
@@ -56,35 +49,40 @@ export function SkeletonChart({
       data-testid={testId}
       role="status"
       aria-busy="true"
-      aria-label={loadingLabel}
+      aria-label={loadingLabel ?? t("uic.SkeletonChart.loading")}
     >
       {variant === "pie" ? (
-        <div className="skeleton-chart__pie">
-          <Skeleton decorative width="100%" height="100%" variant="circle" />
-          <div className="skeleton-chart__legend">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="skeleton-chart__legend-item">
-                <Skeleton decorative width="16px" height="16px" variant="circle" />
-                <Skeleton decorative width="80px" height="14px" />
+        <div className="uic-skeleton-chart__pie">
+          <SkeletonShape
+            width="100%"
+            height="100%"
+            shape="circle"
+            className="uic-skeleton-chart__pie-disc"
+          />
+          <div className="uic-skeleton-chart__legend">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="uic-skeleton-chart__legend-item">
+                <SkeletonShape width="1rem" height="1rem" shape="circle" index={i} />
+                <SkeletonShape width="5rem" height="0.875rem" index={i} />
               </div>
             ))}
           </div>
         </div>
       ) : variant === "bar" ? (
-        <div className="skeleton-chart__bars">
-          {[60, 80, 45, 90, 70, 55, 85, 65].map((barHeight, i) => (
-            <Skeleton
-              decorative
+        <div className="uic-skeleton-chart__bars">
+          {BAR_HEIGHTS.map((barHeight, i) => (
+            <SkeletonShape
               key={i}
               width="100%"
               height={`${String(barHeight)}%`}
-              className="skeleton-chart__bar"
+              index={i}
+              className="uic-skeleton-chart__bar"
             />
           ))}
         </div>
       ) : (
-        <div className="skeleton-chart__line">
-          <Skeleton decorative width="100%" height="100%" />
+        <div className="uic-skeleton-chart__line">
+          <SkeletonShape width="100%" height="100%" />
         </div>
       )}
     </div>

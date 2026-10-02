@@ -36,7 +36,7 @@ export interface SmoothHeightProps {
 
 /**
  * Delay before releasing the explicit height after deactivation, covering
- * the height transition duration (--token-motionDurationMid = 0.2s).
+ * the height transition (--duration-fast-max, 230ms by default).
  */
 const RELEASE_DELAY_MS = 250;
 
@@ -87,9 +87,9 @@ export function SmoothHeight({ active, children, className }: SmoothHeightProps)
   return (
     <div
       ref={outerRef}
-      className={`smooth-height${active ? " smooth-height--active" : ""}${className ? ` ${className}` : ""}`}
+      className={`uic-smooth-height${active ? " uic-smooth-height--active" : ""}${className ? ` ${className}` : ""}`}
     >
-      <div ref={innerRef} className="smooth-height__content">
+      <div ref={innerRef} className="uic-smooth-height__content">
         {children}
       </div>
     </div>

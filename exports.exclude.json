@@ -1,0 +1,47 @@
+[
+  {
+    "name": "AlertDialog",
+    "replacedBy": "AlertModal",
+    "reason": "Dialog-based surfaces go through Modal's level stack; a raw AlertDialog bypasses it."
+  },
+  {
+    "name": "ComplexSelector",
+    "replacedBy": "ComplexSelector",
+    "reason": "Adds hasClear and onClear, a clear button as Selector has (facebook/astryx#6362)."
+  },
+  {
+    "name": "lab",
+    "exports": ["Drawer", "DrawerProps"],
+    "replacedBy": "Drawer",
+    "reason": "An Escape from a layer opened inside the drawer, or one that ends an IME composition, no longer closes it; aria-modal passes through."
+  },
+  {
+    "name": "lab",
+    "exports": [
+      "Tour",
+      "TourProps",
+      "TourStep",
+      "TourStepProps",
+      "useTour",
+      "UseTourReturn",
+      "TourDismissSource"
+    ],
+    "replacedBy": "Tour",
+    "reason": "A step's highlight is promoted into the top layer once, so under StrictMode the spotlight dim no longer covers the callout."
+  },
+  {
+    "name": "Dialog",
+    "replacedBy": "Modal",
+    "reason": "ui-common ships Modal as the one dialog surface. Hiding Dialog keeps consumers from building a second, differently behaved dialog."
+  },
+  {
+    "name": "docs.mjs",
+    "replacedBy": null,
+    "reason": "Documentation data for the Astryx CLI, not runtime API. The CLI reads it from @astryxdesign/core directly."
+  },
+  {
+    "name": "groups.doc.mjs",
+    "replacedBy": null,
+    "reason": "Documentation data for the Astryx CLI, not runtime API. The CLI reads it from @astryxdesign/core directly."
+  }
+]

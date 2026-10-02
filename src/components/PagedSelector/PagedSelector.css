@@ -1,0 +1,84 @@
+/*
+ * PagedSelector's panel body, shaped like Astryx Selector's (its `dropdown`
+ * and `item` styles). The search row is Astryx's own classes
+ * (PanelSearchInput.tsx) and needs nothing here; ComplexSelector's content
+ * inset is dropped through `contentXstyle`, not a selector into its markup.
+ */
+@layer ui-common {
+  .uic-paged-selector__listbox {
+    box-sizing: border-box;
+    overflow-y: auto;
+    padding-block: var(--spacing-1);
+    /* The trigger's text inset includes its border; the panel mirrors that
+       pixel so rows line up with the closed control's label. */
+    padding-inline: calc(var(--spacing-1) + var(--border-width));
+  }
+
+  .uic-paged-selector__empty {
+    padding: var(--spacing-3);
+    text-align: center;
+  }
+
+  .uic-paged-selector__option {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-2);
+    width: 100%;
+    padding-block: var(--spacing-1-5);
+    padding-inline: var(--spacing-2);
+    border-radius: var(--radius-element);
+    color: var(--color-text-primary);
+    background-color: transparent;
+    cursor: pointer;
+    text-align: start;
+  }
+
+  .uic-paged-selector__option[data-size="sm"] {
+    padding-block: var(--spacing-1);
+  }
+
+  .uic-paged-selector__option[data-highlighted="true"] {
+    background-color: var(--color-overlay-hover);
+  }
+
+  /* Weight alone, as Selector marks its chosen row: a wash would compete with
+     the highlight that follows the pointer. */
+  .uic-paged-selector__option[data-selected="true"] {
+    font-weight: var(--font-weight-medium);
+  }
+
+  .uic-paged-selector__option[data-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .uic-paged-selector__option-content {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Stretch the option so its end content lands at the row's trailing edge. */
+  .uic-paged-selector__option-content > * {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Reserved on every row, so a chosen row keeps the same geometry. */
+  .uic-paged-selector__option-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 1rem;
+  }
+
+  .uic-paged-selector__foot {
+    padding-block: var(--spacing-1);
+    padding-inline: calc(var(--spacing-2) + var(--border-width));
+  }
+}

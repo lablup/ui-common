@@ -1,0 +1,326 @@
+{
+  "uic.common.ok": {
+    "defaultMessage": "OK",
+    "description": "Generic label of a primary action button that accepts"
+  },
+  "uic.common.cancel": {
+    "defaultMessage": "Hủy",
+    "description": "Generic label of a button that backs out of an action or stops a task"
+  },
+  "uic.common.confirm": {
+    "defaultMessage": "Xác nhận",
+    "description": "Generic label of a button that confirms an action"
+  },
+  "uic.common.delete": {
+    "defaultMessage": "Xóa",
+    "description": "Generic label of a button that deletes something"
+  },
+  "uic.common.retry": {
+    "defaultMessage": "Thử lại",
+    "description": "Generic label of a button that retries a failed action or load"
+  },
+  "uic.common.apply": {
+    "defaultMessage": "Áp dụng",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
+  "uic.ColorPicker.label": {
+    "defaultMessage": "Chọn màu",
+    "description": "Accessible name of a color picker whose caller gave it no label"
+  },
+  "uic.ColorPicker.hexValue": {
+    "defaultMessage": "Giá trị hex",
+    "description": "Hidden label of the color picker's text field for a #rrggbb value"
+  },
+  "uic.ColorPicker.clear": {
+    "defaultMessage": "Xóa",
+    "description": "Button in a color picker that removes the chosen color"
+  },
+  "uic.ColorPicker.noColor": {
+    "defaultMessage": "Không có màu",
+    "description": "Shown on a color picker's trigger when no color is set"
+  },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "Xóa",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {Xóa # mục}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "Bạn có chắc chắn muốn xóa không?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "Bạn có chắc muốn xóa vĩnh viễn {target} không?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "Nhập {confirmText} để xác nhận.",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "Xóa bỏ",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "Hành động này không thể hoàn tác.",
+    "description": "Warning that the deletion is permanent"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "Tăng",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "Giảm",
+    "description": "Accessible name of the button that steps a number field down"
+  },
+  "uic.SelectionLabel.selectedCount": {
+    "defaultMessage": "{count} Đã chọn",
+    "description": "How many items are selected, e.g. rows of a table; {count} is the number"
+  },
+  "uic.SelectionLabel.clear": {
+    "defaultMessage": "Bỏ chọn tất cả",
+    "description": "Button that clears the whole selection"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "Đang tải",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "Đang tải",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "Đang tải",
+    "description": "Accessible name of a text-block loading placeholder"
+  },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "Không giới hạn",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "và {count} mục khác",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
+  "uic.UncontrolledInput.label": {
+    "defaultMessage": "Chọn",
+    "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  },
+  "uic.UnitGrid.label": {
+    "defaultMessage": "Lưới tài nguyên",
+    "description": "Accessible name of a unit grid whose caller gave it no aria-label"
+  },
+  "uic.UnitGrid.changeGroupColor": {
+    "defaultMessage": "Đổi màu nhóm",
+    "description": "Button in a unit grid's hover card that opens the palette for the group"
+  },
+  "uic.UnitGrid.useColor": {
+    "defaultMessage": "Dùng màu {index}",
+    "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
+  },
+  "uic.Form.optional": {
+    "defaultMessage": "(Tùy chọn)",
+    "description": "Suffix after the label of an optional field when requiredMark=\"optional\""
+  },
+  "uic.Form.default": {
+    "defaultMessage": "{label} không đáp ứng điều kiện quy định",
+    "description": "Validation error when a rule failed without a more specific message"
+  },
+  "uic.Form.required": {
+    "defaultMessage": "Hãy nhập thông tin cho trường {label}",
+    "description": "Validation error for an empty required field"
+  },
+  "uic.Form.whitespace": {
+    "defaultMessage": "{label} không được chứa khoảng trắng",
+    "description": "Validation error for a required field that holds only whitespace"
+  },
+  "uic.Form.typeString": {
+    "defaultMessage": "{label} không phải kiểu {type} hợp lệ",
+    "description": "Validation error for a value that is not a string; {type} is the type name"
+  },
+  "uic.Form.typeNumber": {
+    "defaultMessage": "{label} không phải kiểu {type} hợp lệ",
+    "description": "Validation error for a value that is not a number; {type} is the type name"
+  },
+  "uic.Form.typeObject": {
+    "defaultMessage": "{label} không phải kiểu {type} hợp lệ",
+    "description": "Validation error for a value that is not an object; {type} is the type name"
+  },
+  "uic.Form.typeEmail": {
+    "defaultMessage": "{label} không phải kiểu {type} hợp lệ",
+    "description": "Validation error for an invalid email address; {type} is the type name"
+  },
+  "uic.Form.typeUrl": {
+    "defaultMessage": "{label} không phải kiểu {type} hợp lệ",
+    "description": "Validation error for an invalid URL; {type} is the type name"
+  },
+  "uic.Form.stringLen": {
+    "defaultMessage": "{label} phải dài đúng {len} ký tự",
+    "description": "Validation error for text of the wrong exact length"
+  },
+  "uic.Form.stringMin": {
+    "defaultMessage": "Độ dài tối thiểu trường {label} là {min} ký tự",
+    "description": "Validation error for text shorter than the minimum"
+  },
+  "uic.Form.stringMax": {
+    "defaultMessage": "Độ dài tối đa trường {label} là {max} ký tự",
+    "description": "Validation error for text longer than the maximum"
+  },
+  "uic.Form.stringRange": {
+    "defaultMessage": "Độ dài trường {label} phải từ {min} đến {max} ký tự",
+    "description": "Validation error for text outside a length range"
+  },
+  "uic.Form.numberLen": {
+    "defaultMessage": "{label} phải bằng {len}",
+    "description": "Validation error for a number that must equal a value"
+  },
+  "uic.Form.numberMin": {
+    "defaultMessage": "{label} phải lớn hơn hoặc bằng {min}",
+    "description": "Validation error for a number below the minimum"
+  },
+  "uic.Form.numberMax": {
+    "defaultMessage": "{label} phải nhỏ hơn hoặc bằng {max}",
+    "description": "Validation error for a number above the maximum"
+  },
+  "uic.Form.numberRange": {
+    "defaultMessage": "{label} phải nằm trong khoảng {min}-{max}",
+    "description": "Validation error for a number outside a range"
+  },
+  "uic.Form.arrayLen": {
+    "defaultMessage": "Mảng {label} phải có {len} phần tử ",
+    "description": "Validation error for a list with the wrong number of items"
+  },
+  "uic.Form.arrayMin": {
+    "defaultMessage": "Mảng {label} phải chứa tối thiểu {min} phần tử ",
+    "description": "Validation error for a list with too few items"
+  },
+  "uic.Form.arrayMax": {
+    "defaultMessage": "Mảng {label} phải chứa tối đa {max} phần tử ",
+    "description": "Validation error for a list with too many items"
+  },
+  "uic.Form.arrayRange": {
+    "defaultMessage": "Mảng {label} phải chứa từ {min}-{max} phần tử",
+    "description": "Validation error for a list whose item count is outside a range"
+  },
+  "uic.Form.patternMismatch": {
+    "defaultMessage": "{label} không thỏa mãn mẫu kiểm tra {pattern}",
+    "description": "Validation error for text that does not match a pattern"
+  },
+  "uic.BulkEditFormItem.keepAsIs": {
+    "defaultMessage": "Giữ nguyên",
+    "description": "Placeholder of a bulk-edit field that leaves every selected item's current value unchanged"
+  },
+  "uic.BulkEditFormItem.clear": {
+    "defaultMessage": "Xóa",
+    "description": "Link that clears the field on every selected item, and the field's placeholder once cleared"
+  },
+  "uic.BulkEditFormItem.undoChanges": {
+    "defaultMessage": "Hoàn tác thay đổi",
+    "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "Thực thi thất bại",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "Đã xảy ra lỗi",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "Không có dữ liệu để hiển thị",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "Số trang không hợp lệ",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "Đến trang đầu",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "Mở rộng hàng",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "Phân trang",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "{start} - {end} của {total}",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "Cài đặt bảng",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "Xuất CSV",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "Chọn các cột để hiển thị",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "Các cột bảng tìm kiếm",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.reorderColumn": {
+    "defaultMessage": "Sắp xếp lại {column}",
+    "description": "Accessible name of the drag handle beside a column in a data grid's column settings dialog. {column} is the column's label"
+  },
+  "uic.DataGrid.reorderInstructions": {
+    "defaultMessage": "Nhấn phím Cách để chọn cột, dùng các phím mũi tên để di chuyển, rồi nhấn phím Cách lần nữa để thả hoặc Escape để hủy.",
+    "description": "Screen reader instructions for a drag handle in a data grid's column settings dialog"
+  },
+  "uic.DataGrid.reorderPickedUp": {
+    "defaultMessage": "Đã chọn cột {column}. Cột đang ở vị trí {position} trên {total}.",
+    "description": "Screen reader announcement when a column is picked up for reordering in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderMoved": {
+    "defaultMessage": "Đã chuyển cột {column} đến vị trí {position} trên {total}.",
+    "description": "Screen reader announcement while a picked-up column moves in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderDropped": {
+    "defaultMessage": "Đã thả cột {column} tại vị trí {position} trên {total}.",
+    "description": "Screen reader announcement when a column is dropped in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderCancelled": {
+    "defaultMessage": "Đã hủy sắp xếp lại. Cột {column} trở về vị trí {position} trên {total}.",
+    "description": "Screen reader announcement when reordering a column is cancelled in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "Xuất",
+    "description": "Primary button of a data grid's CSV export dialog"
+  },
+  "uic.PagedSelector.placeholder": {
+    "defaultMessage": "Chọn {label}",
+    "description": "Placeholder of a selector with nothing selected; {label} is the field's label"
+  },
+  "uic.PagedSelector.searchOptions": {
+    "defaultMessage": "Tìm trong các tùy chọn",
+    "description": "Accessible name of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.searchPlaceholder": {
+    "defaultMessage": "Tìm kiếm",
+    "description": "Placeholder of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.clearSearch": {
+    "defaultMessage": "Xóa Tìm trong các tùy chọn",
+    "description": "Accessible name of the button that empties a selector's search box"
+  },
+  "uic.PagedSelector.noResults": {
+    "defaultMessage": "Không có kết quả",
+    "description": "Shown in a selector's option list when no option matches"
+  },
+  "uic.PagedSelector.loading": {
+    "defaultMessage": "Đang tải...",
+    "description": "Shown in a selector's empty option list while options are being fetched"
+  },
+  "uic.PagedSelector.totalItems": {
+    "defaultMessage": "Tổng số {total} các mục",
+    "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "@lablup/ui-common-cli",
+  "version": "0.2.0-alpha.15",
+  "description": "The ui-common command line: the pinned Astryx CLI in @lablup/ui-common terms, the agent block, and the upgrade codemods",
+  "license": "Apache-2.0",
+  "author": "Lablup Inc.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lablup/ui-common.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/lablup/ui-common#the-ui-common-cli",
+  "bugs": {
+    "url": "https://github.com/lablup/ui-common/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": false
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "bin": {
+    "ui-common": "./bin/ui-common.mjs"
+  },
+  "files": [
+    "bin",
+    "cli",
+    "codemods",
+    "migration",
+    "README.md",
+    "NOTICE"
+  ],
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@astryxdesign/cli": "0.6.2",
+    "jscodeshift": "^17.4.0",
+    "postcss": "^8.5.25",
+    "postcss-selector-parser": "^7.1.6"
+  },
+  "peerDependencies": {
+    "@lablup/ui-common": "workspace:*"
+  },
+  "devDependencies": {
+    "@lablup/ui-common": "workspace:*"
+  }
+}

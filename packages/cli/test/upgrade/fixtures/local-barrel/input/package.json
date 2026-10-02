@@ -1,0 +1,9 @@
+{
+  "name": "local-barrel-app",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@lablup/ui-common": "0.1.0-alpha.23",
+    "react": "^19.2.0"
+  }
+}

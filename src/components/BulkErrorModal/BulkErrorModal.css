@@ -1,0 +1,5 @@
+@layer ui-common {
+  .uic-bulk-error-modal__icon {
+    color: var(--color-error);
+  }
+}

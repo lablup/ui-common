@@ -1,15 +1,23 @@
-import { cp, mkdir } from "node:fs/promises";
-import { existsSync, statSync } from "node:fs";
+import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, isAbsolute, posix, relative, resolve, sep } from "node:path";
 
 import react from "@vitejs/plugin-react";
 import type { Plugin } from "vite";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 import { globSync } from "tinyglobby";
 
+import { uiCommonCatalog } from "./src/i18n/catalog.ts";
+import { withLayerOrder } from "./scripts/layer-order.mjs";
+
 const root = dirname(fileURLToPath(import.meta.url));
+
+const pkg = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8")) as {
+  version: string;
+  dependencies: Record<string, string>;
+};
 
 /**
  * Every component and hook barrel is its own Rollup entry. Combined with
@@ -20,41 +28,125 @@ const root = dirname(fileURLToPath(import.meta.url));
 function entryPoints(): Record<string, string> {
   const entries: Record<string, string> = {
     index: resolve(root, "src/index.ts"),
-    "hooks/index": resolve(root, "src/hooks/index.ts"),
   };
 
-  for (const file of globSync("src/components/*/index.ts", { cwd: root })) {
+  const patterns = [
+    "src/components/*/index.ts",
+    // ui-common's copies of Astryx components (CONTRIBUTING, "Forks of
+    // Astryx components"). A core fork has its own subpath; lab's are reached
+    // through the lab mirror.
+    "src/forks/**/index.ts",
+    // The generated Astryx mirrors (scripts/gen-exports.mjs). Each one is a
+    // one-line re-export that stays a one-line re-export in dist, because
+    // every @astryxdesign/* specifier is external.
+    "src/astryx/**/*.ts",
+    // The Lablup brand theme, as source. Its pre-built form is copied below.
+    "src/theme/*/index.ts",
+    // `@lablup/ui-common/i18n-catalog`.
+    "src/i18n/index.ts",
+  ];
+  for (const file of globSync(patterns, { cwd: root, ignore: ["**/*.test.*"] })) {
     entries[file.replace(/^src\//, "").replace(/\.ts$/, "")] = resolve(root, file);
   }
 
   return entries;
 }
 
+/** Keep stylesheets and walk into directories; nothing else ships. */
+const cssOnly = (source: string) =>
+  statSync(source).isDirectory() || source.endsWith(".css");
+
+const jsonOnly = (source: string) =>
+  statSync(source).isDirectory() || source.endsWith(".json");
+
 /**
- * Design tokens are standalone stylesheets that no component imports, so
- * Rollup never sees them. They are copied verbatim so the palette stays an
- * opt-in entry point rather than being folded into a single bundle.
+ * Files no module imports, so Rollup never sees them, copied verbatim.
  *
- * Stylesheets only. The copy used to take the whole directory, so anything
- * that ever landed beside the tokens shipped inside the tarball: a test, a
- * script, a note. `check:pack` catches the test case by name, but the general
- * one is cheaper to prevent here than to enumerate there.
+ * - `ui-common.css`: the global sheet, in `@layer ui-common`.
+ * - `legacy-tokens.css` and `styles/`: the deprecated 0.1 token sheets.
+ * - `astryx/**.css`: the generated one-line `@import` mirrors of the Astryx
+ *   stylesheets. They stay `@import`s so the consumer's bundler resolves the
+ *   Astryx sheet from this package's install location.
+ * - `locales/`: Astryx core's own locale catalogs, mirrored 1:1 at
+ *   `@lablup/ui-common/locales/<locale>.json`. JSON cannot re-export, so this
+ *   is the one mirror that is a copy. It is taken from the installed, pinned
+ *   core at build time, so it cannot drift from the JS.
+ * - `ui-common-locales/`: ui-common's own `uic.*` catalog, one JSON file per
+ *   Astryx locale name. `en.json` is written from the code catalog.
+ * - `theme/lablup/built/`: the output of `astryx theme build`, committed and
+ *   shipped as is (JS, declarations and `theme.css`). Its staleness gate is
+ *   `pnpm run theme:check`.
+ *
+ * Stylesheets only where the source is a source directory. The copy used to
+ * take the whole of `styles/`, so anything that ever landed beside the tokens
+ * shipped inside the tarball: a test, a script, a note.
  */
-function copyStyles(): Plugin {
+function copyAssets(): Plugin {
+  const copies: { from: string; to: string; filter: (source: string) => boolean }[] = [
+    { from: "src/ui-common.css", to: "dist/ui-common.css", filter: cssOnly },
+    { from: "src/legacy-tokens.css", to: "dist/legacy-tokens.css", filter: cssOnly },
+    { from: "src/styles", to: "dist/styles", filter: cssOnly },
+    { from: "src/astryx", to: "dist/astryx", filter: cssOnly },
+    {
+      from: "src/theme/lablup/built",
+      to: "dist/theme/lablup/built",
+      filter: (source) => !/\.test\./.test(source),
+    },
+    {
+      from: "node_modules/@astryxdesign/core/locales",
+      to: "dist/locales",
+      filter: jsonOnly,
+    },
+    { from: "src/i18n/locales", to: "dist/ui-common-locales", filter: jsonOnly },
+  ];
   return {
-    name: "ui-common-copy-styles",
+    name: "ui-common-copy-assets",
     apply: "build",
     async closeBundle() {
-      const from = resolve(root, "src/styles");
-      if (!existsSync(from)) return;
-      const to = resolve(root, "dist/styles");
-      await mkdir(to, { recursive: true });
-      await cp(from, to, {
-        recursive: true,
-        filter: (source) => statSync(source).isDirectory() || source.endsWith(".css"),
-      });
+      for (const { from, to, filter } of copies) {
+        const source = resolve(root, from);
+        if (!existsSync(source)) continue;
+        const target = resolve(root, to);
+        await mkdir(dirname(target), { recursive: true });
+        await cp(source, target, { recursive: true, dereference: true, filter });
+      }
+
+      // ui-common's English catalog lives in code; the translations beside it
+      // are JSON. Ship English as JSON too, so every locale has one file.
+      const english = resolve(root, "dist/ui-common-locales/en.json");
+      await mkdir(dirname(english), { recursive: true });
+      await writeFile(english, `${JSON.stringify(uiCommonCatalog, null, 2)}\n`);
+
+      // Last, so it sees the copies above as well as Rollup's emitted assets.
+      await prependLayerOrder(resolve(root, "dist"));
     },
   };
+}
+
+/**
+ * Put the cascade layer order statement at the top of every stylesheet in
+ * `dist`: the component sheets Rollup emitted, the copied package sheets, the
+ * pre-built theme and the one-line Astryx `@import` mirrors (a layer
+ * statement may precede `@import`).
+ *
+ * A layer's position is fixed by the first sheet that names it. Each component
+ * module imports its own sheet, and a consumer imports ui-common's modules
+ * before its entry stylesheet runs, so without this the first thing a bundle
+ * says about layers is `@layer ui-common{…}` and ui-common becomes the lowest
+ * layer, below Astryx's base and theme. The statement comes from
+ * `scripts/layer-order.mjs`; repeating it is a no-op.
+ */
+async function prependLayerOrder(dir: string): Promise<void> {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const path = resolve(dir, entry.name);
+    if (entry.isDirectory()) {
+      await prependLayerOrder(path);
+    } else if (entry.name.endsWith(".css")) {
+      const css = await readFile(path, "utf8");
+      const next = withLayerOrder(css);
+      if (next !== css) await writeFile(path, next);
+    }
+  }
 }
 
 /** Strip a query suffix and express an id relative to the repository root. */
@@ -155,10 +247,18 @@ function linkComponentStyles(): Plugin {
 }
 
 export default defineConfig({
+  // Read by the duplicate-copy warning (src/instance.ts).
+  define: {
+    __UI_COMMON_VERSION__: JSON.stringify(pkg.version),
+    __ASTRYX_CORE_VERSION__: JSON.stringify(pkg.dependencies["@astryxdesign/core"]),
+  },
   plugins: [
     react(),
-    dts({ include: ["src"], exclude: ["src/**/*.test.*", "src/test/**"] }),
-    copyStyles(),
+    dts({
+      include: ["src"],
+      exclude: ["src/**/*.test.*", "src/test/**", "src/theme/*/built/**"],
+    }),
+    copyAssets(),
     linkComponentStyles(),
   ],
   build: {
@@ -174,9 +274,10 @@ export default defineConfig({
       // at the consumer, so nothing from node_modules belongs in dist. With
       // preserveModules, a bare specifier that is not external gets written
       // into dist/node_modules as a vendored copy of a package the consumer
-      // already installs, and the two then drift apart. This package has no
-      // runtime dependencies today; the rule is here so adding one cannot
-      // silently start shipping it.
+      // already installs, and the two then drift apart. For Astryx it would
+      // be worse than drift: a bundled second copy splits the React contexts
+      // (Theme, i18n, SizeContext) from the copy the consumer's other code
+      // sees. Every @astryxdesign/* and @stylexjs/* import stays external.
       external: (id) => {
         if (id.startsWith("\0")) return false; // plugin virtual module
         if (id.startsWith(".") || isAbsolute(id)) return false;
@@ -195,5 +296,13 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: true,
+    // The CLI package's tests (packages/cli/test) run here too, under the same
+    // setup. Its upgrade fixtures are consumer source the codemods run on, not
+    // tests; agent worktrees are other checkouts of this repository.
+    exclude: [
+      ...configDefaults.exclude,
+      "packages/cli/test/upgrade/fixtures/**",
+      ".claude/**",
+    ],
   },
 });

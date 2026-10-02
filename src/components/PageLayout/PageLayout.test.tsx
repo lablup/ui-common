@@ -14,25 +14,25 @@ import { render, screen } from "@testing-library/react";
 import { PageLayout } from "./PageLayout";
 
 describe("PageLayout — variant classes", () => {
-  it("applies page-layout--standard by default", () => {
+  it("applies uic-page-layout--standard by default", () => {
     const { container } = render(<PageLayout>content</PageLayout>);
     const el = container.firstElementChild;
-    expect(el).toHaveClass("page-layout");
-    expect(el).toHaveClass("page-layout--standard");
+    expect(el).toHaveClass("uic-page-layout");
+    expect(el).toHaveClass("uic-page-layout--standard");
   });
 
-  it("applies page-layout--wide for the wide variant", () => {
+  it("applies uic-page-layout--wide for the wide variant", () => {
     const { container } = render(<PageLayout variant="wide">content</PageLayout>);
     const el = container.firstElementChild;
-    expect(el).toHaveClass("page-layout--wide");
-    expect(el).not.toHaveClass("page-layout--standard");
+    expect(el).toHaveClass("uic-page-layout--wide");
+    expect(el).not.toHaveClass("uic-page-layout--standard");
   });
 
-  it("applies page-layout--full for the full variant", () => {
+  it("applies uic-page-layout--full for the full variant", () => {
     const { container } = render(<PageLayout variant="full">content</PageLayout>);
     const el = container.firstElementChild;
-    expect(el).toHaveClass("page-layout--full");
-    expect(el).not.toHaveClass("page-layout--standard");
+    expect(el).toHaveClass("uic-page-layout--full");
+    expect(el).not.toHaveClass("uic-page-layout--standard");
   });
 
   it("passes additional className alongside the variant class", () => {
@@ -40,7 +40,7 @@ describe("PageLayout — variant classes", () => {
       <PageLayout className="my-custom-class">content</PageLayout>,
     );
     const el = container.firstElementChild;
-    expect(el).toHaveClass("page-layout--standard");
+    expect(el).toHaveClass("uic-page-layout--standard");
     expect(el).toHaveClass("my-custom-class");
   });
 });

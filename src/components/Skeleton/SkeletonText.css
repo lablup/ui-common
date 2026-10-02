@@ -1,23 +1,19 @@
-/**
- * SkeletonText Component Styles
- *
- * Text skeleton styles with configurable spacing.
- */
+/* SkeletonText: stacked text lines, spaced on Astryx's spacing scale. */
+@layer ui-common {
+  .uic-skeleton-text {
+    display: flex;
+    flex-direction: column;
+  }
 
-.skeleton-text {
-  display: flex;
-  flex-direction: column;
-}
+  .uic-skeleton-text--compact {
+    gap: var(--spacing-1);
+  }
 
-/* Spacing Variants */
-.skeleton-text--compact {
-  gap: var(--token-paddingXS, 0.25rem);
-}
+  .uic-skeleton-text--normal {
+    gap: var(--spacing-2);
+  }
 
-.skeleton-text--normal {
-  gap: var(--token-paddingSM, 0.5rem);
-}
-
-.skeleton-text--relaxed {
-  gap: var(--token-paddingMD, 1rem);
+  .uic-skeleton-text--relaxed {
+    gap: var(--spacing-4);
+  }
 }

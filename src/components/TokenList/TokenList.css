@@ -1,0 +1,28 @@
+/*
+ * TokenList: the inline run sits in the line of text around it, and the
+ * overflow list scrolls past about ten rows.
+ */
+@layer ui-common {
+  .uic-token-list {
+    display: inline-flex;
+    position: relative;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .uic-token-list__text {
+    white-space: nowrap;
+  }
+
+  .uic-token-list__count {
+    cursor: help;
+  }
+
+  .uic-token-list__rest {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 0;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+}

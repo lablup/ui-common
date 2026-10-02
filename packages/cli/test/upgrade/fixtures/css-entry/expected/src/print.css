@@ -1,0 +1,2 @@
+/* TODO(ui-common-upgrade): this import of styles/base.css carries "print"; replace it with @lablup/ui-common/reset.css, @lablup/ui-common/astryx.css, @lablup/ui-common/theme/lablup/theme.css, @lablup/ui-common/ui-common.css, @lablup/ui-common/legacy-tokens.css under the same condition, and declare "@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;" first. */
+@import url("@lablup/ui-common/styles/base.css") print;

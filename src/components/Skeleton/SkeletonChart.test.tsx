@@ -20,21 +20,21 @@ describe("SkeletonChart", () => {
     it("should render with default props", () => {
       const { container } = render(<SkeletonChart />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).toBeInTheDocument();
     });
 
     it("should render bar variant by default", () => {
       const { container } = render(<SkeletonChart />);
 
-      const chart = container.querySelector(".skeleton-chart");
-      expect(chart).toHaveClass("skeleton-chart--bar");
+      const chart = container.querySelector(".uic-skeleton-chart");
+      expect(chart).toHaveClass("uic-skeleton-chart--bar");
     });
 
     it("should render with default height of 300px", () => {
       const { container } = render(<SkeletonChart />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).toHaveStyle({ height: "300px" });
     });
   });
@@ -44,30 +44,32 @@ describe("SkeletonChart", () => {
       it("should have bar class", () => {
         const { container } = render(<SkeletonChart variant="bar" />);
 
-        const chart = container.querySelector(".skeleton-chart");
-        expect(chart).toHaveClass("skeleton-chart--bar");
+        const chart = container.querySelector(".uic-skeleton-chart");
+        expect(chart).toHaveClass("uic-skeleton-chart--bar");
       });
 
       it("should render bars container", () => {
         const { container } = render(<SkeletonChart variant="bar" />);
 
-        const barsContainer = container.querySelector(".skeleton-chart__bars");
+        const barsContainer = container.querySelector(".uic-skeleton-chart__bars");
         expect(barsContainer).toBeInTheDocument();
       });
 
       it("should render 8 bars with varying heights", () => {
         const { container } = render(<SkeletonChart variant="bar" />);
 
-        const bars = container.querySelectorAll(".skeleton-chart__bar");
+        const bars = container.querySelectorAll(".uic-skeleton-chart__bar");
         expect(bars).toHaveLength(8);
       });
 
       it("should not render pie or line containers", () => {
         const { container } = render(<SkeletonChart variant="bar" />);
 
-        expect(container.querySelector(".skeleton-chart__pie")).not.toBeInTheDocument();
         expect(
-          container.querySelector(".skeleton-chart__line"),
+          container.querySelector(".uic-skeleton-chart__pie"),
+        ).not.toBeInTheDocument();
+        expect(
+          container.querySelector(".uic-skeleton-chart__line"),
         ).not.toBeInTheDocument();
       });
     });
@@ -76,22 +78,22 @@ describe("SkeletonChart", () => {
       it("should have line class", () => {
         const { container } = render(<SkeletonChart variant="line" />);
 
-        const chart = container.querySelector(".skeleton-chart");
-        expect(chart).toHaveClass("skeleton-chart--line");
+        const chart = container.querySelector(".uic-skeleton-chart");
+        expect(chart).toHaveClass("uic-skeleton-chart--line");
       });
 
       it("should render line container", () => {
         const { container } = render(<SkeletonChart variant="line" />);
 
-        const lineContainer = container.querySelector(".skeleton-chart__line");
+        const lineContainer = container.querySelector(".uic-skeleton-chart__line");
         expect(lineContainer).toBeInTheDocument();
       });
 
       it("should render a skeleton inside line container", () => {
         const { container } = render(<SkeletonChart variant="line" />);
 
-        const lineContainer = container.querySelector(".skeleton-chart__line");
-        const skeleton = lineContainer?.querySelector(".skeleton");
+        const lineContainer = container.querySelector(".uic-skeleton-chart__line");
+        const skeleton = lineContainer?.querySelector(".uic-skeleton-shape");
         expect(skeleton).toBeInTheDocument();
       });
     });
@@ -100,47 +102,51 @@ describe("SkeletonChart", () => {
       it("should have pie class", () => {
         const { container } = render(<SkeletonChart variant="pie" />);
 
-        const chart = container.querySelector(".skeleton-chart");
-        expect(chart).toHaveClass("skeleton-chart--pie");
+        const chart = container.querySelector(".uic-skeleton-chart");
+        expect(chart).toHaveClass("uic-skeleton-chart--pie");
       });
 
       it("should render pie container", () => {
         const { container } = render(<SkeletonChart variant="pie" />);
 
-        const pieContainer = container.querySelector(".skeleton-chart__pie");
+        const pieContainer = container.querySelector(".uic-skeleton-chart__pie");
         expect(pieContainer).toBeInTheDocument();
       });
 
       it("should render circle skeleton for pie", () => {
         const { container } = render(<SkeletonChart variant="pie" />);
 
-        const pieContainer = container.querySelector(".skeleton-chart__pie");
-        const circle = pieContainer?.querySelector(".skeleton--circle");
+        const pieContainer = container.querySelector(".uic-skeleton-chart__pie");
+        const circle = pieContainer?.querySelector(".uic-skeleton-shape--circle");
         expect(circle).toBeInTheDocument();
       });
 
       it("should render legend section", () => {
         const { container } = render(<SkeletonChart variant="pie" />);
 
-        const legend = container.querySelector(".skeleton-chart__legend");
+        const legend = container.querySelector(".uic-skeleton-chart__legend");
         expect(legend).toBeInTheDocument();
       });
 
       it("should render 4 legend items", () => {
         const { container } = render(<SkeletonChart variant="pie" />);
 
-        const legendItems = container.querySelectorAll(".skeleton-chart__legend-item");
+        const legendItems = container.querySelectorAll(
+          ".uic-skeleton-chart__legend-item",
+        );
         expect(legendItems).toHaveLength(4);
       });
 
       it("should render circle and text skeleton in each legend item", () => {
         const { container } = render(<SkeletonChart variant="pie" />);
 
-        const legendItems = container.querySelectorAll(".skeleton-chart__legend-item");
+        const legendItems = container.querySelectorAll(
+          ".uic-skeleton-chart__legend-item",
+        );
 
         legendItems.forEach((item) => {
-          const circle = item.querySelector(".skeleton--circle");
-          const skeletons = item.querySelectorAll(".skeleton");
+          const circle = item.querySelector(".uic-skeleton-shape--circle");
+          const skeletons = item.querySelectorAll(".uic-skeleton-shape");
           expect(circle).toBeInTheDocument();
           expect(skeletons).toHaveLength(2); // circle + text
         });
@@ -151,14 +157,14 @@ describe("SkeletonChart", () => {
       it("should have area class", () => {
         const { container } = render(<SkeletonChart variant="area" />);
 
-        const chart = container.querySelector(".skeleton-chart");
-        expect(chart).toHaveClass("skeleton-chart--area");
+        const chart = container.querySelector(".uic-skeleton-chart");
+        expect(chart).toHaveClass("uic-skeleton-chart--area");
       });
 
       it("should render line container (same as line variant)", () => {
         const { container } = render(<SkeletonChart variant="area" />);
 
-        const lineContainer = container.querySelector(".skeleton-chart__line");
+        const lineContainer = container.querySelector(".uic-skeleton-chart__line");
         expect(lineContainer).toBeInTheDocument();
       });
     });
@@ -168,38 +174,38 @@ describe("SkeletonChart", () => {
     it("should render with custom height", () => {
       const { container } = render(<SkeletonChart height="400px" />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).toHaveStyle({ height: "400px" });
     });
 
     it("should handle percentage height", () => {
       const { container } = render(<SkeletonChart height="100%" />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).toHaveStyle({ height: "100%" });
     });
 
     it("should handle rem height", () => {
       const { container } = render(<SkeletonChart height="20rem" />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).toHaveStyle({ height: "20rem" });
     });
   });
 
   describe("CSS Classes", () => {
-    it("should include base skeleton-chart class", () => {
+    it("should include base uic-skeleton-chart class", () => {
       const { container } = render(<SkeletonChart />);
 
-      const chart = container.querySelector(".skeleton-chart");
-      expect(chart).toHaveClass("skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
+      expect(chart).toHaveClass("uic-skeleton-chart");
     });
 
     it("should include custom className", () => {
       const { container } = render(<SkeletonChart className="custom-class" />);
 
-      const chart = container.querySelector(".skeleton-chart");
-      expect(chart).toHaveClass("skeleton-chart", "custom-class");
+      const chart = container.querySelector(".uic-skeleton-chart");
+      expect(chart).toHaveClass("uic-skeleton-chart", "custom-class");
     });
   });
 
@@ -207,21 +213,21 @@ describe("SkeletonChart", () => {
     it("should have role status on chart container", () => {
       const { container } = render(<SkeletonChart />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).toHaveAttribute("role", "status");
     });
 
     it("should have aria-busy set to true on chart container", () => {
       const { container } = render(<SkeletonChart />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).toHaveAttribute("aria-busy", "true");
     });
 
     it("should have aria-label for screen readers on chart container", () => {
       const { container } = render(<SkeletonChart />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).toHaveAttribute("aria-label", "Loading chart");
     });
   });
@@ -237,7 +243,7 @@ describe("SkeletonChart", () => {
     it("should not render data-testid when not provided", () => {
       const { container } = render(<SkeletonChart />);
 
-      const chart = container.querySelector(".skeleton-chart");
+      const chart = container.querySelector(".uic-skeleton-chart");
       expect(chart).not.toHaveAttribute("data-testid");
     });
   });
@@ -254,7 +260,11 @@ describe("SkeletonChart", () => {
       );
 
       const chart = screen.getByTestId("custom-chart");
-      expect(chart).toHaveClass("skeleton-chart", "skeleton-chart--pie", "my-chart");
+      expect(chart).toHaveClass(
+        "uic-skeleton-chart",
+        "uic-skeleton-chart--pie",
+        "my-chart",
+      );
       expect(chart).toHaveStyle({ height: "500px" });
       expect(chart).toHaveAttribute("role", "status");
       expect(chart).toHaveAttribute("aria-busy", "true");

@@ -1,0 +1,283 @@
+/*
+ * The form item shell and the inline form, laid out like antd's form
+ * stylesheet. Hooks a product may set:
+ *   --form-item-margin-bottom  space below each item
+ *   --form-item-gap            label-to-control gap in a vertical item
+ *   --form-item-line-height    the item's line height
+ * Explain, extra, the tooltip glyph and the "(optional)" suffix take the
+ * theme's `--color-text-description` where it declares one.
+ */
+@layer ui-common {
+  /* An inline form wraps its items on one line (antd `.ant-form-inline`). */
+  .uic-form[data-layout="inline"] {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .uic-form[data-layout="inline"] > .uic-form-item,
+  .uic-form[data-layout="inline"] .uic-form-item[data-layout="inline"] {
+    flex: none;
+    margin-inline-end: var(--spacing-4);
+  }
+
+  /*
+   * The type reset is load-bearing: the label is an inline-flex box inside a
+   * block column, so the column's line box sets the label row's height.
+   */
+  .uic-form-item {
+    box-sizing: border-box;
+    vertical-align: top;
+    margin-bottom: var(--form-item-margin-bottom, var(--spacing-6));
+    font-size: var(--font-size-base);
+    line-height: var(--form-item-line-height, var(--text-body-leading));
+  }
+
+  .uic-form-item[data-layout="inline"] {
+    margin-bottom: 0;
+  }
+
+  .uic-form-item[data-hidden] {
+    display: none;
+  }
+
+  .uic-form-item__row {
+    display: flex;
+    flex-flow: row wrap;
+    min-width: 0;
+  }
+
+  .uic-form-item[data-layout="vertical"] .uic-form-item__row {
+    flex-direction: column;
+  }
+
+  .uic-form-item[data-layout="inline"] .uic-form-item__row {
+    flex-wrap: nowrap;
+  }
+
+  /* ------------------------------ label ------------------------------ */
+
+  /* A column that does not grow and clips its text; its width is the label's
+     own unless a `labelCol` span sets it. */
+  .uic-form-item__label-col {
+    flex-grow: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: end;
+    vertical-align: middle;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  .uic-form-item__label-col[data-align="left"] {
+    text-align: start;
+  }
+
+  .uic-form-item__label-col[data-wrap] {
+    overflow: unset;
+    line-height: var(--form-item-line-height, var(--text-body-leading));
+    white-space: unset;
+  }
+
+  .uic-form-item__label-col[data-wrap] > .uic-form-item__label {
+    vertical-align: middle;
+    text-wrap: balance;
+  }
+
+  .uic-form-item[data-layout="vertical"] .uic-form-item__label-col {
+    padding: 0 0 var(--form-item-gap, var(--spacing-2));
+    margin: 0;
+    white-space: initial;
+    text-align: start;
+  }
+
+  .uic-form-item[data-layout="inline"] .uic-form-item__label-col {
+    flex: none;
+  }
+
+  /* A horizontal label is as tall as the control beside it. */
+  .uic-form-item__label {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    height: var(--size-element-md);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    line-height: var(--form-item-line-height, var(--text-body-leading));
+  }
+
+  .uic-form-item[data-layout="vertical"] .uic-form-item__label {
+    height: auto;
+    margin: 0;
+  }
+
+  .uic-form-item[data-size="small"] .uic-form-item__label {
+    height: var(--size-element-sm);
+  }
+
+  .uic-form-item[data-size="large"] .uic-form-item__label {
+    height: var(--size-element-lg);
+  }
+
+  /* The asterisk is a pseudo-element, so the label's text is the bare label. */
+  .uic-form-item__label--required::before {
+    display: inline-block;
+    margin-inline-end: var(--spacing-1);
+    color: var(--color-error);
+    font-size: var(--font-size-base);
+    font-family: sans-serif;
+    line-height: 1;
+    content: "*";
+  }
+
+  /* `requiredMark={false}`, `'optional'` and a function mark hide it. */
+  .uic-form-item__label[data-required-mark]::before {
+    display: none;
+  }
+
+  /* The colon: drawn in every layout, hidden (not removed) in vertical. */
+  .uic-form-item__label::after {
+    content: ":";
+    position: relative;
+    margin-block: 0;
+    margin-inline-start: var(--spacing-0-5);
+    margin-inline-end: var(--spacing-2);
+  }
+
+  .uic-form-item__label[data-no-colon]::after {
+    content: "\a0";
+  }
+
+  .uic-form-item[data-layout="vertical"] .uic-form-item__label::after {
+    visibility: hidden;
+  }
+
+  .uic-form-item__optional {
+    display: inline-block;
+    margin-inline-start: var(--spacing-1);
+    color: var(--color-text-description, var(--color-text-secondary));
+  }
+
+  .uic-form-item__tooltip {
+    display: inline-flex;
+    align-items: center;
+    margin-inline-start: var(--spacing-1);
+    color: var(--color-text-description, var(--color-text-secondary));
+    cursor: help;
+    writing-mode: horizontal-tb;
+  }
+
+  /* ----------------------------- control ----------------------------- */
+
+  .uic-form-item__control {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  /* A control with no label and no span fills the row. */
+  .uic-form-item__row > .uic-form-item__control:first-child:not([data-span]) {
+    width: 100%;
+  }
+
+  .uic-form-item:not([data-layout="vertical"])
+    .uic-form-item__label-col
+    + .uic-form-item__control {
+    flex: 1 1 0;
+  }
+
+  .uic-form-item[data-layout="vertical"] .uic-form-item__control {
+    width: 100%;
+  }
+
+  .uic-form-item__control-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: var(--size-element-md);
+  }
+
+  .uic-form-item[data-size="small"] .uic-form-item__control-input {
+    min-height: var(--size-element-sm);
+  }
+
+  .uic-form-item[data-size="large"] .uic-form-item__control-input {
+    min-height: var(--size-element-lg);
+  }
+
+  .uic-form-item__control-input-content {
+    flex: auto;
+    max-width: 100%;
+  }
+
+  /* ------------------------- explain / extra ------------------------- */
+
+  .uic-form-item__additional {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .uic-form-item__explain,
+  .uic-form-item__extra {
+    clear: both;
+    color: var(--color-text-description, var(--color-text-secondary));
+    font-size: var(--font-size-base);
+    line-height: var(--form-item-line-height, var(--text-body-leading));
+  }
+
+  .uic-form-item__extra {
+    min-height: var(--size-element-sm);
+  }
+
+  .uic-form-item__explain-error {
+    color: var(--color-error);
+  }
+
+  .uic-form-item__explain-warning {
+    color: var(--color-warning);
+  }
+
+  /* -------------------------- feedback icon -------------------------- */
+
+  /* Parked where a control's own suffix would sit: inside the control's end,
+     vertically centred, one line tall. */
+  .uic-form-item__feedback-icon {
+    position: absolute;
+    inset-inline-end: var(--spacing-3);
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(
+      var(--font-size-base) * var(--form-item-line-height, var(--text-body-leading))
+    );
+    color: var(--color-accent);
+    font-size: var(--font-size-base);
+    pointer-events: none;
+  }
+
+  .uic-form-item__feedback-icon[data-status="success"] {
+    color: var(--color-success);
+  }
+
+  .uic-form-item__feedback-icon[data-status="warning"] {
+    color: var(--color-warning);
+  }
+
+  .uic-form-item__feedback-icon[data-status="error"] {
+    color: var(--color-error);
+  }
+
+  .uic-form-item__feedback-glyph[data-status="validating"] {
+    animation: uic-form-item-feedback-spin 1s linear infinite;
+  }
+
+  @keyframes uic-form-item-feedback-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

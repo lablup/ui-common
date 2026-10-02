@@ -90,14 +90,25 @@ for (const file of files) {
  * not been added here fails closed rather than slipping through because nobody
  * remembered to blocklist it.
  */
-// Public repositories, plus the sibling package name that the boundary rules
-// above have to spell out in order to forbid it. Anything absent fails closed.
-const ALLOWED_LABLUP_REFERENCES = ["all-smi", "backend.ai", "ui-common", "ui-ai"];
+// Public repositories, this repository's CLI package, plus the sibling package
+// name that the boundary rules above have to spell out in order to forbid it.
+// Anything absent fails closed.
+const ALLOWED_LABLUP_REFERENCES = [
+  "all-smi",
+  "backend.ai",
+  "ui-common",
+  "ui-common-cli",
+  "ui-ai",
+];
 
 const DISCLOSURE = [
   {
+    // `theme/lablup/...` is this package's own brand-theme path (source dir
+    // and subpath), not a repository, so a `theme/` prefix is not a match.
+    // A period that ends a sentence ("depends on @lablup/ui-common.") is not
+    // part of the name; one followed by a word character is.
     pattern: new RegExp(
-      String.raw`lablup/(?!(?:${ALLOWED_LABLUP_REFERENCES.join("|").replace(/\./g, String.raw`\.`)})(?![\w.-]))[\w.-]+`,
+      String.raw`(?<!theme/)lablup/(?!(?:${ALLOWED_LABLUP_REFERENCES.join("|").replace(/\./g, String.raw`\.`)})(?![\w-]|\.\w))[\w.-]+`,
       "i",
     ),
     reason: "references a Lablup repository that is not public",
@@ -111,10 +122,18 @@ const DISCLOSURE = [
   },
 ];
 
-const docFiles = globSync(["*.md", "NOTICE", ".github/**/*.yml"], {
-  cwd: root,
-  absolute: true,
-});
+// The CLI package ships its sources as they are, so they are scanned like docs.
+const docFiles = globSync(
+  [
+    "*.md",
+    "NOTICE",
+    ".github/**/*.yml",
+    "packages/*/*.md",
+    "packages/*/NOTICE",
+    "packages/cli/{bin,cli,codemods,migration}/**/*.{mjs,json}",
+  ],
+  { cwd: root, absolute: true },
+);
 
 /**
  * Blank out comment markers without moving anything.

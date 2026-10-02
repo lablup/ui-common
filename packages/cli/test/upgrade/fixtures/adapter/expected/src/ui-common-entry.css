@@ -1,0 +1,15 @@
+/*
+ * The @lablup/ui-common stylesheet entry, written by `ui-common upgrade` in
+ * place of the 0.1 styles/base.css import. Keep it first among your
+ * stylesheets: the @layer statement fixes the cascade order for everything
+ * loaded after it. legacy-tokens.css keeps --token-* reads resolving and is
+ * removed in 0.3.
+ */
+@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
+
+@import "@lablup/ui-common/reset.css";
+@import "@lablup/ui-common/astryx.css";
+@import "@lablup/ui-common/theme/lablup/theme.css";
+@import "@lablup/ui-common/ui-common.css";
+@import "@lablup/ui-common/legacy-tokens.css";
+@import "@lablup/ui-common/lab/lab.css";

@@ -1,6 +1,10 @@
 /**
  * @lablup/ui-common design tokens
  *
+ * DEPRECATED since 0.2, removed in 0.3. The token contract is now Astryx's
+ * own token set, themed by `@lablup/ui-common/theme/lablup`. Code that still
+ * reads `--token-*` names can import `@lablup/ui-common/legacy-tokens.css`.
+ *
  * The 119 `--token-*` custom properties every component in this package
  * reads. This file is the token contract: renaming or removing an entry is
  * a breaking change, exactly like renaming a prop (see CONTRIBUTING.md).

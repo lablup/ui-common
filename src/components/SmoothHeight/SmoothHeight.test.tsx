@@ -67,17 +67,17 @@ describe("SmoothHeight", () => {
     const { container, rerender } = render(
       <SmoothHeight active={false}>content</SmoothHeight>,
     );
-    const outer = container.querySelector(".smooth-height");
-    expect(outer).not.toHaveClass("smooth-height--active");
+    const outer = container.querySelector(".uic-smooth-height");
+    expect(outer).not.toHaveClass("uic-smooth-height--active");
 
     rerender(<SmoothHeight active={true}>content</SmoothHeight>);
-    expect(outer).toHaveClass("smooth-height--active");
+    expect(outer).toHaveClass("uic-smooth-height--active");
   });
 
   it("tracks the measured content height while active", () => {
     const { container } = render(<SmoothHeight active={true}>content</SmoothHeight>);
-    const outer = container.querySelector<HTMLElement>(".smooth-height");
-    const inner = container.querySelector<HTMLElement>(".smooth-height__content");
+    const outer = container.querySelector<HTMLElement>(".uic-smooth-height");
+    const inner = container.querySelector<HTMLElement>(".uic-smooth-height__content");
     expect(outer?.style.height).toBe("0px");
 
     // Content grows: the observer fires and the wrapper height follows.
@@ -93,8 +93,8 @@ describe("SmoothHeight", () => {
     const { container, rerender } = render(
       <SmoothHeight active={true}>content</SmoothHeight>,
     );
-    const outer = container.querySelector<HTMLElement>(".smooth-height");
-    const inner = container.querySelector<HTMLElement>(".smooth-height__content");
+    const outer = container.querySelector<HTMLElement>(".uic-smooth-height");
+    const inner = container.querySelector<HTMLElement>(".uic-smooth-height__content");
     setOffsetHeight(inner as Element, 80);
     act(() => {
       MockResizeObserver.instances[0]?.trigger();
@@ -114,7 +114,7 @@ describe("SmoothHeight", () => {
   it("renders plain wrappers when ResizeObserver is unavailable", () => {
     vi.stubGlobal("ResizeObserver", undefined);
     const { container } = render(<SmoothHeight active={true}>content</SmoothHeight>);
-    const outer = container.querySelector<HTMLElement>(".smooth-height");
+    const outer = container.querySelector<HTMLElement>(".uic-smooth-height");
     expect(outer?.style.height).toBe("");
   });
 });

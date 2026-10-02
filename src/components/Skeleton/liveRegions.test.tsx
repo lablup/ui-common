@@ -17,7 +17,8 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import { Skeleton } from "./Skeleton";
+import { InternationalizationProvider } from "@astryxdesign/core/i18n";
+
 import { SkeletonCard } from "./SkeletonCard";
 import { SkeletonChart } from "./SkeletonChart";
 import { SkeletonRow } from "./SkeletonRow";
@@ -72,21 +73,60 @@ describe("the container carries the name", () => {
   });
 });
 
-describe("the standalone primitive is unchanged", () => {
-  it("is its own live region when nothing wraps it", () => {
-    render(<Skeleton loadingLabel="Loading avatar" />);
+describe("the shapes inside are decoration", () => {
+  // Astryx `Skeleton` is `aria-hidden` by design; the composites rely on it
+  // rather than on a flag of their own, so this pins the assumption.
+  it.each([
+    ["SkeletonCard", <SkeletonCard key="c" />],
+    ["SkeletonChart", <SkeletonChart key="c" variant="pie" />],
+    ["SkeletonText", <SkeletonText key="c" />],
+    ["SkeletonRow", <SkeletonRow key="c" showAvatar showActions />],
+  ])("%s draws every shape with Astryx Skeleton, hidden", (_name, element) => {
+    const { container } = render(element);
 
-    expect(screen.getByRole("status", { name: "Loading avatar" })).toBeInTheDocument();
+    const shapes = container.querySelectorAll(".uic-skeleton-shape");
+    expect(shapes.length).toBeGreaterThan(0);
+    for (const shape of shapes) {
+      expect(shape).toHaveClass("astryx-skeleton");
+      expect(shape).toHaveAttribute("aria-hidden", "true");
+    }
+  });
+});
+
+describe("default labels come from the catalog", () => {
+  it("resolves a translated name through Astryx's provider", () => {
+    render(
+      <InternationalizationProvider
+        locale="ko-KR"
+        messages={{
+          "ko-KR": {
+            "uic.SkeletonChart.loading": { defaultMessage: "차트 불러오는 중" },
+          },
+        }}
+      >
+        <SkeletonChart />
+      </InternationalizationProvider>,
+    );
+
+    expect(
+      screen.getByRole("status", { name: "차트 불러오는 중" }),
+    ).toBeInTheDocument();
   });
 
-  it("leaves the tree only when asked", () => {
-    const { container } = render(<Skeleton decorative testId="shape" />);
+  it("lets an explicit label win over the catalog", () => {
+    render(
+      <InternationalizationProvider
+        locale="ko-KR"
+        messages={{
+          "ko-KR": {
+            "uic.SkeletonChart.loading": { defaultMessage: "차트 불러오는 중" },
+          },
+        }}
+      >
+        <SkeletonChart loadingLabel="Fetching series" />
+      </InternationalizationProvider>,
+    );
 
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
-    const shape = container.querySelector('[data-testid="shape"]');
-    expect(shape).toHaveAttribute("aria-hidden", "true");
-    // Still a shimmer of the right size: decoration, not absence.
-    expect(shape).toHaveClass("skeleton");
-    expect(shape?.querySelector(".skeleton__shimmer")).not.toBeNull();
+    expect(screen.getByRole("status", { name: "Fetching series" })).toBeInTheDocument();
   });
 });

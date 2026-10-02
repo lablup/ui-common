@@ -1,24 +1,22 @@
-/**
- * SmoothHeight Component Styles
- */
+/* SmoothHeight: animates a wrapper toward its content's measured height. */
+@layer ui-common {
+  /* While active, the wrapper carries an explicit pixel height (set from the
+     measured content) and animates toward it. Content beyond the animated
+     edge is clipped until the height catches up. */
+  .uic-smooth-height--active {
+    overflow: hidden;
+    transition: height var(--duration-fast-max) var(--ease-standard);
+  }
 
-/* While active, the wrapper carries an explicit pixel height (set from
-   the measured content) and animates toward it. Content beyond the
-   animated edge is clipped until the height catches up. */
-.smooth-height--active {
-  overflow: hidden;
-  transition: height var(--token-motionDurationMid, 0.2s) ease-out;
-}
+  /* flow-root contains the children's margins, so the measured content
+     height matches the rendered height exactly. */
+  .uic-smooth-height__content {
+    display: flow-root;
+  }
 
-/* flow-root contains the children's margins, so the measured content
-   height matches the rendered height exactly. */
-.smooth-height__content {
-  display: flow-root;
-}
-
-/* Accessibility: no height animation for reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .smooth-height--active {
-    transition: none;
+  @media (prefers-reduced-motion: reduce) {
+    .uic-smooth-height--active {
+      transition: none;
+    }
   }
 }

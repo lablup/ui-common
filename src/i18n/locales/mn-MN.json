@@ -1,0 +1,322 @@
+{
+  "uic.common.cancel": {
+    "defaultMessage": "Цуцлах",
+    "description": "Generic label of a button that backs out of an action or stops a task"
+  },
+  "uic.common.confirm": {
+    "defaultMessage": "Баталгаажуулах",
+    "description": "Generic label of a button that confirms an action"
+  },
+  "uic.common.delete": {
+    "defaultMessage": "Устгах",
+    "description": "Generic label of a button that deletes something"
+  },
+  "uic.common.retry": {
+    "defaultMessage": "Дахин оролдох",
+    "description": "Generic label of a button that retries a failed action or load"
+  },
+  "uic.common.apply": {
+    "defaultMessage": "Хэрэглэх",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
+  "uic.ColorPicker.label": {
+    "defaultMessage": "Өнгө сонгох",
+    "description": "Accessible name of a color picker whose caller gave it no label"
+  },
+  "uic.ColorPicker.hexValue": {
+    "defaultMessage": "Hex утга",
+    "description": "Hidden label of the color picker's text field for a #rrggbb value"
+  },
+  "uic.ColorPicker.clear": {
+    "defaultMessage": "Цэвэрлэх",
+    "description": "Button in a color picker that removes the chosen color"
+  },
+  "uic.ColorPicker.noColor": {
+    "defaultMessage": "Өнгөгүй",
+    "description": "Shown on a color picker's trigger when no color is set"
+  },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "Устгах",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {# зүйл устгах}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "Та устгахдаа итгэлтэй байна уу?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "{target}-г бүрмөсөн устгахдаа итгэлтэй байна уу?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "Баталгаажуулахын тулд {confirmText} гэж бичнэ үү.",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "Эдгээх",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "Энэ үйлдлийг буцаах боломжгүй.",
+    "description": "Warning that the deletion is permanent"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "Нэмэх",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "Хасах",
+    "description": "Accessible name of the button that steps a number field down"
+  },
+  "uic.SelectionLabel.selectedCount": {
+    "defaultMessage": "{count} сонгогдсон",
+    "description": "How many items are selected, e.g. rows of a table; {count} is the number"
+  },
+  "uic.SelectionLabel.clear": {
+    "defaultMessage": "Бүгдийг сонголтоос хасах",
+    "description": "Button that clears the whole selection"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "Ачаалж байна",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "Ачаалж байна",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "Ачаалж байна",
+    "description": "Accessible name of a text-block loading placeholder"
+  },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "Хязгааргүй",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "болон бусад {count}",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
+  "uic.UncontrolledInput.label": {
+    "defaultMessage": "Сонгох",
+    "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  },
+  "uic.UnitGrid.label": {
+    "defaultMessage": "Нөөцийн тор",
+    "description": "Accessible name of a unit grid whose caller gave it no aria-label"
+  },
+  "uic.UnitGrid.changeGroupColor": {
+    "defaultMessage": "Бүлгийн өнгийг өөрчлөх",
+    "description": "Button in a unit grid's hover card that opens the palette for the group"
+  },
+  "uic.UnitGrid.useColor": {
+    "defaultMessage": "Өнгө {index} ашиглах",
+    "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
+  },
+  "uic.Form.optional": {
+    "defaultMessage": "(сонголттой)",
+    "description": "Suffix after the label of an optional field when requiredMark=\"optional\""
+  },
+  "uic.Form.default": {
+    "defaultMessage": "{label}-ийн талбарын баталгаажуулалтын алдаа",
+    "description": "Validation error when a rule failed without a more specific message"
+  },
+  "uic.Form.required": {
+    "defaultMessage": "{label} оруулна уу",
+    "description": "Validation error for an empty required field"
+  },
+  "uic.Form.whitespace": {
+    "defaultMessage": "{label} нь хоосон тэмдэгт байж болохгүй",
+    "description": "Validation error for a required field that holds only whitespace"
+  },
+  "uic.Form.typeString": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for a value that is not a string; {type} is the type name"
+  },
+  "uic.Form.typeNumber": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for a value that is not a number; {type} is the type name"
+  },
+  "uic.Form.typeObject": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for a value that is not an object; {type} is the type name"
+  },
+  "uic.Form.typeEmail": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for an invalid email address; {type} is the type name"
+  },
+  "uic.Form.typeUrl": {
+    "defaultMessage": "{label} нь хүчинтэй {type} биш",
+    "description": "Validation error for an invalid URL; {type} is the type name"
+  },
+  "uic.Form.stringLen": {
+    "defaultMessage": "{label} {len} тэмдэгттэй байх ёстой",
+    "description": "Validation error for text of the wrong exact length"
+  },
+  "uic.Form.stringMin": {
+    "defaultMessage": "{label} хамгийн багадаа {min} тэмдэгттэй байх ёстой",
+    "description": "Validation error for text shorter than the minimum"
+  },
+  "uic.Form.stringMax": {
+    "defaultMessage": "{label} нь {max} хүртэлх тэмдэгттэй байх ёстой",
+    "description": "Validation error for text longer than the maximum"
+  },
+  "uic.Form.stringRange": {
+    "defaultMessage": "{label} {min}-{max} тэмдэгтийн хооронд байх ёстой",
+    "description": "Validation error for text outside a length range"
+  },
+  "uic.Form.numberLen": {
+    "defaultMessage": "{label} нь {len}-тэй тэнцүү байх ёстой",
+    "description": "Validation error for a number that must equal a value"
+  },
+  "uic.Form.numberMin": {
+    "defaultMessage": "{label} хамгийн багадаа {min} байх ёстой",
+    "description": "Validation error for a number below the minimum"
+  },
+  "uic.Form.numberMax": {
+    "defaultMessage": "{label} дээд тал нь {max} байх ёстой",
+    "description": "Validation error for a number above the maximum"
+  },
+  "uic.Form.numberRange": {
+    "defaultMessage": "{label} {min}-{max} хооронд байх ёстой",
+    "description": "Validation error for a number outside a range"
+  },
+  "uic.Form.arrayLen": {
+    "defaultMessage": "{len} {label} байх ёстой",
+    "description": "Validation error for a list with the wrong number of items"
+  },
+  "uic.Form.arrayMin": {
+    "defaultMessage": "Дор хаяж {min} {label}",
+    "description": "Validation error for a list with too few items"
+  },
+  "uic.Form.arrayMax": {
+    "defaultMessage": "Хамгийн ихдээ {max} {label}",
+    "description": "Validation error for a list with too many items"
+  },
+  "uic.Form.arrayRange": {
+    "defaultMessage": "{label}-н хэмжээ {min}-{max} хооронд байх ёстой",
+    "description": "Validation error for a list whose item count is outside a range"
+  },
+  "uic.Form.patternMismatch": {
+    "defaultMessage": "{label} нь {pattern} загвартай тохирохгүй байна",
+    "description": "Validation error for text that does not match a pattern"
+  },
+  "uic.BulkEditFormItem.keepAsIs": {
+    "defaultMessage": "Хэвээр үлдээх",
+    "description": "Placeholder of a bulk-edit field that leaves every selected item's current value unchanged"
+  },
+  "uic.BulkEditFormItem.clear": {
+    "defaultMessage": "Цэвэрлэх",
+    "description": "Link that clears the field on every selected item, and the field's placeholder once cleared"
+  },
+  "uic.BulkEditFormItem.undoChanges": {
+    "defaultMessage": "Өөрчлөлтийг буцаах",
+    "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "Гүйцэтгэл амжилтгүй боллоо",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "Алдаа гарлаа",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "Харуулах өгөгдөл алга",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "Хуудасны дугаар буруу байна",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "Эх хуудас руу шилжих",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "Мөрийг дэлгэх",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "Хуудаслалт",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "{start} - {end}, нийт {total} зүйл",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "Хүснэгтийн тохиргоо",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "CSV экспортлах",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "Дэлгэцийн баганыг сонгоно уу",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "Хүснэгтийн баганыг хайх",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.reorderColumn": {
+    "defaultMessage": "{column} баганын дарааллыг өөрчлөх",
+    "description": "Accessible name of the drag handle beside a column in a data grid's column settings dialog. {column} is the column's label"
+  },
+  "uic.DataGrid.reorderInstructions": {
+    "defaultMessage": "Баганыг авахын тулд Space товчийг дарж, сум товчоор зөөгөөд, дахин Space товчийг дарж байрлуулна уу, эсвэл Escape товчоор цуцална уу.",
+    "description": "Screen reader instructions for a drag handle in a data grid's column settings dialog"
+  },
+  "uic.DataGrid.reorderPickedUp": {
+    "defaultMessage": "{column} баганыг авлаа. Байрлал {position}/{total}.",
+    "description": "Screen reader announcement when a column is picked up for reordering in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderMoved": {
+    "defaultMessage": "{column} баганыг {position}/{total} байрлал руу зөөлөө.",
+    "description": "Screen reader announcement while a picked-up column moves in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderDropped": {
+    "defaultMessage": "{column} баганыг {position}/{total} байрлалд байрлууллаа.",
+    "description": "Screen reader announcement when a column is dropped in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderCancelled": {
+    "defaultMessage": "Дараалал өөрчлөхийг цуцаллаа. {column} багана {position}/{total} байрлалдаа буцлаа.",
+    "description": "Screen reader announcement when reordering a column is cancelled in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "Экспорт",
+    "description": "Primary button of a data grid's CSV export dialog"
+  },
+  "uic.PagedSelector.placeholder": {
+    "defaultMessage": "{label} сонгоно уу",
+    "description": "Placeholder of a selector with nothing selected; {label} is the field's label"
+  },
+  "uic.PagedSelector.searchOptions": {
+    "defaultMessage": "Сонголтуудаас хайх",
+    "description": "Accessible name of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.searchPlaceholder": {
+    "defaultMessage": "Хайх",
+    "description": "Placeholder of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.clearSearch": {
+    "defaultMessage": "Сонголтуудаас хайх-г цэвэрлэх",
+    "description": "Accessible name of the button that empties a selector's search box"
+  },
+  "uic.PagedSelector.noResults": {
+    "defaultMessage": "Үр дүн олдсонгүй",
+    "description": "Shown in a selector's option list when no option matches"
+  },
+  "uic.PagedSelector.loading": {
+    "defaultMessage": "Ачаалж байна...",
+    "description": "Shown in a selector's empty option list while options are being fetched"
+  },
+  "uic.PagedSelector.totalItems": {
+    "defaultMessage": "Нийт {total} зүйлүүд",
+    "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  }
+}

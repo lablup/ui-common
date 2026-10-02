@@ -32,8 +32,9 @@ if (!globalThis.ResizeObserver) {
 // overrides globals it already knows about when they collide with an
 // existing Node global, and `localStorage` was added to Node after that
 // allow-list was written, so jsdom's real (working) implementation never
-// gets a chance to take its place. DataTable's column-persistence tests
-// need a working Storage, so install a minimal in-memory polyfill whenever
+// gets a chance to take its place. Nothing here persists to Storage today,
+// but a component that does would fail for a reason that has nothing to do
+// with it, so install a minimal in-memory polyfill whenever
 // the environment's own `localStorage` is unusable.
 function isUsableStorage(storage: unknown): storage is Storage {
   if (!storage || typeof storage !== "object") return false;

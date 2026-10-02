@@ -1,0 +1,13 @@
+/* A shape inside a ui-common Skeleton composite. Astryx `Skeleton` draws it. */
+@layer ui-common {
+  .uic-skeleton-shape {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* A line of text: one em tall, drawn at the x-height so stacked lines keep
+     the gaps a paragraph has. */
+  .uic-skeleton-shape--text {
+    transform: scale(1, 0.6);
+  }
+}

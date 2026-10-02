@@ -20,29 +20,29 @@ describe("SkeletonRow", () => {
     it("should render with default props", () => {
       const { container } = render(<SkeletonRow />);
 
-      const row = container.querySelector(".skeleton-row");
+      const row = container.querySelector(".uic-skeleton-row");
       expect(row).toBeInTheDocument();
     });
 
     it("should render 1 row by default", () => {
       const { container } = render(<SkeletonRow />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       expect(rows).toHaveLength(1);
     });
 
     it("should render content section", () => {
       const { container } = render(<SkeletonRow />);
 
-      const content = container.querySelector(".skeleton-row__content");
+      const content = container.querySelector(".uic-skeleton-row__content");
       expect(content).toBeInTheDocument();
     });
 
     it("should render 2 skeletons in content (timestamp and text)", () => {
       const { container } = render(<SkeletonRow />);
 
-      const content = container.querySelector(".skeleton-row__content");
-      const skeletons = content?.querySelectorAll(".skeleton");
+      const content = container.querySelector(".uic-skeleton-row__content");
+      const skeletons = content?.querySelectorAll(".uic-skeleton-shape");
       expect(skeletons).toHaveLength(2);
     });
   });
@@ -51,21 +51,21 @@ describe("SkeletonRow", () => {
     it("should render 1 row when count is 1", () => {
       const { container } = render(<SkeletonRow count={1} />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       expect(rows).toHaveLength(1);
     });
 
     it("should render 5 rows when count is 5", () => {
       const { container } = render(<SkeletonRow count={5} />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       expect(rows).toHaveLength(5);
     });
 
     it("should render 10 rows when count is 10", () => {
       const { container } = render(<SkeletonRow count={10} />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       expect(rows).toHaveLength(10);
     });
   });
@@ -74,29 +74,29 @@ describe("SkeletonRow", () => {
     it("should not show avatar by default", () => {
       const { container } = render(<SkeletonRow />);
 
-      const avatar = container.querySelector(".skeleton-row__avatar");
+      const avatar = container.querySelector(".uic-skeleton-row__avatar");
       expect(avatar).not.toBeInTheDocument();
     });
 
     it("should show avatar when showAvatar is true", () => {
       const { container } = render(<SkeletonRow showAvatar />);
 
-      const avatar = container.querySelector(".skeleton-row__avatar");
+      const avatar = container.querySelector(".uic-skeleton-row__avatar");
       expect(avatar).toBeInTheDocument();
     });
 
     it("should render circle skeleton in avatar", () => {
       const { container } = render(<SkeletonRow showAvatar />);
 
-      const avatar = container.querySelector(".skeleton-row__avatar");
-      const circle = avatar?.querySelector(".skeleton--circle");
+      const avatar = container.querySelector(".uic-skeleton-row__avatar");
+      const circle = avatar?.querySelector(".uic-skeleton-shape--circle");
       expect(circle).toBeInTheDocument();
     });
 
     it("should show avatar on all rows when count > 1", () => {
       const { container } = render(<SkeletonRow showAvatar count={3} />);
 
-      const avatars = container.querySelectorAll(".skeleton-row__avatar");
+      const avatars = container.querySelectorAll(".uic-skeleton-row__avatar");
       expect(avatars).toHaveLength(3);
     });
   });
@@ -105,29 +105,29 @@ describe("SkeletonRow", () => {
     it("should not show actions by default", () => {
       const { container } = render(<SkeletonRow />);
 
-      const actions = container.querySelector(".skeleton-row__actions");
+      const actions = container.querySelector(".uic-skeleton-row__actions");
       expect(actions).not.toBeInTheDocument();
     });
 
     it("should show actions when showActions is true", () => {
       const { container } = render(<SkeletonRow showActions />);
 
-      const actions = container.querySelector(".skeleton-row__actions");
+      const actions = container.querySelector(".uic-skeleton-row__actions");
       expect(actions).toBeInTheDocument();
     });
 
     it("should render 2 action button skeletons", () => {
       const { container } = render(<SkeletonRow showActions />);
 
-      const actions = container.querySelector(".skeleton-row__actions");
-      const buttons = actions?.querySelectorAll(".skeleton");
+      const actions = container.querySelector(".uic-skeleton-row__actions");
+      const buttons = actions?.querySelectorAll(".uic-skeleton-shape");
       expect(buttons).toHaveLength(2);
     });
 
     it("should show actions on all rows when count > 1", () => {
       const { container } = render(<SkeletonRow showActions count={3} />);
 
-      const actionSections = container.querySelectorAll(".skeleton-row__actions");
+      const actionSections = container.querySelectorAll(".uic-skeleton-row__actions");
       expect(actionSections).toHaveLength(3);
     });
   });
@@ -136,8 +136,8 @@ describe("SkeletonRow", () => {
     it("should show both avatar and actions when both are true", () => {
       const { container } = render(<SkeletonRow showAvatar showActions />);
 
-      const avatar = container.querySelector(".skeleton-row__avatar");
-      const actions = container.querySelector(".skeleton-row__actions");
+      const avatar = container.querySelector(".uic-skeleton-row__avatar");
+      const actions = container.querySelector(".uic-skeleton-row__actions");
       expect(avatar).toBeInTheDocument();
       expect(actions).toBeInTheDocument();
     });
@@ -145,36 +145,36 @@ describe("SkeletonRow", () => {
     it("should show avatar, actions, and content on all rows", () => {
       const { container } = render(<SkeletonRow showAvatar showActions count={3} />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       rows.forEach((row) => {
-        expect(row.querySelector(".skeleton-row__avatar")).toBeInTheDocument();
-        expect(row.querySelector(".skeleton-row__content")).toBeInTheDocument();
-        expect(row.querySelector(".skeleton-row__actions")).toBeInTheDocument();
+        expect(row.querySelector(".uic-skeleton-row__avatar")).toBeInTheDocument();
+        expect(row.querySelector(".uic-skeleton-row__content")).toBeInTheDocument();
+        expect(row.querySelector(".uic-skeleton-row__actions")).toBeInTheDocument();
       });
     });
   });
 
   describe("CSS Classes", () => {
-    it("should include base skeleton-row class", () => {
+    it("should include base uic-skeleton-row class", () => {
       const { container } = render(<SkeletonRow />);
 
-      const row = container.querySelector(".skeleton-row");
-      expect(row).toHaveClass("skeleton-row");
+      const row = container.querySelector(".uic-skeleton-row");
+      expect(row).toHaveClass("uic-skeleton-row");
     });
 
     it("should include custom className", () => {
       const { container } = render(<SkeletonRow className="custom-class" />);
 
-      const row = container.querySelector(".skeleton-row");
-      expect(row).toHaveClass("skeleton-row", "custom-class");
+      const row = container.querySelector(".uic-skeleton-row");
+      expect(row).toHaveClass("uic-skeleton-row", "custom-class");
     });
 
     it("should apply custom className to all rows", () => {
       const { container } = render(<SkeletonRow className="custom-class" count={3} />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       rows.forEach((row) => {
-        expect(row).toHaveClass("skeleton-row", "custom-class");
+        expect(row).toHaveClass("uic-skeleton-row", "custom-class");
       });
     });
   });
@@ -183,7 +183,7 @@ describe("SkeletonRow", () => {
     it("should have role status on each row", () => {
       const { container } = render(<SkeletonRow count={3} />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       rows.forEach((row) => {
         expect(row).toHaveAttribute("role", "status");
       });
@@ -192,7 +192,7 @@ describe("SkeletonRow", () => {
     it("should have aria-busy set to true on each row", () => {
       const { container } = render(<SkeletonRow count={2} />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       rows.forEach((row) => {
         expect(row).toHaveAttribute("aria-busy", "true");
       });
@@ -218,7 +218,7 @@ describe("SkeletonRow", () => {
     it("should not render data-testid when not provided", () => {
       const { container } = render(<SkeletonRow />);
 
-      const row = container.querySelector(".skeleton-row");
+      const row = container.querySelector(".uic-skeleton-row");
       expect(row).not.toHaveAttribute("data-testid");
     });
   });
@@ -239,19 +239,19 @@ describe("SkeletonRow", () => {
       const row2 = screen.getByTestId("custom-row-1");
 
       [row1, row2].forEach((row) => {
-        expect(row).toHaveClass("skeleton-row", "my-row");
+        expect(row).toHaveClass("uic-skeleton-row", "my-row");
         expect(row).toHaveAttribute("role", "status");
         expect(row).toHaveAttribute("aria-busy", "true");
-        expect(row.querySelector(".skeleton-row__avatar")).toBeInTheDocument();
-        expect(row.querySelector(".skeleton-row__content")).toBeInTheDocument();
-        expect(row.querySelector(".skeleton-row__actions")).toBeInTheDocument();
+        expect(row.querySelector(".uic-skeleton-row__avatar")).toBeInTheDocument();
+        expect(row.querySelector(".uic-skeleton-row__content")).toBeInTheDocument();
+        expect(row.querySelector(".uic-skeleton-row__actions")).toBeInTheDocument();
       });
     });
 
     it("should handle 0 count gracefully", () => {
       const { container } = render(<SkeletonRow count={0} />);
 
-      const rows = container.querySelectorAll(".skeleton-row");
+      const rows = container.querySelectorAll(".uic-skeleton-row");
       expect(rows).toHaveLength(0);
     });
 
@@ -264,7 +264,7 @@ describe("SkeletonRow", () => {
 
       const wrapper = screen.getByTestId("wrapper");
       // Direct children should be the skeleton rows
-      const rows = wrapper.querySelectorAll(":scope > .skeleton-row");
+      const rows = wrapper.querySelectorAll(":scope > .uic-skeleton-row");
       expect(rows).toHaveLength(2);
     });
   });

@@ -4,7 +4,20 @@ import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "coverage", "fixture/node_modules", "fixture/dist"] },
+  {
+    ignores: [
+      "dist",
+      "coverage",
+      "fixture/node_modules",
+      "fixture/dist",
+      // `astryx theme build` output, committed as generated.
+      "src/theme/*/built/**",
+      // Consumer code the upgrade codemods run on, and their expected output.
+      "packages/cli/test/upgrade/fixtures/**",
+      // Agent worktrees: other checkouts of this repository, with their own dist.
+      ".claude/**",
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -51,11 +64,22 @@ export default tseslint.config(
     },
   },
   {
+    // The form engine keeps antd's form types, whose store and values are
+    // `any` by design (`Store = any`, `StoreValue = any`); narrowing them
+    // would break code written against antd's form.
+    files: ["src/components/Form/**"],
+    rules: { "@typescript-eslint/no-explicit-any": "off" },
+  },
+  {
     files: ["**/*.test.{ts,tsx}", "src/test/**"],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
   {
-    files: ["scripts/**/*.mjs", "*.config.{js,ts}"],
+    files: [
+      "scripts/**/*.mjs",
+      "packages/cli/{bin,cli,codemods,scripts}/**/*.mjs",
+      "*.config.{js,ts}",
+    ],
     languageOptions: { globals: globals.node },
   },
 );

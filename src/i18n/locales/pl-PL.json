@@ -1,0 +1,326 @@
+{
+  "uic.common.ok": {
+    "defaultMessage": "OK",
+    "description": "Generic label of a primary action button that accepts"
+  },
+  "uic.common.cancel": {
+    "defaultMessage": "Anuluj",
+    "description": "Generic label of a button that backs out of an action or stops a task"
+  },
+  "uic.common.confirm": {
+    "defaultMessage": "Potwierdź",
+    "description": "Generic label of a button that confirms an action"
+  },
+  "uic.common.delete": {
+    "defaultMessage": "Usuń",
+    "description": "Generic label of a button that deletes something"
+  },
+  "uic.common.retry": {
+    "defaultMessage": "Ponów",
+    "description": "Generic label of a button that retries a failed action or load"
+  },
+  "uic.common.apply": {
+    "defaultMessage": "Zastosuj",
+    "description": "Generic label of a button that applies the changes made in a dialog"
+  },
+  "uic.ColorPicker.label": {
+    "defaultMessage": "Wybierz kolor",
+    "description": "Accessible name of a color picker whose caller gave it no label"
+  },
+  "uic.ColorPicker.hexValue": {
+    "defaultMessage": "Wartość szesnastkowa",
+    "description": "Hidden label of the color picker's text field for a #rrggbb value"
+  },
+  "uic.ColorPicker.clear": {
+    "defaultMessage": "Wyczyść",
+    "description": "Button in a color picker that removes the chosen color"
+  },
+  "uic.ColorPicker.noColor": {
+    "defaultMessage": "Brak koloru",
+    "description": "Shown on a color picker's trigger when no color is set"
+  },
+  "uic.DeleteConfirmModal.title": {
+    "defaultMessage": "Usuń",
+    "description": "Title of the dialog that confirms deleting one item"
+  },
+  "uic.DeleteConfirmModal.titleMany": {
+    "defaultMessage": "{count, plural, other {Usuń # elementów}}",
+    "description": "Title of the dialog that confirms deleting several items; {count} is how many"
+  },
+  "uic.DeleteConfirmModal.description": {
+    "defaultMessage": "Czy na pewno chcesz usunąć?",
+    "description": "Question above the list of items about to be deleted"
+  },
+  "uic.DeleteConfirmModal.targetDescription": {
+    "defaultMessage": "Czy na pewno chcesz trwale usunąć {target}?",
+    "description": "Question above the list of items about to be deleted; {target} names the kind of item, e.g. Project"
+  },
+  "uic.DeleteConfirmModal.typeToConfirm": {
+    "defaultMessage": "Wpisz {confirmText}, aby potwierdzić.",
+    "description": "Instruction above the confirmation field; {confirmText} is the text to type, shown as a token"
+  },
+  "uic.DeleteConfirmModal.confirmText": {
+    "defaultMessage": "Usuwać",
+    "description": "The word the user types to confirm deleting several items at once"
+  },
+  "uic.DeleteConfirmModal.cannotBeUndone": {
+    "defaultMessage": "Tej operacji nie można cofnąć.",
+    "description": "Warning that the deletion is permanent"
+  },
+  "uic.NumberStepper.increase": {
+    "defaultMessage": "Zwiększ",
+    "description": "Accessible name of the button that steps a number field up"
+  },
+  "uic.NumberStepper.decrease": {
+    "defaultMessage": "Zmniejsz",
+    "description": "Accessible name of the button that steps a number field down"
+  },
+  "uic.SelectionLabel.selectedCount": {
+    "defaultMessage": "{count}",
+    "description": "How many items are selected, e.g. rows of a table; {count} is the number"
+  },
+  "uic.SelectionLabel.clear": {
+    "defaultMessage": "Odznacz wszystko",
+    "description": "Button that clears the whole selection"
+  },
+  "uic.SkeletonCard.loading": {
+    "defaultMessage": "Ładowanie",
+    "description": "Accessible name of a card-shaped loading placeholder"
+  },
+  "uic.SkeletonRow.loading": {
+    "defaultMessage": "Ładowanie",
+    "description": "Accessible name of one list-row loading placeholder"
+  },
+  "uic.SkeletonText.loading": {
+    "defaultMessage": "Ładowanie",
+    "description": "Accessible name of a text-block loading placeholder"
+  },
+  "uic.Statistic.unlimited": {
+    "defaultMessage": "Nieograniczony",
+    "description": "Shown in place of a metric's value when the value has no limit"
+  },
+  "uic.TokenRow.more": {
+    "defaultMessage": "i {count} więcej",
+    "description": "After a row of tokens cut short, how many were left out; {count} is the number"
+  },
+  "uic.UncontrolledInput.label": {
+    "defaultMessage": "Wybierz",
+    "description": "Hidden accessible name of an input whose caller gave it no label of its own"
+  },
+  "uic.UnitGrid.label": {
+    "defaultMessage": "Siatka zasobów",
+    "description": "Accessible name of a unit grid whose caller gave it no aria-label"
+  },
+  "uic.UnitGrid.changeGroupColor": {
+    "defaultMessage": "Zmień kolor grupy",
+    "description": "Button in a unit grid's hover card that opens the palette for the group"
+  },
+  "uic.UnitGrid.useColor": {
+    "defaultMessage": "Użyj koloru {index}",
+    "description": "Accessible name of one palette swatch in a unit grid; {index} is its 1-based position"
+  },
+  "uic.Form.optional": {
+    "defaultMessage": "(opcjonalne)",
+    "description": "Suffix after the label of an optional field when requiredMark=\"optional\""
+  },
+  "uic.Form.default": {
+    "defaultMessage": "Błąd walidacji dla pola {label}",
+    "description": "Validation error when a rule failed without a more specific message"
+  },
+  "uic.Form.required": {
+    "defaultMessage": "Pole {label} jest wymagane",
+    "description": "Validation error for an empty required field"
+  },
+  "uic.Form.whitespace": {
+    "defaultMessage": "Pole {label} nie może być puste",
+    "description": "Validation error for a required field that holds only whitespace"
+  },
+  "uic.Form.typeString": {
+    "defaultMessage": "{label} nie posiada poprawnej wartości dla typu {type}",
+    "description": "Validation error for a value that is not a string; {type} is the type name"
+  },
+  "uic.Form.typeNumber": {
+    "defaultMessage": "{label} nie posiada poprawnej wartości dla typu {type}",
+    "description": "Validation error for a value that is not a number; {type} is the type name"
+  },
+  "uic.Form.typeObject": {
+    "defaultMessage": "{label} nie posiada poprawnej wartości dla typu {type}",
+    "description": "Validation error for a value that is not an object; {type} is the type name"
+  },
+  "uic.Form.typeEmail": {
+    "defaultMessage": "{label} nie posiada poprawnej wartości dla typu {type}",
+    "description": "Validation error for an invalid email address; {type} is the type name"
+  },
+  "uic.Form.typeUrl": {
+    "defaultMessage": "{label} nie posiada poprawnej wartości dla typu {type}",
+    "description": "Validation error for an invalid URL; {type} is the type name"
+  },
+  "uic.Form.stringLen": {
+    "defaultMessage": "{label} musi posiadać {len} znaków",
+    "description": "Validation error for text of the wrong exact length"
+  },
+  "uic.Form.stringMin": {
+    "defaultMessage": "{label} musi posiadać co namniej {min} znaków",
+    "description": "Validation error for text shorter than the minimum"
+  },
+  "uic.Form.stringMax": {
+    "defaultMessage": "{label} musi posiadać maksymalnie {max} znaków",
+    "description": "Validation error for text longer than the maximum"
+  },
+  "uic.Form.stringRange": {
+    "defaultMessage": "{label} musi posiadać między {min} a {max} znaków",
+    "description": "Validation error for text outside a length range"
+  },
+  "uic.Form.numberLen": {
+    "defaultMessage": "{label} musi mieć wartość o długości {len}",
+    "description": "Validation error for a number that must equal a value"
+  },
+  "uic.Form.numberMin": {
+    "defaultMessage": "{label} musi mieć wartość większą lub równą {min}",
+    "description": "Validation error for a number below the minimum"
+  },
+  "uic.Form.numberMax": {
+    "defaultMessage": "{label} musi mieć wartość mniejszą lub równą {max}",
+    "description": "Validation error for a number above the maximum"
+  },
+  "uic.Form.numberRange": {
+    "defaultMessage": "{label} musi mieć wartość pomiędzy {min} a {max}",
+    "description": "Validation error for a number outside a range"
+  },
+  "uic.Form.arrayLen": {
+    "defaultMessage": "{label} musi posiadać {len} elementów",
+    "description": "Validation error for a list with the wrong number of items"
+  },
+  "uic.Form.arrayMin": {
+    "defaultMessage": "{label} musi posiadać co najmniej {min} elementów",
+    "description": "Validation error for a list with too few items"
+  },
+  "uic.Form.arrayMax": {
+    "defaultMessage": "{label} musi posiadać maksymalnie {max} elementów",
+    "description": "Validation error for a list with too many items"
+  },
+  "uic.Form.arrayRange": {
+    "defaultMessage": "{label} musi posiadać między {min} a {max} elementów",
+    "description": "Validation error for a list whose item count is outside a range"
+  },
+  "uic.Form.patternMismatch": {
+    "defaultMessage": "{label} nie posiada wartości zgodnej ze wzorem {pattern}",
+    "description": "Validation error for text that does not match a pattern"
+  },
+  "uic.BulkEditFormItem.keepAsIs": {
+    "defaultMessage": "Pozostaw bez zmian",
+    "description": "Placeholder of a bulk-edit field that leaves every selected item's current value unchanged"
+  },
+  "uic.BulkEditFormItem.clear": {
+    "defaultMessage": "Wyczyść",
+    "description": "Link that clears the field on every selected item, and the field's placeholder once cleared"
+  },
+  "uic.BulkEditFormItem.undoChanges": {
+    "defaultMessage": "Cofnij zmiany",
+    "description": "Link that returns a bulk-edit field to keeping the current values"
+  },
+  "uic.BulkErrorModal.title": {
+    "defaultMessage": "Wykonanie nie powiodło się",
+    "description": "Default title of the dialog that lists the failed items of a bulk operation"
+  },
+  "uic.BulkErrorModal.errorOccurred": {
+    "defaultMessage": "Wystąpił błąd",
+    "description": "Title of the error banner above the failed items, over the caller's guidance"
+  },
+  "uic.DataGrid.noData": {
+    "defaultMessage": "Brak danych do wyświetlenia",
+    "description": "Shown in place of a data grid's rows when there are none"
+  },
+  "uic.DataGrid.invalidPage": {
+    "defaultMessage": "Nieprawidłowy numer strony",
+    "description": "Shown in place of a data grid's rows when the current page lies past the last page"
+  },
+  "uic.DataGrid.goToFirstPage": {
+    "defaultMessage": "Przejdź do pierwszej strony",
+    "description": "Button under the invalid page message that returns to page 1"
+  },
+  "uic.DataGrid.expandRow": {
+    "defaultMessage": "Rozwiń wiersz",
+    "description": "Accessible name of the button that shows or hides a row's details"
+  },
+  "uic.DataGrid.pagination": {
+    "defaultMessage": "Paginacja",
+    "description": "Accessible name of a data grid's page navigation"
+  },
+  "uic.DataGrid.range": {
+    "defaultMessage": "{start} - {end} z {total}",
+    "description": "Beside a data grid's page navigation: the rows on screen out of the total. {start} and {end} are 1-based row numbers"
+  },
+  "uic.DataGrid.settings": {
+    "defaultMessage": "Ustawienia tabeli",
+    "description": "Button under a data grid that opens its column settings, and the title of that dialog"
+  },
+  "uic.DataGrid.exportCsv": {
+    "defaultMessage": "Eksportuj do CSV",
+    "description": "Button under a data grid that opens the CSV export dialog, and the title of that dialog"
+  },
+  "uic.DataGrid.selectColumns": {
+    "defaultMessage": "Wybierz kolumny do wyświetlenia",
+    "description": "Subtitle of a data grid's column settings and CSV export dialogs"
+  },
+  "uic.DataGrid.searchColumns": {
+    "defaultMessage": "Wyszukaj kolumny tabeli",
+    "description": "Placeholder of the column search field in a data grid's dialogs, also shown when no column matches"
+  },
+  "uic.DataGrid.reorderColumn": {
+    "defaultMessage": "Zmień kolejność: {column}",
+    "description": "Accessible name of the drag handle beside a column in a data grid's column settings dialog. {column} is the column's label"
+  },
+  "uic.DataGrid.reorderInstructions": {
+    "defaultMessage": "Naciśnij spację, aby chwycić kolumnę, przesuń ją klawiszami strzałek, a następnie naciśnij ponownie spację, aby ją upuścić, lub Escape, aby anulować.",
+    "description": "Screen reader instructions for a drag handle in a data grid's column settings dialog"
+  },
+  "uic.DataGrid.reorderPickedUp": {
+    "defaultMessage": "Chwycono kolumnę {column}. Jest na pozycji {position} z {total}.",
+    "description": "Screen reader announcement when a column is picked up for reordering in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderMoved": {
+    "defaultMessage": "Kolumna {column} przeniesiona na pozycję {position} z {total}.",
+    "description": "Screen reader announcement while a picked-up column moves in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderDropped": {
+    "defaultMessage": "Kolumna {column} upuszczona na pozycji {position} z {total}.",
+    "description": "Screen reader announcement when a column is dropped in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.reorderCancelled": {
+    "defaultMessage": "Anulowano zmianę kolejności. Kolumna {column} wróciła na pozycję {position} z {total}.",
+    "description": "Screen reader announcement when reordering a column is cancelled in the column settings dialog. {position} is 1-based"
+  },
+  "uic.DataGrid.export": {
+    "defaultMessage": "Eksportuj",
+    "description": "Primary button of a data grid's CSV export dialog"
+  },
+  "uic.PagedSelector.placeholder": {
+    "defaultMessage": "Wybierz {label}",
+    "description": "Placeholder of a selector with nothing selected; {label} is the field's label"
+  },
+  "uic.PagedSelector.searchOptions": {
+    "defaultMessage": "Szukaj wśród opcji",
+    "description": "Accessible name of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.searchPlaceholder": {
+    "defaultMessage": "Szukaj",
+    "description": "Placeholder of the search box at the top of a selector's option list"
+  },
+  "uic.PagedSelector.clearSearch": {
+    "defaultMessage": "Wyczyść Szukaj wśród opcji",
+    "description": "Accessible name of the button that empties a selector's search box"
+  },
+  "uic.PagedSelector.noResults": {
+    "defaultMessage": "Brak wyników",
+    "description": "Shown in a selector's option list when no option matches"
+  },
+  "uic.PagedSelector.loading": {
+    "defaultMessage": "Ładowanie...",
+    "description": "Shown in a selector's empty option list while options are being fetched"
+  },
+  "uic.PagedSelector.totalItems": {
+    "defaultMessage": "Total {total}",
+    "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  }
+}

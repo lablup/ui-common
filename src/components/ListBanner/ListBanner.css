@@ -1,0 +1,28 @@
+@layer ui-common {
+  .uic-list-banner__list {
+    max-height: var(--list-banner-max-height);
+    margin: 0;
+    padding: 0;
+    padding-top: var(--spacing-1);
+    overflow-y: auto;
+    /* A thumb with no track, floating over the content. */
+    scrollbar-color: var(--color-text-disabled) transparent;
+    scrollbar-width: thin;
+  }
+
+  /* Safari and older WebKit; ignored where scrollbar-color is supported. */
+  .uic-list-banner__list::-webkit-scrollbar,
+  .uic-list-banner__list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* 6px: a thin scrollbar; Astryx has no scrollbar size token. */
+  .uic-list-banner__list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .uic-list-banner__list::-webkit-scrollbar-thumb {
+    background: var(--color-text-disabled);
+    border-radius: var(--radius-full);
+  }
+}

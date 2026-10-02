@@ -1,0 +1,18 @@
+/*
+ * TokenRow: the count reads as a quiet note after the tokens, in the small
+ * body size on the body leading.
+ */
+@layer ui-common {
+  .uic-token-row {
+    position: relative;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .uic-token-row__more {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--text-body-leading);
+    overflow-wrap: break-word;
+  }
+}

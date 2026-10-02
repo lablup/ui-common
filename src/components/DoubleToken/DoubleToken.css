@@ -1,0 +1,21 @@
+/*
+ * DoubleToken: the weld between neighbouring tokens. Only the inner corners
+ * are squared; restating the outer ones would pin the run to the Token's
+ * current radius.
+ */
+@layer ui-common {
+  /* Each token carries a 1px outline, so neighbours overlap by that width and
+     the two strokes read as one seam. */
+  .uic-double-token__item:not(:first-child) {
+    margin-inline-start: calc(var(--border-width) * -1);
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  /* By type, not position: a copy control's tooltip can trail the tokens as a
+     sibling element, and the last token must still keep its outer corners. */
+  .uic-double-token__item:not(:last-of-type) {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+}

@@ -1,21 +1,20 @@
 /**
- * StatCard Component
+ * StatCard
  *
- * Compact metric card for dashboards. Renders a label, a large numeric
- * value (with optional unit/suffix), and optional icon, hint, trend, or
- * accent tone. The label can be a node (`labelNode`) while the accessible name
- * stays the plain `label` string. Wraps `BaseCard` so it inherits hover/focus/click affordances
- * and design tokens consistently with the rest of the common library.
- *
- * Designed for cross-page reuse: Squad dashboard, Statistics page, Cowork
- * dashboard, etc.
+ * Compact metric card for dashboards: a label, a large value with an optional
+ * suffix, and optional icon, hint, trend, sparkline or accent tone. Built on
+ * Astryx `Card` (or `ClickableCard` when it has an `onClick`), `Text` and
+ * `Skeleton`. The label can be a node (`labelNode`) while the accessible name
+ * stays the plain `label` string.
  */
+import { memo, useEffect, useRef, useState, type JSX, type ReactNode } from "react";
+import { Card } from "@astryxdesign/core/Card";
+import { ClickableCard } from "@astryxdesign/core/ClickableCard";
+import { Skeleton } from "@astryxdesign/core/Skeleton";
+import { Text } from "@astryxdesign/core/Text";
 
-import { memo, useEffect, useRef, useState, type ReactNode, type JSX } from "react";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
-import { BaseCard } from "../BaseCard";
 import { DigitPopIn } from "../DigitPopIn";
-import { Skeleton } from "../Skeleton";
 import "./StatCard.css";
 
 export type StatCardEmphasis = "compact" | "default" | "prominent";
@@ -41,32 +40,31 @@ export interface StatCardTrend {
 }
 
 export interface StatCardProps {
-  /** Short label rendered above the value (UPPERCASE styled) */
+  /** Short label rendered above the value (uppercase) */
   label: string;
   /**
    * Rendered in place of `label` when the label is not plain text: a glossary
    * term carrying its definition, a unit badge, an info affordance.
    *
-   * `label` stays required and stays the accessible name, so the name is a
-   * string the consumer wrote rather than whatever text happens to fall out of
-   * a node. Pass the same words in both.
+   * `label` stays required and stays the accessible name. Pass the same words
+   * in both.
    */
   labelNode?: ReactNode;
-  /** Primary metric value (number is coerced to localised string) */
+  /** Primary metric value (a number is formatted with `toLocaleString`) */
   value: string | number;
   /** Optional suffix appended to the value (e.g. "/ 4", "GB") */
   valueSuffix?: string;
-  /** Optional helper line under the value (e.g. context, secondary metric) */
+  /** Optional helper line under the value */
   hint?: ReactNode;
   /** Optional leading icon node, rendered inside an accent badge */
   icon?: ReactNode;
-  /** Visual tone, mirrors Badge variants. Default: "default" */
+  /** Visual tone. Default: "default" */
   tone?: StatCardTone;
   /** Optional trend indicator under the value */
   trend?: StatCardTrend;
-  /** Click handler. Renders the card as keyboard-accessible button. */
+  /** Click handler. Renders the card as Astryx `ClickableCard`. */
   onClick?: () => void;
-  /** Render skeletons instead of value/label content while loading */
+  /** Render skeletons instead of the value while loading */
   loading?: boolean;
   /** Optional aria label override (defaults to label + value) */
   ariaLabel?: string;
@@ -82,16 +80,11 @@ export interface StatCardProps {
   /**
    * Animate a numeric value on mount and on change. `true` or `"count"`
    * counts up to it; `"digits"` pops each character of the formatted value
-   * in, staggered, rising into place from a light blur. Off by default so
-   * existing consumers render the final value immediately; opt in for
-   * dashboard metrics. Suppressed under `prefers-reduced-motion`, and ignored
-   * for string values and while loading.
+   * in. Suppressed under `prefers-reduced-motion`, and ignored for string
+   * values and while loading.
    */
   animate?: boolean | StatCardAnimation;
-  /**
-   * Optional trailing visual on the value line (e.g. a sparkline). Kept as a
-   * slot so the card does not depend on any particular chart component.
-   */
+  /** Optional trailing visual on the value line (e.g. a sparkline) */
   sparkline?: ReactNode;
   /** Visual weight. Default: "default" */
   emphasis?: StatCardEmphasis;
@@ -149,6 +142,13 @@ const TREND_GLYPH: Record<StatCardTrendDirection, string> = {
   flat: "•",
 };
 
+/** Card padding per emphasis, on Astryx's spacing scale. */
+const PADDING: Record<StatCardEmphasis, 2 | 4 | 6> = {
+  compact: 2,
+  default: 4,
+  prominent: 6,
+};
+
 function formatValue(
   value: string | number,
   format?: (value: number) => string,
@@ -197,8 +197,8 @@ function StatCardComponent({
     displayValue
   );
   const valueClass = shouldPopDigits
-    ? "stat-card__value stat-card__value--digits"
-    : "stat-card__value";
+    ? "uic-stat-card__value uic-stat-card__value--digits"
+    : "uic-stat-card__value";
 
   // The aria-label always describes the settled value, never an in-flight
   // animation frame, so assistive tech is not read a counting-up number.
@@ -207,59 +207,53 @@ function StatCardComponent({
     (loading ? label : `${label}: ${formatValue(value, format)}${valueSuffix ?? ""}`);
 
   const rootClass = [
-    "stat-card",
-    "corner-accent",
-    `stat-card--tone-${tone}`,
-    emphasis !== "default" ? `stat-card--${emphasis}` : "",
+    "uic-stat-card",
+    `uic-stat-card--tone-${tone}`,
+    emphasis !== "default" ? `uic-stat-card--${emphasis}` : "",
     className,
   ]
     .filter(Boolean)
     .join(" ");
 
-  return (
-    <BaseCard
-      className={rootClass}
-      onClick={onClick}
-      role={onClick ? undefined : "group"}
-      ariaLabel={composedAriaLabel}
-      testId={testId}
-    >
-      <div className="stat-card__header">
-        <span className="stat-card__label">{labelNode ?? label}</span>
+  const valueRow = (
+    <span className="uic-stat-card__value-row">
+      <span className={valueClass}>{valueContent}</span>
+      {valueSuffix && (
+        <span className="uic-stat-card__value-suffix">{valueSuffix}</span>
+      )}
+    </span>
+  );
+
+  const body = (
+    <>
+      <div className="uic-stat-card__header">
+        <Text type="label" className="uic-stat-card__label" color="secondary">
+          {labelNode ?? label}
+        </Text>
         {icon && (
-          <span className="stat-card__icon" aria-hidden="true">
+          <span className="uic-stat-card__icon" aria-hidden="true">
             {icon}
           </span>
         )}
       </div>
 
-      <div className="stat-card__body">
+      <div className="uic-stat-card__body">
         {loading ? (
           <Skeleton width="60%" height="2rem" />
         ) : sparkline ? (
           // Only wrap when a sparkline is present, so cards without one keep
-          // the exact DOM they had before the slot existed.
-          <span className="stat-card__value-line">
-            <span className="stat-card__value-row">
-              <span className={valueClass}>{valueContent}</span>
-              {valueSuffix && (
-                <span className="stat-card__value-suffix">{valueSuffix}</span>
-              )}
-            </span>
-            <span className="stat-card__sparkline">{sparkline}</span>
+          // the value row as a direct child of the body.
+          <span className="uic-stat-card__value-line">
+            {valueRow}
+            <span className="uic-stat-card__sparkline">{sparkline}</span>
           </span>
         ) : (
-          <span className="stat-card__value-row">
-            <span className={valueClass}>{valueContent}</span>
-            {valueSuffix && (
-              <span className="stat-card__value-suffix">{valueSuffix}</span>
-            )}
-          </span>
+          valueRow
         )}
 
         {trend && !loading && (
           <span
-            className={`stat-card__trend stat-card__trend--${trend.direction}`}
+            className={`uic-stat-card__trend uic-stat-card__trend--${trend.direction}`}
             aria-label={trend.ariaLabel ?? trend.label}
           >
             <span aria-hidden="true">{TREND_GLYPH[trend.direction]}</span>
@@ -269,11 +263,37 @@ function StatCardComponent({
       </div>
 
       {hint !== undefined && hint !== null && (
-        <div className="stat-card__hint">
-          {loading ? <Skeleton width="80%" height="0.85rem" /> : hint}
+        <div className="uic-stat-card__hint">
+          {loading ? <Skeleton width="80%" height="0.85rem" index={1} /> : hint}
         </div>
       )}
-    </BaseCard>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <ClickableCard
+        label={composedAriaLabel}
+        onClick={() => onClick()}
+        padding={PADDING[emphasis]}
+        className={rootClass}
+        data-testid={testId}
+      >
+        {body}
+      </ClickableCard>
+    );
+  }
+
+  return (
+    <Card
+      padding={PADDING[emphasis]}
+      className={rootClass}
+      role="group"
+      aria-label={composedAriaLabel}
+      data-testid={testId}
+    >
+      {body}
+    </Card>
   );
 }
 
