@@ -16,7 +16,7 @@ import {
   renameElement,
   tagName,
 } from "../lib/jsx.mjs";
-import { addTodo } from "../lib/todo.mjs";
+import { addTodo, printSource } from "../lib/todo.mjs";
 import { ELEMENT_TRANSFORMS } from "./elements.mjs";
 import { MOVED, REMOVED, REMOVED_TYPES, UIC } from "./map.mjs";
 
@@ -645,6 +645,6 @@ export default function transform(file, api, ctx) {
         .node.body.unshift(...decls);
   }
 
-  const out = root.toSource({ quote: detectQuote(file.source) });
+  const out = printSource(j, root, { quote: detectQuote(file.source) });
   return file.source.endsWith("\n") && !out.endsWith("\n") ? `${out}\n` : out;
 }

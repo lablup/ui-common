@@ -18,7 +18,7 @@ import { basename, dirname, join } from "node:path";
 import postcss from "postcss";
 
 import { TODO_TAG } from "../lib/jsx.mjs";
-import { addTodo } from "../lib/todo.mjs";
+import { addTodo, printSource } from "../lib/todo.mjs";
 import { LAB_CSS, LAB_PACKAGE, STYLESHEETS } from "./map.mjs";
 
 const { base, layerOrder, imports: replacement, entryFile } = STYLESHEETS;
@@ -298,7 +298,7 @@ export function transformScriptImports(file, api, ctx) {
   });
 
   if (!changed) return undefined;
-  const out = root.toSource({
+  const out = printSource(j, root, {
     quote: file.source.includes("from '") ? "single" : "double",
   });
   return file.source.endsWith("\n") && !out.endsWith("\n") ? `${out}\n` : out;
