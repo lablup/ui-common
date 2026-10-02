@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
 
-import { DoubleBadge } from "./DoubleBadge";
+import { DoubleBadge, type DoubleBadgeProps } from "./DoubleBadge";
 
 const root = (c: HTMLElement) => c.querySelector(".uic-double-badge") as HTMLElement;
 
@@ -42,5 +42,24 @@ describe("DoubleBadge", () => {
     expect(root(container).children).toHaveLength(1);
     const { container: empty } = render(<DoubleBadge values={[]} />);
     expect(empty).toBeEmptyDOMElement();
+  });
+
+  it("takes shorthand and object values mixed in one list", () => {
+    // Type-level too: `pnpm run typecheck` rejects this file if the element
+    // type is not a union.
+    const values: DoubleBadgeProps["values"] = [
+      { label: "RUNNING", variant: "success" },
+      "2m",
+    ];
+    const { container } = render(<DoubleBadge values={values} />);
+    expect(
+      Array.from(root(container).children).map((el) => [
+        el.textContent,
+        el.getAttribute("data-variant"),
+      ]),
+    ).toEqual([
+      ["RUNNING", "success"],
+      ["2m", "neutral"],
+    ]);
   });
 });

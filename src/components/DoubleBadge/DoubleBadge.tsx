@@ -24,14 +24,13 @@ export interface DoubleBadgeValue {
 
 export interface DoubleBadgeProps {
   /** The badges, in order. */
-  values?: Array<string> | Array<DoubleBadgeValue>;
+  values?: Array<string | DoubleBadgeValue>;
 }
 
 export function DoubleBadge({ values = [] }: DoubleBadgeProps) {
   if (values.length === 0) return null;
-  const objectValues = (values as Array<string | DoubleBadgeValue>).map(
-    (value): DoubleBadgeValue =>
-      typeof value === "string" ? { label: value, variant: "neutral" } : value,
+  const objectValues = values.map((value): DoubleBadgeValue =>
+    typeof value === "string" ? { label: value, variant: "neutral" } : value,
   );
 
   return (
