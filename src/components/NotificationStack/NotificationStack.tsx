@@ -40,6 +40,7 @@ import {
   useEffect,
   useEffectEvent,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type Key,
@@ -128,7 +129,11 @@ function NotificationStackItemView({
 
   // A notice that closes under the pointer the reader moved there to read it
   // is lost; focus counts too, so keyboard users get the same reprieve.
-  const [isPaused, setIsPaused] = useState(false);
+  // Each holds the countdown on its own: leaving one must not resume it while
+  // the other still holds.
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const isPaused = isHovered || isFocused;
 
   // Derived, not a default: a task is updated in place under the same key
   // (pending, then failed), so the item never remounts. `null` means the
@@ -207,12 +212,12 @@ function NotificationStackItemView({
       data-notification-key={String(key)}
       data-status={item.status ?? "info"}
       data-paused={isPaused ? "true" : "false"}
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       // React's onFocus/onBlur are the delegated focusin/focusout pair, so
       // focus anywhere inside the notice counts.
-      onFocus={() => setIsPaused(true)}
-      onBlur={() => setIsPaused(false)}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
     >
       <Banner
         status={item.status ?? "info"}
@@ -296,9 +301,16 @@ export function NotificationStack({
   // Notices that left `notifications` but are still playing their exit.
   const [exiting, setExiting] = useState<Array<NotificationStackItem>>([]);
   const previousVisibleRef = useRef<Array<NotificationStackItem>>([]);
+  // One prune timer per exiting key. They outlive the effect that starts
+  // them: any re-render (a new array, the exit itself) re-runs that effect,
+  // and cancelling there would leave the notice mounted for good.
+  const exitTimersRef = useRef(new Map<Key, number>());
   const stackRef = useRef<HTMLDivElement>(null);
 
-  const visible = maxVisible ? notifications.slice(-maxVisible) : notifications;
+  const visible = useMemo(
+    () => (maxVisible ? notifications.slice(-maxVisible) : notifications),
+    [notifications, maxVisible],
+  );
   const newestKey = notifications.at(-1)?.key;
 
   // Once the stack is capped it scrolls, and the newest notice is at the
@@ -316,13 +328,28 @@ export function NotificationStack({
     const removed = previousVisibleRef.current.filter((n) => !currentKeys.has(n.key));
     previousVisibleRef.current = visible;
     if (removed.length === 0) return;
-    setExiting((prev) => [...prev, ...removed]);
-    const timer = window.setTimeout(() => {
-      const removedKeys = new Set(removed.map((n) => n.key));
-      setExiting((prev) => prev.filter((n) => !removedKeys.has(n.key)));
-    }, EXIT_ANIMATION_MS);
-    return () => window.clearTimeout(timer);
+    const removedKeys = new Set(removed.map((n) => n.key));
+    setExiting((prev) => [...prev.filter((n) => !removedKeys.has(n.key)), ...removed]);
+    const timers = exitTimersRef.current;
+    for (const { key } of removed) {
+      window.clearTimeout(timers.get(key));
+      timers.set(
+        key,
+        window.setTimeout(() => {
+          timers.delete(key);
+          setExiting((prev) => prev.filter((n) => n.key !== key));
+        }, EXIT_ANIMATION_MS),
+      );
+    }
   }, [notifications, visible]);
+
+  useEffect(() => {
+    const timers = exitTimersRef.current;
+    return () => {
+      for (const timer of timers.values()) window.clearTimeout(timer);
+      timers.clear();
+    };
+  }, []);
 
   const visibleKeys = new Set(visible.map((n) => n.key));
   const stillExiting = exiting.filter((n) => !visibleKeys.has(n.key));

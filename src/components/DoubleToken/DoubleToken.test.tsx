@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import { DoubleToken } from "./DoubleToken";
+import { DoubleToken, type DoubleTokenProps } from "./DoubleToken";
 
 // The weld is CSS (jsdom does not lay it out), so these pin the DOM contract
 // DoubleToken.css is written against: the item class on direct-child tokens,
@@ -35,6 +35,25 @@ describe("DoubleToken", () => {
       "green",
       "blue",
       "red",
+    ]);
+  });
+
+  it("takes shorthand and object values mixed in one list", () => {
+    // Type-level too: `pnpm run typecheck` rejects this file if the element
+    // type is not a union.
+    const values: DoubleTokenProps["values"] = [
+      { label: "CUDA", color: "green" },
+      "12.4",
+    ];
+    const { container } = render(<DoubleToken values={values} />);
+    expect(
+      Array.from(root(container).children).map((el) => [
+        el.textContent,
+        el.getAttribute("data-color"),
+      ]),
+    ).toEqual([
+      ["CUDA", "green"],
+      ["12.4", "blue"],
     ]);
   });
 

@@ -100,11 +100,11 @@ under Astryx's own name and import path until Astryx ships the fix. It exists
 because a product's pnpm `patchedDependencies` never reach that product's
 consumers, and ui-common's consumers import Astryx through ui-common.
 
-| Fork              | Where                               | Fix                                                                                       | Upstream                                                             |
-| ----------------- | ----------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                                    | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
-| `Drawer`          | `@lablup/ui-common/lab`             | Escape goes through core's layer-dismissal stack (see below); `aria-modal` passes through | not filed                                                            |
-| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                          | not filed                                                            |
+| Fork              | Where                               | Fix                                                                                                                                          | Upstream                                                             |
+| ----------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                                                                                       | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
+| `Drawer`          | `@lablup/ui-common/lab`             | Escape goes through core's layer-dismissal stack (see below); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it | not filed                                                            |
+| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                                                                             | not filed                                                            |
 
 `Drawer` is more than a fix: lab's drawer handles Escape itself, ahead of
 core's layer-dismissal stack, so an Escape in a popover, selector or modal
@@ -170,7 +170,7 @@ the recorded version or file. On an Astryx bump:
 | `DoubleBadge`                                                  | `src/components/DoubleBadge/`        | `Badge`, `HStack`                                   |
 | `BooleanToken`                                                 | `src/components/BooleanToken/`       | `Token`                                             |
 | `IconWithTooltip`                                              | `src/components/IconWithTooltip/`    | `Tooltip`, `Text`                                   |
-| `ImageWithFallback`                                            | `src/components/ImageWithFallback/`  | plain `<img>`                                       |
+| `ImageWithFallback`                                            | `src/components/ImageWithFallback/`  | plain `<img>`, plain CSS                            |
 | `NotificationStack`                                            | `src/components/NotificationStack/`  | `Banner`, `Button`, `ProgressBar`, `Stack`, `Text`  |
 | `OverlayScrollbar`                                             | `src/components/OverlayScrollbar/`   | plain CSS                                           |
 | `ConfirmPopover`                                               | `src/components/ConfirmPopover/`     | `Popover`, `Button`, `Stack`, `Text`                |

@@ -1,0 +1,9 @@
+/*
+ * ImageWithFallback: the wrapper that carries the image's semantics on the
+ * fallback. It sizes to the fallback, with no line box of its own.
+ */
+@layer ui-common {
+  .uic-image-with-fallback {
+    display: inline-flex;
+  }
+}

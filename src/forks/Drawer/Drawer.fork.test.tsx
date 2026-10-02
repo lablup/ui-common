@@ -1,6 +1,7 @@
 /**
  * ui-common's tests for its Drawer fork: the changes it carries (Escape
- * through core's layer-dismissal stack, `aria-modal` passthrough), and that everything else renders
+ * through core's layer-dismissal stack, `aria-modal` passthrough, a `Modal`
+ * inside rendering into its dialog), and that everything else renders
  * exactly as lab's does.
  */
 import { useState } from "react";
@@ -198,7 +199,7 @@ describe("Drawer fork: Escape goes through core's layer-dismissal stack", () => 
     expect(closeOuter).not.toHaveBeenCalled();
   });
 
-  it("leaves an Escape in a modal portalled out of it to that modal", async () => {
+  it("leaves an Escape in a modal opened inside it to that modal", async () => {
     const closeDrawer = vi.fn();
     const closeModal = vi.fn();
     render(
@@ -209,9 +210,6 @@ describe("Drawer fork: Escape goes through core's layer-dismissal stack", () => 
       </Drawer>,
     );
     const field = await screen.findByLabelText("Modal field");
-    expect(
-      screen.getByRole("dialog", { name: "Details", hidden: true }).contains(field),
-    ).toBe(false);
     fireEvent.keyDown(field, { key: "Escape" });
     expect(closeModal).toHaveBeenCalledWith(false);
     expect(closeDrawer).not.toHaveBeenCalled();
@@ -226,6 +224,71 @@ describe("Drawer fork: Escape goes through core's layer-dismissal stack", () => 
     (await screen.findByLabelText("Popover field")).focus();
     await user.keyboard("{Escape}");
     await waitFor(() => expect(drawerIsOpen()).toBe(false));
+  });
+});
+
+// jsdom stubs showModal and has no top layer, so these pin the wiring; the
+// stacking itself was checked in Chromium (a Modal inside a scrimmed drawer
+// takes the hit test and typing, Escape closes it alone).
+describe("Drawer fork: a Modal inside", () => {
+  it("renders into a scrimmed drawer's dialog and enters the top layer", async () => {
+    mockPopoverApi();
+    render(
+      <Drawer isOpen onOpenChange={() => {}} label="Details">
+        <input aria-label="Drawer field" />
+        <Modal isOpen onOpenChange={() => {}} title="Edit">
+          <input aria-label="Modal field" />
+        </Modal>
+      </Drawer>,
+    );
+    const field = await screen.findByLabelText("Modal field");
+    const root = field.closest(".uic-modal") as HTMLElement;
+    const drawer = screen.getByRole("dialog", { name: "Details", hidden: true });
+    expect(root.parentElement).toBe(drawer);
+    expect(root).toHaveAttribute("popover", "manual");
+    expect(HTMLElement.prototype.showPopover).toHaveBeenCalled();
+    expect(root.matches(":popover-open")).toBe(true);
+    // The drawer's own content is covered; the modal is not.
+    expect(screen.getByLabelText("Drawer field").closest("[inert]")).not.toBeNull();
+    expect(field.closest("[inert]")).toBeNull();
+  });
+
+  it("leaves the top layer when it closes", async () => {
+    mockPopoverApi();
+    const { rerender } = render(
+      <Drawer isOpen onOpenChange={() => {}} label="Details">
+        <Modal isOpen onOpenChange={() => {}} title="Edit">
+          <input aria-label="Modal field" />
+        </Modal>
+      </Drawer>,
+    );
+    const root = (await screen.findByLabelText("Modal field")).closest(
+      ".uic-modal",
+    ) as HTMLElement;
+    rerender(
+      <Drawer isOpen onOpenChange={() => {}} label="Details">
+        <Modal isOpen={false} onOpenChange={() => {}} title="Edit">
+          <input aria-label="Modal field" />
+        </Modal>
+      </Drawer>,
+    );
+    expect(root.matches(":popover-open")).toBe(false);
+  });
+
+  it("stays in the body portal under a scrimless drawer, which inerts nothing", async () => {
+    mockPopoverApi();
+    render(
+      <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
+        <Modal isOpen onOpenChange={() => {}} title="Edit">
+          <input aria-label="Modal field" />
+        </Modal>
+      </Drawer>,
+    );
+    const root = (await screen.findByLabelText("Modal field")).closest(
+      ".uic-modal",
+    ) as HTMLElement;
+    expect(root.parentElement).toBe(document.body);
+    expect(root).not.toHaveAttribute("popover");
   });
 });
 

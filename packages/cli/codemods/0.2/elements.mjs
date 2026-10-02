@@ -14,6 +14,7 @@ import {
   isSimpleReference,
   isStringish,
   jsxTextValue,
+  keepJsxTextWhitespace,
   makeAttr,
   makeSelfClosing,
   meaningfulChildren,
@@ -217,7 +218,7 @@ function childrenToProp(h, prop, mode) {
     const fragment = j.jsxFragment(
       j.jsxOpeningFragment(),
       j.jsxClosingFragment(),
-      el.children,
+      keepJsxTextWhitespace(j, el.children),
     );
     setAttr(j, el, prop, fragment);
     makeSelfClosing(el);

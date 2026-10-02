@@ -243,21 +243,37 @@ export function transformPackageJson(text, ctx) {
   // an application depends on it.
   const library = fields.includes("peerDependencies");
 
+  /**
+   * Add `name` where this project needs it, and return the fields it went
+   * into. A library needs it as a peer and, when it develops against
+   * ui-common, as a devDependency: each is checked on its own, since one does
+   * not stand in for the other. An application needs it anywhere.
+   *
+   * @param {string} name
+   * @param {string} range
+   */
+  const ensure = (name, range) => {
+    /** @type {string[]} */
+    const wanted = library
+      ? [
+          ...(pkg.peerDependencies?.[name] == null && pkg.dependencies?.[name] == null
+            ? ["peerDependencies"]
+            : []),
+          ...(fields.includes("devDependencies") && pkg.devDependencies?.[name] == null
+            ? ["devDependencies"]
+            : []),
+        ]
+      : has(name)
+        ? []
+        : [fields.includes("dependencies") ? "dependencies" : fields[0]];
+    for (const field of wanted) addDependency(pkg, field, name, range);
+    return wanted;
+  };
+
   const stylex = stylexPeer();
-  if (!has(stylex.name)) {
-    if (library) {
-      addDependency(pkg, "peerDependencies", stylex.name, stylex.range);
-      if (fields.includes("devDependencies"))
-        addDependency(pkg, "devDependencies", stylex.name, stylex.range);
-      ctx.note(
-        `added ${stylex.name} ${stylex.range} to peerDependencies${fields.includes("devDependencies") ? " and devDependencies" : ""}.`,
-      );
-    } else {
-      const field = fields.includes("dependencies") ? "dependencies" : fields[0];
-      addDependency(pkg, field, stylex.name, stylex.range);
-      ctx.note(`added ${stylex.name} ${stylex.range} to ${field}.`);
-    }
-  }
+  const stylexAdded = ensure(stylex.name, stylex.range);
+  if (stylexAdded.length > 0)
+    ctx.note(`added ${stylex.name} ${stylex.range} to ${stylexAdded.join(" and ")}.`);
 
   // 0.2 needs React 19.2: a library that still accepts older React in its
   // peers would install beside such an app and break there.
@@ -301,23 +317,15 @@ export function transformPackageJson(text, ctx) {
 
   // Packages the map says a moved component needs (the lab Drawer).
   for (const [lab, range] of ctx.flags.packages) {
-    if (has(lab)) continue;
-    {
-      const field = library
-        ? "peerDependencies"
-        : fields.includes("dependencies")
-          ? "dependencies"
-          : fields[0];
-      addDependency(pkg, field, lab, range);
-      if (library && fields.includes("devDependencies"))
-        addDependency(pkg, "devDependencies", lab, range);
-      ctx.note(
-        lab === LAB_PACKAGE
-          ? `added ${lab} ${range} to ${field}: a Drawer moved to ${UIC}/lab, and ui-common pins the lab canary exactly.`
-          : `added ${lab} ${range} to ${field}.`,
-      );
-      if (lab === LAB_PACKAGE) addLabOverride(pkg, ctx);
-    }
+    const added = ensure(lab, range);
+    if (added.length === 0) continue;
+    const field = added.join(" and ");
+    ctx.note(
+      lab === LAB_PACKAGE
+        ? `added ${lab} ${range} to ${field}: a Drawer moved to ${UIC}/lab, and ui-common pins the lab canary exactly.`
+        : `added ${lab} ${range} to ${field}.`,
+    );
+    if (lab === LAB_PACKAGE) addLabOverride(pkg, ctx);
   }
 
   const out = `${JSON.stringify(pkg, null, indent)}${text.endsWith("\n") ? "\n" : ""}`;

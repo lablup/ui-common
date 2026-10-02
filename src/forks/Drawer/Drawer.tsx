@@ -7,7 +7,7 @@
 "use client";
 
 /**
- * Drawer, ui-common's copy of Astryx lab's, with two changes (not upstream):
+ * Drawer, ui-common's copy of Astryx lab's, with three changes (not upstream):
  *
  * - **Escape goes through core's layer-dismissal stack.** Lab's drawer runs
  *   its own element-level Escape handler, which claims the press before the
@@ -23,6 +23,13 @@
  * - **`aria-modal` passes through.** A scrimless drawer is non-modal, but a
  *   consumer that restores modality by hand (its own mask and focus trap) can
  *   now say so; the default is unchanged.
+ * - **ui-common's `Modal` opens above it.** A scrimmed drawer is a modal
+ *   `<dialog>`, which makes everything outside it inert, so a `Modal`
+ *   portalled to the body sat behind the drawer, unreachable. The drawer
+ *   provides its dialog through `ModalPortalContext` while it is open and
+ *   modal, and a `Modal` inside renders there, in the top layer
+ *   (modalStack.ts). Core's `Dialog` needs none of this: it is top layer
+ *   itself, and ui-common's `Modal` is not.
  *
  * Everything else is upstream's. Its style namespaces are Astryx's compiled
  * output (src/forks/compiled.ts). The LIFO drawer registry is module-level,
@@ -30,7 +37,8 @@
  * `Drawer` is not exported by ui-common. Escape no longer consults it: it
  * only assigns non-modal z-indexes.
  *
- * Delete this fork, and its exports.exclude.json entry, once lab ships both
+ * Delete this fork, and its exports.exclude.json entry, once lab ships the
+ * first two and `Modal` no longer needs the third
  * (CONTRIBUTING, "Forks of Astryx components").
  */
 
@@ -84,6 +92,7 @@ import { overlayPaddingReset } from "@astryxdesign/core/Layout";
 
 import { compiledStyles } from "../compiled";
 import * as compiled from "./Drawer.styles";
+import { ModalPortalContext } from "../../components/Modal/modalStack";
 import { useDrawerDialogPresence } from "./useDrawerDialogPresence";
 
 // =============================================================================
@@ -301,6 +310,14 @@ export function Drawer({
     setIsRendered,
   });
 
+  // ui-common: the dialog a Modal inside renders into, set only once
+  // showModal() has run (the effect above), so the Modal's popover enters the
+  // top layer after the dialog and paints above it.
+  const [modalHost, setModalHost] = useState<HTMLDialogElement | null>(null);
+  useEffect(() => {
+    setModalHost(isOpen && hasScrim ? dialogRef.current : null);
+  }, [isOpen, hasScrim]);
+
   // LIFO registry membership: register on open, unregister on close or
   // unmount. The returned z-index stacks non-modal siblings in open order.
   useEffect(() => {
@@ -407,7 +424,9 @@ export function Drawer({
       {/* Scrollable content area — tabIndex so the dialog's focusing steps
           land on the panel body rather than the first button inside. */}
       <div tabIndex={-1} className={CONTENT_CLASS_NAME}>
-        <LayerDepthProvider>{children}</LayerDepthProvider>
+        <LayerDepthProvider>
+          <ModalPortalContext value={modalHost}>{children}</ModalPortalContext>
+        </LayerDepthProvider>
       </div>
       {hasCloseButton && (
         <div className={CONTROLS_CLASS_NAME}>

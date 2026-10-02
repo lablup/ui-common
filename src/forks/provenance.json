@@ -26,7 +26,7 @@
     "package": "@astryxdesign/lab",
     "version": "0.6.2-canary.c9fb1ad",
     "upstream": null,
-    "notes": "Deliberate divergence beyond a fix: Escape goes through core's layer-dismissal stack (useLayerDismissal + LayerDepthProvider, as core Dialog does) instead of lab's element-level handler and LIFO registry, so a popover, selector or modal inside the drawer closes first and a non-modal drawer closes on Escape wherever focus is. Also aria-modal passes through. On an Astryx bump, keep both unless lab's Drawer registers with the stack itself.",
+    "notes": "Deliberate divergence beyond a fix: Escape goes through core's layer-dismissal stack (useLayerDismissal + LayerDepthProvider, as core Dialog does) instead of lab's element-level handler and LIFO registry, so a popover, selector or modal inside the drawer closes first and a non-modal drawer closes on Escape wherever focus is. Also aria-modal passes through, and a scrimmed (modal) drawer provides its dialog through ModalPortalContext so ui-common's Modal opened inside renders there, in the top layer. On an Astryx bump, keep these unless lab's Drawer registers with the stack itself.",
     "files": {
       "src/Drawer/Drawer.tsx": "f72daf426b140474e79dfc79218238f70310e41893694f06459950ea69cabad3",
       "src/Drawer/useDrawerDialogPresence.ts": "46f7452950f7a771d14b65fffad8eeb7081a22caac13b6a5d66e7274f3607f6f",

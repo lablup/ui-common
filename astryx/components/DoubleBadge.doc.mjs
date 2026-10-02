@@ -15,7 +15,7 @@ export default {
   props: [
     {
       name: "values",
-      type: "Array<string> | Array<{ label: string; variant?: BadgeVariant }>",
+      type: "Array<string | { label: string; variant?: BadgeVariant }>",
       description:
         "The badges, in order. A string is a neutral Badge; an empty label is skipped.",
     },

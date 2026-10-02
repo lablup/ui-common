@@ -256,3 +256,89 @@ describe("React peers of a library", () => {
     },
   );
 });
+
+/** The output with each JSX TODO marker's message elided. */
+const todos = (out: string) =>
+  out.replace(/\{\/\* TODO\(ui-common-upgrade\): [^*]*\*\/\}/g, "{/* TODO */}");
+
+describe("JSX text keeps its whitespace", () => {
+  it("moves Badge children into label with the space after an expression", () => {
+    const out = upgrade(
+      `import { Badge } from "@lablup/ui-common";
+export const A = ({ n }: { n: number }) => <Badge variant="success">{n} items</Badge>;
+`,
+    );
+    expect(attributeSource(out, "label")).toBe('<>{n}{" "}items</>');
+  });
+
+  it("keeps a whitespace-only text between expressions", () => {
+    const out = upgrade(
+      `import { Badge } from "@lablup/ui-common";
+export const A = ({ a, b }: { a: number; b: number }) => <Badge>{a} {b}</Badge>;
+`,
+    );
+    expect(attributeSource(out, "label")).toBe("<>{a} {b}</>");
+  });
+
+  it("keeps multi-line children's words apart", () => {
+    const out = upgrade(
+      `import { Badge } from "@lablup/ui-common";
+export const A = ({ n }: { n: number }) => (
+  <Badge>
+    {n} items
+    in total
+  </Badge>
+);
+`,
+    );
+    const label = attributeSource(out, "label");
+    expect(label).toContain('{n}{" "}items');
+    expect(label).toMatch(/items\n\s*in total/);
+  });
+
+  it("leaves text around an element that gets a TODO alone, inline", () => {
+    const source = `import { Button } from "@lablup/ui-common";
+export const A = ({ n }: { n: number }) => (
+  <p>
+    {n} sessions running <Button shape="round">Go</Button> and {n} more
+  </p>
+);
+`;
+    const out = upgrade(source);
+    expect(todos(out).split("\n").slice(2)).toEqual([
+      "  <p>",
+      '    {n} sessions running {/* TODO */}<Button shape="round" label="Go" /> and {n} more',
+      "  </p>",
+      ");",
+      "",
+    ]);
+    // Idempotent: a second run adds nothing.
+    expect(upgrade(out.replace("@lablup/ui-common/Button", "@lablup/ui-common"))).toBe(
+      out,
+    );
+  });
+
+  it("puts a TODO on its own line above an element on its own line", () => {
+    const out = upgrade(
+      `import { Button } from "@lablup/ui-common";
+export const A = ({ n }: { n: number }) => (
+  <p>
+    {n} sessions running
+    <Button shape="round">Go</Button>
+    {n} more
+  </p>
+);
+`,
+    );
+    expect(todos(out).split("\n").slice(2)).toEqual([
+      "  <p>",
+      "    {n} sessions running",
+      "    {/* TODO */}",
+      '    <Button shape="round" label="Go" />',
+      "    {n} more",
+      "  </p>",
+      ");",
+      "",
+    ]);
+  });
+});

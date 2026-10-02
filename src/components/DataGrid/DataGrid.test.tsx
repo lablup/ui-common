@@ -7,7 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
 
 import { uiCommonMessages } from "../../i18n/messages";
-import { DataGrid, type DataGridColumn } from "./DataGrid";
+import { DataGrid, dataGridSettingsToOverrides, type DataGridColumn } from "./DataGrid";
 
 interface Row {
   id: string;
@@ -633,6 +633,76 @@ describe("DataGrid column settings", () => {
     });
     expect(headers()).toEqual(["Name", "Extra"]);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+});
+
+describe("DataGrid column settings over defaultOverrides", () => {
+  const TWO: DataGridColumn<Row>[] = [
+    {
+      key: "name",
+      header: "Name",
+      renderCell: (row) => row.name,
+      isAlwaysVisible: true,
+    },
+    { key: "size", header: "Size", renderCell: (row) => String(row.size) },
+  ];
+  const headers = () => screen.getAllByRole("columnheader").map((th) => th.textContent);
+
+  it("shows a column the defaults hide once the user checks it", async () => {
+    const onOverridesChange = vi.fn();
+    renderGrid({
+      data: makeRows(1),
+      columns: TWO,
+      columnSettings: {
+        defaultOverrides: { size: { hidden: true } },
+        onOverridesChange,
+      },
+    });
+    expect(headers()).toEqual(["Name"]);
+
+    await userEvent.click(screen.getByRole("button", { name: "Table Settings" }));
+    const dialog = await screen.findByRole("dialog");
+    await userEvent.click(within(dialog).getByRole("checkbox", { name: "Size" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
+
+    expect(onOverridesChange).toHaveBeenLastCalledWith({ size: { hidden: false } });
+    expect(headers()).toEqual(["Name", "Size"]);
+  });
+
+  it("restores the natural order over a reordering default", () => {
+    const columns = [
+      { key: "a", isHiddenByDefault: false },
+      { key: "b", isHiddenByDefault: false },
+      { key: "c", isHiddenByDefault: true },
+    ];
+    const defaults = { b: { order: 0 }, a: { order: 1 } };
+    const next = dataGridSettingsToOverrides({
+      columns,
+      result: { selectedColumnKeys: ["a", "b"], columnOrder: ["a", "b", "c"] },
+      defaultOverrides: defaults,
+      overrides: defaults,
+      isReorderable: true,
+    });
+    const merged = { ...defaults, ...next };
+    const order = (key: string) =>
+      merged[key as keyof typeof merged]?.order ?? Number.MAX_SAFE_INTEGER;
+    expect(["c", "b", "a"].sort((x, y) => order(x) - order(y))).toEqual([
+      "a",
+      "b",
+      "c",
+    ]);
+  });
+
+  it("writes nothing for a column that matches its default", () => {
+    expect(
+      dataGridSettingsToOverrides({
+        columns: [{ key: "a" }, { key: "b" }],
+        result: { selectedColumnKeys: ["a"], columnOrder: ["a", "b"] },
+        defaultOverrides: { b: { hidden: true } },
+        overrides: { b: { hidden: true } },
+        isReorderable: true,
+      }),
+    ).toEqual({});
   });
 });
 

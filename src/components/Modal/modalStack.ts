@@ -11,7 +11,13 @@
  * Other portalled modal surfaces (a scrimmed drawer, say) claim a level with
  * `useModalLevel` so they stack on the same order as `Modal`.
  */
-import { useEffectEvent, useLayoutEffect, useState, type RefObject } from "react";
+import {
+  createContext,
+  useEffectEvent,
+  useLayoutEffect,
+  useState,
+  type RefObject,
+} from "react";
 import { devWarn } from "@astryxdesign/core/utils";
 
 import { registerInstance } from "../../instance";
@@ -21,6 +27,17 @@ import { registerInstance } from "../../instance";
  * constant rather than retyping the string.
  */
 export const MODAL_OPEN_ATTRIBUTE = "data-uic-modal-open";
+
+/**
+ * The open modal `<dialog>` a surface inside it renders into, instead of
+ * `document.body`. `showModal()` makes everything outside the dialog inert,
+ * so a `Modal` portalled to the body from inside a scrimmed drawer would sit
+ * behind the drawer, unreachable. `Drawer` (src/forks/Drawer) provides its
+ * dialog while it is modal; `Modal` renders there and enters the top layer
+ * itself, as a manual popover, so it paints above the drawer and escapes the
+ * panel's clipping and transform. Internal: not exported from the package.
+ */
+export const ModalPortalContext = createContext<HTMLElement | null>(null);
 
 /** Nesting depth ceiling. Two surfaces past it share a level. */
 export const MAX_MODAL_LEVEL = 80;

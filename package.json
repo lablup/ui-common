@@ -594,8 +594,8 @@
   "peerDependencies": {
     "@astryxdesign/lab": "0.6.2-canary.c9fb1ad",
     "@stylexjs/stylex": "^0.19.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "peerDependenciesMeta": {
     "@astryxdesign/lab": {

@@ -15,6 +15,21 @@
     justify-content: center;
   }
 
+  /* Inside a modal <dialog> the root is a top-layer popover (Modal.tsx):
+     undo the UA popover box, so it covers the viewport like the portal. */
+  .uic-modal[popover] {
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    color: inherit;
+    background: none;
+  }
+
   /* A closed modal keeps its children mounted, as a native `<dialog>` does. */
   .uic-modal--closed {
     display: none;

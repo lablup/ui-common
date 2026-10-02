@@ -359,6 +359,63 @@ export function dataGridColumnLabel<T>(column: DataGridColumn<T>): string {
 }
 
 /** Whether a column shows, given the user's overrides. */
+/**
+ * The overrides record a settings dialog result writes. `defaultOverrides`
+ * stays merged under it key by key, and a key it holds replaces the default's
+ * entry whole. So a column is left out only while its default (natural, then
+ * `defaultOverrides`) already renders what the user chose, and an entry that
+ * is written states everything that differs from the natural column:
+ * otherwise re-showing a column the defaults hide, or restoring the natural
+ * order over a reordering default, would bring the default back.
+ *
+ * @internal Exported for tests.
+ */
+export function dataGridSettingsToOverrides({
+  columns,
+  result,
+  defaultOverrides = {},
+  overrides,
+  isReorderable,
+}: {
+  columns: ReadonlyArray<Pick<DataGridColumn<never>, "key" | "isHiddenByDefault">>;
+  result: DataGridSettingsResult;
+  defaultOverrides?: DataGridColumnOverrides;
+  /** The overrides in effect, defaults merged; their widths are kept. */
+  overrides: DataGridColumnOverrides;
+  isReorderable: boolean;
+}): DataGridColumnOverrides {
+  const naturalOrder = columns.map((column) => column.key);
+  // A default order is only undone by stating every column's position.
+  const writesOrder =
+    isReorderable &&
+    (result.columnOrder.length !== naturalOrder.length ||
+      result.columnOrder.some((key, index) => key !== naturalOrder[index]) ||
+      columns.some((column) => defaultOverrides[column.key]?.order !== undefined));
+  const next: DataGridColumnOverrides = {};
+  for (const column of columns) {
+    const fallback = defaultOverrides[column.key];
+    const naturalHidden = !!column.isHiddenByDefault;
+    const defaultHidden = fallback?.hidden ?? naturalHidden;
+    const hidden = !result.selectedColumnKeys.includes(column.key);
+    const override: DataGridColumnOverride = {};
+    if (hidden !== naturalHidden || hidden !== defaultHidden) override.hidden = hidden;
+    if (writesOrder) {
+      const orderIndex = result.columnOrder.indexOf(column.key);
+      if (orderIndex !== -1) override.order = orderIndex;
+    }
+    // A settings change must not reset resized widths.
+    const width = overrides[column.key]?.width;
+    if (typeof width === "number") override.width = width;
+    const matchesDefault =
+      hidden === defaultHidden &&
+      override.order === fallback?.order &&
+      override.width === fallback?.width;
+    if (!matchesDefault && Object.keys(override).length > 0)
+      next[column.key] = override;
+  }
+  return next;
+}
+
 export function isDataGridColumnVisible<T>(
   column: Pick<DataGridColumn<T>, "key" | "isAlwaysVisible" | "isHiddenByDefault">,
   overrides?: DataGridColumnOverrides,
@@ -935,27 +992,15 @@ export function DataGrid<T extends object = AnyRow>({
 
   const applySettings = (result: DataGridSettingsResult) => {
     setIsSettingsOpen(false);
-    const naturalOrder = columns.map((column) => column.key);
-    const isReordered =
-      isReorderable &&
-      (result.columnOrder.length !== naturalOrder.length ||
-        result.columnOrder.some((key, index) => key !== naturalOrder[index]));
-    const next: DataGridColumnOverrides = {};
-    for (const column of columns) {
-      const override: DataGridColumnOverride = {};
-      const shouldBeVisible = result.selectedColumnKeys.includes(column.key);
-      if (shouldBeVisible === !!column.isHiddenByDefault)
-        override.hidden = !shouldBeVisible;
-      if (isReordered) {
-        const orderIndex = result.columnOrder.indexOf(column.key);
-        if (orderIndex !== -1) override.order = orderIndex;
-      }
-      // A settings change must not reset resized widths.
-      const persistedWidth = overrides[column.key]?.width;
-      if (typeof persistedWidth === "number") override.width = persistedWidth;
-      if (Object.keys(override).length > 0) next[column.key] = override;
-    }
-    setOverrides(next);
+    setOverrides(
+      dataGridSettingsToOverrides({
+        columns,
+        result,
+        defaultOverrides: columnSettings?.defaultOverrides,
+        overrides,
+        isReorderable,
+      }),
+    );
   };
 
   return (

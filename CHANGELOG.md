@@ -63,6 +63,26 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   Keep declaring it in the app's entry stylesheet too; repeating it is a
   no-op. `check:pack` fails on a packed stylesheet without it, and CI's
   fixture check fails when the consumer bundle establishes any other order.
+- **The `react` and `react-dom` peers are `^19.2.0`.** `Modal`,
+  `NotificationStack`, `UnitGrid` and `Form` import `useEffectEvent`, stable
+  since React 19.2; `^19.0.0` let 19.0 and 19.1 install and then fail.
+- A `Modal` opened inside a scrimmed `Drawer` from `@lablup/ui-common/lab`
+  opens above it. It rendered behind the drawer's modal `<dialog>`, inert:
+  it could not be clicked, focused or typed into.
+- `NotificationStack` unmounts a closed notice once its exit has played. With
+  `maxVisible`, or a new `notifications` array during the exit, it stayed
+  mounted for good, buttons still tabbable. Its countdown stays paused while
+  either hover or focus holds it, not until the first of them leaves.
+- `DataGrid`'s settings dialog can re-show a column `defaultOverrides` hides
+  and restore the natural order over a default order; both came back.
+- `ImageWithFallback`'s fallback keeps the image's semantics: an `img` named
+  by `alt`, or hidden when `alt` is empty.
+- `DoubleBadge` and `DoubleToken` take string and object values mixed in one
+  `values` list, as documented.
+- `ui-common upgrade` keeps JSX text whitespace: Badge children moved into
+  `label` (`{n} items`), and text next to an element given a TODO, lost their
+  leading spaces. For a library it adds the StyleX (and lab) peer even when
+  a devDependency already names the package.
 
 ### Added
 
@@ -95,8 +115,9 @@ prop, class and stylesheet change it reads.
 - **Dependencies.** Astryx (`@astryxdesign/core`, `theme-neutral`) is an
   exact-pinned dependency (the CLI moved to `@lablup/ui-common-cli`); import it only through `@lablup/ui-common`.
   `@stylexjs/stylex` ^0.19 is a new peer, `@astryxdesign/lab` an optional
-  exact peer (with an `overrides` entry for its core), and React 19 is
-  required. (0.2.0-alpha.0)
+  exact peer (with an `overrides` entry for its core), and React 19.2 or
+  later is required. (0.2.0-alpha.0; 19.2 since the release after
+  0.2.0-alpha.14)
 - **The root barrel is Astryx's**, and `@lablup/ui-common/hooks` is Astryx's
   hooks; `usePrefersReducedMotion` moved to the root. (0.2.0-alpha.0,
   0.2.0-alpha.2)

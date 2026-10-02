@@ -38,7 +38,7 @@ export interface DoubleTokenValue {
 
 export interface DoubleTokenProps {
   /** The tokens, in order. */
-  values?: Array<string> | Array<DoubleTokenValue>;
+  values?: Array<string | DoubleTokenValue>;
   /** Marks this text in every label. */
   highlightKeyword?: string;
 }
@@ -48,9 +48,8 @@ export function DoubleToken({
   highlightKeyword,
 }: DoubleTokenProps): ReactElement | null {
   if (values.length === 0) return null;
-  const objectValues = (values as Array<string | DoubleTokenValue>).map(
-    (value): DoubleTokenValue =>
-      typeof value === "string" ? { label: value, color: "blue" } : value,
+  const objectValues = values.map((value): DoubleTokenValue =>
+    typeof value === "string" ? { label: value, color: "blue" } : value,
   );
   const isHighlighting = highlightKeyword !== undefined;
 

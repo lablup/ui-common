@@ -187,6 +187,28 @@ export function makeSelfClosing(el) {
   el.children = [];
 }
 
+/**
+ * `children` for a JSX element or fragment the codemod builds. Recast prints
+ * a new node's text children with their leading whitespace stripped, which
+ * changes the text when that whitespace is on the text's first line
+ * (`{n} items` -> `{n}items`); it is moved into a `{" "}` child of its own.
+ * Leading whitespace that holds a line break renders as nothing, so it may go.
+ *
+ * @param {any} j jscodeshift
+ * @param {any[]} children
+ */
+export function keepJsxTextWhitespace(j, children) {
+  return children.flatMap((/** @type {any} */ child) => {
+    if (child.type !== "JSXText" || !/\S/.test(child.value)) return [child];
+    const lead = /^\s*/.exec(child.value)?.[0] ?? "";
+    if (lead === "" || lead.includes("\n")) return [child];
+    return [
+      j.jsxExpressionContainer(j.stringLiteral(lead)),
+      j.jsxText(child.value.slice(lead.length)),
+    ];
+  });
+}
+
 /** Whitespace-collapsed JSX text, as React renders it. @param {string} text */
 export function jsxTextValue(text) {
   return text
