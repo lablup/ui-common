@@ -22,12 +22,41 @@ permissions:
   contents: read
 
 jobs:
+  # Decided once, before either registry publishes: two jobs each reading
+  # main could disagree if main moved to a new line between them.
+  # Every release from this branch is a patch of the 0.1 line, published
+  # under `release-0.1` only: `next` and `latest` belong to main's line,
+  # and `alpha` is no longer moved (scripts/dist-tag.mjs).
+  dist-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      version: ${{ steps.tag.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - name: Choose the dist-tag from the version
+        id: tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git fetch --no-tags --depth=1 origin main
+          MAIN_VERSION=$(git show FETCH_HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+          TAG=$(node scripts/dist-tag.mjs "$VERSION" "$MAIN_VERSION")
+          echo "Publishing $VERSION under dist-tag $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
   # Consumed by internal projects that already authenticate to GitHub.
   github-packages:
     if: >-
       github.event_name == 'release' ||
       inputs.target == 'both' || inputs.target == 'github-packages'
     runs-on: ubuntu-latest
+    needs: dist-tag
     environment: release
     permissions:
       contents: read
@@ -66,23 +95,9 @@ jobs:
             exit 1
           fi
 
-      - name: Choose the dist-tag from the version
-        id: tag
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          case "$VERSION" in
-            *-alpha*) TAG=alpha ;;
-            *-beta*)  TAG=beta ;;
-            *-rc*)    TAG=rc ;;
-            *-*)      TAG=next ;;
-            *)        TAG=latest ;;
-          esac
-          echo "Publishing $VERSION under dist-tag $TAG"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: pnpm publish --no-git-checks --access public --tag ${{ steps.tag.outputs.tag }} --registry https://npm.pkg.github.com
+        run: pnpm publish --no-git-checks --access public --tag ${{ needs.dist-tag.outputs.tag }} --registry https://npm.pkg.github.com
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -99,6 +114,7 @@ jobs:
       github.event_name == 'release' ||
       inputs.target == 'both' || inputs.target == 'npmjs'
     runs-on: ubuntu-latest
+    needs: dist-tag
     environment: release
     permissions:
       contents: read
@@ -140,20 +156,6 @@ jobs:
             exit 1
           fi
 
-      - name: Choose the dist-tag from the version
-        id: tag
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          case "$VERSION" in
-            *-alpha*) TAG=alpha ;;
-            *-beta*)  TAG=beta ;;
-            *-rc*)    TAG=rc ;;
-            *-*)      TAG=next ;;
-            *)        TAG=latest ;;
-          esac
-          echo "Publishing $VERSION under dist-tag $TAG"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-
       - name: Confirm the credential is valid for npmjs
         run: npm whoami --registry https://registry.npmjs.org
         env:
@@ -164,12 +166,12 @@ jobs:
       # since both pack from the same files allowlist.
       - name: Publish
         if: github.event_name == 'release' || inputs.dry_run == false
-        run: npm publish --provenance --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
+        run: npm publish --provenance --access public --tag ${{ needs.dist-tag.outputs.tag }} --registry https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Dry run
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: npm publish --dry-run --access public --tag ${{ steps.tag.outputs.tag }} --registry https://registry.npmjs.org
+        run: npm publish --dry-run --access public --tag ${{ needs.dist-tag.outputs.tag }} --registry https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

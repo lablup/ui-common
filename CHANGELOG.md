@@ -5,6 +5,12 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Changed
+
+- This branch, `release/0.1`, maintains the 0.1 line. Its patch releases
+  publish under the `release-0.1` dist-tag; `alpha`, `next` and `latest` no
+  longer move from here.
+
 ## [0.1.0-alpha.23]
 
 ### Added

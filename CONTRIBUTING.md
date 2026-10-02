@@ -157,12 +157,32 @@ consumer and who is doing that migration.
 
 ## Releasing
 
-1. Update the version in `package.json` and add a `CHANGELOG.md` entry.
-2. Merge to `main` and confirm CI is green, including the external install job.
-3. Create a GitHub release tagged `v<version>`. The publish workflow verifies
-   that the tag matches `package.json` and refuses to publish on a mismatch.
-4. The workflow runs in the `release` environment with `packages: write` and
-   the built-in `GITHUB_TOKEN`. No long-lived credential is stored here.
+This branch, `release/0.1`, carries the 0.1 line after `main` moved to 0.2.
+It was cut from `v0.1.0-alpha.23`. It takes fixes only: the "Patch" row of
+[Versioning](#versioning), with no new components, props or exports. The full
+procedure is in `main`'s CONTRIBUTING.md, "Patching an older line".
+
+1. Branch from `release/0.1` and open the pull request against it. If the bug
+   is also on `main`, fix it there first and `git cherry-pick -x` the commit;
+   otherwise say in the pull request that `main` is unaffected.
+2. Bump `package.json` to the next `0.1.0-alpha.N` and add a `CHANGELOG.md`
+   entry. Merge and confirm CI is green, including the external install job.
+3. Create the GitHub release on this branch:
+
+   ```
+   gh release create v0.1.0-alpha.24 --target release/0.1 --prerelease --latest=false \
+     --title v0.1.0-alpha.24 --notes-file notes.md
+   ```
+
+   `notes.md` holds the CHANGELOG entry.
+
+   The publish workflow verifies that the tag matches `package.json`, and
+   publishes under `release-0.1` only (`scripts/dist-tag.mjs` compares the
+   version with `main`'s), so `next`, `latest` and `alpha` do not move.
+   It runs in the `release` environment.
+
+4. Check `npm view @lablup/ui-common dist-tags`, then copy the CHANGELOG
+   entry into `main`'s `CHANGELOG.md`.
 
 ## Pre-public review
 
