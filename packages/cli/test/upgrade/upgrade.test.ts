@@ -6,7 +6,7 @@
  *
  * Each fixture is copied to a temp dir, upgraded, and compared file by file
  * with `expected/` (report and package.json included). Regenerate after an
- * intended change with `UPDATE_FIXTURES=1 pnpm vitest run test/upgrade`, then
+ * intended change with `UPDATE_FIXTURES=1 pnpm vitest run packages/cli/test/upgrade`, then
  * read the diff.
  */
 import {

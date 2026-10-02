@@ -84,7 +84,7 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 The 0.2 alphas below add up to these changes for a 0.1 consumer. Run
 `pnpm dlx @lablup/ui-common-cli upgrade --from 0.1 --dry-run` for the
 mechanical part;
-[`migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every import,
+[`packages/cli/migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json) lists every import,
 prop, class and stylesheet change it reads.
 
 - **Dependencies.** Astryx (`@astryxdesign/core`, `theme-neutral`) is an

@@ -430,11 +430,11 @@ Then, by hand:
 ui-common version that made the change, over a consumer's source.
 
 - **0.1 → 0.2** (`packages/cli/codemods/0.2/`) takes all of its data from
-  [`migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json): replacement
+  [`packages/cli/migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json): replacement
   imports, prop renames, value maps, required packages, stylesheet entry
   points, class renames and the manual notes its TODO markers quote. Change
   the map, not the codemods, when the migration changes.
-  `codemods/0.2/legacy-classes.json` lists the 0.1 class names; regenerate it
+  `packages/cli/codemods/0.2/legacy-classes.json` lists the 0.1 class names; regenerate it
   from a 0.1 checkout with `packages/cli/scripts/extract-legacy-classes.mjs`.
 - **Upstream steps** are `packages/cli/codemods/<version>/upstream.json`, written by
   `sync-astryx`.

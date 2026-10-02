@@ -439,7 +439,7 @@ Removed in 0.2, each replaced by Astryx:
 
 The kept components keep their 0.1 props. Their class names moved to `uic-`
 (`page-header` is `uic-page-header`), so CSS or tests that select the old
-names need updating. [`migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json)
+names need updating. [`packages/cli/migration/0.1-to-0.2.json`](packages/cli/migration/0.1-to-0.2.json)
 lists every import, prop, class and stylesheet change in a form the upgrade
 tool reads.
 
