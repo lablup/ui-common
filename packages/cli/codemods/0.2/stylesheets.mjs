@@ -151,7 +151,7 @@ function transformCss(source, path, ctx) {
  *
  * @param {string} source
  */
-function sassPreludeEnd(source) {
+export function sassPreludeEnd(source) {
   let i = 0;
   let end = 0;
   const skipSpaceAndComments = () => {

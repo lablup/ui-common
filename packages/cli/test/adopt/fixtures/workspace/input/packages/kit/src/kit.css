@@ -1,0 +1,5 @@
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
+
+.kit-panel {
+  padding: var(--spacing-4);
+}

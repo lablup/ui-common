@@ -1,0 +1,14 @@
+packages:
+  - "packages/*"
+
+catalog:
+  react: ^19.2.0
+  "@astryxdesign/core": 0.6.2
+
+allowBuilds:
+  esbuild: true
+  "@astryxdesign/core": false
+  "@astryxdesign/cli": false
+
+overrides:
+  "@astryxdesign/lab>@astryxdesign/core": "0.6.2"

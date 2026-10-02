@@ -1,0 +1,19 @@
+{
+  "name": "@observability/kit",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "@astryxdesign/lab": "0.6.2-canary.c9fb1ad",
+    "@lablup/ui-common": "0.2.0",
+    "@stylexjs/stylex": "^0.19.0",
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "@astryxdesign/core": "catalog:",
+    "@astryxdesign/lab": "0.6.2-canary.c9fb1ad",
+    "@lablup/ui-common": "0.2.0",
+    "@stylexjs/stylex": "^0.19.0",
+    "react": "catalog:"
+  }
+}
