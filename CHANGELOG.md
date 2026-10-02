@@ -5,6 +5,13 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.15]
+
+Hardening for the apps moving off 0.1: ui-common's styles now sit in their
+cascade layer in every bundle, the CLI ships as its own package,
+`@lablup/ui-common-cli`, React 19.2 is the floor, and the upgrade tool and
+several components get the fixes a pre-merge review found.
+
 ### Changed
 
 - **The `ui-common` CLI is its own package, `@lablup/ui-common-cli`**, in
@@ -1429,7 +1436,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.14...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.15...HEAD
+[0.2.0-alpha.15]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.14...v0.2.0-alpha.15
 [0.2.0-alpha.14]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.13...v0.2.0-alpha.14
 [0.2.0-alpha.13]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.12...v0.2.0-alpha.13
 [0.2.0-alpha.12]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.11...v0.2.0-alpha.12
