@@ -294,6 +294,34 @@ describe("agents", { timeout: 60_000 }, () => {
     expect(run(["agents", "--bogus"], empty).code).toBe(2);
   });
 
+  it("--skill installs the adopt skill, and the block names it", () => {
+    const dir = tempProject();
+    const source = readFileSync(
+      join(cliRoot, "skill/ui-common-adopt/SKILL.md"),
+      "utf8",
+    );
+    expect(source).toMatch(
+      /^---\nname: ui-common-adopt\ndescription: .*migrate to ui-common/s,
+    );
+    expect(source.split("\n").length).toBeLessThanOrEqual(160);
+
+    expect(run(["agents"], dir).stdout).not.toContain("ui-common-adopt skill");
+    const installed = run(["agents", "--skill"], dir);
+    expect(installed.code, installed.stderr).toBe(0);
+    const file = join(dir, ".claude/skills/ui-common-adopt/SKILL.md");
+    expect(readFileSync(file, "utf8")).toBe(source);
+    expect(run(["agents", "--skill"], dir).stdout).toContain("already up to date");
+    expect(run(["agents"], dir).stdout).toContain(
+      "- Moving code off @astryxdesign/*: follow the ui-common-adopt skill (.claude/skills/ui-common-adopt/SKILL.md)",
+    );
+
+    const elsewhere = run(["agents", "--skill", "--dir", "skills"], dir);
+    expect(elsewhere.code).toBe(0);
+    expect(existsSync(join(dir, "skills/ui-common-adopt/SKILL.md"))).toBe(true);
+    expect(run(["agents", "--dir", "skills"], dir).code).toBe(2);
+    expect(run(["agents", "--skill", "--check"], dir).code).toBe(2);
+  });
+
   it("prints the block to stdout without writing anything", () => {
     const dir = tempProject();
     const printed = run(["agents"], dir);

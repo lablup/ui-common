@@ -12,8 +12,8 @@ export default tseslint.config(
       "fixture/dist",
       // `astryx theme build` output, committed as generated.
       "src/theme/*/built/**",
-      // Consumer code the upgrade codemods run on, and their expected output.
-      "packages/cli/test/upgrade/fixtures/**",
+      // Consumer code the upgrade and adopt codemods run on, and their expected output.
+      "packages/cli/test/*/fixtures/**",
       // Agent worktrees: other checkouts of this repository, with their own dist.
       ".claude/**",
     ],

@@ -8,10 +8,12 @@
  * `astryx upgrade` never overwrite it.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
 import {
   binInvocation,
+  CLI_ROOT,
   customExports,
   dependencyDir,
   dependencyVersion,
@@ -20,6 +22,7 @@ import {
   hiddenExports,
   importAstryxInternal,
   uiCommonPackageJson,
+  uiCommonRoot,
 } from "./paths.mjs";
 import { rewriteOutput } from "./rewrite.mjs";
 
@@ -69,7 +72,7 @@ async function coreComponentCount() {
 }
 
 /** ui-common's own lines, appended to the rewritten Astryx block. */
-function uiCommonSection({ version, astryxVersion, invocation }) {
+function uiCommonSection({ version, astryxVersion, invocation, skill }) {
   const components = customExports()
     .filter((c) => !c.legacy && !c.fork && /^[A-Z]/.test(c.name))
     .map((c) => c.name);
@@ -102,14 +105,52 @@ function uiCommonSection({ version, astryxVersion, invocation }) {
     `- The \`ui-common\` bin is @lablup/ui-common-cli, a devDependency pinned to the same version as @lablup/ui-common; bump both together. Without it installed, \`pnpm dlx @lablup/ui-common-cli@next <cmd>\` (or \`npx @lablup/ui-common-cli@next <cmd>\`); drop \`@next\` once 0.2.0 is published.`,
     `- After bumping @lablup/ui-common and @lablup/ui-common-cli: \`${invocation} upgrade --from <old version>\`, then read ui-common-upgrade-report.md.`,
   );
+  if (skill) {
+    lines.push(
+      `- Moving code off @astryxdesign/*: follow the ${SKILL_NAME} skill (${skill}): \`${invocation} adopt --from astryx\`, then \`${invocation} doctor\` until it passes.`,
+    );
+  }
   return lines;
+}
+
+/** The agent skill shipped with the CLI: the guided direct-Astryx → ui-common pass. */
+export const SKILL_NAME = "ui-common-adopt";
+export const SKILL_SOURCE = join(CLI_ROOT, "skill", SKILL_NAME, "SKILL.md");
+/** Where `agents --skill` installs it, relative to the project. */
+export const DEFAULT_SKILL_DIR = ".claude/skills";
+
+/**
+ * The project-relative path of the installed skill, when the project has it
+ * under the default skills directory; the block mentions it then.
+ *
+ * @param {string} projectDir
+ */
+export function installedSkill(projectDir) {
+  const rel = `${DEFAULT_SKILL_DIR}/${SKILL_NAME}/SKILL.md`;
+  return existsSync(join(projectDir, rel)) ? rel : null;
+}
+
+/**
+ * Copy the skill into `<dir>/ui-common-adopt/SKILL.md`.
+ *
+ * @param {string} dir the skills directory
+ * @returns {{file: string, changed: boolean}}
+ */
+export function installSkill(dir) {
+  const file = join(dir, SKILL_NAME, "SKILL.md");
+  const content = readFileSync(SKILL_SOURCE, "utf8");
+  const before = existsSync(file) ? readFileSync(file, "utf8") : null;
+  if (before === content) return { file, changed: false };
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, content);
+  return { file, changed: true };
 }
 
 /**
  * Turn the Astryx block into the ui-common block. Exported for the tests.
  *
  * @param {string} astryxBlock
- * @param {{version: string, astryxVersion: string, invocation: string, componentCount?: number|null}} ctx
+ * @param {{version: string, astryxVersion: string, invocation: string, componentCount?: number|null, skill?: string|null}} ctx
  */
 export function transformBlock(astryxBlock, ctx) {
   const { invocation, componentCount } = ctx;
@@ -178,11 +219,13 @@ export function transformBlock(astryxBlock, ctx) {
 export async function generateBlock(cwd) {
   const projectDir = findProjectDir(cwd) ?? cwd;
   const astryxBlock = await renderAstryxBlock(projectDir);
+  const root = uiCommonRoot(projectDir);
   return transformBlock(astryxBlock, {
-    version: uiCommonPackageJson().version,
-    astryxVersion: dependencyVersion("@astryxdesign/core") ?? "unknown",
+    version: uiCommonPackageJson(root).version,
+    astryxVersion: dependencyVersion("@astryxdesign/core", root) ?? "unknown",
     invocation: binInvocation(projectDir),
     componentCount: await coreComponentCount(),
+    skill: installedSkill(projectDir),
   });
 }
 
@@ -232,9 +275,20 @@ export async function agentsCommand(argv) {
   /** @type {string|undefined} */
   let write;
   let check = false;
+  let skill = false;
+  /** @type {string|undefined} */
+  let skillDir;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    if (arg === "--write") {
+    if (arg === "--skill") {
+      skill = true;
+    } else if (arg === "--dir" || arg.startsWith("--dir=")) {
+      skillDir = arg === "--dir" ? argv[++i] : arg.slice("--dir=".length);
+      if (!skillDir) {
+        process.stderr.write("ui-common agents: --dir needs a directory\n");
+        return 2;
+      }
+    } else if (arg === "--write") {
       write = argv[++i];
       if (!write) {
         process.stderr.write("ui-common agents: --write needs a file path\n");
@@ -256,6 +310,32 @@ export async function agentsCommand(argv) {
   }
 
   const cwd = process.cwd();
+  if (skillDir && !skill) {
+    process.stderr.write("ui-common agents: --dir goes with --skill\n");
+    return 2;
+  }
+  if (skill) {
+    if (check) {
+      process.stderr.write(
+        "ui-common agents: --skill installs; it does not combine with --check\n",
+      );
+      return 2;
+    }
+    const dir = skillDir
+      ? resolve(cwd, skillDir.replace(/^~(?=$|\/)/, homedir()))
+      : join(findProjectDir(cwd) ?? cwd, DEFAULT_SKILL_DIR);
+    const { file, changed } = installSkill(dir);
+    process.stdout.write(
+      `ui-common agents: ${changed ? "installed" : "already up to date:"} the ${SKILL_NAME} skill ${changed ? "at " : ""}${file}.\n`,
+    );
+    if (!write) {
+      if (!skillDir)
+        process.stdout.write(
+          "Run `ui-common agents --write <your agent file>` too: the block names the skill once it is installed.\n",
+        );
+      return 0;
+    }
+  }
   let block;
   try {
     block = await generateBlock(cwd);
@@ -323,7 +403,7 @@ export async function agentsCommand(argv) {
   return 0;
 }
 
-export const AGENTS_HELP = `Usage: ui-common agents [--write <file>] [--check]
+export const AGENTS_HELP = `Usage: ui-common agents [--write <file>] [--check] [--skill [--dir <dir>]]
 
 Print the ui-common agent block: Astryx's \`init --features agents\` block,
 rewritten for @lablup/ui-common, between ${MARKER_START} and ${MARKER_END}.
@@ -332,4 +412,10 @@ rewritten for @lablup/ui-common, between ${MARKER_START} and ${MARKER_END}.
                   and keeping everything outside the markers. Creates the file.
   --check         Exit 1 when the block in <file> (or the first of AGENTS.md,
                   CLAUDE.md, .claude/CLAUDE.md that has one) is stale or missing.
+  --skill         Install the ${SKILL_NAME} agent skill (Claude Code format): the
+                  guided move of an app off @astryxdesign/* (adopt, doctor,
+                  verification). Default: ${DEFAULT_SKILL_DIR}/${SKILL_NAME}/SKILL.md in
+                  the project, which the block then names. With --write, both.
+  --dir <dir>     With --skill, the skills directory to install into, e.g.
+                  ~/.claude/skills for every project of this user.
 `;

@@ -1,0 +1,8 @@
+diff --git a/dist/ComplexSelector/ComplexSelector.js b/dist/ComplexSelector/ComplexSelector.js
+index 1111111..2222222 100644
+--- a/dist/ComplexSelector/ComplexSelector.js
++++ b/dist/ComplexSelector/ComplexSelector.js
+@@ -1,3 +1,3 @@
+-const clearable = false;
++const clearable = true;
+ export {};
