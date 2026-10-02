@@ -80,20 +80,21 @@ jobs:
             fi
           done
 
-      # Any prerelease goes to `next`, a plain version to `latest`. 0.1's
-      # prereleases went out under `alpha`; that tag is no longer moved.
-      # The registry still sets `latest` on a package's first publish, so
-      # @lablup/ui-common-cli's `latest` is its first alpha until 0.2.0; the
-      # docs say `@next` until then. Do not move `latest` here.
+      # main's line publishes a prerelease under `next` and a plain version
+      # under `latest`; an older line, released from its release/<line>
+      # branch, under `release-<line>` only (scripts/dist-tag.mjs). 0.1's
+      # alphas before the release/0.1 branch went out under `alpha`; that tag
+      # is no longer moved. The registry still sets `latest` on a package's
+      # first publish, so @lablup/ui-common-cli's `latest` is its first alpha
+      # until 0.2.0; the docs say `@next` until then. Do not move `latest` here.
       - name: Choose the dist-tag from the version
         id: tag
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          case "$VERSION" in
-            *-*) TAG=next ;;
-            *)   TAG=latest ;;
-          esac
-          echo "Publishing $VERSION under dist-tag $TAG"
+          git fetch --no-tags --depth=1 origin main
+          MAIN_VERSION=$(git show FETCH_HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+          TAG=$(node scripts/dist-tag.mjs "$VERSION" "$MAIN_VERSION")
+          echo "Publishing $VERSION under dist-tag $TAG (main is at $MAIN_VERSION)"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -186,20 +187,21 @@ jobs:
             fi
           done
 
-      # Any prerelease goes to `next`, a plain version to `latest`. 0.1's
-      # prereleases went out under `alpha`; that tag is no longer moved.
-      # The registry still sets `latest` on a package's first publish, so
-      # @lablup/ui-common-cli's `latest` is its first alpha until 0.2.0; the
-      # docs say `@next` until then. Do not move `latest` here.
+      # main's line publishes a prerelease under `next` and a plain version
+      # under `latest`; an older line, released from its release/<line>
+      # branch, under `release-<line>` only (scripts/dist-tag.mjs). 0.1's
+      # alphas before the release/0.1 branch went out under `alpha`; that tag
+      # is no longer moved. The registry still sets `latest` on a package's
+      # first publish, so @lablup/ui-common-cli's `latest` is its first alpha
+      # until 0.2.0; the docs say `@next` until then. Do not move `latest` here.
       - name: Choose the dist-tag from the version
         id: tag
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          case "$VERSION" in
-            *-*) TAG=next ;;
-            *)   TAG=latest ;;
-          esac
-          echo "Publishing $VERSION under dist-tag $TAG"
+          git fetch --no-tags --depth=1 origin main
+          MAIN_VERSION=$(git show FETCH_HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+          TAG=$(node scripts/dist-tag.mjs "$VERSION" "$MAIN_VERSION")
+          echo "Publishing $VERSION under dist-tag $TAG (main is at $MAIN_VERSION)"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 

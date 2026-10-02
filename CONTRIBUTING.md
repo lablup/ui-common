@@ -468,6 +468,8 @@ contract), and the CSS entry point paths.
 
 While the API is migrating, releases are prereleases (`0.2.0-alpha.N`).
 Before 1.0, a breaking change bumps the minor version.
+An older line keeps getting patch releases from its `release/<line>` branch
+([Patching an older line](#patching-an-older-line)).
 
 ## Pull requests
 
@@ -479,12 +481,71 @@ today and who does the move.
 
 ## Releasing
 
-1. Update the version in `package.json` and add a `CHANGELOG.md` entry.
+`main` releases the current line. An older line is patched on its own
+`release/<line>` branch ([Patching an older line](#patching-an-older-line)).
+`scripts/dist-tag.mjs` picks the npm dist-tag by comparing the version with
+the one on `main`:
+
+| Version                          | Dist-tag         |
+| -------------------------------- | ---------------- |
+| main's line, prerelease          | `next`           |
+| main's line, plain               | `latest`         |
+| an older line, prerelease or not | `release-<line>` |
+| a line ahead of main             | refused          |
+
+A line is `<major>.<minor>` before 1.0 and `<major>` after. The `alpha` tag,
+which 0.1 published under before `release/0.1` existed, is no longer moved.
+
+### From main
+
+1. Update the version in `package.json` and `packages/cli/package.json` and
+   add a `CHANGELOG.md` entry.
 2. Merge to `main` and confirm CI is green, including the external install job.
 3. Create a GitHub release tagged `v<version>`. The publish workflow verifies
-   that the tag matches `package.json` and refuses to publish on a mismatch.
+   that the tag matches both `package.json` files and refuses to publish on a
+   mismatch.
 4. The workflow runs in the `release` environment with `packages: write` and
-   the built-in `GITHUB_TOKEN`. No long-lived credential is stored here.
+   the built-in `GITHUB_TOKEN` for GitHub Packages, and `NPM_TOKEN` for
+   npmjs.
+
+### Patching an older line
+
+0.1 is maintained on `release/0.1`, cut from `v0.1.0-alpha.23`, its last
+release before `main` moved to 0.2. When `main` moves to a new line, cut the
+outgoing line's branch from its last release tag:
+
+```
+git push origin v0.2.<last>:refs/heads/release/0.2
+```
+
+A patch carries fixes only: the "Patch" row of [Versioning](#versioning). No
+new components, props or exports, and no Astryx bump.
+
+1. **Fix.** Branch from `release/0.1` and open the pull request against it.
+   If the bug is also on `main`, fix it there first and `git cherry-pick -x`
+   the commit. 0.2 rebuilt every component on Astryx, so most 0.1 bugs exist
+   only in 0.1: say in the pull request whether `main` is affected.
+2. **Version.** In the same or a follow-up pull request against
+   `release/0.1`, bump `package.json` and add the `CHANGELOG.md` entry there.
+   0.1 has no plain release, so its patches continue the prerelease sequence
+   (`0.1.0-alpha.24`, …); a line that has a plain release patches as
+   `<line>.<n+1>` (`0.2.1`). A version from another line is refused at publish.
+3. **Release.** Create the GitHub release on the branch, never on `main`:
+
+   ```
+   gh release create v0.1.0-alpha.24 --target release/0.1 --prerelease --latest=false \
+     --title v0.1.0-alpha.24 --notes-file <the CHANGELOG entry>
+   ```
+
+   A release runs the publish workflow as it is at the tagged commit, so the
+   branch's own `publish.yml` publishes, and it moves only `release-0.1`.
+   `--latest=false` keeps GitHub's "Latest" badge on the current line.
+
+4. **Check** `npm view @lablup/ui-common dist-tags`: `release-0.1` is the new
+   version and `next` and `latest` did not move.
+5. **Record it on main.** Copy the entry into `main`'s `CHANGELOG.md`, in
+   version order below the 0.2 entries, so `main`'s changelog lists every
+   release.
 
 ## Pre-public review
 
