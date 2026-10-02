@@ -63,6 +63,9 @@ describe("import resolution", () => {
     expect(resolver.resolveImport(from, "@/styles/app.css")).toBeNull();
     expect(resolver.resolveImport(from, "~/ui")).toBeNull();
     expect([...resolver.unresolved.keys()]).toEqual(["~/"]);
+    // A probe finds the same files but records no miss.
+    expect(resolver.resolveImport(from, "#/ui", { probe: true })).toBeNull();
+    expect([...resolver.unresolved.keys()]).toEqual(["~/"]);
   });
 
   it("parses JSONC without touching strings", () => {
@@ -95,6 +98,30 @@ export * from "@lablup/ui-common/components/Drawer";
     expect(localExports(j, ctx, join(dir, "src/ui/leaf.ts")).get("default")).toEqual({
       kind: "component",
       component: "Tooltip",
+    });
+  });
+
+  it("follows a barrel whose only re-exports go through tsconfig baseUrl", () => {
+    const { dir, ctx } = project({
+      "tsconfig.json": `{ "compilerOptions": { "baseUrl": "./src" } }`,
+      "src/index.ts": `export * from "components/common";\n`,
+      "src/components/common/index.ts": `export { Drawer as Panel } from "@lablup/ui-common";\n`,
+    });
+    expect(localExports(j, ctx, join(dir, "src/index.ts")).get("Panel")).toEqual({
+      kind: "component",
+      component: "Drawer",
+    });
+  });
+
+  it("follows a barrel whose only re-exports go through an @-scoped paths alias", () => {
+    const { dir, ctx } = project({
+      "tsconfig.json": `{ "compilerOptions": { "paths": { "@ui/*": ["./src/ui/*"] } } }`,
+      "src/index.ts": `export * from "@ui/common";\n`,
+      "src/ui/common.ts": `export { Drawer } from "@lablup/ui-common";\n`,
+    });
+    expect(localExports(j, ctx, join(dir, "src/index.ts")).get("Drawer")).toEqual({
+      kind: "component",
+      component: "Drawer",
     });
   });
 

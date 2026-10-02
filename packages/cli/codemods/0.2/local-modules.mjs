@@ -23,7 +23,7 @@ import { REMOVED, REMOVED_TYPES, UIC } from "./map.mjs";
  *
  * @typedef {object} LocalModuleContext
  * @property {(path: string) => string | null} [source] a file's content before this run
- * @property {(from: string, specifier: string) => string | null} [resolveImport]
+ * @property {(from: string, specifier: string, options?: {probe?: boolean}) => string | null} [resolveImport]
  */
 
 /** @type {WeakMap<object, {modules: Map<string, Map<string, LocalExport>>, wrappers: Map<string, {def: LocalExport & {kind: 'wrapper'}, importers: Set<string>}>}>} */
@@ -195,9 +195,18 @@ export function localExports(j, ctx, file, stack = new Set()) {
     if (!stack.has(file)) cache.modules.set(file, out);
     return out;
   }
-  // Cheap bail-out: nothing from ui-common, directly or through another module.
-  const sources = [...importSources(source)];
-  if (!sources.some((s) => isUic(s) || !/^[\w@]/.test(s) || s.startsWith("@/"))) {
+  // Cheap bail-out: nothing from ui-common, directly or through a module the
+  // resolver finds (relative, tsconfig `paths` or `baseUrl` alike). A probe,
+  // since the text scan also matches specifiers in comments.
+  /** @type {Map<string, string>} */
+  const targets = new Map();
+  let worthReading = false;
+  for (const s of importSources(source)) {
+    const target = isUic(s) ? null : ctx.resolveImport?.(file, s, { probe: true });
+    if (target) targets.set(s, target);
+    if (target || isUic(s)) worthReading = true;
+  }
+  if (!worthReading) {
     cache.modules.set(file, out);
     return out;
   }
@@ -215,7 +224,7 @@ export function localExports(j, ctx, file, stack = new Set()) {
 
   /** @param {string} specifier */
   const moduleExports = (specifier) => {
-    const target = ctx.resolveImport?.(file, specifier);
+    const target = targets.get(specifier) ?? ctx.resolveImport?.(file, specifier);
     return target ? localExports(j, ctx, target, stack) : new Map();
   };
 

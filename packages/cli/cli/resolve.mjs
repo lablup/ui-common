@@ -204,9 +204,10 @@ export function createResolver(projectDir) {
   /**
    * @param {string} fromFile absolute
    * @param {string} specifier
+   * @param {{probe?: boolean}} [options] probe: a lookup that records no miss
    * @returns {string | null}
    */
-  function resolveImport(fromFile, specifier) {
+  function resolveImport(fromFile, specifier, { probe = false } = {}) {
     if (specifier.startsWith(".") || specifier.startsWith("/")) {
       return resolveFile(resolve(dirname(fromFile), specifier));
     }
@@ -238,6 +239,7 @@ export function createResolver(projectDir) {
       const hit = resolveFile(join(base, specifier));
       if (hit) return hit;
     }
+    if (probe) return null;
     // Only what looks like an alias is worth reporting: a bare name that is
     // not installed is as likely a package this checkout has not installed.
     const first = specifier.split("/")[0];
