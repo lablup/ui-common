@@ -102,14 +102,14 @@ there):
 
 ```yaml
 overrides:
-  "@astryxdesign/lab>@astryxdesign/core": "0.6.2"
+  "@astryxdesign/lab>@astryxdesign/core": "0.6.5"
 ```
 
 npm, in the root `package.json`:
 
 ```json
 "overrides": {
-  "@astryxdesign/lab": { "@astryxdesign/core": "0.6.2" }
+  "@astryxdesign/lab": { "@astryxdesign/core": "0.6.5" }
 }
 ```
 
@@ -441,7 +441,9 @@ import astryxKo from "@lablup/ui-common/locales/ko-KR.json";
 </InternationalizationProvider>;
 ```
 
-- `@lablup/ui-common/locales/<locale>.json` is Astryx's own catalog.
+- `@lablup/ui-common/locales/<locale>.json` is Astryx's own catalog;
+  `@lablup/ui-common/locales/<locale>.generated.js` is the same catalog as a
+  compact string map, without translator descriptions.
 - `@lablup/ui-common/ui-common-locales/<locale>.json` is ui-common's.
 - Without a provider, everything renders in English.
 

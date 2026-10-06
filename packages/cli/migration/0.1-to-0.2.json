@@ -212,7 +212,7 @@
         "names": { "Drawer": "Drawer", "DrawerProps": "DrawerProps" }
       },
       "alternatives": [],
-      "requiresPackages": { "@astryxdesign/lab": "0.6.2-canary.c9fb1ad" },
+      "requiresPackages": { "@astryxdesign/lab": "0.6.5-canary.8701623" },
       "propRenames": [
         {
           "from": "onClose",

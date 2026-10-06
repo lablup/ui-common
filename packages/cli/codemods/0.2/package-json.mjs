@@ -19,7 +19,7 @@ import { LAB_PACKAGE, stylexPeer, UIC } from "./map.mjs";
 /** The CLI package, released in lockstep with ui-common. */
 export const CLI_PACKAGE = "@lablup/ui-common-cli";
 
-const FIELDS = /** @type {const} */ ([
+export const FIELDS = /** @type {const} */ ([
   "dependencies",
   "devDependencies",
   "peerDependencies",
@@ -37,7 +37,7 @@ function isSorted(object) {
  * @param {string} name
  * @param {string} range
  */
-function addDependency(pkg, field, name, range) {
+export function addDependency(pkg, field, name, range) {
   const current = pkg[field] ?? {};
   const next = { ...current, [name]: range };
   pkg[field] = isSorted(current)
@@ -50,7 +50,7 @@ function addDependency(pkg, field, name, range) {
  * @param {string} to
  * @returns {{value: string, note?: string} | null}
  */
-function bumpSpec(spec, to) {
+export function bumpSpec(spec, to) {
   if (/^(workspace:|link:|file:|npm:|git|https?:)/.test(spec)) return null;
   const simple = /^([\^~]?)v?\d+(\.\d+){0,2}(-[0-9A-Za-z.-]+)?$/.exec(spec.trim());
   if (simple) return { value: `${simple[1]}${to}` };
@@ -166,7 +166,7 @@ export function narrowReactRange(range, floor) {
  * @param {any} pkg parsed package.json, edited in place
  * @param {{projectDir?: string, note: (message: string) => void, editFile?: (path: string, edit: (current: string | null) => string | undefined) => void}} ctx
  */
-function addLabOverride(pkg, ctx) {
+export function addLabOverride(pkg, ctx) {
   const pin = uiCommonPackageJson(targetUiCommonRoot(ctx.projectDir)).dependencies?.[
     CORE
   ];

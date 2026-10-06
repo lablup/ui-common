@@ -44,7 +44,12 @@ describe("ComplexSelector fork: hasClear", () => {
   it("puts the clear button between the spinner and the chevron", () => {
     const { container } = renderSelector({ hasClear: true, isLoading: true });
     const trigger = container.querySelector(".astryx-complex-selector")!;
-    const order = Array.from(trigger.children).map((el) =>
+    // The clear button's tooltip (its popover and a <template>) renders
+    // beside the button, not around it; only the controls are ordered.
+    const controls = Array.from(trigger.children).filter(
+      (el) => !el.matches('template, [role="tooltip"]'),
+    );
+    const order = controls.map((el) =>
       el.matches('[role="status"], .astryx-spinner')
         ? "spinner"
         : el.contains(clearButton())

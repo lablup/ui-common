@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.6.2, src/ComplexSelector/ComplexSelector.tsx
+// Forked from @astryxdesign/core 0.6.5, src/ComplexSelector/ComplexSelector.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -68,7 +68,7 @@ import * as compiled from "./ComplexSelector.styles";
 const styles = compiledStyles(compiled.styles);
 const interactionOverlayStyles = compiledStyles(compiled.interactionOverlayStyles);
 
-// @astryxdesign/core 0.6.2 src/hooks/useResolvedRequired.ts, which core does
+// @astryxdesign/core 0.6.5 src/hooks/useResolvedRequired.ts, which core does
 // not export: a field under `FormLayout defaultOptionality="required"` is
 // required unless it opts out.
 function useResolvedRequired({

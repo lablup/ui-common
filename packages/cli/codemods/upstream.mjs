@@ -14,6 +14,8 @@
  */
 import { importAstryxInternal } from "../cli/paths.mjs";
 import { rewriteSpecifiers } from "../cli/rewrite.mjs";
+import { LAB_PACKAGE, UIC } from "./0.2/map.mjs";
+import { addLabOverride, bumpSpec, CLI_PACKAGE, FIELDS } from "./0.2/package-json.mjs";
 
 const DEFAULT_EXTENSIONS = [".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs"];
 
@@ -85,7 +87,7 @@ export function swapModuleSpecifiers(j, source, swap) {
 }
 
 /**
- * @typedef {{astryx: {from: string, to: string}, codemods: Array<{id: string, version: string, title?: string}>}} UpstreamManifest
+ * @typedef {{astryx: {from: string, to: string}, lab?: {from: string, to: string}, codemods: Array<{id: string, version: string, title?: string}>}} UpstreamManifest
  */
 
 /**
@@ -107,6 +109,11 @@ export function wrapAstryxTransform(entry, version) {
         { path: file.path, source: swapped },
         { jscodeshift: j, stats: () => {}, report: () => {} },
       );
+      if (out != null && typeof out.then === "function") {
+        throw new Error(
+          `Astryx codemod "${entry.name}" is asynchronous (not a file transform); run \`ui-common astryx upgrade\` for it.`,
+        );
+      }
       if (out == null || out === swapped) return undefined;
       return swapModuleSpecifiers(j, out, rewriteSpecifiers);
     },
@@ -145,11 +152,80 @@ export async function upstreamStep(manifest) {
       );
       continue;
     }
+    // A project codemod takes the package root and returns a plan of writes,
+    // not a file transform; it concerns an Astryx integration package (theme
+    // catalogs, manifests), which a ui-common consumer is not.
+    if (found.entry.meta?.codemodType === "project") {
+      notes.push(
+        `Astryx codemod "${codemod.id}" rewrites an Astryx integration package (${found.entry.meta.title}); run \`ui-common astryx upgrade\` if this project is one.`,
+      );
+      continue;
+    }
     transforms.push(wrapAstryxTransform(found.entry, found.version));
   }
   return {
     title: `Astryx ${manifest.astryx.from} → ${manifest.astryx.to} codemods`,
     transforms,
     notes,
+    packageJson: (text, ctx) => transformPackageJson(text, ctx, manifest),
   };
+}
+
+/**
+ * The package.json side of an Astryx bump. The codemods above rewrite source;
+ * this moves what a consumer pins by hand: the exact `@lablup/ui-common` and
+ * `@lablup/ui-common-cli` versions to the target, and, in a project that
+ * declares `@astryxdesign/lab`, the lab canary to the one this ui-common
+ * peers on, with lab's core override pointed at the new core (the 0.2 step's
+ * own logic, reused). Without it an alpha-to-alpha upgrade ran the codemods
+ * and left the old lab beside the new core.
+ *
+ * @param {string} text package.json source
+ * @param {{to: string, projectDir?: string, note: (message: string) => void, editFile?: Function}} ctx
+ * @param {UpstreamManifest} manifest
+ */
+export function transformPackageJson(text, ctx, manifest) {
+  const pkg = JSON.parse(text);
+  const indent = /^([ \t]+)"/m.exec(text)?.[1] ?? "  ";
+  const fields = FIELDS.filter((f) => pkg[f]?.[UIC] != null);
+  if (fields.length === 0) return undefined;
+
+  for (const [name, exact] of [
+    [UIC, false],
+    [CLI_PACKAGE, true],
+  ]) {
+    for (const field of FIELDS) {
+      const spec = pkg[field]?.[name];
+      if (spec == null) continue;
+      const bumped = bumpSpec(spec, ctx.to);
+      if (!bumped) {
+        ctx.note(
+          `${field}["${name}"] is "${spec}"; not a version, so it was left alone.`,
+        );
+        continue;
+      }
+      const value = exact ? ctx.to : bumped.value;
+      if (value !== spec) {
+        pkg[field][name] = value;
+        ctx.note(`${field}["${name}"]: "${spec}" → "${value}".`);
+      }
+    }
+  }
+
+  const lab = manifest.lab?.to;
+  const labFields = FIELDS.filter((f) => pkg[f]?.[LAB_PACKAGE] != null);
+  if (lab && labFields.length > 0) {
+    for (const field of labFields) {
+      const spec = pkg[field][LAB_PACKAGE];
+      if (spec === lab || bumpSpec(spec, lab) == null) continue;
+      pkg[field][LAB_PACKAGE] = lab;
+      ctx.note(
+        `${field}["${LAB_PACKAGE}"]: "${spec}" → "${lab}": ${UIC} ${ctx.to} peers on this lab canary exactly.`,
+      );
+    }
+    addLabOverride(pkg, ctx);
+  }
+
+  const out = `${JSON.stringify(pkg, null, indent)}${text.endsWith("\n") ? "\n" : ""}`;
+  return out === text ? undefined : out;
 }

@@ -1,20 +1,23 @@
 {
   "ComplexSelector": {
     "package": "@astryxdesign/core",
-    "version": "0.6.2",
+    "version": "0.6.5",
     "upstream": "https://github.com/facebook/astryx/pull/6362",
     "files": {
-      "src/ComplexSelector/ComplexSelector.tsx": "981e9834c3c2773f1e81ee895b320d1216b2c9671a2253292e816b9a53993abc",
+      "src/ComplexSelector/ComplexSelector.tsx": "c7b7c7462dd7dd321befd79b94a25413907e83a6691f66bb73007826bb887ee3",
       "src/ComplexSelector/index.ts": "c33bc95b12e5c3dc3834469b9e057f66f0cb1979c366f880cf24517c710c4314",
       "src/ComplexSelector/ComplexSelector.test.tsx": "ff7d2a1754cb460cf45266e5ea96ab64c9e6b5a61b8cc7a322e8f54a7884a93a",
       "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
-      "dist/ComplexSelector/ComplexSelector.js": "4e89217a6b16d46c11fd3c2d1c1b1fe39883602ce0fd5569f22ffcc89f1fdd5b",
-      "dist/utils/interactionOverlay.stylex.js": "ac284b71a2e357942caf64b0f689422601b7889c81763e33548bbb41137f2f9b"
+      "dist/ComplexSelector/ComplexSelector.js": "ad045e743acb232a469769d4ce6babfbe20aba401de659927b92f01feac15a04",
+      "dist/utils/interactionOverlay.stylex.js": "e7213810b186baa7fbabcbf665e4e7428fe367f2a47f2ec4bbca83e7b8c53efe"
     },
     "styles": {
       "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
       "from": [
-        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
+        {
+          "file": "dist/ComplexSelector/ComplexSelector.js",
+          "consts": ["styles"]
+        },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -24,15 +27,15 @@
   },
   "Drawer": {
     "package": "@astryxdesign/lab",
-    "version": "0.6.2-canary.c9fb1ad",
+    "version": "0.6.5-canary.8701623",
     "upstream": null,
-    "notes": "Deliberate divergence beyond a fix: Escape goes through core's layer-dismissal stack (useLayerDismissal + LayerDepthProvider, as core Dialog does) instead of lab's element-level handler and LIFO registry, so a popover, selector or modal inside the drawer closes first and a non-modal drawer closes on Escape wherever focus is. Also aria-modal passes through, and a scrimmed (modal) drawer provides its dialog through ModalPortalContext so ui-common's Modal opened inside renders there, in the top layer. On an Astryx bump, keep these unless lab's Drawer registers with the stack itself.",
+    "notes": "Deliberate divergence beyond a fix: aria-modal passes through, and the drawer provides its dialog through ModalPortalContext while open (modal dialog or manual popover, both top layer) so ui-common's Modal opened inside renders there, in the top layer above it. Escape routing is upstream's (lab registers with core's layer-dismissal stack since 0.6.5). On an Astryx bump, keep these until lab passes aria-modal through and Modal no longer needs the host.",
     "files": {
-      "src/Drawer/Drawer.tsx": "f72daf426b140474e79dfc79218238f70310e41893694f06459950ea69cabad3",
-      "src/Drawer/useDrawerDialogPresence.ts": "46f7452950f7a771d14b65fffad8eeb7081a22caac13b6a5d66e7274f3607f6f",
-      "src/Drawer/index.ts": "ab1a3401c786dc87f0812db992ab5033433b30c8a8b6b402b133a9a54149a77c",
-      "src/Drawer/Drawer.test.tsx": "d0634ecdd026aa0e8925324b75bde262b2b297087f44c772c463ba9e03bc499b",
-      "dist/Drawer/Drawer.js": "8867764a9e747dbd96aeb3168d5f9f960bfa02c3d97c9a11c1db279ecc219fff"
+      "src/Drawer/Drawer.tsx": "5e97093a6aabe2ae9761c68c8a62272f12aeadcf9c7f745e218655b460707298",
+      "src/Drawer/useDrawerDialogPresence.ts": "abc5e33ec791f38a5f41d17b6dac2946db9477b9f921fd52dccc6c14ae7be57b",
+      "src/Drawer/index.ts": "8fdd7454ab0e3e7037860801a91ccefeb545f455813872394dba86ef2dc50d9b",
+      "src/Drawer/Drawer.test.tsx": "24f673d83a100ddff7b5aabd469ccc744e703e63a40010734000cfa9087e6b02",
+      "dist/Drawer/Drawer.js": "30b2b7e77708e7b7b13d96b373590bc20daf76e1d8ccc9f723d0cd1d721d8499"
     },
     "styles": {
       "file": "src/forks/Drawer/Drawer.styles.ts",
@@ -46,7 +49,7 @@
   },
   "Tour": {
     "package": "@astryxdesign/lab",
-    "version": "0.6.2-canary.c9fb1ad",
+    "version": "0.6.5-canary.8701623",
     "upstream": null,
     "files": {
       "src/Tour/Tour.tsx": "a379030d01f7e2f0d2b2cdae25aafdeacb6b5dd1c858d5cdb7511d8556735325",
@@ -59,7 +62,12 @@
     },
     "styles": {
       "file": "src/forks/Tour/TourStep.styles.ts",
-      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
+      "from": [
+        {
+          "file": "dist/Tour/TourStep.js",
+          "consts": ["styles"]
+        }
+      ]
     }
   }
 }

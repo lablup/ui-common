@@ -12,15 +12,15 @@ packages:
 # release-age quarantine by design, so it is excluded for as long as the exact
 # pin exists (the same exclusion backend.ai-webui carries).
 minimumReleaseAgeExclude:
-  - "@astryxdesign/lab@0.6.2-canary.c9fb1ad"
+  - "@astryxdesign/lab@0.6.5-canary.8701623"
 
 peerDependencyRules:
   # The lab canary declares an exact peer on the core canary it was cut from
-  # (`@astryxdesign/core@0.6.2-canary.c9fb1ad`). It runs against the stable
-  # 0.6.2 that ui-common pins, which is how backend.ai-webui installs it too.
+  # (`@astryxdesign/core@0.6.5-canary.8701623`). It runs against the stable
+  # 0.6.5 that ui-common pins, which is how backend.ai-webui installs it too.
   # This only silences the mismatch warning in this repository's dev install.
   allowedVersions:
-    "@astryxdesign/lab>@astryxdesign/core": "0.6.2"
+    "@astryxdesign/lab>@astryxdesign/core": "0.6.5"
 
 allowBuilds:
   # Each postinstall only prints an `astryx init` nudge; no build output is
