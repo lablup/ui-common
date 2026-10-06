@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.6.2, src/ComplexSelector/ComplexSelector.test.tsx
+// Forked from @astryxdesign/core 0.6.5, src/ComplexSelector/ComplexSelector.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
 // in the *.fork.test.tsx beside it.
 // Provenance and the drift guard: src/forks/provenance.json.

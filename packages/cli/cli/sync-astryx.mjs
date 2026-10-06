@@ -162,6 +162,23 @@ export function upstreamManifest(repo, version, astryx, listed) {
  * @param {string} pin the new @astryxdesign/core pin
  * @returns {Array<{name: string, file: string, after: string}>}
  */
+/**
+ * Where the 0.1 -> 0.2 migration tells a consumer which `@astryxdesign/lab`
+ * to add (`requiresPackages` in migration/0.1-to-0.2.json). It is the exact
+ * canary ui-common peers on, so it moves with `--lab`.
+ */
+export function labRequirementEdits(repo, lab) {
+  const name = `${CLI_PACKAGE_DIR}/migration/0.1-to-0.2.json`;
+  const file = join(repo, name);
+  if (!existsSync(file)) return [];
+  const before = readFileSync(file, "utf8");
+  const after = before.replace(
+    /("@astryxdesign\/lab":\s*")[^"]+(")/g,
+    (_, open, close) => `${open}${lab}${close}`,
+  );
+  return after === before ? [] : [{ name, file, before, after }];
+}
+
 export function labOverrideEdits(repo, pin) {
   const edits = [];
   for (const name of ["README.md", "pnpm-workspace.yaml"]) {
@@ -279,6 +296,11 @@ export async function syncAstryxCommand(argv) {
   for (const edit of labOverrideEdits(repo, target)) {
     out(`  ${edit.name}: lab's core override → ${target}`);
   }
+  if (lab) {
+    for (const edit of labRequirementEdits(repo, lab)) {
+      out(`  ${edit.name}: the lab pin consumers are told to add → ${lab}`);
+    }
+  }
 
   /** @param {string} title @param {string} cmd @param {string[]} args */
   const step = (title, cmd, args) => {
@@ -350,6 +372,12 @@ export async function syncAstryxCommand(argv) {
   writeFileSync(pkgFile, `${JSON.stringify(pkg, null, 2)}\n`);
   writeFileSync(cliPkgFile, `${JSON.stringify(cliPkg, null, 2)}\n`);
   out(`  package.json and ${CLI_PACKAGE_DIR}/package.json written`);
+  if (lab) {
+    for (const edit of labRequirementEdits(repo, lab)) {
+      writeFileSync(edit.file, edit.after);
+      out(`  ${edit.name}: the lab pin consumers are told to add moved to ${lab}`);
+    }
+  }
   for (const edit of labOverrideEdits(repo, target)) {
     writeFileSync(edit.file, edit.after);
     out(`  ${edit.name}: lab's core override moved to ${target}`);

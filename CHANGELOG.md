@@ -3,9 +3,43 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
-## [Unreleased]
+## [0.2.0-alpha.16]
+
+Astryx 0.6.2 → 0.6.5 (`@astryxdesign/lab` 0.6.5-canary.8701623). Astryx's
+own release notes: `node_modules/@astryxdesign/core/CHANGELOG.md`, 0.6.3 to
+0.6.5 (Timer, Popover `padding`, DialogHeader theme targets, `presentation`
+on the date and time inputs, many fixes).
 
 ### Changed
+
+- **Astryx 0.6.5.** New mirrored subpaths: `@lablup/ui-common/Timer`,
+  `Markdown/parser`, `Markdown/plugins`, `Markdown/remark`, and
+  `locales/<locale>.generated.js`, Astryx's compact locale string maps (the
+  JSON catalogs stay). `@lablup/ui-common/lab` gains `DrawerHeader`.
+  Consumers that pin `@astryxdesign/lab` move it to
+  `0.6.5-canary.8701623` and their `@astryxdesign/lab>@astryxdesign/core`
+  override to `0.6.5` (`ui-common upgrade` says so; `ui-common doctor`
+  checks it).
+- **`Drawer` (`@lablup/ui-common/lab`) follows lab's 0.6.5 contract, which
+  is breaking.** It renders no close button of its own any more and
+  `hasCloseButton` is gone: compose `DrawerHeader` with the same
+  `onOpenChange` for a visible close action, as `DialogHeader` does for
+  `Modal`. New `purpose` prop (`'info'` default, `'form'`, `'required'`)
+  decides whether Escape and a scrim click close it, as on `Dialog`; a modal
+  `required` drawer is an `alertdialog`. A scrimless drawer now opens as a
+  manual popover (`showPopover()`) in the browser top layer instead of
+  `show()` plus a z-index, and a modal drawer traps Tab focus. Escape routing
+  through core's layer-dismissal stack is now lab's own, so the fork keeps
+  only `aria-modal` passthrough and the `Modal` portal host.
+- `ui-common upgrade` runs Astryx's 0.6.4 codemods for a consumer crossing
+  this version: `migrate-native-picker-to-presentation` (`nativePicker` →
+  `presentation` on DateInput, DateTimeInput and TimeInput) and the
+  integration theme descriptor.
+- `PagedSelector`'s borrowed search-input classes follow Astryx's rename of
+  the coarse-pointer font floor (now iOS-only, as in `Selector`).
+- `ui-common upgrade --from 0.1` adds the `@astryxdesign/lab` canary this
+  version peers on (`0.6.5-canary.8701623`), not the one 0.2.0-alpha.0
+  shipped with; `sync-astryx --lab` moves that requirement with the pin.
 
 - 0.1 is maintained on the `release/0.1` branch. Its patch releases publish
   under the `release-0.1` dist-tag and never move `next` or `latest`; the

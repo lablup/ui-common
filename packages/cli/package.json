@@ -1,6 +1,6 @@
 {
   "name": "@lablup/ui-common-cli",
-  "version": "0.2.0-alpha.15",
+  "version": "0.2.0-alpha.16",
   "description": "The ui-common command line: the pinned Astryx CLI in @lablup/ui-common terms, the agent block, and the upgrade codemods",
   "license": "Apache-2.0",
   "author": "Lablup Inc.",
@@ -36,7 +36,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@astryxdesign/cli": "0.6.2",
+    "@astryxdesign/cli": "0.6.5",
     "jscodeshift": "^17.4.0",
     "postcss": "^8.5.25",
     "postcss-selector-parser": "^7.1.6"

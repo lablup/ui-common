@@ -1,8 +1,9 @@
 /**
- * ui-common's tests for its Drawer fork: the changes it carries (Escape
- * through core's layer-dismissal stack, `aria-modal` passthrough, a `Modal`
- * inside rendering into its dialog), and that everything else renders
- * exactly as lab's does.
+ * ui-common's tests for its Drawer fork: the changes it carries (`aria-modal`
+ * passthrough, a `Modal` inside rendering into its dialog), that Escape still
+ * goes through core's layer-dismissal stack (upstream's own behaviour since
+ * lab 0.6.5, kept pinned here), and that everything else renders exactly as
+ * lab's does.
  */
 import { useState } from "react";
 import { createPortal } from "react-dom";
@@ -26,6 +27,13 @@ beforeEach(() => {
     this.setAttribute("open", "");
   });
   HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+    this.removeAttribute("open");
+  });
+  // A scrimless drawer opens with showPopover(); jsdom has neither.
+  HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
+    this.setAttribute("open", "");
+  });
+  HTMLElement.prototype.hidePopover = vi.fn(function (this: HTMLElement) {
     this.removeAttribute("open");
   });
 });
@@ -57,12 +65,14 @@ function mockPopoverApi() {
   const originalMatches = HTMLElement.prototype.matches;
   HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
     this.setAttribute("popover-open", "");
+    if (this instanceof HTMLDialogElement) this.setAttribute("open", "");
     const event = new Event("toggle");
     Object.defineProperty(event, "newState", { value: "open" });
     this.dispatchEvent(event);
   });
   HTMLElement.prototype.hidePopover = vi.fn(function (this: HTMLElement) {
     this.removeAttribute("popover-open");
+    if (this instanceof HTMLDialogElement) this.removeAttribute("open");
     const event = new Event("toggle");
     Object.defineProperty(event, "newState", { value: "closed" });
     this.dispatchEvent(event);
@@ -110,7 +120,7 @@ function DrawerWithLayers({ impl: Impl = Drawer }: { impl?: typeof Drawer }) {
 const drawerIsOpen = () =>
   document.querySelector('dialog[aria-label="Details"]')!.hasAttribute("open");
 
-describe("Drawer fork: Escape goes through core's layer-dismissal stack", () => {
+describe("Drawer fork: Escape goes through core's layer-dismissal stack, as lab's does", () => {
   beforeEach(mockPopoverApi);
 
   it("closes on an Escape from inside the drawer", () => {
@@ -215,15 +225,15 @@ describe("Drawer fork: Escape goes through core's layer-dismissal stack", () => 
     expect(closeDrawer).not.toHaveBeenCalled();
   });
 
-  // When this fails, lab has moved Drawer onto the stack: delete the fork's
-  // Escape change (CONTRIBUTING, "Forks of Astryx components").
-  it("still differs from lab's, which closes itself along with the Popover", async () => {
+  it("matches lab's, which closes only the Popover on the first Escape", async () => {
     const user = userEvent.setup();
     render(<DrawerWithLayers impl={UpstreamDrawer} />);
-    await user.click(screen.getByRole("button", { name: "Open filters" }));
+    const trigger = screen.getByRole("button", { name: "Open filters" });
+    await user.click(trigger);
     (await screen.findByLabelText("Popover field")).focus();
     await user.keyboard("{Escape}");
-    await waitFor(() => expect(drawerIsOpen()).toBe(false));
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(drawerIsOpen()).toBe(true);
   });
 });
 
@@ -351,10 +361,8 @@ describe("Drawer fork: parity with lab", () => {
 
   const cases: Array<[string, object]> = [
     ["the defaults", {}],
-    [
-      "start side, no scrim, no close button",
-      { side: "start", hasScrim: false, hasCloseButton: false },
-    ],
+    ["start side, no scrim", { side: "start", hasScrim: false }],
+    ["a required purpose", { purpose: "required" }],
     [
       "a string width, full width on mobile",
       { width: "32rem", isFullWidthOnMobile: true },

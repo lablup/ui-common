@@ -58,6 +58,8 @@ const cssOnly = (source: string) =>
 
 const jsonOnly = (source: string) =>
   statSync(source).isDirectory() || source.endsWith(".json");
+const generatedLocaleOnly = (source: string) =>
+  statSync(source).isDirectory() || /\.generated\.(js|d\.ts)$/.test(source);
 
 /**
  * Files no module imports, so Rollup never sees them, copied verbatim.
@@ -68,9 +70,11 @@ const jsonOnly = (source: string) =>
  *   stylesheets. They stay `@import`s so the consumer's bundler resolves the
  *   Astryx sheet from this package's install location.
  * - `locales/`: Astryx core's own locale catalogs, mirrored 1:1 at
- *   `@lablup/ui-common/locales/<locale>.json`. JSON cannot re-export, so this
- *   is the one mirror that is a copy. It is taken from the installed, pinned
- *   core at build time, so it cannot drift from the JS.
+ *   `@lablup/ui-common/locales/<locale>.json`, and its compact string maps at
+ *   `@lablup/ui-common/locales/<locale>.generated.js` (with their `.d.ts`).
+ *   JSON cannot re-export and the maps are generated, so this is the one
+ *   mirror that is a copy. It is taken from the installed, pinned core at
+ *   build time, so it cannot drift from the JS.
  * - `ui-common-locales/`: ui-common's own `uic.*` catalog, one JSON file per
  *   Astryx locale name. `en.json` is written from the code catalog.
  * - `theme/lablup/built/`: the output of `astryx theme build`, committed and
@@ -96,6 +100,11 @@ function copyAssets(): Plugin {
       from: "node_modules/@astryxdesign/core/locales",
       to: "dist/locales",
       filter: jsonOnly,
+    },
+    {
+      from: "node_modules/@astryxdesign/core/dist/i18n/generated-locales",
+      to: "dist/locales",
+      filter: generatedLocaleOnly,
     },
     { from: "src/i18n/locales", to: "dist/ui-common-locales", filter: jsonOnly },
   ];

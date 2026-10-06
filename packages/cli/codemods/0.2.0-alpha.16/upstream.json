@@ -1,0 +1,20 @@
+{
+  "$comment": "Written by `ui-common sync-astryx`. Astryx codemods consumers need when they upgrade across this ui-common version; `ui-common upgrade` runs them with @lablup/ui-common specifiers swapped for Astryx's.",
+  "astryx": {
+    "from": "0.6.2",
+    "to": "0.6.5"
+  },
+  "codemods": [
+    {
+      "id": "migrate-theme-catalog-to-descriptors",
+      "version": "0.6.4",
+      "title": "Give each integration theme a typed descriptor instead of the manifest.json catalog"
+    },
+    {
+      "id": "migrate-native-picker-to-presentation",
+      "version": "0.6.4",
+      "title": "Migrate nativePicker to presentation"
+    }
+  ],
+  "optional": []
+}

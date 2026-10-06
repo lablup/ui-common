@@ -100,20 +100,21 @@ under Astryx's own name and import path until Astryx ships the fix. It exists
 because a product's pnpm `patchedDependencies` never reach that product's
 consumers, and ui-common's consumers import Astryx through ui-common.
 
-| Fork              | Where                               | Fix                                                                                                                                          | Upstream                                                             |
-| ----------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                                                                                       | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
-| `Drawer`          | `@lablup/ui-common/lab`             | Escape goes through core's layer-dismissal stack (see below); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it | not filed                                                            |
-| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                                                                             | not filed                                                            |
+| Fork              | Where                               | Fix                                                                                        | Upstream                                                             |
+| ----------------- | ----------------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                                     | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
+| `Drawer`          | `@lablup/ui-common/lab`             | `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
+| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                           | not filed                                                            |
 
-`Drawer` is more than a fix: lab's drawer handles Escape itself, ahead of
-core's layer-dismissal stack, so an Escape in a popover, selector or modal
-inside it closed the drawer too. The fork registers with the stack through
-`useLayerDismissal`, as core's `Dialog` does, so one press closes only the
-top-most layer. A deliberate consequence: a non-modal drawer closes on Escape
-wherever focus is, not only while focus is inside it. Keep this change on a
-bump until lab's `Drawer` joins the stack itself (its "still differs from
-lab's" test fails then); `provenance.json` records it as `notes`.
+`Drawer`'s second change is ui-common's own, not an upstream fix: a scrimmed
+drawer is a modal `<dialog>`, which inerts everything outside it, so
+ui-common's `Modal` (a body-portalled popover, not a `<dialog>`) opened
+inside sat behind it. The fork provides its dialog through
+`ModalPortalContext` while open and modal, and `Modal` renders there. Keep
+it on a bump for as long as `Modal` is not top layer itself; `provenance.json`
+records it as `notes`. (Until lab 0.6.5 the fork also routed Escape through
+core's layer-dismissal stack; lab does that itself now, and the fork takes
+upstream's routing.)
 
 How one is put together:
 

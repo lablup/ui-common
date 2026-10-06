@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Adapted from @astryxdesign/core 0.6.2, dist/Field/PanelSearchInput.js and
+// Adapted from @astryxdesign/core 0.6.5, dist/Field/PanelSearchInput.js and
 // dist/utils/interactionModality.js (MIT; see NOTICE). Neither is exported by
 // the package; Selector and MultiSelector use them for their search row.
 
@@ -39,7 +39,7 @@ export const PANEL_SEARCH_CLASS_NAMES = {
   /** Added to `field` while focus arrived by keyboard: draws the inset ring. */
   fieldKeyboardFocus: "x1gnnqk1 x1btxeh5",
   input:
-    "x1iyjqo2 xs83m0k xeuugli x1717udv x1ghz6dp xc342km xng3xce xjbqb8w x1tgivj0 x9ynric xcr08ib xdk3u5w x1kq96og x1a2a7pz xeyghm5",
+    "x1iyjqo2 xs83m0k xeuugli x1717udv x1ghz6dp xc342km xng3xce xjbqb8w x1tgivj0 x9ynric xcr08ib x1w61h2b x1kq96og x1a2a7pz xeyghm5",
 } as const;
 
 const iconStyles = compiledStyles({

@@ -1,6 +1,6 @@
 {
   "name": "@lablup/ui-common",
-  "version": "0.2.0-alpha.15",
+  "version": "0.2.0-alpha.16",
   "description": "Lablup's UI layer on Astryx: the Astryx surface re-exported 1:1, the Lablup theme, and shared components",
   "license": "Apache-2.0",
   "author": "Lablup Inc.",
@@ -84,6 +84,10 @@
       "import": "./dist/astryx/theme/syntax.js"
     },
     "./locales/*.json": "./dist/locales/*.json",
+    "./locales/*.generated.js": {
+      "types": "./dist/locales/*.generated.d.ts",
+      "import": "./dist/locales/*.generated.js"
+    },
     "./AppShell": {
       "types": "./dist/astryx/AppShell.d.ts",
       "import": "./dist/astryx/AppShell.js"
@@ -440,6 +444,10 @@
       "types": "./dist/astryx/TimeInput.d.ts",
       "import": "./dist/astryx/TimeInput.js"
     },
+    "./Timer": {
+      "types": "./dist/astryx/Timer.d.ts",
+      "import": "./dist/astryx/Timer.js"
+    },
     "./Timestamp": {
       "types": "./dist/astryx/Timestamp.d.ts",
       "import": "./dist/astryx/Timestamp.js"
@@ -504,6 +512,14 @@
       "types": "./dist/astryx/utils.d.ts",
       "import": "./dist/astryx/utils.js"
     },
+    "./Markdown/plugins": {
+      "types": "./dist/astryx/Markdown/plugins.d.ts",
+      "import": "./dist/astryx/Markdown/plugins.js"
+    },
+    "./Markdown/parser": {
+      "types": "./dist/astryx/Markdown/parser.d.ts",
+      "import": "./dist/astryx/Markdown/parser.js"
+    },
     "./Calendar/utils": {
       "types": "./dist/astryx/Calendar/utils.d.ts",
       "import": "./dist/astryx/Calendar/utils.js"
@@ -531,6 +547,10 @@
     "./Typeahead/utils": {
       "types": "./dist/astryx/Typeahead/utils.d.ts",
       "import": "./dist/astryx/Typeahead/utils.js"
+    },
+    "./Markdown/remark": {
+      "types": "./dist/astryx/Markdown/remark.d.ts",
+      "import": "./dist/astryx/Markdown/remark.js"
     },
     "./lab": {
       "types": "./dist/astryx/lab.d.ts",
@@ -582,8 +602,8 @@
     "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run theme:check && pnpm run test && pnpm run build && pnpm run check:pack && pnpm run check:integration"
   },
   "dependencies": {
-    "@astryxdesign/core": "0.6.2",
-    "@astryxdesign/theme-neutral": "0.6.2",
+    "@astryxdesign/core": "0.6.5",
+    "@astryxdesign/theme-neutral": "0.6.5",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/modifiers": "9.0.0",
     "@dnd-kit/sortable": "10.0.0",
@@ -592,7 +612,7 @@
     "lucide-react": "^1.18.0"
   },
   "peerDependencies": {
-    "@astryxdesign/lab": "0.6.2-canary.c9fb1ad",
+    "@astryxdesign/lab": "0.6.5-canary.8701623",
     "@stylexjs/stylex": "^0.19.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
@@ -603,8 +623,8 @@
     }
   },
   "devDependencies": {
-    "@astryxdesign/cli": "0.6.2",
-    "@astryxdesign/lab": "0.6.2-canary.c9fb1ad",
+    "@astryxdesign/cli": "0.6.5",
+    "@astryxdesign/lab": "0.6.5-canary.8701623",
     "@eslint/js": "^9.39.0",
     "@stylexjs/stylex": "0.19.0",
     "@testing-library/jest-dom": "6.9.1",

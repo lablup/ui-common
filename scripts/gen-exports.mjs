@@ -85,8 +85,18 @@ export const OWN_EXPORTS = {
  */
 export const NAMED_MIRRORS = ["lab"];
 
-/** The locale catalogs are JSON, so they are merged at build time instead. */
-const LOCALES_PATTERN = "./locales/*.json";
+/**
+ * Core's two locale patterns. The catalogs are JSON and the compact string
+ * maps are generated modules, so neither can be re-exported from a source
+ * file; both are copied from the installed core at build time (vite.config.ts).
+ */
+const LOCALES_PATTERNS = {
+  "./locales/*.json": "./dist/locales/*.json",
+  "./locales/*.generated.js": {
+    types: "./dist/locales/*.generated.d.ts",
+    import: "./dist/locales/*.generated.js",
+  },
+};
 
 /**
  * The installed package's directory. Read through node_modules rather than
@@ -387,7 +397,7 @@ export async function generate() {
     }
     if (
       s.kind === "pattern" &&
-      !(s.package === "@astryxdesign/core" && s.key === LOCALES_PATTERN)
+      !(s.package === "@astryxdesign/core" && s.key in LOCALES_PATTERNS)
     ) {
       throw new Error(
         `${s.package} exports the pattern "${s.key}", which the generator does not handle.`,
@@ -771,7 +781,7 @@ export async function generate() {
     } else if (s.kind === "css") {
       exportsMap[`./${s.subpath}`] = `./dist/astryx/${s.subpath}`;
     } else if (s.kind === "pattern") {
-      exportsMap[LOCALES_PATTERN] = "./dist/locales/*.json";
+      exportsMap[s.key] = LOCALES_PATTERNS[s.key];
     }
   }
   for (const custom of customs) {

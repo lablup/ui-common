@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/lab 0.6.2-canary.c9fb1ad, src/Tour/Tour.test.tsx
+// Forked from @astryxdesign/lab 0.6.5-canary.8701623, src/Tour/Tour.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
 // in the *.fork.test.tsx beside it.
 // Provenance and the drift guard: src/forks/provenance.json.

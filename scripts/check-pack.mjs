@@ -247,13 +247,19 @@ for (const file of packed.filter((f) => f.endsWith(".js"))) {
 }
 
 /**
- * `locales/*.json` mirrors Astryx core's catalogs. A pattern export only has
- * to match one file to pass the check above, so compare the whole set.
+ * `locales/*.json` mirrors Astryx core's catalogs and `locales/*.generated.js`
+ * its compact string maps. A pattern export only has to match one file to
+ * pass the check above, so compare the whole set.
  */
 const coreLocales = (
   await readdir(resolve(root, "node_modules/@astryxdesign/core/locales"))
 ).filter((f) => f.endsWith(".json"));
-for (const locale of coreLocales) {
+const coreGeneratedLocales = (
+  await readdir(
+    resolve(root, "node_modules/@astryxdesign/core/dist/i18n/generated-locales"),
+  )
+).filter((f) => /\.generated\.(js|d\.ts)$/.test(f));
+for (const locale of [...coreLocales, ...coreGeneratedLocales]) {
   if (!packedSet.has(`dist/locales/${locale}`)) {
     failures.push(
       `Astryx locale "${locale}" is not mirrored at dist/locales/${locale}`,

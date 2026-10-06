@@ -319,8 +319,22 @@ describe("upgrade registry", () => {
   it("selects the 0.1 -> 0.2 step for every 0.1 prerelease", async () => {
     expect(registeredVersions()).toContain("0.2.0-alpha.0");
     expect(await stepsBetween("0.1.0-alpha.7", "0.2.0-alpha.0")).toHaveLength(1);
-    expect(await stepsBetween("0.1.0", "0.2.0")).toHaveLength(1);
     expect(await stepsBetween("0.2.0-alpha.0", "0.2.0-alpha.3")).toHaveLength(0);
+    // 0.1.0 -> 0.2.0 crosses the 0.1 -> 0.2 step and every upstream
+    // (sync-astryx) step recorded under a 0.2 prerelease since.
+    const versions = (await stepsBetween("0.1.0", "0.2.0")).map((s) => s.version);
+    expect(versions[0]).toBe("0.2.0-alpha.0");
+    expect(versions).toEqual(
+      registeredVersions().filter(
+        (v) => compare(v, "0.1.0") > 0 && compare(v, "0.2.0") <= 0,
+      ),
+    );
+  });
+
+  it("registers the Astryx 0.6.5 codemods under 0.2.0-alpha.16", async () => {
+    expect(registeredVersions()).toContain("0.2.0-alpha.16");
+    expect(await stepsBetween("0.2.0-alpha.15", "0.2.0-alpha.16")).toHaveLength(1);
+    expect(await stepsBetween("0.2.0-alpha.16", "0.2.0")).toHaveLength(0);
   });
 
   it("maps every removed export onto something the installed Astryx exports", () => {
