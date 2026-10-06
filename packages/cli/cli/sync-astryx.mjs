@@ -125,14 +125,16 @@ function listAstryxCodemods(repo, from, to) {
  * @param {string} version ui-common version to record under
  * @param {{from: string, to: string}} astryx
  * @param {{codemods: Array<{id: string, version: string, title: string}>, optional: string[]}} listed
+ * @param {{from: string, to: string} | null} [lab] the lab canary move, when `--lab` was given
  */
-export function upstreamManifest(repo, version, astryx, listed) {
+export function upstreamManifest(repo, version, astryx, listed, lab = null) {
   const file = join(repo, CLI_PACKAGE_DIR, "codemods", version, "upstream.json");
   /** @type {any} */
   let manifest = {
     $comment:
-      "Written by `ui-common sync-astryx`. Astryx codemods consumers need when they upgrade across this ui-common version; `ui-common upgrade` runs them with @lablup/ui-common specifiers swapped for Astryx's.",
+      "Written by `ui-common sync-astryx`. Astryx codemods consumers need when they upgrade across this ui-common version; `ui-common upgrade` runs them with @lablup/ui-common specifiers swapped for Astryx's, and moves the consumer's lab pin and core override.",
     astryx,
+    ...(lab ? { lab } : {}),
     codemods: listed.codemods,
     optional: listed.optional,
   };
@@ -143,6 +145,14 @@ export function upstreamManifest(repo, version, astryx, listed) {
     manifest = {
       ...manifest,
       astryx: { from: previous.astryx.from, to: astryx.to },
+      ...(lab || previous.lab
+        ? {
+            lab: {
+              from: previous.lab?.from ?? lab.from,
+              to: lab?.to ?? previous.lab.to,
+            },
+          }
+        : {}),
       codemods: [
         ...previous.codemods,
         ...listed.codemods.filter((c) => !ids.has(c.id)),
@@ -350,6 +360,9 @@ export async function syncAstryxCommand(argv) {
       recordAs,
       { from: current, to: target },
       listed,
+      lab
+        ? { from: pkg.peerDependencies?.[LAB] ?? pkg.devDependencies?.[LAB], to: lab }
+        : null,
     );
     out(
       `\nWould record ${manifest.codemods.length} codemod(s) in ${file.slice(repo.length + 1)} (as listed by the installed CLI; the new CLI may add more):`,
@@ -426,6 +439,9 @@ export async function syncAstryxCommand(argv) {
       recordAs,
       { from: current, to: target },
       listed,
+      lab
+        ? { from: pkg.peerDependencies?.[LAB] ?? pkg.devDependencies?.[LAB], to: lab }
+        : null,
     );
     mkdirSync(join(file, ".."), { recursive: true });
     writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`);

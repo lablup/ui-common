@@ -435,6 +435,67 @@ describe("upstream Astryx codemods", () => {
     ).toBeUndefined();
   });
 
+  it("moves the consumer's pins, lab canary and core override on an upstream step", async () => {
+    const step = await upstreamStep({
+      astryx: { from: "0.6.2", to: "0.6.5" },
+      lab: { from: "0.6.2-canary.c9fb1ad", to: "0.6.5-canary.8701623" },
+      codemods: [],
+    });
+    const dir = tempProject();
+    const yaml = join(dir, "pnpm-workspace.yaml");
+    writeFileSync(
+      yaml,
+      'overrides:\n  "@astryxdesign/lab>@astryxdesign/core": "0.6.2"\n',
+    );
+    const notes: string[] = [];
+    const edits = new Map<string, string>();
+    const ctx = {
+      to: "0.2.0-alpha.16",
+      projectDir: dir,
+      note: (m: string) => notes.push(m),
+      editFile: (
+        path: string,
+        edit: (current: string | null) => string | undefined,
+      ) => {
+        const next = edit(existsSync(path) ? readFileSync(path, "utf8") : null);
+        if (next != null) edits.set(path, next);
+      },
+    };
+    const text = `${JSON.stringify(
+      {
+        name: "consumer",
+        dependencies: {
+          "@astryxdesign/lab": "0.6.2-canary.c9fb1ad",
+          "@lablup/ui-common": "0.2.0-alpha.15",
+        },
+        devDependencies: { "@lablup/ui-common-cli": "0.2.0-alpha.15" },
+      },
+      null,
+      2,
+    )}\n`;
+    const pkg = JSON.parse(step.packageJson!(text, ctx)!);
+    expect(pkg.dependencies["@lablup/ui-common"]).toBe("0.2.0-alpha.16");
+    expect(pkg.devDependencies["@lablup/ui-common-cli"]).toBe("0.2.0-alpha.16");
+    expect(pkg.dependencies["@astryxdesign/lab"]).toBe("0.6.5-canary.8701623");
+    const corePin = JSON.parse(readFileSync(join(root, "package.json"), "utf8"))
+      .dependencies["@astryxdesign/core"];
+    expect(edits.get(yaml)).toContain(
+      `"@astryxdesign/lab>@astryxdesign/core": "${corePin}"`,
+    );
+    expect(notes.join("\n")).toContain("0.6.5-canary.8701623");
+
+    // No lab, a caret range: only the ui-common pins move, nothing else is touched.
+    const plain = `${JSON.stringify({
+      name: "app",
+      dependencies: { "@lablup/ui-common": "^0.2.0-alpha.15" },
+    })}\n`;
+    edits.clear();
+    const after = JSON.parse(step.packageJson!(plain, ctx)!);
+    expect(after.dependencies["@lablup/ui-common"]).toBe("^0.2.0-alpha.16");
+    expect(edits.size).toBe(0);
+    expect(step.packageJson!(JSON.stringify({ name: "x" }), ctx)).toBeUndefined();
+  });
+
   it("swaps module specifiers only, never comments or other strings", async () => {
     const step = await upstreamStep({
       astryx: { from: "0.5.4", to: "0.6.0" },

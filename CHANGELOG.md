@@ -16,10 +16,11 @@ on the date and time inputs, many fixes).
   `Markdown/parser`, `Markdown/plugins`, `Markdown/remark`, and
   `locales/<locale>.generated.js`, Astryx's compact locale string maps (the
   JSON catalogs stay). `@lablup/ui-common/lab` gains `DrawerHeader`.
-  Consumers that pin `@astryxdesign/lab` move it to
-  `0.6.5-canary.8701623` and their `@astryxdesign/lab>@astryxdesign/core`
-  override to `0.6.5` (`ui-common upgrade` says so; `ui-common doctor`
-  checks it).
+  A consumer that pins `@astryxdesign/lab` moves it to
+  `0.6.5-canary.8701623` and its `@astryxdesign/lab>@astryxdesign/core`
+  override to `0.6.5`; `pnpm exec ui-common upgrade --from 0.2.0-alpha.15`
+  does both, and bumps the `@lablup/ui-common` / `@lablup/ui-common-cli`
+  pins, before running Astryx's codemods.
 - **`Drawer` (`@lablup/ui-common/lab`) follows lab's 0.6.5 contract, which
   is breaking.** It renders no close button of its own any more and
   `hasCloseButton` is gone: compose `DrawerHeader` with the same
@@ -36,7 +37,10 @@ on the date and time inputs, many fixes).
 - `ui-common upgrade` runs Astryx's 0.6.4 codemods for a consumer crossing
   this version: `migrate-native-picker-to-presentation` (`nativePicker` →
   `presentation` on DateInput, DateTimeInput and TimeInput) and the
-  integration theme descriptor.
+  integration theme descriptor. An upstream (Astryx-bump) step now also
+  edits `package.json`: the ui-common and CLI pins, and the lab canary plus
+  its core override when the project declares `@astryxdesign/lab`
+  (`sync-astryx --lab` records the canary in `upstream.json`).
 - `PagedSelector`'s borrowed search-input classes follow Astryx's rename of
   the coarse-pointer font floor (now iOS-only, as in `Selector`).
 - `ui-common upgrade --from 0.1` adds the `@astryxdesign/lab` canary this
