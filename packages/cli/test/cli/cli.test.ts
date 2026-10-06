@@ -435,6 +435,20 @@ describe("upstream Astryx codemods", () => {
     ).toBeUndefined();
   });
 
+  it("skips Astryx's project-level codemods with a note instead of running them per file", async () => {
+    const step = await upstreamStep({
+      astryx: { from: "0.6.2", to: "0.6.5" },
+      codemods: [
+        { id: "migrate-theme-catalog-to-descriptors", version: "0.6.4" },
+        { id: "migrate-native-picker-to-presentation", version: "0.6.4" },
+      ],
+    });
+    expect(step.transforms.map((t) => t.id)).toEqual([
+      "astryx:migrate-native-picker-to-presentation",
+    ]);
+    expect(step.notes?.join("\n")).toContain("migrate-theme-catalog-to-descriptors");
+  });
+
   it("moves the consumer's pins, lab canary and core override on an upstream step", async () => {
     const step = await upstreamStep({
       astryx: { from: "0.6.2", to: "0.6.5" },

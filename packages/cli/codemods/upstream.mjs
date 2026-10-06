@@ -109,6 +109,11 @@ export function wrapAstryxTransform(entry, version) {
         { path: file.path, source: swapped },
         { jscodeshift: j, stats: () => {}, report: () => {} },
       );
+      if (out != null && typeof out.then === "function") {
+        throw new Error(
+          `Astryx codemod "${entry.name}" is asynchronous (not a file transform); run \`ui-common astryx upgrade\` for it.`,
+        );
+      }
       if (out == null || out === swapped) return undefined;
       return swapModuleSpecifiers(j, out, rewriteSpecifiers);
     },
@@ -144,6 +149,15 @@ export async function upstreamStep(manifest) {
     if (found.entry.meta?.codemodType === "config") {
       notes.push(
         `Astryx codemod "${codemod.id}" edits astryx.config.*; run \`ui-common astryx upgrade\` if you keep one.`,
+      );
+      continue;
+    }
+    // A project codemod takes the package root and returns a plan of writes,
+    // not a file transform; it concerns an Astryx integration package (theme
+    // catalogs, manifests), which a ui-common consumer is not.
+    if (found.entry.meta?.codemodType === "project") {
+      notes.push(
+        `Astryx codemod "${codemod.id}" rewrites an Astryx integration package (${found.entry.meta.title}); run \`ui-common astryx upgrade\` if this project is one.`,
       );
       continue;
     }
