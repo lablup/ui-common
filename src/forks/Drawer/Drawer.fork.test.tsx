@@ -285,7 +285,7 @@ describe("Drawer fork: a Modal inside", () => {
     expect(root.matches(":popover-open")).toBe(false);
   });
 
-  it("stays in the body portal under a scrimless drawer, which inerts nothing", async () => {
+  it("renders into a scrimless drawer's dialog too, which is a top-layer popover", async () => {
     mockPopoverApi();
     render(
       <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
@@ -294,11 +294,14 @@ describe("Drawer fork: a Modal inside", () => {
         </Modal>
       </Drawer>,
     );
-    const root = (await screen.findByLabelText("Modal field")).closest(
-      ".uic-modal",
-    ) as HTMLElement;
-    expect(root.parentElement).toBe(document.body);
-    expect(root).not.toHaveAttribute("popover");
+    const field = await screen.findByLabelText("Modal field");
+    const root = field.closest(".uic-modal") as HTMLElement;
+    const drawer = screen.getByRole("dialog", { name: "Details", hidden: true });
+    // The drawer itself is in the top layer, so a body portal would sit behind it.
+    expect(drawer.matches(":popover-open")).toBe(true);
+    expect(root.parentElement).toBe(drawer);
+    expect(root).toHaveAttribute("popover", "manual");
+    expect(root.matches(":popover-open")).toBe(true);
   });
 });
 

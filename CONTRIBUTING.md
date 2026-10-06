@@ -106,11 +106,12 @@ consumers, and ui-common's consumers import Astryx through ui-common.
 | `Drawer`          | `@lablup/ui-common/lab`             | `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
 | `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                           | not filed                                                            |
 
-`Drawer`'s second change is ui-common's own, not an upstream fix: a scrimmed
-drawer is a modal `<dialog>`, which inerts everything outside it, so
-ui-common's `Modal` (a body-portalled popover, not a `<dialog>`) opened
+`Drawer`'s second change is ui-common's own, not an upstream fix: the drawer
+is top layer whether scrimmed (a modal `<dialog>`, which also inerts
+everything outside it) or not (a manual popover since lab 0.6.5), so
+ui-common's `Modal` (a body-portalled surface, not top layer itself) opened
 inside sat behind it. The fork provides its dialog through
-`ModalPortalContext` while open and modal, and `Modal` renders there. Keep
+`ModalPortalContext` while open, and `Modal` renders there. Keep
 it on a bump for as long as `Modal` is not top layer itself; `provenance.json`
 records it as `notes`. (Until lab 0.6.5 the fork also routed Escape through
 core's layer-dismissal stack; lab does that itself now, and the fork takes

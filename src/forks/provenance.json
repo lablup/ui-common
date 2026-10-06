@@ -14,7 +14,10 @@
     "styles": {
       "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
       "from": [
-        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
+        {
+          "file": "dist/ComplexSelector/ComplexSelector.js",
+          "consts": ["styles"]
+        },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -26,7 +29,7 @@
     "package": "@astryxdesign/lab",
     "version": "0.6.5-canary.8701623",
     "upstream": null,
-    "notes": "Deliberate divergence beyond a fix: aria-modal passes through, and a scrimmed (modal) drawer provides its dialog through ModalPortalContext so ui-common's Modal opened inside renders there, in the top layer. Escape routing is upstream's (lab registers with core's layer-dismissal stack since 0.6.5). On an Astryx bump, keep these until lab passes aria-modal through and Modal no longer needs the host.",
+    "notes": "Deliberate divergence beyond a fix: aria-modal passes through, and the drawer provides its dialog through ModalPortalContext while open (modal dialog or manual popover, both top layer) so ui-common's Modal opened inside renders there, in the top layer above it. Escape routing is upstream's (lab registers with core's layer-dismissal stack since 0.6.5). On an Astryx bump, keep these until lab passes aria-modal through and Modal no longer needs the host.",
     "files": {
       "src/Drawer/Drawer.tsx": "5e97093a6aabe2ae9761c68c8a62272f12aeadcf9c7f745e218655b460707298",
       "src/Drawer/useDrawerDialogPresence.ts": "abc5e33ec791f38a5f41d17b6dac2946db9477b9f921fd52dccc6c14ae7be57b",
@@ -59,7 +62,12 @@
     },
     "styles": {
       "file": "src/forks/Tour/TourStep.styles.ts",
-      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
+      "from": [
+        {
+          "file": "dist/Tour/TourStep.js",
+          "consts": ["styles"]
+        }
+      ]
     }
   }
 }

@@ -30,7 +30,9 @@ on the date and time inputs, many fixes).
   manual popover (`showPopover()`) in the browser top layer instead of
   `show()` plus a z-index, and a modal drawer traps Tab focus. Escape routing
   through core's layer-dismissal stack is now lab's own, so the fork keeps
-  only `aria-modal` passthrough and the `Modal` portal host.
+  only `aria-modal` passthrough and the `Modal` portal host, which it now
+  provides for a scrimless drawer too: a popover drawer is top layer, so a
+  `Modal` left in the body portal would paint behind it.
 - `ui-common upgrade` runs Astryx's 0.6.4 codemods for a consumer crossing
   this version: `migrate-native-picker-to-presentation` (`nativePicker` →
   `presentation` on DateInput, DateTimeInput and TimeInput) and the

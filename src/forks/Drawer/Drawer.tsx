@@ -12,13 +12,14 @@
  * - **`aria-modal` passes through.** A scrimless drawer is non-modal, but a
  *   consumer that restores modality by hand (its own mask and focus trap) can
  *   now say so; the default is unchanged.
- * - **ui-common's `Modal` opens above it.** A scrimmed drawer is a modal
- *   `<dialog>`, which makes everything outside it inert, so a `Modal`
- *   portalled to the body sat behind the drawer, unreachable. The drawer
- *   provides its dialog through `ModalPortalContext` while it is open and
- *   modal, and a `Modal` inside renders there, in the top layer
- *   (modalStack.ts). Core's `Dialog` needs none of this: it is top layer
- *   itself, and ui-common's `Modal` is not.
+ * - **ui-common's `Modal` opens above it.** The drawer is top layer either
+ *   way: a modal `<dialog>` with a scrim (which also inerts everything
+ *   outside it), a manual popover without. A `Modal` portalled to the body
+ *   sat behind it, unreachable. The drawer provides its dialog through
+ *   `ModalPortalContext` while it is open, and a `Modal` inside renders
+ *   there and enters the top layer after it (modalStack.ts). Core's
+ *   `Dialog` needs none of this: it is top layer itself, and ui-common's
+ *   `Modal` is not.
  *
  * Escape routing is upstream's since lab 0.6.5: the drawer registers with
  * core's layer-dismissal stack, so a popover, selector or modal opened inside
@@ -269,12 +270,13 @@ export function Drawer({
   });
 
   // ui-common: the dialog a Modal inside renders into, set only once
-  // showModal() has run (the effect above), so the Modal's popover enters the
-  // top layer after the dialog and paints above it.
+  // showModal() / showPopover() has run (the effect above), so the Modal's
+  // popover enters the top layer after the dialog and paints above it. Both
+  // hosts are top layer, so a body-portalled Modal would sit behind either.
   const [modalHost, setModalHost] = useState<HTMLDialogElement | null>(null);
   useEffect(() => {
-    setModalHost(isOpen && hasScrim ? dialogRef.current : null);
-  }, [isOpen, hasScrim]);
+    setModalHost(isOpen ? dialogRef.current : null);
+  }, [isOpen]);
 
   const handleDismiss = useCallback(() => {
     onOpenChange(false);
