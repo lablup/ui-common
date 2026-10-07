@@ -10,13 +10,14 @@
 /**
  * @file useDrawerDialogPresence.ts
  * @input Controlled open state, modal mode, dialog ref, and rendered-state setter
- * @output Coordinates native top-layer presence, exit timing, focus restoration, and unmount cleanup
+ * @output Coordinates native dialog presence, exit timing, focus restoration, and unmount cleanup
  * @position Drawer-internal hook; consumed only by Drawer.tsx
  *
  * The drawer has two independent notions of presence:
  * - React's rendered state keeps the panel visible for its CSS exit.
- * - Native `showModal()` or `showPopover()` state keeps it in the browser top
- *   layer.
+ * - The native dialog's `open` state: `showModal()` (top layer) with a scrim,
+ *   `show()` (in the page, by z-index) without (ui-common; lab uses
+ *   `showPopover()`).
  *
  * Their close ordering is a browser-visible invariant: the panel must finish
  * its exit, then leave the active native host and hide in the same task. If the
@@ -81,13 +82,13 @@ function hideDrawerHost(dialog: HTMLDialogElement): void {
 /**
  * Coordinates the native dialog and React-rendered presence for Drawer.
  *
- * Opening captures the trigger, enters the modal-dialog or manual-popover host,
+ * Opening captures the trigger, opens the dialog (`showModal()` or `show()`),
  * and honours the component's `data-autofocus` contract. Closing waits for the
- * actual transform transition (with a computed-duration backstop), then leaves
- * the native host and synchronously hides the panel before the browser can paint
- * it outside the top layer, restores focus to the captured trigger, and only
- * then dispatches the popover host's synthetic `close`. Unmount cleanup closes
- * a host left open by React Activity or a removed subtree.
+ * actual transform transition (with a computed-duration backstop), then calls
+ * `close()` (which fires the native `close` event) and synchronously hides the
+ * panel before the browser can paint it outside the top layer, then restores
+ * focus to the captured trigger. Unmount cleanup closes a dialog left open by
+ * React Activity or a removed subtree.
  */
 export function useDrawerDialogPresence({
   dialogRef,

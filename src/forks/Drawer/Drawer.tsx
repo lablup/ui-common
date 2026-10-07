@@ -306,11 +306,13 @@ export function Drawer({
   // ui-common: a scrimless drawer's z-index, last opened on top.
   const drawerId = useId();
   const [stackZ, setStackZ] = useState(NON_MODAL_BASE_Z);
+  // Held while the panel paints, slide-out included, so a drawer opened during
+  // another's exit goes above it rather than taking the same value.
   useEffect(() => {
-    if (!isOpen || hasScrim) return;
+    if (!isRendered || hasScrim) return;
     setStackZ(registerNonModalDrawer(drawerId));
     return () => unregisterNonModalDrawer(drawerId);
-  }, [isOpen, hasScrim, drawerId]);
+  }, [isRendered, hasScrim, drawerId]);
 
   const handleDismiss = useCallback(() => {
     onOpenChange(false);

@@ -174,6 +174,31 @@ describe("Drawer", () => {
       expect(second).toBeGreaterThan(first);
     });
 
+    // ui-common: a drawer opened while another slides out goes above it.
+    it("keeps a closing scrimless drawer's level until its exit ends", () => {
+      const pair = (first: boolean, second: boolean) => (
+        <>
+          <Drawer isOpen={first} onOpenChange={() => {}} label="First" hasScrim={false}>
+            First
+          </Drawer>
+          <Drawer
+            isOpen={second}
+            onOpenChange={() => {}}
+            label="Second"
+            hasScrim={false}
+          >
+            Second
+          </Drawer>
+        </>
+      );
+      const { rerender } = render(pair(true, false));
+      rerender(pair(false, false));
+      rerender(pair(false, true));
+      const first = screen.getByRole("dialog", { name: "First", hidden: true });
+      const second = screen.getByRole("dialog", { name: "Second" });
+      expect(Number(second.style.zIndex)).toBeGreaterThan(Number(first.style.zIndex));
+    });
+
     // ui-common: a drawer reopened beside one that stays open does not climb.
     it("keeps a reopened scrimless drawer one above the open ones, below the modal band", () => {
       const pair = (isOpen: boolean) => (
