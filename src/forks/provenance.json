@@ -29,7 +29,7 @@
     "package": "@astryxdesign/lab",
     "version": "0.6.5-canary.8701623",
     "upstream": null,
-    "notes": "Deliberate divergence beyond a fix: aria-modal passes through, and the drawer provides its dialog through ModalPortalContext while open (modal dialog or manual popover, both top layer) so ui-common's Modal opened inside renders there, in the top layer above it. Escape routing is upstream's (lab registers with core's layer-dismissal stack since 0.6.5). On an Astryx bump, keep these until lab passes aria-modal through and Modal no longer needs the host.",
+    "notes": "Deliberate divergence beyond a fix: a scrimless drawer opens with show() and a z-index (base 1000, later drawers above) instead of lab 0.6.5's manual popover, because ui-common's Modal and notification stack are z-index surfaces a top-layer drawer would cover; aria-modal passes through; a scrimmed (modal) drawer provides its dialog through ModalPortalContext so ui-common's Modal opened inside renders there, in the top layer. Escape routing is upstream's. On an Astryx bump, keep these until ui-common's Modal and notification stack are top layer and lab passes aria-modal through.",
     "files": {
       "src/Drawer/Drawer.tsx": "5e97093a6aabe2ae9761c68c8a62272f12aeadcf9c7f745e218655b460707298",
       "src/Drawer/useDrawerDialogPresence.ts": "abc5e33ec791f38a5f41d17b6dac2946db9477b9f921fd52dccc6c14ae7be57b",

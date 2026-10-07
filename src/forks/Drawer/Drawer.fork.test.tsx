@@ -285,7 +285,7 @@ describe("Drawer fork: a Modal inside", () => {
     expect(root.matches(":popover-open")).toBe(false);
   });
 
-  it("renders into a scrimless drawer's dialog too, which is a top-layer popover", async () => {
+  it("stays in the body portal under a scrimless drawer, which is not top layer", async () => {
     mockPopoverApi();
     render(
       <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
@@ -294,14 +294,68 @@ describe("Drawer fork: a Modal inside", () => {
         </Modal>
       </Drawer>,
     );
-    const field = await screen.findByLabelText("Modal field");
-    const root = field.closest(".uic-modal") as HTMLElement;
+    const root = (await screen.findByLabelText("Modal field")).closest(
+      ".uic-modal",
+    ) as HTMLElement;
     const drawer = screen.getByRole("dialog", { name: "Details", hidden: true });
-    // The drawer itself is in the top layer, so a body portal would sit behind it.
-    expect(drawer.matches(":popover-open")).toBe(true);
-    expect(root.parentElement).toBe(drawer);
-    expect(root).toHaveAttribute("popover", "manual");
-    expect(root.matches(":popover-open")).toBe(true);
+    expect(drawer.matches(":popover-open")).toBe(false);
+    expect(root.parentElement).toBe(document.body);
+    expect(root).not.toHaveAttribute("popover");
+  });
+});
+
+describe("Drawer fork: a scrimless drawer stays out of the top layer", () => {
+  it("opens with show() at the 1000 base instead of lab's manual popover", () => {
+    render(
+      <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
+        Content
+      </Drawer>,
+    );
+    const dialog = screen.getByRole("dialog");
+    expect(HTMLDialogElement.prototype.show).toHaveBeenCalled();
+    expect(dialog).not.toHaveAttribute("popover");
+    expect(dialog.style.zIndex).toBe("1000");
+  });
+
+  // When this fails, lab no longer promotes a scrimless drawer: drop the change.
+  it("still differs from lab's, which opens a manual popover", () => {
+    render(
+      <UpstreamDrawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
+        Content
+      </UpstreamDrawer>,
+    );
+    expect(screen.getByRole("dialog")).toHaveAttribute("popover", "manual");
+    expect(HTMLElement.prototype.showPopover).toHaveBeenCalled();
+  });
+
+  it("renders lab's markup otherwise, start side and no scrim", () => {
+    const strip = (html: string) =>
+      html.replace(/ popover="manual"/, "").replace(/ z-index: \d+;/, "");
+    const fork = render(
+      <Drawer
+        isOpen
+        onOpenChange={() => {}}
+        label="Details"
+        side="start"
+        hasScrim={false}
+      >
+        Content
+      </Drawer>,
+    );
+    const upstream = render(
+      <UpstreamDrawer
+        isOpen
+        onOpenChange={() => {}}
+        label="Details"
+        side="start"
+        hasScrim={false}
+      >
+        Content
+      </UpstreamDrawer>,
+    );
+    expect(strip(comparableMarkup(fork.container))).toBe(
+      strip(comparableMarkup(upstream.container)),
+    );
   });
 });
 
@@ -364,7 +418,6 @@ describe("Drawer fork: parity with lab", () => {
 
   const cases: Array<[string, object]> = [
     ["the defaults", {}],
-    ["start side, no scrim", { side: "start", hasScrim: false }],
     ["a required purpose", { purpose: "required" }],
     [
       "a string width, full width on mobile",

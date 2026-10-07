@@ -29,14 +29,13 @@ import { registerInstance } from "../../instance";
 export const MODAL_OPEN_ATTRIBUTE = "data-uic-modal-open";
 
 /**
- * The open `<dialog>` a surface inside it renders into, instead of
- * `document.body`. A drawer is top layer whether modal (`showModal()`, which
- * also inerts everything outside it) or not (`showPopover()`), so a `Modal`
- * portalled to the body from inside one would sit behind the drawer,
- * unreachable. `Drawer` (src/forks/Drawer) provides its dialog while it is
- * open; `Modal` renders there and enters the top layer itself, as a manual
- * popover, so it paints above the drawer and escapes the panel's clipping
- * and transform. Internal: not exported from the package.
+ * The open modal `<dialog>` a surface inside it renders into, instead of
+ * `document.body`. `showModal()` makes everything outside the dialog inert,
+ * so a `Modal` portalled to the body from inside a scrimmed drawer would sit
+ * behind the drawer, unreachable. `Drawer` (src/forks/Drawer) provides its
+ * dialog while it is modal; `Modal` renders there and enters the top layer
+ * itself, as a manual popover, so it paints above the drawer and escapes the
+ * panel's clipping and transform. Internal: not exported from the package.
  */
 export const ModalPortalContext = createContext<HTMLElement | null>(null);
 

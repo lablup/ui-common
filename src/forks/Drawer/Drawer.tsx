@@ -7,19 +7,23 @@
 "use client";
 
 /**
- * Drawer, ui-common's copy of Astryx lab's, with two changes (not upstream):
+ * Drawer, ui-common's copy of Astryx lab's, with three changes (not upstream):
  *
+ * - **A scrimless drawer stays out of the top layer.** lab 0.6.5 opens it as
+ *   a manual popover; this copy keeps the `show()` + z-index it had before
+ *   (base 1000, later drawers above), because ui-common's `Modal` and
+ *   notification stack are z-index surfaces: a top-layer drawer painted over
+ *   a confirm or a notification opened while it was up, and the modal stack
+ *   then inerted the drawer it could not cover.
  * - **`aria-modal` passes through.** A scrimless drawer is non-modal, but a
  *   consumer that restores modality by hand (its own mask and focus trap) can
  *   now say so; the default is unchanged.
- * - **ui-common's `Modal` opens above it.** The drawer is top layer either
- *   way: a modal `<dialog>` with a scrim (which also inerts everything
- *   outside it), a manual popover without. A `Modal` portalled to the body
- *   sat behind it, unreachable. The drawer provides its dialog through
- *   `ModalPortalContext` while it is open, and a `Modal` inside renders
- *   there and enters the top layer after it (modalStack.ts). Core's
- *   `Dialog` needs none of this: it is top layer itself, and ui-common's
- *   `Modal` is not.
+ * - **ui-common's `Modal` opens above a scrimmed drawer.** That drawer is a
+ *   modal `<dialog>`, top layer and inerting everything outside it, so a
+ *   `Modal` portalled to the body sat behind it, unreachable. The drawer
+ *   provides its dialog through `ModalPortalContext` while it is open and
+ *   modal, and a `Modal` inside renders there and enters the top layer
+ *   after it (modalStack.ts).
  *
  * Escape routing is upstream's since lab 0.6.5: the drawer registers with
  * core's layer-dismissal stack, so a popover, selector or modal opened inside
@@ -27,9 +31,9 @@
  * upstream's too. Its style namespaces are Astryx's compiled output
  * (src/forks/compiled.ts).
  *
- * Delete this fork, and its exports.exclude.json entry, once lab passes
- * `aria-modal` through and `Modal` no longer needs the portal host
- * (CONTRIBUTING, "Forks of Astryx components").
+ * Delete this fork, and its exports.exclude.json entry, once ui-common's
+ * `Modal` and notification stack are top layer themselves and lab passes
+ * `aria-modal` through (CONTRIBUTING, "Forks of Astryx components").
  */
 
 /*
@@ -52,6 +56,7 @@
  *   trapping, `::backdrop`, no z-index management.
  * - `showPopover()` when `hasScrim={false}` — non-modal top-layer overlay;
  *   the page behind stays interactive (e.g. master-detail inspectors).
+ *   (ui-common: `show()` and a z-index instead; see the header above.)
  *
  * Entry animation uses `@starting-style`; exit slides out before the active
  * modal-dialog or manual-popover host releases the top layer and focus returns
@@ -69,7 +74,7 @@
  *
  */
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import type { BaseProps } from "@astryxdesign/core";
@@ -99,6 +104,26 @@ const styles = compiledStyles(compiled.styles);
 const dynamicStyles = compiled.dynamicStyles as {
   inlineSize: (desktopWidth: string, mobileWidth: string) => StyleXStyles;
 };
+
+// ui-common: stacking for scrimless drawers, which open with `show()` and so
+// need a z-index; modal drawers rely on the top layer's chronological order.
+// Module-level, in open order; only mutated inside effects (SSR-safe). 1000 is
+// the app-level drawer convention lab used before 0.6.5.
+const NON_MODAL_BASE_Z = 1000;
+const openNonModalDrawers: string[] = [];
+let nonModalCounter = 0;
+
+function registerNonModalDrawer(id: string): number {
+  openNonModalDrawers.push(id);
+  nonModalCounter += 1;
+  return NON_MODAL_BASE_Z + nonModalCounter - 1;
+}
+
+function unregisterNonModalDrawer(id: string): void {
+  const index = openNonModalDrawers.indexOf(id);
+  if (index !== -1) openNonModalDrawers.splice(index, 1);
+  if (openNonModalDrawers.length === 0) nonModalCounter = 0;
+}
 
 // Upstream's `content` style, which its compiler folded into this class list
 // (dist/Drawer/Drawer.js).
@@ -270,13 +295,22 @@ export function Drawer({
   });
 
   // ui-common: the dialog a Modal inside renders into, set only once
-  // showModal() / showPopover() has run (the effect above), so the Modal's
-  // popover enters the top layer after the dialog and paints above it. Both
-  // hosts are top layer, so a body-portalled Modal would sit behind either.
+  // showModal() has run (the effect above), so the Modal's popover enters the
+  // top layer after the dialog and paints above it. A scrimless drawer is not
+  // top layer (`show()`), so a body-portalled Modal already stacks above it.
   const [modalHost, setModalHost] = useState<HTMLDialogElement | null>(null);
   useEffect(() => {
-    setModalHost(isOpen ? dialogRef.current : null);
-  }, [isOpen]);
+    setModalHost(isOpen && hasScrim ? dialogRef.current : null);
+  }, [isOpen, hasScrim]);
+
+  // ui-common: a scrimless drawer's z-index, last opened on top.
+  const drawerId = useId();
+  const [stackZ, setStackZ] = useState(NON_MODAL_BASE_Z);
+  useEffect(() => {
+    if (!isOpen || hasScrim) return;
+    setStackZ(registerNonModalDrawer(drawerId));
+    return () => unregisterNonModalDrawer(drawerId);
+  }, [isOpen, hasScrim, drawerId]);
 
   const handleDismiss = useCallback(() => {
     onOpenChange(false);
@@ -364,10 +398,10 @@ export function Drawer({
           xstyle,
         ),
         className,
-        style,
+        // ui-common: the consumer's style may still override the stack.
+        hasScrim ? style : { zIndex: stackZ, ...style },
       )}
       {...safeProps}
-      popover={hasScrim ? undefined : "manual"}
       aria-label={label}
       // ui-common: scrimless by itself is non-modal, but a consumer that
       // restores the modality by hand (a portal supplying its own mask and

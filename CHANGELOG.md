@@ -3,6 +3,21 @@
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
+## [0.2.0-alpha.17]
+
+### Fixed
+
+- **A scrimless `Drawer` (`@lablup/ui-common/lab`) no longer paints over
+  ui-common's own overlays.** 0.2.0-alpha.16 took lab 0.6.5's manual-popover
+  host, which put the drawer in the browser top layer: a `Modal` (the
+  app-shim confirm included) or a notification opened while it was up
+  rendered behind it, and the modal stack inerted the drawer covering it. The
+  fork opens a scrimless drawer with `show()` and a z-index again (base
+  1000, later drawers above), as before alpha.16, and a `Modal` inside it
+  stays in the body portal, above it. A scrimmed drawer is unchanged.
+- `ui-common upgrade` leaves `catalog:` specifiers alone instead of
+  replacing them with a version; the version lives in the pnpm catalog.
+
 ## [0.2.0-alpha.16]
 
 Astryx 0.6.2 → 0.6.5 (`@astryxdesign/lab` 0.6.5-canary.8701623). Astryx's
@@ -31,9 +46,8 @@ on the date and time inputs, many fixes).
   manual popover (`showPopover()`) in the browser top layer instead of
   `show()` plus a z-index, and a modal drawer traps Tab focus. Escape routing
   through core's layer-dismissal stack is now lab's own, so the fork keeps
-  only `aria-modal` passthrough and the `Modal` portal host, which it now
-  provides for a scrimless drawer too: a popover drawer is top layer, so a
-  `Modal` left in the body portal would paint behind it.
+  only `aria-modal` passthrough and the `Modal` portal host. (Superseded in
+  0.2.0-alpha.17: a scrimless drawer stays out of the top layer.)
 - `ui-common upgrade` runs Astryx's 0.6.4 codemods for a consumer crossing
   this version: `migrate-native-picker-to-presentation` (`nativePicker` →
   `presentation` on DateInput, DateTimeInput and TimeInput) and the

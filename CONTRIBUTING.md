@@ -100,22 +100,22 @@ under Astryx's own name and import path until Astryx ships the fix. It exists
 because a product's pnpm `patchedDependencies` never reach that product's
 consumers, and ui-common's consumers import Astryx through ui-common.
 
-| Fork              | Where                               | Fix                                                                                        | Upstream                                                             |
-| ----------------- | ----------------------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                                     | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
-| `Drawer`          | `@lablup/ui-common/lab`             | `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
-| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                           | not filed                                                            |
+| Fork              | Where                               | Fix                                                                                                                                         | Upstream                                                             |
+| ----------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
+| `Drawer`          | `@lablup/ui-common/lab`             | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
+| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
 
-`Drawer`'s second change is ui-common's own, not an upstream fix: the drawer
-is top layer whether scrimmed (a modal `<dialog>`, which also inerts
-everything outside it) or not (a manual popover since lab 0.6.5), so
-ui-common's `Modal` (a body-portalled surface, not top layer itself) opened
-inside sat behind it. The fork provides its dialog through
-`ModalPortalContext` while open, and `Modal` renders there. Keep
-it on a bump for as long as `Modal` is not top layer itself; `provenance.json`
-records it as `notes`. (Until lab 0.6.5 the fork also routed Escape through
-core's layer-dismissal stack; lab does that itself now, and the fork takes
-upstream's routing.)
+`Drawer`'s other changes are ui-common's own, not upstream fixes. lab 0.6.5
+opens a scrimless drawer as a manual popover, in the top layer; ui-common's
+`Modal` and notification stack are z-index surfaces, so such a drawer painted
+over a confirm or a notification opened while it was up. The fork keeps the
+`show()` + z-index it had before (base 1000, later drawers above). A scrimmed
+drawer is a modal `<dialog>`, top layer and inerting everything outside it,
+so the fork provides that dialog through `ModalPortalContext` while open, and
+a `Modal` inside renders there. Keep both on a bump for as long as `Modal`
+and the notification stack are not top layer themselves; `provenance.json`
+records them as `notes`.
 
 How one is put together:
 

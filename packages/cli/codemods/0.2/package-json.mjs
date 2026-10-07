@@ -51,7 +51,8 @@ export function addDependency(pkg, field, name, range) {
  * @returns {{value: string, note?: string} | null}
  */
 export function bumpSpec(spec, to) {
-  if (/^(workspace:|link:|file:|npm:|git|https?:)/.test(spec)) return null;
+  // `catalog:` names a pnpm catalog entry; the version lives there, not here.
+  if (/^(workspace:|link:|file:|npm:|catalog:|git|https?:)/.test(spec)) return null;
   const simple = /^([\^~]?)v?\d+(\.\d+){0,2}(-[0-9A-Za-z.-]+)?$/.exec(spec.trim());
   if (simple) return { value: `${simple[1]}${to}` };
   return {
