@@ -15,6 +15,7 @@ import { Selector } from "@astryxdesign/core/Selector";
 import { Drawer as UpstreamDrawer } from "@astryxdesign/lab";
 
 import { Modal } from "../../components/Modal";
+import { configureModalZIndex } from "../../components/Modal/modalStack";
 import { ComplexSelector } from "../ComplexSelector";
 import { comparableMarkup } from "../../test/forkParity";
 import { Drawer } from "./Drawer";
@@ -315,6 +316,20 @@ describe("Drawer fork: a scrimless drawer stays out of the top layer", () => {
     expect(HTMLDialogElement.prototype.show).toHaveBeenCalled();
     expect(dialog).not.toHaveAttribute("popover");
     expect(dialog.style.zIndex).toBe("1000");
+  });
+
+  it("stays below the modal band when an app moves the band under 1000", () => {
+    configureModalZIndex({ base: 900 });
+    try {
+      render(
+        <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
+          Content
+        </Drawer>,
+      );
+      expect(screen.getByRole("dialog").style.zIndex).toBe("899");
+    } finally {
+      configureModalZIndex();
+    }
   });
 
   // When this fails, lab no longer promotes a scrimless drawer: drop the change.

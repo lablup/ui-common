@@ -65,6 +65,11 @@ export function configureModalZIndex(next?: Partial<ModalZIndexBand>): void {
   band = { ...DEFAULT_BAND, ...next };
 }
 
+/** The band's first level; a scrimless Drawer (src/forks/Drawer) stays below it. */
+export function modalZIndexBase(): number {
+  return band.base;
+}
+
 const LEVEL_CSS_VAR = "--modal-level";
 const Z_INDEX_CSS_VAR = "--modal-z";
 

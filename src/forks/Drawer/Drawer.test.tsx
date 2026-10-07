@@ -173,6 +173,35 @@ describe("Drawer", () => {
       );
       expect(second).toBeGreaterThan(first);
     });
+
+    // ui-common: a drawer reopened beside one that stays open does not climb.
+    it("keeps a reopened scrimless drawer one above the open ones, below the modal band", () => {
+      const pair = (isOpen: boolean) => (
+        <>
+          <Drawer isOpen onOpenChange={() => {}} label="Inspector" hasScrim={false}>
+            Inspector
+          </Drawer>
+          <Drawer
+            isOpen={isOpen}
+            onOpenChange={() => {}}
+            label="Detail"
+            hasScrim={false}
+          >
+            Detail
+          </Drawer>
+        </>
+      );
+      const { rerender } = render(pair(false));
+      for (let i = 0; i < 120; i += 1) {
+        rerender(pair(true));
+        rerender(pair(false));
+      }
+      rerender(pair(true));
+      const inspector = screen.getByRole("dialog", { name: "Inspector" });
+      const detail = screen.getByRole("dialog", { name: "Detail" });
+      expect(Number(inspector.style.zIndex)).toBe(1000);
+      expect(Number(detail.style.zIndex)).toBe(1001);
+    });
   });
 
   describe("Escape key", () => {

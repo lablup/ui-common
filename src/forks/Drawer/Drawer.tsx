@@ -86,7 +86,7 @@ import { overlayPaddingReset } from "@astryxdesign/core/Layout";
 
 import { compiledStyles } from "../compiled";
 import * as compiled from "./Drawer.styles";
-import { ModalPortalContext } from "../../components/Modal/modalStack";
+import { ModalPortalContext, modalZIndexBase } from "../../components/Modal/modalStack";
 import { useDrawerDialogPresence } from "./useDrawerDialogPresence";
 
 // =============================================================================
@@ -107,22 +107,22 @@ const dynamicStyles = compiled.dynamicStyles as {
 
 // ui-common: stacking for scrimless drawers, which open with `show()` and so
 // need a z-index; modal drawers rely on the top layer's chronological order.
-// Module-level, in open order; only mutated inside effects (SSR-safe). 1000 is
-// the app-level drawer convention lab used before 0.6.5.
+// Module-level; only mutated inside effects (SSR-safe). 1000 is the app-level
+// drawer convention lab used before 0.6.5. A new drawer goes one above the
+// highest OPEN one, so the value is bounded by how many are open at once, and
+// it stays below the modal band so a Modal always paints over a drawer.
 const NON_MODAL_BASE_Z = 1000;
-const openNonModalDrawers: string[] = [];
-let nonModalCounter = 0;
+const openNonModalDrawers = new Map<string, number>();
 
 function registerNonModalDrawer(id: string): number {
-  openNonModalDrawers.push(id);
-  nonModalCounter += 1;
-  return NON_MODAL_BASE_Z + nonModalCounter - 1;
+  const highest = Math.max(NON_MODAL_BASE_Z - 1, ...openNonModalDrawers.values());
+  const z = Math.min(highest + 1, modalZIndexBase() - 1);
+  openNonModalDrawers.set(id, z);
+  return z;
 }
 
 function unregisterNonModalDrawer(id: string): void {
-  const index = openNonModalDrawers.indexOf(id);
-  if (index !== -1) openNonModalDrawers.splice(index, 1);
-  if (openNonModalDrawers.length === 0) nonModalCounter = 0;
+  openNonModalDrawers.delete(id);
 }
 
 // Upstream's `content` style, which its compiler folded into this class list
