@@ -1,7 +1,8 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 //
 // Forked from @astryxdesign/lab 0.6.5-canary.8701623, src/Drawer/useDrawerDialogPresence.ts
-// (MIT; see NOTICE). Unchanged: forked with Drawer, which uses it.
+// (MIT; see NOTICE). Changed (marked `ui-common:`): a non-modal drawer opens
+// with `show()`, not `showPopover()`, so it stays out of the top layer (Drawer.tsx).
 // Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -9,13 +10,14 @@
 /**
  * @file useDrawerDialogPresence.ts
  * @input Controlled open state, modal mode, dialog ref, and rendered-state setter
- * @output Coordinates native top-layer presence, exit timing, focus restoration, and unmount cleanup
+ * @output Coordinates native dialog presence, exit timing, focus restoration, and unmount cleanup
  * @position Drawer-internal hook; consumed only by Drawer.tsx
  *
  * The drawer has two independent notions of presence:
  * - React's rendered state keeps the panel visible for its CSS exit.
- * - Native `showModal()` or `showPopover()` state keeps it in the browser top
- *   layer.
+ * - The native dialog's `open` state: `showModal()` (top layer) with a scrim,
+ *   `show()` (in the page, by z-index) without (ui-common; lab uses
+ *   `showPopover()`).
  *
  * Their close ordering is a browser-visible invariant: the panel must finish
  * its exit, then leave the active native host and hide in the same task. If the
@@ -54,66 +56,39 @@ type UseDrawerDialogPresenceOptions = {
   setIsRendered: Dispatch<SetStateAction<boolean>>;
 };
 
-function isPopoverOpen(dialog: HTMLDialogElement): boolean {
-  try {
-    return dialog.matches(":popover-open");
-  } catch {
-    // jsdom and pre-Popover browsers do not recognize :popover-open.
-    return false;
-  }
-}
-
-function isDrawerHostOpen(dialog: HTMLDialogElement, isModal: boolean): boolean {
-  return isModal ? dialog.open : isPopoverOpen(dialog) || dialog.open;
+// ui-common: a non-modal drawer opens with `show()` and stacks by z-index, as
+// it did before lab 0.6.5 moved it into the top layer as a manual popover.
+// ui-common's `Modal` and notification stack are z-index surfaces too, so a
+// top-layer drawer would paint over every one of them (Drawer.tsx).
+function isDrawerHostOpen(dialog: HTMLDialogElement): boolean {
+  return dialog.open;
 }
 
 function showDrawerHost(dialog: HTMLDialogElement, isModal: boolean): void {
   if (isModal) {
     dialog.showModal();
-  } else if (typeof dialog.showPopover === "function") {
-    dialog.showPopover();
   } else {
-    // Reduced fallback for browsers below the Popover API support floor.
     dialog.show();
   }
 }
 
-function dispatchDialogClose(dialog: HTMLDialogElement): void {
-  const EventConstructor = dialog.ownerDocument.defaultView?.Event ?? Event;
-  dialog.dispatchEvent(new EventConstructor("close"));
-}
-
-/**
- * Leaves the active native host. Returns whether the caller owes a synthetic
- * `close` dispatch: `dialog.close()` used to power the non-modal path, and
- * consumers observe its native `close` event through refs/onClose. Popover
- * dismissal has no equivalent event, so that public DOM contract is preserved
- * explicitly — but by the caller, not here. Native `close` is queued as a
- * task, so a consumer's listener always ran after this hook's own focus
- * restore; the synthetic event must keep that ordering (and fire exactly once
- * per exit, including the unmount path).
- */
-function hideDrawerHost(dialog: HTMLDialogElement, isModal: boolean): boolean {
-  if (!isModal && typeof dialog.hidePopover === "function") {
-    dialog.hidePopover();
-    return true;
-  }
+/** Leaves the native host; `close()` fires the native `close` event itself. */
+function hideDrawerHost(dialog: HTMLDialogElement): void {
   if (dialog.open) {
     dialog.close();
   }
-  return false;
 }
 
 /**
  * Coordinates the native dialog and React-rendered presence for Drawer.
  *
- * Opening captures the trigger, enters the modal-dialog or manual-popover host,
+ * Opening captures the trigger, opens the dialog (`showModal()` or `show()`),
  * and honours the component's `data-autofocus` contract. Closing waits for the
- * actual transform transition (with a computed-duration backstop), then leaves
- * the native host and synchronously hides the panel before the browser can paint
- * it outside the top layer, restores focus to the captured trigger, and only
- * then dispatches the popover host's synthetic `close`. Unmount cleanup closes
- * a host left open by React Activity or a removed subtree.
+ * actual transform transition (with a computed-duration backstop), then calls
+ * `close()` (which fires the native `close` event) and synchronously hides the
+ * panel before the browser can paint it outside the top layer, then restores
+ * focus to the captured trigger. Unmount cleanup closes a dialog left open by
+ * React Activity or a removed subtree.
  */
 export function useDrawerDialogPresence({
   dialogRef,
@@ -131,7 +106,7 @@ export function useDrawerDialogPresence({
     }
 
     if (isOpen) {
-      if (!isDrawerHostOpen(dialog, isModal)) {
+      if (!isDrawerHostOpen(dialog)) {
         triggerElementRef.current = document.activeElement as HTMLElement | null;
         showDrawerHost(dialog, isModal);
         // React's autoFocus calls .focus() during commit, before the native host
@@ -142,12 +117,12 @@ export function useDrawerDialogPresence({
       return;
     }
 
-    if (!isDrawerHostOpen(dialog, isModal)) {
+    if (!isDrawerHostOpen(dialog)) {
       return;
     }
 
     return waitForDrawerExit(dialog, () => {
-      const owesCloseEvent = hideDrawerHost(dialog, isModal);
+      hideDrawerHost(dialog);
       // flushSync, not a plain setState: React's default scheduling can land
       // the commit after the next paint, and that one frame is exactly the
       // bug — the panel paints outside the top layer. Both happen in this
@@ -159,12 +134,6 @@ export function useDrawerDialogPresence({
       // rest of the document inert, so focusing earlier silently fails.
       triggerElementRef.current?.focus();
       triggerElementRef.current = null;
-      // The synthetic popover close fires after the focus restore above,
-      // mirroring the task-queued native event: a consumer close listener
-      // that retargets focus (master-detail row switching) gets the last word.
-      if (owesCloseEvent) {
-        dispatchDialogClose(dialog);
-      }
     });
   }, [dialogRef, isModal, isOpen, setIsRendered]);
 
@@ -177,15 +146,11 @@ export function useDrawerDialogPresence({
   useEffect(() => {
     const dialog = dialogRef.current;
     return () => {
-      if (dialog && isDrawerHostOpen(dialog, isModal)) {
-        if (hideDrawerHost(dialog, isModal)) {
-          // No focus restore on this path — the drawer is being torn down, so
-          // the owed synthetic close fires immediately (still exactly once).
-          dispatchDialogClose(dialog);
-        }
+      if (dialog && isDrawerHostOpen(dialog)) {
+        hideDrawerHost(dialog);
       }
     };
-  }, [dialogRef, isModal]);
+  }, [dialogRef]);
 }
 
 /**

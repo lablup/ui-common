@@ -508,6 +508,20 @@ describe("upstream Astryx codemods", () => {
     expect(after.dependencies["@lablup/ui-common"]).toBe("^0.2.0-alpha.16");
     expect(edits.size).toBe(0);
     expect(step.packageJson!(JSON.stringify({ name: "x" }), ctx)).toBeUndefined();
+
+    // pnpm catalog references are left alone: the versions live in the catalog.
+    const catalog = `${JSON.stringify({
+      name: "app",
+      dependencies: {
+        "@astryxdesign/lab": "catalog:",
+        "@lablup/ui-common": "catalog:",
+      },
+      devDependencies: { "@lablup/ui-common-cli": "catalog:" },
+    })}\n`;
+    notes.length = 0;
+    const kept = step.packageJson!(catalog, ctx);
+    expect(JSON.parse(kept ?? catalog)).toEqual(JSON.parse(catalog));
+    expect(notes.join("\n")).toContain("not a version, so it was left alone");
   });
 
   it("swaps module specifiers only, never comments or other strings", async () => {

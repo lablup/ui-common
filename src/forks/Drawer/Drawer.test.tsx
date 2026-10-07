@@ -4,6 +4,8 @@
 // Forked from @astryxdesign/lab 0.6.5-canary.8701623, src/Drawer/Drawer.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
 // in the *.fork.test.tsx beside it. `DrawerHeader` is lab's own (not forked).
+// Changed (marked `ui-common:`): the non-modal tests, since this copy opens a
+// scrimless drawer with `show()` and a z-index instead of `showPopover()`.
 // Provenance and the drift guard: src/forks/provenance.json.
 
 /**
@@ -101,98 +103,129 @@ describe("Drawer", () => {
       expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
     });
 
-    it("opens with showPopover() and no aria-modal when hasScrim is false", () => {
+    // ui-common: `show()` and a z-index, not `showPopover()` (Drawer.tsx).
+    it("opens with show(), a z-index and no aria-modal when hasScrim is false", () => {
       render(
         <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
           Content
         </Drawer>,
       );
-      expect(HTMLElement.prototype.showPopover).toHaveBeenCalled();
-      expect(HTMLDialogElement.prototype.show).not.toHaveBeenCalled();
+      expect(HTMLDialogElement.prototype.show).toHaveBeenCalled();
+      expect(HTMLElement.prototype.showPopover).not.toHaveBeenCalled();
       expect(HTMLDialogElement.prototype.showModal).not.toHaveBeenCalled();
-      expect(screen.getByRole("dialog")).toHaveAttribute("popover", "manual");
+      expect(screen.getByRole("dialog")).not.toHaveAttribute("popover");
       expect(screen.getByRole("dialog")).not.toHaveAttribute("aria-modal");
+      expect(screen.getByRole("dialog").style.zIndex).toBe("1000");
     });
 
-    it("leaves the manual popover and preserves close listeners after exit", () => {
+    // ui-common: the non-modal host is left with `close()`, which fires the
+    // native `close` event itself; no synthetic one is dispatched.
+    it("closes the non-modal dialog after the exit", () => {
       const { rerender } = render(
         <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
           Content
         </Drawer>,
       );
       const dialog = screen.getByRole("dialog", { hidden: true });
-      const handleClose = vi.fn();
-      dialog.addEventListener("close", handleClose);
 
       rerender(
         <Drawer isOpen={false} onOpenChange={() => {}} label="Details" hasScrim={false}>
           Content
         </Drawer>,
       );
+      expect(dialog).toHaveAttribute("open");
       act(() => {
         fireEvent.transitionEnd(dialog, { propertyName: "transform" });
       });
 
-      expect(HTMLElement.prototype.hidePopover).toHaveBeenCalled();
-      expect(handleClose).toHaveBeenCalledTimes(1);
+      expect(HTMLDialogElement.prototype.close).toHaveBeenCalledTimes(1);
+      expect(HTMLElement.prototype.hidePopover).not.toHaveBeenCalled();
       expect(dialog).not.toHaveAttribute("open");
     });
 
-    it("dispatches the synthetic close after focus restore so a close listener owns final focus", () => {
-      // Master-detail row switching: the consumer's close listener retargets
-      // focus to the latest selected row. Native dialog.close() queues its
-      // close event as a task, so such a listener always ran after the
-      // drawer's own focus restore — the synthetic popover close must give
-      // the consumer the same last word.
-      function Fixture({ isOpen }: { isOpen: boolean }) {
-        return (
-          <>
-            <button type="button">Open row</button>
-            <button type="button">Latest row</button>
-            <Drawer
-              isOpen={isOpen}
-              onOpenChange={() => {}}
-              label="Details"
-              hasScrim={false}
-            >
-              Content
-            </Drawer>
-          </>
-        );
-      }
-      const { rerender } = render(<Fixture isOpen={false} />);
-      const openTrigger = screen.getByRole("button", { name: "Open row" });
-      const latestRow = screen.getByRole("button", { name: "Latest row" });
-      openTrigger.focus();
-      rerender(<Fixture isOpen />);
-
-      const dialog = screen.getByRole("dialog", { hidden: true });
-      const handleClose = vi.fn(() => latestRow.focus());
-      dialog.addEventListener("close", handleClose);
-
-      rerender(<Fixture isOpen={false} />);
-      act(() => {
-        fireEvent.transitionEnd(dialog, { propertyName: "transform" });
-      });
-
-      expect(handleClose).toHaveBeenCalledTimes(1);
-      expect(latestRow).toHaveFocus();
-    });
-
-    it("dispatches exactly one close when an open non-modal drawer unmounts", () => {
+    // ui-common: closes an open non-modal drawer once on unmount.
+    it("closes an open non-modal drawer once when it unmounts", () => {
       const { unmount } = render(
         <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
           Content
         </Drawer>,
       );
-      const dialog = screen.getByRole("dialog", { hidden: true });
-      const handleClose = vi.fn();
-      dialog.addEventListener("close", handleClose);
-
       unmount();
+      expect(HTMLDialogElement.prototype.close).toHaveBeenCalledTimes(1);
+      expect(HTMLElement.prototype.hidePopover).not.toHaveBeenCalled();
+    });
 
-      expect(HTMLElement.prototype.hidePopover).toHaveBeenCalledTimes(1);
-      expect(handleClose).toHaveBeenCalledTimes(1);
+    // ui-common: stacks later scrimless drawers above earlier ones.
+    it("stacks a later scrimless drawer above an earlier one", () => {
+      render(
+        <>
+          <Drawer isOpen onOpenChange={() => {}} label="First" hasScrim={false}>
+            First
+          </Drawer>
+          <Drawer isOpen onOpenChange={() => {}} label="Second" hasScrim={false}>
+            Second
+          </Drawer>
+        </>,
+      );
+      const first = Number(screen.getByRole("dialog", { name: "First" }).style.zIndex);
+      const second = Number(
+        screen.getByRole("dialog", { name: "Second" }).style.zIndex,
+      );
+      expect(second).toBeGreaterThan(first);
+    });
+
+    // ui-common: a drawer opened while another slides out goes above it.
+    it("keeps a closing scrimless drawer's level until its exit ends", () => {
+      const pair = (first: boolean, second: boolean) => (
+        <>
+          <Drawer isOpen={first} onOpenChange={() => {}} label="First" hasScrim={false}>
+            First
+          </Drawer>
+          <Drawer
+            isOpen={second}
+            onOpenChange={() => {}}
+            label="Second"
+            hasScrim={false}
+          >
+            Second
+          </Drawer>
+        </>
+      );
+      const { rerender } = render(pair(true, false));
+      rerender(pair(false, false));
+      rerender(pair(false, true));
+      const first = screen.getByRole("dialog", { name: "First", hidden: true });
+      const second = screen.getByRole("dialog", { name: "Second" });
+      expect(Number(second.style.zIndex)).toBeGreaterThan(Number(first.style.zIndex));
+    });
+
+    // ui-common: a drawer reopened beside one that stays open does not climb.
+    it("keeps a reopened scrimless drawer one above the open ones, below the modal band", () => {
+      const pair = (isOpen: boolean) => (
+        <>
+          <Drawer isOpen onOpenChange={() => {}} label="Inspector" hasScrim={false}>
+            Inspector
+          </Drawer>
+          <Drawer
+            isOpen={isOpen}
+            onOpenChange={() => {}}
+            label="Detail"
+            hasScrim={false}
+          >
+            Detail
+          </Drawer>
+        </>
+      );
+      const { rerender } = render(pair(false));
+      for (let i = 0; i < 120; i += 1) {
+        rerender(pair(true));
+        rerender(pair(false));
+      }
+      rerender(pair(true));
+      const inspector = screen.getByRole("dialog", { name: "Inspector" });
+      const detail = screen.getByRole("dialog", { name: "Detail" });
+      expect(Number(inspector.style.zIndex)).toBe(1000);
+      expect(Number(detail.style.zIndex)).toBe(1001);
     });
   });
 
