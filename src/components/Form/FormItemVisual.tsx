@@ -9,6 +9,7 @@
  *     .uic-form-item__row
  *       .uic-form-item__label-col
  *         label.uic-form-item__label        (+ .uic-form-item__tooltip)
+ *         .uic-form-item__label-extra
  *       .uic-form-item__control
  *         .uic-form-item__control-input
  *           .uic-form-item__control-input-content
@@ -50,6 +51,13 @@ export interface FormItemVisualProps {
   tooltip?: React.ReactNode;
   /** The tooltip trigger glyph. Defaults to a question mark in a circle. */
   tooltipIcon?: React.ReactNode;
+  /**
+   * Actions that belong to the label row (e.g. a filter button). Rendered
+   * outside the `<label>`, so they stay out of the control's accessible name:
+   * at the far end of the row in vertical layout, right after the label
+   * otherwise. Needs a `label`.
+   */
+  labelExtra?: React.ReactNode;
   extra?: React.ReactNode;
   help?: React.ReactNode;
   /** Renders the required marker. Independent of the `required` rule. */
@@ -116,6 +124,7 @@ export const FormItemVisual: React.FC<FormItemVisualProps> = ({
   labelTitle,
   tooltip,
   tooltipIcon,
+  labelExtra,
   extra,
   help,
   required,
@@ -168,12 +177,16 @@ export const FormItemVisual: React.FC<FormItemVisualProps> = ({
     setExtraHeight(extra && extraRef.current ? extraRef.current.clientHeight : 0);
   }, [extra]);
 
+  const hasLabelExtra =
+    labelExtra !== undefined && labelExtra !== null && labelExtra !== false;
+
   const labelNode =
     label === undefined || label === null ? null : (
       <div
         className={cx("uic-form-item__label-col", labelCol?.className)}
         data-align={labelAlign === "left" ? "left" : undefined}
         data-wrap={labelWrap ? "" : undefined}
+        data-has-label-extra={hasLabelExtra ? "" : undefined}
         style={colStyle(labelCol, "label")}
       >
         <label
@@ -205,6 +218,15 @@ export const FormItemVisual: React.FC<FormItemVisualProps> = ({
             </Tooltip>
           ) : null}
         </label>
+        {hasLabelExtra ? (
+          // The colon moves here so it still ends the row in horizontal layout.
+          <span
+            className="uic-form-item__label-extra"
+            data-no-colon={colon === false ? "" : undefined}
+          >
+            {labelExtra}
+          </span>
+        ) : null}
       </div>
     );
 

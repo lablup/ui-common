@@ -5,6 +5,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`Form.Item` / `FormItemVisual` take `labelExtra`** for actions that belong
+  to a field's label row, such as a filter or sort toggle. The slot
+  (`.uic-form-item__label-extra`) renders outside the `<label>`, so its
+  buttons stay out of the control's accessible name and never trigger label
+  activation. Vertical layout puts it at the far end of the row, and the label
+  column stops clipping so its focus ring stays whole. Horizontal and inline
+  layout put it right after the label, and the colon moves to the end of the
+  slot. Ignored without a `label`.
+
 ## [0.2.0-alpha.17]
 
 ### Fixed
