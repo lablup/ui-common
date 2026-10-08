@@ -11,15 +11,12 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
+import { parseArgs } from "node:util";
 import { gzipSync } from "node:zlib";
 
-const getArg = (name) => {
-  const i = process.argv.indexOf(`--${name}`);
-  return i === -1 ? undefined : process.argv[i + 1];
-};
-
-const distDir = getArg("dist");
-const output = getArg("output");
+const {
+  values: { dist: distDir, output },
+} = parseArgs({ options: { dist: { type: "string" }, output: { type: "string" } } });
 if (!distDir || !output) {
   console.error("usage: measure-dist.mjs --dist <dir> --output <file.json>");
   process.exit(1);

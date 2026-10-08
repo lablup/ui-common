@@ -15,18 +15,20 @@
 
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { parseArgs } from "node:util";
 
 const COMPONENT_DIR_RE = /^src\/(components|forks)\/([^/]+)\//;
 
-const getArg = (name) => {
-  const i = process.argv.indexOf(`--${name}`);
-  return i === -1 ? undefined : process.argv[i + 1];
-};
-
-const base = getArg("base") ?? "origin/main";
-const head = getArg("head") ?? "HEAD";
-const indexPath = getArg("storybook-index");
-const output = getArg("output") ?? "analysis.json";
+const {
+  values: { base, head, "storybook-index": indexPath, output },
+} = parseArgs({
+  options: {
+    base: { type: "string", default: "origin/main" },
+    head: { type: "string", default: "HEAD" },
+    "storybook-index": { type: "string" },
+    output: { type: "string", default: "analysis.json" },
+  },
+});
 
 const git = (args) =>
   execFileSync("git", args, { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
@@ -164,8 +166,6 @@ const components = [...rows.values()].sort((a, b) => a.name.localeCompare(b.name
 const analysis = {
   diffMode,
   base,
-  head,
-  changedFileCount: files.length,
   // A hook, theme or i18n change still deploys a preview; the report says so
   // rather than pretending nothing happened.
   otherSourceFiles: files
@@ -173,18 +173,16 @@ const analysis = {
     .filter((f) => f.startsWith("src/") && !accounted.has(f) && !isTest(f)),
   components,
   summary: {
-    componentsChanged: components.filter((c) => c.sourceChanged).length,
     // Only NEW components are counted as a gap. Most existing components
     // have no story yet, and nagging about them on every unrelated edit trains
     // reviewers to ignore the report.
     newWithoutStories: components.filter((c) => c.isNew && !c.hasStories).length,
-    totalStories: storyEntries.filter((e) => e.type === "story").length,
   },
 };
 
 writeFileSync(output, `${JSON.stringify(analysis, null, 2)}\n`);
 console.log(
   `Analyzed ${files.length} changed files (${diffMode}); ` +
-    `${analysis.summary.componentsChanged} component(s) changed, ` +
+    `${components.length} component(s) changed, ` +
     `${analysis.summary.newWithoutStories} new one(s) without stories.`,
 );

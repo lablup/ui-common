@@ -43,6 +43,8 @@ describe("LAYER_ORDER_STATEMENT", () => {
     "astryx.integration.mjs",
     "astryx/docs/ui-common.doc.mjs",
     "fixture/src/index.css",
+    // Storybook's only entry stylesheet: the cascade it previews.
+    ".storybook/storybook.css",
   ])("%s spells the same statement", (file) => {
     const text = readFileSync(join(ROOT, file), "utf8");
     const copies = [...text.matchAll(/@layer reset,[^;]*;/g)].map((m) => m[0]);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Decorator } from "@storybook/react-vite";
 import { useDarkMode } from "@vueless/storybook-dark-mode";
 
@@ -18,65 +18,36 @@ export type ThemeStyle = "lablup" | "neutral";
  */
 const themes = { lablup: lablupTheme, neutral: neutralTheme };
 
-// Astryx's own catalogs, loaded when a locale is first picked. ui-common's
-// catalog (`uiCommonMessages`) is small and always present.
+// Astryx's own catalogs, loaded when a locale is first picked and kept for the
+// session, so switching stories does not reload them. ui-common's catalog
+// (`uiCommonMessages`) is small and always present.
 const astryxCatalogs = import.meta.glob<Catalog>(
   "../node_modules/@astryxdesign/core/locales/*.json",
   { import: "default" },
 );
+const loadedCatalogs: Record<string, Catalog> = {};
 
-function useAstryxCatalog(locale: string): Record<string, Catalog> {
-  const [loaded, setLoaded] = useState<Record<string, Catalog>>({});
+function useAstryxCatalog(locale: string): Catalog | undefined {
+  const [, setLoaded] = useState(0);
 
   useEffect(() => {
     const load =
       astryxCatalogs[`../node_modules/@astryxdesign/core/locales/${locale}.json`];
-    if (!load || loaded[locale]) return;
+    if (!load || loadedCatalogs[locale]) return;
     let cancelled = false;
     void load().then((catalog) => {
-      if (!cancelled) setLoaded((current) => ({ ...current, [locale]: catalog }));
+      loadedCatalogs[locale] = catalog;
+      if (!cancelled) setLoaded((n) => n + 1);
     });
     return () => {
       cancelled = true;
     };
-  }, [locale, loaded]);
+  }, [locale]);
 
-  return loaded;
+  return loadedCatalogs[locale];
 }
 
 function StoryProviders({
-  locale,
-  themeStyle,
-  isDarkMode,
-  children,
-}: {
-  locale: string;
-  themeStyle: ThemeStyle;
-  isDarkMode: boolean;
-  children: ReactNode;
-}) {
-  const astryx = useAstryxCatalog(locale);
-  const messages = useMemo(() => mergeMessages(astryx, uiCommonMessages), [astryx]);
-
-  return (
-    <Theme theme={themes[themeStyle]} mode={isDarkMode ? "dark" : "light"}>
-      <InternationalizationProvider locale={locale} messages={messages}>
-        {children}
-      </InternationalizationProvider>
-    </Theme>
-  );
-}
-
-/** Body background and text follow the mounted theme, as in an app. */
-function useBodyColors() {
-  useEffect(() => {
-    document.body.style.backgroundColor = "var(--color-background-body)";
-    document.body.style.color = "var(--color-text-primary)";
-    document.body.style.fontFamily = "var(--font-family-body)";
-  }, []);
-}
-
-function WithGlobalProviders({
   Story,
   context,
 }: {
@@ -84,19 +55,26 @@ function WithGlobalProviders({
   context: Parameters<Decorator>[1];
 }) {
   const isDarkMode = useDarkMode();
-  useBodyColors();
   const { locale, themeStyle } = context.globals as {
     locale: string;
     themeStyle: ThemeStyle;
   };
+  const astryxCatalog = useAstryxCatalog(locale);
+  const messages = useMemo(
+    () =>
+      mergeMessages(astryxCatalog ? { [locale]: astryxCatalog } : {}, uiCommonMessages),
+    [locale, astryxCatalog],
+  );
 
   return (
-    <StoryProviders locale={locale} themeStyle={themeStyle} isDarkMode={isDarkMode}>
-      <Story />
-    </StoryProviders>
+    <Theme theme={themes[themeStyle]} mode={isDarkMode ? "dark" : "light"}>
+      <InternationalizationProvider locale={locale} messages={messages}>
+        <Story />
+      </InternationalizationProvider>
+    </Theme>
   );
 }
 
 export const withGlobalProviders: Decorator = (Story, context) => (
-  <WithGlobalProviders Story={Story} context={context} />
+  <StoryProviders Story={Story} context={context} />
 );

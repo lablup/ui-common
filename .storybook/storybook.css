@@ -1,8 +1,7 @@
 /* The stylesheets a consumer loads (README, "Set up"), in the same order.
    Storybook never loads an app entry stylesheet, so this file is its only
    one. The `@layer` statement comes first, as in every sheet ui-common ships;
-   keep it identical to scripts/layer-order.mjs. No unlayered global rules
-   here: they would outrank every layer. */
+   src/layerOrder.test.ts holds it to scripts/layer-order.mjs. */
 @layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
 
 @import "../src/astryx/reset.css";
@@ -11,3 +10,11 @@
 @import "../src/theme/lablup/built/theme.css";
 @import "../src/ui-common.css";
 @import "../src/astryx/lab/lab.css";
+
+/* The body follows the mounted theme, as in an app. Unlayered on purpose:
+   it is the one page-level rule the preview needs. */
+body {
+  background-color: var(--color-background-body);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+}

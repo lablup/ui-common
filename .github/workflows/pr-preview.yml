@@ -2,9 +2,8 @@
 # Analysis Report: the preview link, a deep link for each changed component's
 # stories, and the bundle-size delta. Modeled on backend.ai-webui's PR Preview.
 #
-# The event-level `paths` filter is a cheap first cut; the `changes` job
-# re-asks the question against the PR's own diff and skips the build when the
-# answer is no.
+# The `paths` filter decides whether a PR gets a preview. GitHub matches it
+# against the PR's own diff from the merge base, so no job re-asks.
 #
 # WHY THE DEPLOY LIVES HERE. A separate `workflow_run` deploy would run main's
 # code with main's token, but a push by Copilot coding agent holds every run it
@@ -51,40 +50,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      storybook: ${{ steps.detect.outputs.storybook }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 50
-
-      - name: Fetch base branch
-        run: git fetch --depth=50 origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
-
-      - name: Decide whether this PR needs a preview
-        id: detect
-        env:
-          BASE: origin/${{ github.base_ref }}
-        run: |
-          set -euo pipefail
-          # A merge base is what makes the three-dot diff report only what this
-          # branch changed; deepen once before falling back to a two-dot diff.
-          if ! git merge-base "$BASE" HEAD >/dev/null 2>&1; then
-            git fetch --deepen=200 origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}" || true
-          fi
-          DIFF="$(git diff --name-only "${BASE}...HEAD" 2>/dev/null || git diff --name-only "${BASE}..HEAD")"
-
-          if grep -qE '^(src/|\.storybook/|package\.json$|pnpm-lock\.yaml$|\.github/workflows/pr-preview\.yml$|\.github/scripts/pr-preview/)' <<<"$DIFF"; then
-            echo "storybook=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "storybook=false" >> "$GITHUB_OUTPUT"
-          fi
-
   build:
-    needs: changes
-    if: needs.changes.outputs.storybook == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -108,10 +74,6 @@ jobs:
 
       - name: Build Storybook
         run: pnpm run build-storybook
-
-      - name: Compute the artifact suffix
-        id: urls
-        run: echo "short_hash=$(echo "${{ github.event.pull_request.head.sha }}" | cut -c1-7)" >> "$GITHUB_OUTPUT"
 
       - name: Analyze changed components
         run: |
@@ -163,7 +125,7 @@ jobs:
       - name: Upload Storybook artifact
         uses: actions/upload-artifact@v7
         with:
-          name: pr-preview-storybook-${{ steps.urls.outputs.short_hash }}
+          name: pr-preview-storybook
           path: storybook-static/
           if-no-files-found: error
           retention-days: 7
@@ -200,14 +162,10 @@ jobs:
         with:
           sparse-checkout: .github/scripts/pr-preview
 
-      - name: Compute the artifact suffix
-        id: urls
-        run: echo "short_hash=$(echo "${{ github.event.pull_request.head.sha }}" | cut -c1-7)" >> "$GITHUB_OUTPUT"
-
       - name: Download Storybook artifact
         uses: actions/download-artifact@v8
         with:
-          name: pr-preview-storybook-${{ steps.urls.outputs.short_hash }}
+          name: pr-preview-storybook
           path: storybook-dist
 
       - name: Deploy to gh-pages

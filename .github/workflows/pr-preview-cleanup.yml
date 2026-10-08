@@ -46,9 +46,12 @@ concurrency:
 
 jobs:
   cleanup:
-    # Skip on the weekly compaction cron — that fires the `compact` job instead.
+    # Skip on the weekly compaction cron — that fires the `compact` job instead —
+    # and after a preview run that was cancelled or failed, which changed
+    # nothing on gh-pages.
     if: >-
-      github.event_name != 'schedule' || github.event.schedule == '0 6 * * *'
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+      && (github.event_name != 'schedule' || github.event.schedule == '0 6 * * *')
     runs-on: ubuntu-latest
     permissions:
       contents: write

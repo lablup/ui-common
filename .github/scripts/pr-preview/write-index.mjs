@@ -7,13 +7,11 @@
 
 import { existsSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { parseArgs } from "node:util";
 
-const getArg = (name) => {
-  const i = process.argv.indexOf(`--${name}`);
-  return i === -1 ? undefined : process.argv[i + 1];
-};
-
-const root = getArg("root");
+const {
+  values: { root },
+} = parseArgs({ options: { root: { type: "string" } } });
 if (!root) {
   console.error("usage: write-index.mjs --root <dir>");
   process.exit(1);
