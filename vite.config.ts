@@ -265,7 +265,12 @@ export default defineConfig({
     react(),
     dts({
       include: ["src"],
-      exclude: ["src/**/*.test.*", "src/test/**", "src/theme/*/built/**"],
+      exclude: [
+        "src/**/*.test.*",
+        "src/**/*.stories.*",
+        "src/test/**",
+        "src/theme/*/built/**",
+      ],
     }),
     copyAssets(),
     linkComponentStyles(),

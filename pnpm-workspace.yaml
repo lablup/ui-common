@@ -29,3 +29,6 @@ allowBuilds:
   "@astryxdesign/core": false
   # sass's optional native file watcher; the tests compile, they never watch.
   "@parcel/watcher": false
+  # Storybook's bundler. Its postinstall only checks that the platform binary
+  # from its optional dependency is in place; the binary works without it.
+  esbuild: false
