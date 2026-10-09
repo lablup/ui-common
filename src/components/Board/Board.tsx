@@ -953,7 +953,11 @@ export function Board<D = unknown>({
   };
 
   return (
-    <div ref={rootRef} className={cx("uic-board", className)} {...divProps}>
+    <div
+      ref={rootRef}
+      className={cx("uic-board", transition && "uic-board--active", className)}
+      {...divProps}
+    >
       {columns > 0 && items.length > 0 ? (
         <div
           ref={gridRef}

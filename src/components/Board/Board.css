@@ -44,6 +44,11 @@
     min-height: 0;
     border-radius: var(--board-item-radius, var(--radius-container));
     background-color: var(--color-background-surface);
+  }
+
+  /* Items slide only while an operation is on. Once it commits, the grid
+     places everything at once, with no transform left to animate from. */
+  .uic-board--active .uic-board-item {
     transition: transform var(--board-transition-duration, 200ms) var(--ease-standard);
   }
 
@@ -169,7 +174,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .uic-board-item {
+    .uic-board--active .uic-board-item {
       transition: none;
     }
   }
