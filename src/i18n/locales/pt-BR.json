@@ -23,6 +23,50 @@
     "defaultMessage": "Aplicar",
     "description": "Generic label of a button that applies the changes made in a dialog"
   },
+  "uic.Board.dragHandle": {
+    "defaultMessage": "Alça de arrastar",
+    "description": "Accessible name of the button at a board item's top-left corner that moves the item"
+  },
+  "uic.Board.resizeHandle": {
+    "defaultMessage": "Alça de redimensionar",
+    "description": "Accessible name of the button at a board item's bottom-right corner that resizes the item"
+  },
+  "uic.Board.moveStarted": {
+    "defaultMessage": "Arrastando.",
+    "description": "Screen reader announcement when a board item is picked up to be moved"
+  },
+  "uic.Board.resizeStarted": {
+    "defaultMessage": "Redimensionando.",
+    "description": "Screen reader announcement when a board item starts being resized"
+  },
+  "uic.Board.itemMoved": {
+    "defaultMessage": "Item movido para a coluna {column}, linha {row}.",
+    "description": "Screen reader announcement while a board item moves. {column} and {row} are 1-based"
+  },
+  "uic.Board.itemResized": {
+    "defaultMessage": "Item redimensionado para {columns} colunas por {rows} linhas.",
+    "description": "Screen reader announcement while a board item is resized"
+  },
+  "uic.Board.moveCommitted": {
+    "defaultMessage": "Movimentação aplicada.",
+    "description": "Screen reader announcement when a board item is dropped in its new place"
+  },
+  "uic.Board.resizeCommitted": {
+    "defaultMessage": "Redimensionamento aplicado.",
+    "description": "Screen reader announcement when a board item's new size is applied"
+  },
+  "uic.Board.moveDiscarded": {
+    "defaultMessage": "Movimentação descartada.",
+    "description": "Screen reader announcement when moving a board item is cancelled"
+  },
+  "uic.Board.resizeDiscarded": {
+    "defaultMessage": "Redimensionamento descartado.",
+    "description": "Screen reader announcement when resizing a board item is cancelled"
+  },
+  "uic.Board.itemRemoved": {
+    "defaultMessage": "Item removido.",
+    "description": "Screen reader announcement when a board item is removed"
+  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Selecionar cor",
     "description": "Accessible name of a color picker whose caller gave it no label"

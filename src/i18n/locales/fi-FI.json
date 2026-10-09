@@ -23,6 +23,50 @@
     "defaultMessage": "Käytä",
     "description": "Generic label of a button that applies the changes made in a dialog"
   },
+  "uic.Board.dragHandle": {
+    "defaultMessage": "Vetokahva",
+    "description": "Accessible name of the button at a board item's top-left corner that moves the item"
+  },
+  "uic.Board.resizeHandle": {
+    "defaultMessage": "Koonmuutoskahva",
+    "description": "Accessible name of the button at a board item's bottom-right corner that resizes the item"
+  },
+  "uic.Board.moveStarted": {
+    "defaultMessage": "Vedetään.",
+    "description": "Screen reader announcement when a board item is picked up to be moved"
+  },
+  "uic.Board.resizeStarted": {
+    "defaultMessage": "Muutetaan kokoa.",
+    "description": "Screen reader announcement when a board item starts being resized"
+  },
+  "uic.Board.itemMoved": {
+    "defaultMessage": "Kohde siirrettiin sarakkeeseen {column}, riville {row}.",
+    "description": "Screen reader announcement while a board item moves. {column} and {row} are 1-based"
+  },
+  "uic.Board.itemResized": {
+    "defaultMessage": "Kohteen kooksi muutettiin {columns} saraketta × {rows} riviä.",
+    "description": "Screen reader announcement while a board item is resized"
+  },
+  "uic.Board.moveCommitted": {
+    "defaultMessage": "Siirto vahvistettiin.",
+    "description": "Screen reader announcement when a board item is dropped in its new place"
+  },
+  "uic.Board.resizeCommitted": {
+    "defaultMessage": "Koonmuutos vahvistettiin.",
+    "description": "Screen reader announcement when a board item's new size is applied"
+  },
+  "uic.Board.moveDiscarded": {
+    "defaultMessage": "Siirto hylättiin.",
+    "description": "Screen reader announcement when moving a board item is cancelled"
+  },
+  "uic.Board.resizeDiscarded": {
+    "defaultMessage": "Koonmuutos hylättiin.",
+    "description": "Screen reader announcement when resizing a board item is cancelled"
+  },
+  "uic.Board.itemRemoved": {
+    "defaultMessage": "Kohde poistettiin.",
+    "description": "Screen reader announcement when a board item is removed"
+  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Valitse väri",
     "description": "Accessible name of a color picker whose caller gave it no label"

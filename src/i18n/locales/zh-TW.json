@@ -23,6 +23,50 @@
     "defaultMessage": "套用",
     "description": "Generic label of a button that applies the changes made in a dialog"
   },
+  "uic.Board.dragHandle": {
+    "defaultMessage": "拖曳控點",
+    "description": "Accessible name of the button at a board item's top-left corner that moves the item"
+  },
+  "uic.Board.resizeHandle": {
+    "defaultMessage": "調整大小控點",
+    "description": "Accessible name of the button at a board item's bottom-right corner that resizes the item"
+  },
+  "uic.Board.moveStarted": {
+    "defaultMessage": "正在拖曳。",
+    "description": "Screen reader announcement when a board item is picked up to be moved"
+  },
+  "uic.Board.resizeStarted": {
+    "defaultMessage": "正在調整大小。",
+    "description": "Screen reader announcement when a board item starts being resized"
+  },
+  "uic.Board.itemMoved": {
+    "defaultMessage": "項目已移至第 {column} 欄、第 {row} 列。",
+    "description": "Screen reader announcement while a board item moves. {column} and {row} are 1-based"
+  },
+  "uic.Board.itemResized": {
+    "defaultMessage": "項目大小已調整為 {columns} 欄 × {rows} 列。",
+    "description": "Screen reader announcement while a board item is resized"
+  },
+  "uic.Board.moveCommitted": {
+    "defaultMessage": "已套用移動。",
+    "description": "Screen reader announcement when a board item is dropped in its new place"
+  },
+  "uic.Board.resizeCommitted": {
+    "defaultMessage": "已套用大小調整。",
+    "description": "Screen reader announcement when a board item's new size is applied"
+  },
+  "uic.Board.moveDiscarded": {
+    "defaultMessage": "已捨棄移動。",
+    "description": "Screen reader announcement when moving a board item is cancelled"
+  },
+  "uic.Board.resizeDiscarded": {
+    "defaultMessage": "已捨棄大小調整。",
+    "description": "Screen reader announcement when resizing a board item is cancelled"
+  },
+  "uic.Board.itemRemoved": {
+    "defaultMessage": "已移除項目。",
+    "description": "Screen reader announcement when a board item is removed"
+  },
   "uic.ColorPicker.label": {
     "defaultMessage": "選擇顏色",
     "description": "Accessible name of a color picker whose caller gave it no label"

@@ -23,6 +23,50 @@
     "defaultMessage": "นำไปใช้",
     "description": "Generic label of a button that applies the changes made in a dialog"
   },
+  "uic.Board.dragHandle": {
+    "defaultMessage": "ที่จับสำหรับลาก",
+    "description": "Accessible name of the button at a board item's top-left corner that moves the item"
+  },
+  "uic.Board.resizeHandle": {
+    "defaultMessage": "ที่จับสำหรับปรับขนาด",
+    "description": "Accessible name of the button at a board item's bottom-right corner that resizes the item"
+  },
+  "uic.Board.moveStarted": {
+    "defaultMessage": "กำลังลาก",
+    "description": "Screen reader announcement when a board item is picked up to be moved"
+  },
+  "uic.Board.resizeStarted": {
+    "defaultMessage": "กำลังปรับขนาด",
+    "description": "Screen reader announcement when a board item starts being resized"
+  },
+  "uic.Board.itemMoved": {
+    "defaultMessage": "ย้ายรายการไปที่คอลัมน์ {column} แถว {row} แล้ว",
+    "description": "Screen reader announcement while a board item moves. {column} and {row} are 1-based"
+  },
+  "uic.Board.itemResized": {
+    "defaultMessage": "ปรับขนาดรายการเป็น {columns} คอลัมน์ × {rows} แถวแล้ว",
+    "description": "Screen reader announcement while a board item is resized"
+  },
+  "uic.Board.moveCommitted": {
+    "defaultMessage": "ยืนยันการย้ายแล้ว",
+    "description": "Screen reader announcement when a board item is dropped in its new place"
+  },
+  "uic.Board.resizeCommitted": {
+    "defaultMessage": "ยืนยันการปรับขนาดแล้ว",
+    "description": "Screen reader announcement when a board item's new size is applied"
+  },
+  "uic.Board.moveDiscarded": {
+    "defaultMessage": "ยกเลิกการย้ายแล้ว",
+    "description": "Screen reader announcement when moving a board item is cancelled"
+  },
+  "uic.Board.resizeDiscarded": {
+    "defaultMessage": "ยกเลิกการปรับขนาดแล้ว",
+    "description": "Screen reader announcement when resizing a board item is cancelled"
+  },
+  "uic.Board.itemRemoved": {
+    "defaultMessage": "นำรายการออกแล้ว",
+    "description": "Screen reader announcement when a board item is removed"
+  },
   "uic.ColorPicker.label": {
     "defaultMessage": "เลือกสี",
     "description": "Accessible name of a color picker whose caller gave it no label"

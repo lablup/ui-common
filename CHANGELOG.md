@@ -5,6 +5,29 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.18]
+
+### Added
+
+- **`Board`**, a dashboard grid of items the user moves and resizes, by
+  pointer or with the arrow keys from either handle (Enter or Space commits,
+  Escape discards), each step announced in a live region. It stands in for
+  `@cloudscape-design/board-components` and keeps its data model: an item is
+  its spans plus a `columnOffset` per column count, the column count follows
+  the board's width (1, 2, 4 or 6 columns by default, `columnBreakpoints`
+  overrides), and `onItemsChange` reports the whole board in its new order
+  with spans and offsets updated, so a layout a product stored from that
+  board renders the same and persists the same. Astryx-shaped props
+  (`isMovable`, `isResizable`, `variant="bordered"`, `renderItem`,
+  `emptyContent`); the strings and announcements are `uic.Board.*` keys,
+  translated in every locale. Items the active one covers take the space it
+  vacated when they fit there, else drop below it, and the rest float up.
+  CSS knobs: `--board-row-height`, `--board-gap`, `--board-item-radius`,
+  `--board-transition-duration`, `--board-handle-z`. A pointer drag follows
+  the pointer through an ancestor's scrolling and scrolls the nearest scroll
+  container when held near its edge. No new dependency: the drag and resize
+  handling is the component's own, the handle glyphs are inline SVG.
+
 ## [0.2.0-alpha.17]
 
 ### Fixed

@@ -293,6 +293,7 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `AlertModal`                                                   | An alert dialog, in place of Astryx `AlertDialog`           | `/AlertModal`                    |
 | `DeleteConfirmModal`                                           | Confirms a deletion, with typed confirmation when needed    | `/components/DeleteConfirmModal` |
 | `StepNumberInput`, `NumberStepper`                             | A number field that steps along a list of values            | `/components/StepNumberInput`    |
+| `Board`                                                        | A dashboard grid of movable, resizable items                | `/components/Board`              |
 | `BoardItemTitle`                                               | A dashboard panel's sticky title row                        | `/components/BoardItemTitle`     |
 | `Statistic`                                                    | A metric with a caption, a large value and a notched bar    | `/components/Statistic`          |
 | `DividedRow`                                                   | A wrapping row with dividers between neighbours on a line   | `/components/DividedRow`         |
