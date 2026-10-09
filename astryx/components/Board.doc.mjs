@@ -111,7 +111,7 @@ export default {
   ],
   usage: {
     description:
-      "Persist what onItemsChange reports (minus data) and pass it back as items; the board snaps back otherwise. With a handle focused: arrow keys move or resize one cell, Enter or Space commits, Escape discards. The drag handle overlays the item's top-left corner, so give the content a horizontal inset. A pointer drag held near an edge of the nearest scroll container scrolls it. CSS knobs on the root or above: --board-row-height (96px), --board-gap (--spacing-5), --board-item-radius (--radius-container), --board-transition-duration (200ms, off under prefers-reduced-motion), --board-handle-z (51; BoardItemTitle's sticky row is 50). Other div attributes reach the root.",
+      "Persist what onItemsChange reports (minus data) and pass it back as items; the board snaps back otherwise. Drag a handle to move or resize by pointer (a resized item follows the pointer's size and snaps to the grid on release). Click a handle, or press Enter or Space on it, to activate it: direction buttons appear and they or the arrow keys step one cell, Enter, Space or leaving the handle commits, Escape discards. A step that would overlap an item only partly, in the direction of the move, is a conflict and does not commit. The drag handle overlays the item's top-left corner, so give the content a horizontal inset. A pointer drag held near an edge of the nearest scroll container scrolls it. CSS knobs on the root or above: --board-row-height (96px), --board-gap (--spacing-5), --board-item-radius (--radius-container), --board-transition-duration (200ms, off under prefers-reduced-motion), --board-handle-z (51; BoardItemTitle's sticky row is 50). Other div attributes reach the root.",
   },
   examples: [
     {

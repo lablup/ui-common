@@ -9,9 +9,13 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
-- **`Board`**, a dashboard grid of items the user moves and resizes, by
-  pointer or with the arrow keys from either handle (Enter or Space commits,
-  Escape discards), each step announced in a live region. It stands in for
+- **`Board`**, a dashboard grid of items the user moves and resizes. A
+  handle dragged by pointer moves or resizes live, the item following the
+  pointer and a resized one taking the pointer's size, and snaps to the grid
+  on release; a handle clicked, or given Enter or Space, is activated
+  instead: direction buttons appear around it and they or the arrow keys step
+  one cell at a time, Enter, Space or leaving the handle commits, Escape
+  discards, each step announced in a live region. It stands in for
   `@cloudscape-design/board-components` and keeps its data model: an item is
   its spans plus a `columnOffset` per column count, the column count follows
   the board's width (1, 2, 4 or 6 columns by default, `columnBreakpoints`
@@ -20,8 +24,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   board renders the same and persists the same. Astryx-shaped props
   (`isMovable`, `isResizable`, `variant="bordered"`, `renderItem`,
   `emptyContent`); the strings and announcements are `uic.Board.*` keys,
-  translated in every locale. Items the active one covers take the space it
-  vacated when they fit there, else drop below it, and the rest float up.
+  translated in every locale. The other items make room the way they did
+  there: a scored search over the four directions settles each overlap,
+  swapping with the item the user pushes against when it can, and the rest
+  float up; an item the move cannot settle is a conflict and the step does
+  not commit.
   CSS knobs: `--board-row-height`, `--board-gap`, `--board-item-radius`,
   `--board-transition-duration`, `--board-handle-z`. A pointer drag follows
   the pointer through an ancestor's scrolling and scrolls the nearest scroll

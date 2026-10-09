@@ -228,24 +228,47 @@ describe("Board", () => {
     expect(root).toHaveAttribute("data-testid", "board");
   });
 
+  const dragHandleOf = (title: string) =>
+    within(shell(title)).getByRole("button", { name: "Drag handle" });
+  const resizeHandleOf = (title: string) =>
+    within(shell(title)).getByRole("button", { name: "Resize handle" });
+  const directionButtons = (title: string) =>
+    [...shell(title).querySelectorAll(".uic-board__direction")].map((el) =>
+      el.getAttribute("data-direction"),
+    );
+  /** The tinted placeholder cells, as "column,row" from 1. */
+  const hoveredCells = () =>
+    [...document.querySelectorAll<HTMLElement>(".uic-board__placeholder--hover")].map(
+      (el) => `${el.style.gridColumn.split(" ")[0]},${el.style.gridRow.split(" ")[0]}`,
+    );
+
   describe("keyboard move", () => {
-    const handleOf = (title: string) =>
-      within(shell(title)).getByRole("button", { name: "Drag handle" });
-
-    it("moves one cell per arrow, previews, and commits on Enter", async () => {
+    it("activates on Enter: direction buttons appear and arrows step one cell", async () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
-      handleOf("Beta").focus();
-
+      dragHandleOf("Beta").focus();
+      // Arrows do nothing until the handle is activated.
       await userEvent.keyboard("{ArrowLeft}");
+      expect(liveText()).toBe("");
+      expect(directionButtons("Beta")).toEqual([]);
+
+      await userEvent.keyboard("{Enter}");
+      expect(liveText()).toBe("Dragging.");
       expect(shell("Beta")).toHaveClass("uic-board-item--active");
+      expect(directionButtons("Beta")).toEqual(["up", "down", "left", "right"]);
+
+      // Half over Alpha, against the direction of the move: a conflict, so
+      // Alpha stays put and the step cannot commit yet.
+      await userEvent.keyboard("{ArrowLeft}");
       expect(liveText()).toBe("Item moved to column 2, row 1.");
-      // The lattice shows while the move is on; the target cells are tinted.
       expect(document.querySelectorAll(".uic-board__placeholder--hover")).toHaveLength(
         4,
       );
+      expect(shell("Alpha").style.transform).toBe("");
 
+      // Fully over Alpha: the two swap.
       await userEvent.keyboard("{ArrowLeft}");
       expect(liveText()).toBe("Item moved to column 1, row 1.");
+      expect(shell("Alpha").style.transform).not.toBe("");
 
       await userEvent.keyboard("{Enter}");
       expect(liveText()).toBe("Move committed.");
@@ -261,11 +284,29 @@ describe("Board", () => {
       expect(detail.resizedItem).toBeUndefined();
       expect(detail.items[0]?.data).toBe(THREE[1]?.data);
       expect(shell("Beta")).not.toHaveClass("uic-board-item--active");
+      expect(directionButtons("Beta")).toEqual([]);
     });
 
-    it("does not report a move that ends where it started", async () => {
+    it("steps from the direction buttons without taking focus", async () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
-      handleOf("Beta").focus();
+      const handle = dragHandleOf("Beta");
+      handle.focus();
+      await userEvent.keyboard(" ");
+      const left = shell("Beta").querySelector(
+        '.uic-board__direction[data-direction="left"]',
+      ) as HTMLElement;
+      await userEvent.click(left);
+      await userEvent.click(left);
+      expect(liveText()).toBe("Item moved to column 1, row 1.");
+      expect(handle).toHaveFocus();
+      await userEvent.keyboard("{Enter}");
+      expect(onItemsChange.mock.calls[0]?.[0]?.movedItem?.id).toBe("b");
+    });
+
+    it("refuses a step off the grid, and reports no move that ends where it started", async () => {
+      const { onItemsChange } = renderBoard({ isMovable: true });
+      dragHandleOf("Beta").focus();
+      await userEvent.keyboard("{Enter}");
       // Beta already sits against the right edge.
       await userEvent.keyboard("{ArrowRight}");
       expect(liveText()).toBe("Dragging.");
@@ -275,10 +316,18 @@ describe("Board", () => {
       expect(onItemsChange).not.toHaveBeenCalled();
     });
 
+    it("does not commit a conflict", async () => {
+      const { onItemsChange } = renderBoard({ isMovable: true });
+      dragHandleOf("Beta").focus();
+      await userEvent.keyboard("{Enter}{ArrowLeft}{Enter}");
+      expect(liveText()).toBe("Move discarded.");
+      expect(onItemsChange).not.toHaveBeenCalled();
+    });
+
     it("discards on Escape", async () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
-      handleOf("Beta").focus();
-      await userEvent.keyboard("{ArrowLeft}{ArrowLeft}");
+      dragHandleOf("Beta").focus();
+      await userEvent.keyboard("{Enter}{ArrowLeft}{ArrowLeft}");
       expect(
         document.querySelectorAll(".uic-board__placeholder").length,
       ).toBeGreaterThan(0);
@@ -289,13 +338,13 @@ describe("Board", () => {
       expect(document.querySelectorAll(".uic-board__placeholder")).toHaveLength(0);
     });
 
-    it("discards when the handle loses focus", async () => {
+    it("commits when the handle loses focus", async () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
-      handleOf("Beta").focus();
-      await userEvent.keyboard("{ArrowLeft}");
+      dragHandleOf("Beta").focus();
+      await userEvent.keyboard("{Enter}{ArrowLeft}{ArrowLeft}");
       await userEvent.tab();
-      expect(liveText()).toBe("Move discarded.");
-      expect(onItemsChange).not.toHaveBeenCalled();
+      expect(liveText()).toBe("Move committed.");
+      expect(onItemsChange.mock.calls[0]?.[0]?.movedItem?.id).toBe("b");
     });
 
     it("uses the consumer's announcement builders", async () => {
@@ -306,19 +355,20 @@ describe("Board", () => {
           `${item.data.title} at ${placement.x},${placement.y}`,
         liveAnnouncementDndCommitted: (op) => `done ${op}`,
       });
-      handleOf("Beta").focus();
+      dragHandleOf("Beta").focus();
       await userEvent.keyboard(" ");
       expect(liveText()).toBe("start move");
-      await userEvent.keyboard("{ArrowLeft}");
-      expect(liveText()).toBe("Beta at 1,0");
+      await userEvent.keyboard("{ArrowLeft}{ArrowLeft}");
+      expect(liveText()).toBe("Beta at 0,0");
       await userEvent.keyboard("{Enter}");
       expect(liveText()).toBe("done move");
     });
   });
 
-  describe("pointer move", () => {
-    // jsdom has no layout: a 2x2 item measures 400x200 (200x100 cells, no
-    // gap), and the grid's top is whatever the test says it is.
+  describe("pointer", () => {
+    // jsdom has no layout: the grid is 800px wide (four 200px columns, no
+    // gap), a 2x2 item measures 400x200 (100px rows), and the grid's top is
+    // whatever the test says it is.
     let gridTop = 300;
     let restore: () => void;
     beforeEach(() => {
@@ -328,9 +378,9 @@ describe("Board", () => {
           return {
             left: 0,
             top: gridTop,
-            right: 1000,
+            right: 800,
             bottom: gridTop + 400,
-            width: 1000,
+            width: 800,
             height: 400,
           } as DOMRect;
         }
@@ -352,36 +402,59 @@ describe("Board", () => {
     });
     afterEach(() => restore());
 
-    const handleOf = (title: string) =>
-      within(shell(title)).getByRole("button", { name: "Drag handle" });
+    const press = (handle: HTMLElement, pointerId: number, x: number, y: number) =>
+      fireEvent.pointerDown(handle, { pointerId, button: 0, clientX: x, clientY: y });
 
-    it("snaps to cells from the pointer's travel and commits on release", () => {
+    it("a click activates the handle like Enter does", () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
-      const handle = handleOf("Alpha");
-      fireEvent.pointerDown(handle, {
-        pointerId: 1,
-        button: 0,
-        clientX: 50,
-        clientY: 350,
-      });
+      const handle = dragHandleOf("Alpha");
+      press(handle, 1, 50, 350);
+      expect(liveText()).toBe("");
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 52, clientY: 351 });
+      fireEvent.pointerUp(handle, { pointerId: 1 });
       expect(liveText()).toBe("Dragging.");
-      expect(shell("Alpha")).toHaveClass("uic-board-item--dragging");
+      expect(directionButtons("Alpha")).toEqual(["up", "down", "left", "right"]);
+      // A second click commits.
+      press(handle, 2, 50, 350);
+      fireEvent.pointerUp(handle, { pointerId: 2 });
+      expect(liveText()).toBe("Move committed.");
+      expect(onItemsChange).not.toHaveBeenCalled();
+      expect(directionButtons("Alpha")).toEqual([]);
+    });
+
+    it("drags past the click threshold, snaps to whole cells and commits on release", () => {
+      const { onItemsChange } = renderBoard({ isMovable: true });
+      const handle = dragHandleOf("Alpha");
+      press(handle, 1, 50, 350);
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--dragging");
 
       fireEvent.pointerMove(handle, { pointerId: 1, clientX: 140, clientY: 350 });
+      // Pointer steps are not announced; the cells under the item are tinted.
       expect(liveText()).toBe("Dragging.");
+      expect(shell("Alpha")).toHaveClass("uic-board-item--dragging");
       expect(shell("Alpha").style.transform).toBe("translate(90px, 0px)");
+      expect(hoveredCells()).toEqual(["1,1", "2,1", "1,2", "2,2"]);
+      expect(directionButtons("Alpha")).toEqual([]);
 
+      // Half over Beta: a conflict, nothing else moves.
       fireEvent.pointerMove(handle, { pointerId: 1, clientX: 260, clientY: 350 });
-      expect(liveText()).toBe("Item moved to column 2, row 1.");
+      expect(liveText()).toBe("Dragging.");
       expect(shell("Alpha").style.transform).toBe("translate(210px, 0px)");
+      expect(hoveredCells()).toEqual(["2,1", "3,1", "2,2", "3,2"]);
+      expect(shell("Beta").style.transform).toBe("");
+
+      // Over Beta: Beta slides into Alpha's place.
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 450, clientY: 350 });
+      expect(hoveredCells()).toEqual(["3,1", "4,1", "3,2", "4,2"]);
+      expect(shell("Beta").style.transform).toBe("translate(-400px, 0px)");
 
       fireEvent.pointerUp(handle, { pointerId: 1 });
       expect(liveText()).toBe("Move committed.");
       const detail = onItemsChange.mock.calls[0]?.[0] as BoardItemsChangeDetail<Data>;
       expect(detail.movedItem?.id).toBe("a");
       expect(detail.items.map((it) => `${it.id}:${it.columnOffset?.[4]}`)).toEqual([
-        "a:1",
-        "b:2",
+        "b:0",
+        "a:2",
         "c:0",
       ]);
       expect(shell("Alpha")).not.toHaveClass("uic-board-item--dragging");
@@ -389,29 +462,26 @@ describe("Board", () => {
 
     it("compensates for an ancestor scrolling under a still pointer", () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
-      const handle = handleOf("Alpha");
-      fireEvent.pointerDown(handle, {
-        pointerId: 1,
-        button: 0,
-        clientX: 50,
-        clientY: 350,
-      });
+      const handle = dragHandleOf("Alpha");
+      press(handle, 1, 50, 350);
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 50, clientY: 355 });
+      expect(shell("Alpha").style.transform).toBe("translate(0px, 5px)");
 
       // The container scrolls 120px: the grid rises, the pointer stays put.
       gridTop = 180;
-      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 50, clientY: 350 });
-      expect(liveText()).toBe("Item moved to column 1, row 2.");
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 50, clientY: 355 });
+      expect(hoveredCells()).toEqual(["1,2", "2,2", "1,3", "2,3"]);
       // The item stays under the pointer: it moves with the scroll.
-      expect(shell("Alpha").style.transform).toBe("translate(0px, 120px)");
+      expect(shell("Alpha").style.transform).toBe("translate(0px, 125px)");
 
-      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 250, clientY: 350 });
-      expect(liveText()).toBe("Item moved to column 2, row 2.");
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 250, clientY: 355 });
+      expect(hoveredCells()).toEqual(["2,2", "3,2", "2,3", "3,3"]);
 
       // A scroll with no pointer event re-applies the last pointer position.
       gridTop = 80;
       fireEvent.scroll(document.body);
-      expect(liveText()).toBe("Item moved to column 2, row 3.");
-      expect(shell("Alpha").style.transform).toBe("translate(200px, 220px)");
+      expect(hoveredCells()).toEqual(["2,3", "3,3", "2,4", "3,4"]);
+      expect(shell("Alpha").style.transform).toBe("translate(200px, 225px)");
 
       fireEvent.pointerUp(handle, { pointerId: 1 });
       const detail = onItemsChange.mock.calls[0]?.[0] as BoardItemsChangeDetail<Data>;
@@ -424,41 +494,70 @@ describe("Board", () => {
 
     it("discards on pointer cancel and on Escape", () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
-      const handle = handleOf("Alpha");
-      fireEvent.pointerDown(handle, {
-        pointerId: 1,
-        button: 0,
-        clientX: 50,
-        clientY: 350,
-      });
+      const handle = dragHandleOf("Alpha");
+      press(handle, 1, 50, 350);
       fireEvent.pointerMove(handle, { pointerId: 1, clientX: 260, clientY: 350 });
       fireEvent.pointerCancel(handle, { pointerId: 1 });
       expect(liveText()).toBe("Move discarded.");
 
-      fireEvent.pointerDown(handle, {
-        pointerId: 2,
-        button: 0,
-        clientX: 50,
-        clientY: 350,
-      });
+      press(handle, 2, 50, 350);
       fireEvent.pointerMove(handle, { pointerId: 2, clientX: 260, clientY: 350 });
       fireEvent.keyDown(document.body, { key: "Escape" });
       expect(liveText()).toBe("Move discarded.");
       expect(shell("Alpha").style.transform).toBe("");
       expect(onItemsChange).not.toHaveBeenCalled();
     });
+
+    it("resizes to the pointer's size while held and snaps to cells on release", () => {
+      const { onItemsChange } = renderBoard({ isResizable: true });
+      const handle = resizeHandleOf("Alpha");
+      press(handle, 1, 395, 495);
+
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 455, clientY: 525 });
+      expect(liveText()).toBe("Resizing.");
+      expect(shell("Alpha")).toHaveClass("uic-board-item--resizing");
+      // The box follows the pointer, not the grid...
+      expect(shell("Alpha").style.width).toBe("460px");
+      expect(shell("Alpha").style.height).toBe("230px");
+      // ...and still spans its original cells.
+      expect(placement("Alpha")).toBe("1 / span 2 | 1 / span 2");
+
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 545, clientY: 595 });
+      expect(shell("Alpha").style.width).toBe("550px");
+      expect(shell("Alpha").style.height).toBe("300px");
+      expect(hoveredCells()).toHaveLength(9);
+      expect(hoveredCells()[8]).toBe("3,3");
+
+      // Never under the minimum spans.
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 100, clientY: 100 });
+      expect(shell("Alpha").style.width).toBe("200px");
+      expect(shell("Alpha").style.height).toBe("200px");
+
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 545, clientY: 595 });
+      fireEvent.pointerUp(handle, { pointerId: 1 });
+      expect(liveText()).toBe("Resize committed.");
+      expect(shell("Alpha").style.width).toBe("");
+      const detail = onItemsChange.mock.calls[0]?.[0] as BoardItemsChangeDetail<Data>;
+      expect(detail.resizedItem).toMatchObject({ id: "a", columnSpan: 3, rowSpan: 3 });
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--resizing");
+    });
   });
 
   describe("keyboard resize", () => {
-    it("grows one cell per arrow and reports the new spans", async () => {
+    it("grows one cell per arrow once activated and reports the new spans", async () => {
       const { onItemsChange } = renderBoard({ isResizable: true });
-      within(shell("Alpha")).getByRole("button", { name: "Resize handle" }).focus();
+      resizeHandleOf("Alpha").focus();
+      await userEvent.keyboard("{ArrowRight}");
+      expect(liveText()).toBe("");
+      await userEvent.keyboard("{Enter}");
+      expect(liveText()).toBe("Resizing.");
+      expect(directionButtons("Alpha")).toEqual(["up", "down", "left", "right"]);
 
       await userEvent.keyboard("{ArrowRight}");
       expect(liveText()).toBe("Item resized to 3 columns by 2 rows.");
       expect(placement("Alpha")).toBe("1 / span 3 | 1 / span 2");
       await userEvent.keyboard("{ArrowRight}{ArrowRight}{ArrowDown}");
-      // Clamped to the board's edge.
+      // A step past the board's edge is refused.
       expect(liveText()).toBe("Item resized to 4 columns by 3 rows.");
 
       await userEvent.keyboard("{Enter}");
@@ -483,8 +582,8 @@ describe("Board", () => {
           },
         ],
       });
-      within(shell("Alpha")).getByRole("button", { name: "Resize handle" }).focus();
-      await userEvent.keyboard("{ArrowLeft}{ArrowUp}");
+      resizeHandleOf("Alpha").focus();
+      await userEvent.keyboard("{Enter}{ArrowLeft}{ArrowUp}");
       expect(liveText()).toBe("Item resized to 2 columns by 2 rows.");
       await userEvent.keyboard("{ArrowUp}{Enter}");
       expect(onItemsChange.mock.calls[0]?.[0]?.resizedItem).toMatchObject({
@@ -507,8 +606,8 @@ describe("Board", () => {
 
   it("is controlled: renders what the parent passes after a change", async () => {
     const { onItemsChange, rerender } = renderBoard({ isMovable: true });
-    within(shell("Beta")).getByRole("button", { name: "Drag handle" }).focus();
-    await userEvent.keyboard("{ArrowLeft}{ArrowLeft}{Enter}");
+    dragHandleOf("Beta").focus();
+    await userEvent.keyboard("{Enter}{ArrowLeft}{ArrowLeft}{Enter}");
     const detail = onItemsChange.mock.calls[0]?.[0] as BoardItemsChangeDetail<Data>;
     rerender(
       <Board<Data>
