@@ -287,6 +287,20 @@ describe("Board", () => {
       expect(directionButtons("Beta")).toEqual([]);
     });
 
+    it("slides items only while an operation is on, and keeps the handle focused after a commit", async () => {
+      renderBoard({ isMovable: true });
+      const handle = dragHandleOf("Beta");
+      handle.focus();
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--sliding");
+      await userEvent.keyboard("{Enter}");
+      expect(shell("Alpha")).toHaveClass("uic-board-item--sliding");
+      expect(shell("Beta")).toHaveClass("uic-board-item--sliding");
+      await userEvent.keyboard("{ArrowLeft}{ArrowLeft}{Enter}");
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--sliding");
+      expect(shell("Beta")).not.toHaveClass("uic-board-item--sliding");
+      expect(dragHandleOf("Beta")).toHaveFocus();
+    });
+
     it("steps from the direction buttons without taking focus", async () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
       const handle = dragHandleOf("Beta");

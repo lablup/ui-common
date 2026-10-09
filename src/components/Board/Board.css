@@ -46,9 +46,12 @@
     background-color: var(--color-background-surface);
   }
 
-  /* Items slide only while an operation is on. Once it commits, the grid
-     places everything at once, with no transform left to animate from. */
-  .uic-board--active .uic-board-item {
+  /* Items slide only while an operation is on. The class sits on the item
+     itself: a commit can move an item's node in the DOM, and the focus
+     change that causes recomputes styles before the board's own class
+     changes, so a transition set on an ancestor would start right then from
+     the transform being removed. On the item, both leave in one update. */
+  .uic-board-item--sliding {
     transition: transform var(--board-transition-duration, 200ms) var(--ease-standard);
   }
 
@@ -174,7 +177,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .uic-board--active .uic-board-item {
+    .uic-board-item--sliding {
       transition: none;
     }
   }

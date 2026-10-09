@@ -570,13 +570,38 @@ export function Board<D = unknown>({
     }
   };
 
+  // The handle that had focus when an operation ended. The commit may move
+  // its item's node to a new place in the DOM, which drops focus; the handle
+  // is focused again once the board has re-rendered.
+  const refocusRef = useRef<{ itemId: string; operation: BoardOperation } | null>(null);
+
   const end = (): Transition | null => {
     const tr = transitionRef.current;
     if (!tr) return null;
+    const shell = shellRefs.current.get(tr.itemId);
+    const active = typeof document === "undefined" ? null : document.activeElement;
+    refocusRef.current =
+      shell && active instanceof HTMLElement && shell.contains(active)
+        ? { itemId: tr.itemId, operation: tr.operation }
+        : null;
     setTransition(null);
     pendingRef.current = null;
     return tr;
   };
+
+  useEffect(() => {
+    const target = refocusRef.current;
+    if (!target || transition) return;
+    refocusRef.current = null;
+    const shell = shellRefs.current.get(target.itemId);
+    const handle = shell?.querySelector<HTMLElement>(
+      target.operation === "resize"
+        ? ".uic-board-item__resize-handle"
+        : ".uic-board-item__drag-handle",
+    );
+    if (handle && document.activeElement !== handle)
+      handle.focus({ preventScroll: true });
+  });
 
   const commit = () => {
     const tr = end();
@@ -1017,6 +1042,10 @@ export function Board<D = unknown>({
                   "uic-board-item",
                   variant === "bordered" && "uic-board-item--bordered",
                   isActive && "uic-board-item--active",
+                  // The slide is the item's own class, so it and the
+                  // transform leave in one update: a transition that lived on
+                  // an ancestor could outlive the transform by a style pass.
+                  transition !== null && "uic-board-item--sliding",
                   pointer &&
                     transition?.operation === "move" &&
                     "uic-board-item--dragging",
