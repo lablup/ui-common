@@ -69,7 +69,7 @@ export const docs = {
             "`AlertModal`: the alert-dialog pattern on Modal, in its level stack. ui-common hides AlertDialog; use this.",
             "`DeleteConfirmModal`: confirms a deletion on Modal; typed confirmation for irreversible ones.",
             "`StepNumberInput`: a number field that steps along a list of values (1, 2, 4, 8); `NumberStepper` is its stepper column.",
-            "`BoardItemTitle`: a dashboard panel's sticky title row, with a help tooltip and actions at the end.",
+            "`Board`: a dashboard grid of items the user moves and resizes by pointer or keyboard; items persist as spans plus a column offset per column count, as in Cloudscape's board. `BoardItemTitle`: a dashboard panel's sticky title row, with a help tooltip and actions at the end.",
             "`Statistic`: a metric with a caption, a large value and a notched usage bar. `DividedRow`: a wrapping row with dividers between neighbours on a line.",
             '`TokenList`: values inline, the rest behind +N on hover. `TokenRow`: tokens cut off with "and N more".',
             "`NotificationItem`: the title, description, actions and footer of one notice.",

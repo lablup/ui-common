@@ -182,6 +182,7 @@ the recorded version or file. On an Astryx bump:
 | `AlertModal`                                                   | `src/components/AlertModal/`         | `Modal`, `Heading`, `Text`, `Button`, `Layout`      |
 | `DeleteConfirmModal`                                           | `src/components/DeleteConfirmModal/` | `Modal`, `TextInput`, `Token`, `Banner`, `Text`     |
 | `StepNumberInput`, `NumberStepper`                             | `src/components/StepNumberInput/`    | `InputGroup`, `NumberInput`, `Icon`                 |
+| `Board`                                                        | `src/components/Board/`              | `IconButton`, `VisuallyHidden`, plain CSS           |
 | `BoardItemTitle`                                               | `src/components/BoardItemTitle/`     | `HStack`, `Heading`, `Icon`, `IconWithTooltip`      |
 | `Statistic`                                                    | `src/components/Statistic/`          | `Stack`, `Text`, `Tooltip`                          |
 | `DividedRow`                                                   | `src/components/DividedRow/`         | plain CSS                                           |

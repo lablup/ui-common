@@ -5,6 +5,36 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.18]
+
+### Added
+
+- **`Board`**, a dashboard grid of items the user moves and resizes. A
+  handle dragged by pointer moves or resizes live, the item following the
+  pointer and a resized one taking the pointer's size, and snaps to the grid
+  on release; a handle clicked, or given Enter or Space, is activated
+  instead: direction buttons appear around it and they or the arrow keys step
+  one cell at a time, Enter, Space or leaving the handle commits, Escape
+  discards, each step announced in a live region. It stands in for
+  `@cloudscape-design/board-components` and keeps its data model: an item is
+  its spans plus a `columnOffset` per column count, the column count follows
+  the board's width (1, 2, 4 or 6 columns by default, `columnBreakpoints`
+  overrides), and `onItemsChange` reports the whole board in its new order
+  with spans and offsets updated, so a layout a product stored from that
+  board renders the same and persists the same. Astryx-shaped props
+  (`isMovable`, `isResizable`, `variant="bordered"`, `renderItem`,
+  `emptyContent`); the strings and announcements are `uic.Board.*` keys,
+  translated in every locale. The other items make room the way they did
+  there: a scored search over the four directions settles each overlap,
+  swapping with the item the user pushes against when it can, and the rest
+  float up; an item the move cannot settle is a conflict and the step does
+  not commit.
+  CSS knobs: `--board-row-height`, `--board-gap`, `--board-item-radius`,
+  `--board-transition-duration`, `--board-handle-z`. A pointer drag follows
+  the pointer through an ancestor's scrolling and scrolls the nearest scroll
+  container when held near its edge. No new dependency: the drag and resize
+  handling is the component's own, the handle glyphs are inline SVG.
+
 ## [0.2.0-alpha.17]
 
 ### Fixed
@@ -1500,7 +1530,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.17...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.18...HEAD
+[0.2.0-alpha.18]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.17...v0.2.0-alpha.18
 [0.2.0-alpha.17]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.16...v0.2.0-alpha.17
 [0.2.0-alpha.16]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.15...v0.2.0-alpha.16
 [0.2.0-alpha.15]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.14...v0.2.0-alpha.15

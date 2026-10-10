@@ -1,0 +1,187 @@
+/*
+ * Board: a dashboard grid of movable, resizable items.
+ *
+ * Knobs, set on the root or above it:
+ *   --board-row-height          one grid row (default 96px: Astryx has no row-height token)
+ *   --board-gap                 between cells (default --spacing-5)
+ *   --board-item-radius         an item's corners (default --radius-container)
+ *   --board-transition-duration how long items take to slide (default 200ms)
+ *   --board-handle-z            the handles' z-index inside an item (default 51;
+ *                               BoardItemTitle's sticky row sits at 50)
+ */
+@layer ui-common {
+  .uic-board {
+    position: relative;
+    min-width: 0;
+  }
+
+  .uic-board__grid {
+    display: grid;
+    grid-auto-rows: var(--board-row-height, 96px);
+    gap: var(--board-gap, var(--spacing-5));
+  }
+
+  .uic-board__placeholder {
+    border-radius: var(--board-item-radius, var(--radius-container));
+  }
+
+  .uic-board__placeholder--active {
+    background-color: var(--color-background-muted);
+  }
+
+  .uic-board__placeholder--hover {
+    background-color: var(--color-accent-muted);
+  }
+
+  .uic-board-item {
+    position: relative;
+    /* Its own stacking context: the handles' z-index and a sticky title's
+       stay inside the item, and an active item lifts whole. */
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    border-radius: var(--board-item-radius, var(--radius-container));
+    background-color: var(--color-background-surface);
+  }
+
+  /* Items slide only while an operation is on. The class sits on the item
+     itself: a commit can move an item's node in the DOM, and the focus
+     change that causes recomputes styles before the board's own class
+     changes, so a transition set on an ancestor would start right then from
+     the transform being removed. On the item, both leave in one update. */
+  .uic-board-item--sliding {
+    transition: transform var(--board-transition-duration, 200ms) var(--ease-standard);
+  }
+
+  .uic-board-item--bordered {
+    border: var(--border-width) solid var(--color-border);
+  }
+
+  .uic-board-item--active {
+    z-index: 1;
+    box-shadow: 0 0 0 var(--spacing-0-5) var(--color-accent);
+  }
+
+  .uic-board-item--dragging,
+  .uic-board-item--resizing {
+    transition: none;
+  }
+
+  /* A resized item is sized in px while the pointer holds it, and overflows
+     its cell from the top-left corner. */
+  .uic-board-item--resizing {
+    justify-self: start;
+    align-self: start;
+  }
+
+  .uic-board-item__content {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    border-radius: inherit;
+  }
+
+  .uic-board-item__handle {
+    position: absolute;
+    z-index: var(--board-handle-z, 51);
+    display: inline-flex;
+  }
+
+  .uic-board-item__handle--drag {
+    inset-block-start: var(--spacing-2);
+    inset-inline-start: var(--spacing-1);
+  }
+
+  .uic-board-item__handle--resize {
+    inset-block-end: 0;
+    inset-inline-end: 0;
+  }
+
+  /* The handles are glyphs, not buttons: no surface under them in any state. */
+  .uic-board-item__drag-handle,
+  .uic-board-item__resize-handle,
+  .uic-board-item__drag-handle:hover,
+  .uic-board-item__resize-handle:hover,
+  .uic-board-item__drag-handle:active,
+  .uic-board-item__resize-handle:active {
+    background-color: transparent;
+  }
+
+  .uic-board-item__drag-handle,
+  .uic-board-item__resize-handle {
+    color: var(--color-icon-disabled);
+    touch-action: none;
+  }
+
+  .uic-board-item__drag-handle:hover,
+  .uic-board-item__resize-handle:hover,
+  .uic-board-item--active .uic-board-item__drag-handle,
+  .uic-board-item--active .uic-board-item__resize-handle {
+    color: var(--color-icon-primary);
+  }
+
+  .uic-board-item__drag-handle {
+    cursor: grab;
+  }
+
+  .uic-board-item--dragging .uic-board-item__drag-handle {
+    cursor: grabbing;
+  }
+
+  .uic-board-item__resize-handle {
+    cursor: nwse-resize;
+  }
+
+  /* Direction buttons around an activated handle, one per side. */
+  .uic-board__direction {
+    position: absolute;
+    display: inline-flex;
+    appearance: none;
+    padding: 0;
+    font: inherit;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: var(--spacing-6);
+    height: var(--spacing-6);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-full);
+    background-color: var(--color-background-surface);
+    color: var(--color-icon-primary);
+    box-shadow: var(--shadow-low);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .uic-board__direction:hover {
+    background-color: var(--color-background-muted);
+  }
+
+  .uic-board__direction--up {
+    inset-block-start: calc(-1 * (var(--spacing-6) + var(--spacing-1)));
+    inset-inline-start: calc(50% - var(--spacing-3));
+  }
+
+  .uic-board__direction--down {
+    inset-block-end: calc(-1 * (var(--spacing-6) + var(--spacing-1)));
+    inset-inline-start: calc(50% - var(--spacing-3));
+  }
+
+  .uic-board__direction--left {
+    inset-inline-start: calc(-1 * (var(--spacing-6) + var(--spacing-1)));
+    inset-block-start: calc(50% - var(--spacing-3));
+  }
+
+  .uic-board__direction--right {
+    inset-inline-end: calc(-1 * (var(--spacing-6) + var(--spacing-1)));
+    inset-block-start: calc(50% - var(--spacing-3));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .uic-board-item--sliding {
+      transition: none;
+    }
+  }
+}

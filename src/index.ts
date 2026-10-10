@@ -1357,6 +1357,29 @@ export type {
 export { AlertModal } from "./components/AlertModal";
 export type { AlertModalProps } from "./components/AlertModal";
 
+// Board
+export {
+  Board,
+  DEFAULT_BOARD_COLUMN_BREAKPOINTS,
+  columnsForWidth,
+  interpretItems,
+  transformItems,
+} from "./components/Board";
+export type {
+  BoardColumnBreakpoint,
+  BoardDndDetail,
+  BoardItem,
+  BoardItemActions,
+  BoardItemDefinition,
+  BoardItemPlacement,
+  BoardItemRemovedDetail,
+  BoardItemsChangeDetail,
+  BoardOperation,
+  BoardProps,
+  GridLayout,
+  GridLayoutItem,
+} from "./components/Board";
+
 // BoardItemTitle
 export { BoardItemTitle } from "./components/BoardItemTitle";
 export type { BoardItemTitleProps } from "./components/BoardItemTitle";

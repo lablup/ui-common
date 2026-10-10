@@ -4,6 +4,7 @@
     "source": "components/AlertModal/index.ts",
     "subpath": "AlertModal"
   },
+  { "name": "Board", "source": "components/Board/index.ts" },
   { "name": "BoardItemTitle", "source": "components/BoardItemTitle/index.ts" },
   { "name": "BooleanToken", "source": "components/BooleanToken/index.ts" },
   { "name": "BulkEditFormItem", "source": "components/BulkEditFormItem/index.ts" },
