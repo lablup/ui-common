@@ -50,4 +50,24 @@ export const boardMessages = defineMessages({
     defaultMessage: "Item removed.",
     description: "Screen reader announcement when a board item is removed",
   },
+  "uic.Board.directionUp": {
+    defaultMessage: "Up",
+    description:
+      "Accessible name of the button that moves an activated board item, or shrinks a resized one, one row up",
+  },
+  "uic.Board.directionDown": {
+    defaultMessage: "Down",
+    description:
+      "Accessible name of the button that moves an activated board item, or grows a resized one, one row down",
+  },
+  "uic.Board.directionLeft": {
+    defaultMessage: "Left",
+    description:
+      "Accessible name of the button that moves an activated board item, or shrinks a resized one, one column left",
+  },
+  "uic.Board.directionRight": {
+    defaultMessage: "Right",
+    description:
+      "Accessible name of the button that moves an activated board item, or grows a resized one, one column right",
+  },
 });

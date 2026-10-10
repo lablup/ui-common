@@ -372,6 +372,13 @@ function ArrowGlyph({ direction }: { direction: Direction }) {
 
 const DIRECTIONS: Direction[] = ["up", "down", "left", "right"];
 
+const DIRECTION_LABEL_KEYS: Record<Direction, string> = {
+  up: "uic.Board.directionUp",
+  down: "uic.Board.directionDown",
+  left: "uic.Board.directionLeft",
+  right: "uic.Board.directionRight",
+};
+
 const cx = (...names: Array<string | false | null | undefined>) =>
   names.filter(Boolean).join(" ");
 
@@ -619,7 +626,11 @@ export function Board<D = unknown>({
           : { items: next, movedItem: changed },
       );
     }
-    announceEnd(tr.operation, !(shift !== null && shift.conflicts.length > 0));
+    // A pointer drag released off the grid (no shift) changed nothing and is
+    // discarded; a keyboard activation that stepped nowhere is a committed no-op.
+    const discarded =
+      shift === null ? tr.interaction === "pointer" : shift.conflicts.length > 0;
+    announceEnd(tr.operation, !discarded);
   };
 
   const discard = () => {
@@ -857,6 +868,9 @@ export function Board<D = unknown>({
       const tr = transitionRef.current;
       if (tr) commit();
       if (!(tr && tr.itemId === press.itemId && tr.operation === press.operation)) {
+        // Not every browser focuses a clicked button; the keys and the blur
+        // that end the activation need the focus on the handle.
+        event.currentTarget.focus({ preventScroll: true });
         start(press.operation, "keyboard", press.itemId);
       }
       return;
@@ -960,11 +974,16 @@ export function Board<D = unknown>({
       transition.itemId === itemId &&
       transition.operation === operation;
     if (!shown) return null;
+    // Real buttons, named, so a touch screen reader finds them; out of the
+    // tab order, since the arrow keys on the handle do the same, and the
+    // press is cancelled so the handle keeps focus.
     return DIRECTIONS.map((direction) => (
-      <span
+      <button
         key={direction}
+        type="button"
+        tabIndex={-1}
         className={cx("uic-board__direction", `uic-board__direction--${direction}`)}
-        role="presentation"
+        aria-label={t(DIRECTION_LABEL_KEYS[direction])}
         data-direction={direction}
         onPointerDown={(event) => event.preventDefault()}
         onClick={() => {
@@ -973,7 +992,7 @@ export function Board<D = unknown>({
         }}
       >
         <ArrowGlyph direction={direction} />
-      </span>
+      </button>
     ));
   };
 

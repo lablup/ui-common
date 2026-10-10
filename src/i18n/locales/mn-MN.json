@@ -362,5 +362,21 @@
   "uic.PagedSelector.totalItems": {
     "defaultMessage": "Нийт {total} зүйлүүд",
     "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  },
+  "uic.Board.directionUp": {
+    "defaultMessage": "Дээш",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one row up"
+  },
+  "uic.Board.directionDown": {
+    "defaultMessage": "Доош",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one row down"
+  },
+  "uic.Board.directionLeft": {
+    "defaultMessage": "Зүүн",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one column left"
+  },
+  "uic.Board.directionRight": {
+    "defaultMessage": "Баруун",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one column right"
   }
 }

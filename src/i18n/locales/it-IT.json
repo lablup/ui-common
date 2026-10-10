@@ -366,5 +366,21 @@
   "uic.PagedSelector.totalItems": {
     "defaultMessage": "Totali {total} elementi",
     "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  },
+  "uic.Board.directionUp": {
+    "defaultMessage": "Su",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one row up"
+  },
+  "uic.Board.directionDown": {
+    "defaultMessage": "Giù",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one row down"
+  },
+  "uic.Board.directionLeft": {
+    "defaultMessage": "Sinistra",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one column left"
+  },
+  "uic.Board.directionRight": {
+    "defaultMessage": "Destra",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one column right"
   }
 }

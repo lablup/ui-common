@@ -366,5 +366,21 @@
   "uic.PagedSelector.totalItems": {
     "defaultMessage": "รวม {total} รายการ",
     "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  },
+  "uic.Board.directionUp": {
+    "defaultMessage": "ขึ้น",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one row up"
+  },
+  "uic.Board.directionDown": {
+    "defaultMessage": "ลง",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one row down"
+  },
+  "uic.Board.directionLeft": {
+    "defaultMessage": "ซ้าย",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one column left"
+  },
+  "uic.Board.directionRight": {
+    "defaultMessage": "ขวา",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one column right"
   }
 }

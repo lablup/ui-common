@@ -366,5 +366,21 @@
   "uic.PagedSelector.totalItems": {
     "defaultMessage": "Yhteensä {total} kohteet",
     "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  },
+  "uic.Board.directionUp": {
+    "defaultMessage": "Ylös",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one row up"
+  },
+  "uic.Board.directionDown": {
+    "defaultMessage": "Alas",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one row down"
+  },
+  "uic.Board.directionLeft": {
+    "defaultMessage": "Vasemmalle",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one column left"
+  },
+  "uic.Board.directionRight": {
+    "defaultMessage": "Oikealle",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one column right"
   }
 }

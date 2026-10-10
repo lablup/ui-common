@@ -428,6 +428,18 @@ describe("Board", () => {
       fireEvent.pointerUp(handle, { pointerId: 1 });
       expect(liveText()).toBe("Dragging.");
       expect(directionButtons("Alpha")).toEqual(["up", "down", "left", "right"]);
+      // The click focuses the handle, so the keys that end the activation work
+      // where a browser does not focus a clicked button.
+      expect(handle).toHaveFocus();
+      expect(
+        within(shell("Alpha")).getByRole("button", { name: "Left" }),
+      ).toHaveAttribute("tabindex", "-1");
+      fireEvent.keyDown(handle, { key: "Escape" });
+      expect(liveText()).toBe("Move discarded.");
+      expect(directionButtons("Alpha")).toEqual([]);
+      press(handle, 3, 50, 350);
+      fireEvent.pointerUp(handle, { pointerId: 3 });
+      expect(liveText()).toBe("Dragging.");
       // A second click commits.
       press(handle, 2, 50, 350);
       fireEvent.pointerUp(handle, { pointerId: 2 });
@@ -504,6 +516,17 @@ describe("Board", () => {
         "a:1",
         "c:0",
       ]);
+    });
+
+    it("announces a release off the grid as discarded", () => {
+      const { onItemsChange } = renderBoard({ isMovable: true });
+      const handle = dragHandleOf("Alpha");
+      press(handle, 1, 50, 350);
+      // Far below the lattice: no cell under the item.
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 50, clientY: 5000 });
+      fireEvent.pointerUp(handle, { pointerId: 1 });
+      expect(liveText()).toBe("Move discarded.");
+      expect(onItemsChange).not.toHaveBeenCalled();
     });
 
     it("discards on pointer cancel and on Escape", () => {

@@ -138,6 +138,9 @@
   .uic-board__direction {
     position: absolute;
     display: inline-flex;
+    appearance: none;
+    padding: 0;
+    font: inherit;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;

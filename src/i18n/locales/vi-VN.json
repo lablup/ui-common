@@ -366,5 +366,21 @@
   "uic.PagedSelector.totalItems": {
     "defaultMessage": "Tổng số {total} các mục",
     "description": "Foot of a selector's option list; {total} is how many options exist in all pages"
+  },
+  "uic.Board.directionUp": {
+    "defaultMessage": "Lên",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one row up"
+  },
+  "uic.Board.directionDown": {
+    "defaultMessage": "Xuống",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one row down"
+  },
+  "uic.Board.directionLeft": {
+    "defaultMessage": "Sang trái",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one column left"
+  },
+  "uic.Board.directionRight": {
+    "defaultMessage": "Sang phải",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one column right"
   }
 }

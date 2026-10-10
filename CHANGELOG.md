@@ -1530,7 +1530,8 @@ mid-migration.
   validation, and a clean external React install fixture.
 - Apache-2.0 license and the initial public boundary rules.
 
-[Unreleased]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.17...HEAD
+[Unreleased]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.18...HEAD
+[0.2.0-alpha.18]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.17...v0.2.0-alpha.18
 [0.2.0-alpha.17]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.16...v0.2.0-alpha.17
 [0.2.0-alpha.16]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.15...v0.2.0-alpha.16
 [0.2.0-alpha.15]: https://github.com/lablup/ui-common/compare/v0.2.0-alpha.14...v0.2.0-alpha.15

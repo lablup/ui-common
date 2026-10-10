@@ -386,5 +386,21 @@
   "uic.DataGrid.export": {
     "defaultMessage": "エクスポート",
     "description": "Primary button of a data grid's CSV export dialog"
+  },
+  "uic.Board.directionUp": {
+    "defaultMessage": "上へ",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one row up"
+  },
+  "uic.Board.directionDown": {
+    "defaultMessage": "下へ",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one row down"
+  },
+  "uic.Board.directionLeft": {
+    "defaultMessage": "左へ",
+    "description": "Accessible name of the button that moves an activated board item, or shrinks a resized one, one column left"
+  },
+  "uic.Board.directionRight": {
+    "defaultMessage": "右へ",
+    "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one column right"
   }
 }
