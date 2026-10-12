@@ -61,6 +61,8 @@ describe("analyze-pr.mjs", () => {
     write("src/components/StatCard/index.ts");
     write("src/components/StatCard/StatCard.tsx");
     write("src/components/Modal/Modal.tsx");
+    write("src/components/Old/index.ts", "export {};");
+    write("src/components/Old/Old.tsx", "export const Old = 1;");
     write("src/hooks/index.ts");
     git("add", "-A");
     git("commit", "-q", "-m", "base");
@@ -72,6 +74,7 @@ describe("analyze-pr.mjs", () => {
     write("src/components/Fresh/index.ts");
     write("src/components/Fresh/Fresh.tsx");
     write("src/hooks/index.ts", "changed");
+    git("mv", "src/components/Old", "src/components/Renamed");
     git("add", "-A");
     git("commit", "-q", "-m", "pr");
     return repo;
@@ -115,8 +118,11 @@ describe("analyze-pr.mjs", () => {
 
     expect(analysis.diffMode).toBe("three-dot");
     // A test-only change is not a component change.
+    // A rename shows up under both the old and the new directory.
     expect(analysis.components.map((c: { name: string }) => c.name)).toEqual([
       "Fresh",
+      "Old",
+      "Renamed",
       "StatCard",
     ]);
 
@@ -134,7 +140,11 @@ describe("analyze-pr.mjs", () => {
 
     const fresh = analysis.components.find((c: { name: string }) => c.name === "Fresh");
     expect(fresh).toMatchObject({ isNew: true, hasStories: false });
-    expect(analysis.summary.newWithoutStories).toBe(1);
+    const renamed = analysis.components.find(
+      (c: { name: string }) => c.name === "Renamed",
+    );
+    expect(renamed).toMatchObject({ isNew: true });
+    expect(analysis.summary.newWithoutStories).toBe(2);
     expect(analysis.otherSourceFiles).toEqual(["src/hooks/index.ts"]);
   });
 });

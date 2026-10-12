@@ -109,6 +109,7 @@ jobs:
             vite.config.ts
             tsconfig.json
             scripts/layer-order.mjs
+            scripts/build-defines.mjs
           )
           if ! git diff --quiet "origin/${{ github.base_ref }}...HEAD" -- "${BUILD_INPUTS[@]}"; then
             echo "A build input outside src/ changed — skipping the base build (not comparable)."

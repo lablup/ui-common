@@ -47,10 +47,17 @@ function changedFiles() {
     raw
       .split("\n")
       .filter(Boolean)
-      .map((line) => {
-        const [status, ...rest] = line.split("\t");
-        // Renames are `R100\told\tnew` — the new path is what we care about.
-        return { status: status[0], file: rest[rest.length - 1] };
+      .flatMap((line) => {
+        const [status, ...paths] = line.split("\t");
+        // A rename (`R100\told\tnew`) changes both directories: report it as
+        // the old path deleted and the new one added.
+        if (status[0] === "R") {
+          return [
+            { status: "D", file: paths[0] },
+            { status: "A", file: paths[1] },
+          ];
+        }
+        return [{ status: status[0], file: paths[paths.length - 1] }];
       });
 
   const threeDot = () => parse(git(["diff", "--name-status", `${base}...${head}`]));

@@ -51,6 +51,8 @@ function useFakePages() {
   useEffect(() => {
     const id = ++request.current;
     setIsLoading(true);
+    // A page still loading for the old query is dropped below; clear its flag.
+    setIsLoadingMore(false);
     setOptions([]);
     fetchPage(query, 0).then(({ items, total }) => {
       if (id !== request.current) return;
