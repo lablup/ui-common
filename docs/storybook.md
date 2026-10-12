@@ -67,7 +67,12 @@ type Story = StoryObj<typeof meta>;
 - `satisfies Meta<typeof X>`, not `: Meta<…>`, so `args` stay type-checked.
 - `args`: every required prop, with realistic values.
 - `argTypes`: only for union props, as `select` or `inline-radio` with the
-  values spelled out. Everything else gets its control from the prop types.
+  values spelled out, and for the rule below. Everything else gets its control
+  from the prop types.
+- A prop that takes a React element (`children`, `icon`, `actions`, `footer`,
+  …) gets `control: false` when the stories pass it one. Controls would show
+  the element as an object, including the component's whole source. The prop
+  still renders and stays in the props table; only the edit field goes.
 - Import the component relatively (`./StatCard`), never from
   `@lablup/ui-common`.
 - A generic component takes its type argument in both places:

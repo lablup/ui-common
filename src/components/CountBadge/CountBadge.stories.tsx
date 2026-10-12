@@ -16,6 +16,7 @@ const meta = {
     children: anchor,
   },
   argTypes: {
+    children: { control: false },
     size: { control: "inline-radio", options: ["sm", "md"] },
     variant: {
       control: "select",

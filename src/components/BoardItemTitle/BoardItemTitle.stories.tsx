@@ -8,6 +8,9 @@ import { withMaxWidth } from "../../stories/helpers";
 const meta = {
   title: "Components/BoardItemTitle",
   component: BoardItemTitle,
+  argTypes: {
+    endContent: { control: false },
+  },
   args: {
     title: "Active sessions",
   },

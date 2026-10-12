@@ -10,6 +10,9 @@ const sampleImage = `data:image/svg+xml,${encodeURIComponent(
 const meta = {
   title: "Components/ImageWithFallback",
   component: ImageWithFallback,
+  argTypes: {
+    fallbackIcon: { control: false },
+  },
   args: {
     src: sampleImage,
     alt: "Sample logo",

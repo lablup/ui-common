@@ -7,6 +7,9 @@ import { PageHeader } from "./PageHeader";
 const meta = {
   title: "Components/PageHeader",
   component: PageHeader,
+  argTypes: {
+    actions: { control: false },
+  },
   args: {
     title: "Sessions",
     description: "Compute sessions running in this project.",

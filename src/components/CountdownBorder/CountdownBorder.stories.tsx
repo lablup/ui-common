@@ -9,6 +9,9 @@ import { CountdownBorder } from "./CountdownBorder";
 const meta = {
   title: "Components/CountdownBorder",
   component: CountdownBorder,
+  argTypes: {
+    children: { control: false },
+  },
   args: {
     durationMs: 5000,
     children: <IconButton label="Refresh" icon={<RotateCw size={16} />} />,

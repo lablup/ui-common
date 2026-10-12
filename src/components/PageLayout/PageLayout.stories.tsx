@@ -33,6 +33,7 @@ const meta = {
   parameters: { layout: "fullscreen" },
   args: { children: content },
   argTypes: {
+    children: { control: false },
     variant: { control: "inline-radio", options: ["standard", "wide", "full"] },
   },
 } satisfies Meta<typeof PageLayout>;

@@ -13,6 +13,8 @@ const meta = {
     onOpenChange: fn(),
   },
   argTypes: {
+    content: { control: false },
+    icon: { control: false },
     placement: { control: "select", options: ["above", "below", "start", "end"] },
   },
   decorators: [

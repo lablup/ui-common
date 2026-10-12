@@ -13,6 +13,7 @@ const meta = {
     primaryAction: { label: "Retry", onClick: fn() },
   },
   argTypes: {
+    icon: { control: false },
     tone: { control: "inline-radio", options: ["danger", "warning", "accent"] },
   },
 } satisfies Meta<typeof ErrorState>;

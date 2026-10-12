@@ -27,6 +27,9 @@ function BackupOption() {
 const meta = {
   title: "Components/DeleteConfirmModal",
   component: DeleteConfirmModal,
+  argTypes: {
+    extraContent: { control: false },
+  },
   args: {
     isOpen: true,
     onOpenChange: fn(),

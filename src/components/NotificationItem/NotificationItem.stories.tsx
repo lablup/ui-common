@@ -7,6 +7,9 @@ import { withMaxWidth } from "../../stories/helpers";
 const meta = {
   title: "Components/NotificationItem",
   component: NotificationItem,
+  argTypes: {
+    action: { control: false },
+  },
   args: {
     title: "Upload finished",
     description: "report.csv",

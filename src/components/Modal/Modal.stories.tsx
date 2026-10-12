@@ -21,6 +21,8 @@ const meta = {
     children: <Text>The new name applies to every member of the project.</Text>,
   },
   argTypes: {
+    children: { control: false },
+    footer: { control: false },
     variant: { control: "inline-radio", options: ["standard", "fullscreen"] },
     purpose: { control: "inline-radio", options: ["info", "form", "required"] },
     actionVariant: {
