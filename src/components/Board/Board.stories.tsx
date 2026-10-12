@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
@@ -39,6 +40,21 @@ const WIDGETS: BoardItem<Widget>[] = [
   },
 ];
 
+function WidgetCard({
+  widget,
+  endContent,
+}: {
+  widget: Widget;
+  endContent?: ReactNode;
+}) {
+  return (
+    <div style={{ display: "grid", gap: 8, padding: 12 }}>
+      <BoardItemTitle title={widget.title} endContent={endContent} />
+      <p style={{ margin: 0 }}>{widget.body}</p>
+    </div>
+  );
+}
+
 const meta = {
   title: "Components/Board",
   component: Board<Widget>,
@@ -50,12 +66,7 @@ const meta = {
   },
   args: {
     items: WIDGETS,
-    renderItem: (item) => (
-      <div style={{ display: "grid", gap: 8, padding: 12 }}>
-        <BoardItemTitle title={item.data.title} />
-        <p style={{ margin: 0 }}>{item.data.body}</p>
-      </div>
-    ),
+    renderItem: (item) => <WidgetCard widget={item.data} />,
     onItemsChange: fn(),
     variant: "bordered",
   },
@@ -76,15 +87,12 @@ export const Editable: Story = {
         {...args}
         items={items}
         renderItem={(item, { removeItem }) => (
-          <div style={{ display: "grid", gap: 8, padding: 12 }}>
-            <BoardItemTitle
-              title={item.data.title}
-              endContent={
-                <Button label="Remove" variant="ghost" size="sm" onClick={removeItem} />
-              }
-            />
-            <p style={{ margin: 0 }}>{item.data.body}</p>
-          </div>
+          <WidgetCard
+            widget={item.data}
+            endContent={
+              <Button label="Remove" variant="ghost" size="sm" onClick={removeItem} />
+            }
+          />
         )}
         onItemsChange={(detail) => {
           args.onItemsChange(detail);
