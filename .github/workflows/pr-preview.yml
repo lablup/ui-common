@@ -36,6 +36,8 @@ on:
       - .storybook/**
       - package.json
       - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - scripts/build-defines.mjs
       - .github/workflows/pr-preview.yml
       - .github/scripts/pr-preview/**
 

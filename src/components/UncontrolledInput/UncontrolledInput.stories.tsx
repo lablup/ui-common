@@ -1,15 +1,14 @@
-import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { VStack } from "../../astryx/Stack";
 import { Text } from "../../astryx/Text";
 import { UncontrolledInput, type UncontrolledInputProps } from "./UncontrolledInput";
-import { withMaxWidth } from "../../stories/helpers";
+import { useArgState, withMaxWidth } from "../../stories/helpers";
 
 /** Shows the last committed value, so it is visible that typing alone commits nothing. */
 function WithCommittedValue(args: UncontrolledInputProps) {
-  const [committed, setCommitted] = useState(args.defaultValue ?? "");
+  const [committed, setCommitted] = useArgState(args.defaultValue ?? "");
   return (
     <VStack gap={2} align="stretch">
       <UncontrolledInput

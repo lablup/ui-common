@@ -1,12 +1,12 @@
-import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { ColorPicker, type ColorPickerProps } from "./ColorPicker";
+import { useArgState } from "../../stories/helpers";
 
 /** Holds the colour in state; clearing sets it to `null`. */
 function ControlledColorPicker(args: ColorPickerProps) {
-  const [value, setValue] = useState<string | null | undefined>(args.value);
+  const [value, setValue] = useArgState<string | null | undefined>(args.value);
   return (
     <ColorPicker
       {...args}

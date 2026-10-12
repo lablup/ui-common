@@ -6,13 +6,13 @@ import { InputGroup } from "../../astryx/InputGroup";
 import { NumberInput } from "../../astryx/NumberInput";
 import { getNextStepIndex, NumberStepper } from "./NumberStepper";
 import { StepNumberInput, type StepNumberInputProps } from "./StepNumberInput";
-import { withMaxWidth } from "../../stories/helpers";
+import { useArgState, withMaxWidth } from "../../stories/helpers";
 
 const MEMORY_STEPS = [0.25, 0.5, 1, 2, 4, 8, 16];
 
 /** Holds the value in state, so the stepper and typing both update the field. */
 function ControlledStepNumberInput(args: StepNumberInputProps) {
-  const [value, setValue] = useState(args.value ?? args.steps[0] ?? 0);
+  const [value, setValue] = useArgState(args.value ?? args.steps[0] ?? 0);
   return (
     <StepNumberInput
       {...args}

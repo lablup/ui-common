@@ -1,9 +1,9 @@
-import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { Button } from "../../astryx/Button";
 import { ComplexSelector, type ComplexSelectorProps } from "./ComplexSelector";
+import { useArgState } from "../../stories/helpers";
 
 type Plan = "starter" | "team" | "enterprise";
 type Value = Plan | undefined;
@@ -39,7 +39,7 @@ function PlanList({
 
 /** Holds the value, so selecting and clearing change the trigger. */
 function SelectorDemo(args: ComplexSelectorProps<Value>) {
-  const [value, setValue] = useState<Value>(args.value);
+  const [value, setValue] = useArgState<Value>(args.value);
   return (
     <ComplexSelector<Value>
       {...args}

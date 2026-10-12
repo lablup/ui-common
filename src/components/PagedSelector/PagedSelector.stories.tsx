@@ -8,7 +8,7 @@ import {
   type PagedSelectorOption,
   type PagedSelectorSingleProps,
 } from "./PagedSelector";
-import { withMaxWidth } from "../../stories/helpers";
+import { useArgState, withMaxWidth } from "../../stories/helpers";
 
 const ALL_ITEMS: PagedSelectorOption[] = Array.from({ length: 120 }, (_, i) => {
   const n = String(i + 1).padStart(3, "0");
@@ -85,7 +85,7 @@ function useFakePages() {
 
 function SingleSelector(args: PagedSelectorSingleProps) {
   const pages = useFakePages();
-  const [value, setValue] = useState<string | null>(args.value ?? null);
+  const [value, setValue] = useArgState<string | null>(args.value ?? null);
   return (
     <PagedSelector
       {...args}
@@ -101,13 +101,13 @@ function SingleSelector(args: PagedSelectorSingleProps) {
 
 function MultipleSelector(args: Omit<PagedSelectorMultipleProps, "isMultiple">) {
   const pages = useFakePages();
-  const [value, setValue] = useState<string[]>([...(args.value ?? [])]);
+  const [value, setValue] = useArgState(args.value);
   return (
     <PagedSelector
       {...args}
       {...pages}
       isMultiple
-      value={value}
+      value={value ?? []}
       onChange={(next, items) => {
         setValue(next);
         args.onChange?.(next, items);
