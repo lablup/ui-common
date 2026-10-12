@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { StatCard } from "./StatCard";
+import { withMaxWidth } from "../../stories/helpers";
 
 const meta = {
   title: "Components/StatCard",
@@ -19,13 +20,7 @@ const meta = {
       options: ["compact", "default", "prominent"],
     },
   },
-  decorators: [
-    (Story) => (
-      <div style={{ maxWidth: 280 }}>
-        <Story />
-      </div>
-    ),
-  ],
+  decorators: [withMaxWidth(280)],
 } satisfies Meta<typeof StatCard>;
 
 export default meta;

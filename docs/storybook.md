@@ -70,6 +70,11 @@ type Story = StoryObj<typeof meta>;
   values spelled out. Everything else gets its control from the prop types.
 - Import the component relatively (`./StatCard`), never from
   `@lablup/ui-common`.
+- A generic component takes its type argument in both places:
+  `component: DataGrid<Resource>` and `satisfies Meta<typeof DataGrid<Resource>>`.
+- If `tsc` reports TS2742 on `meta` (the inferred type names an Astryx internal
+  path), annotate instead: `const meta: Meta<typeof X> = {…}` with
+  `type Story = StoryObj<typeof X>`.
 
 ## Stories
 
@@ -80,6 +85,31 @@ type Story = StoryObj<typeof meta>;
   one story per variant.
 - Callback props take `fn()` from `storybook/test`, so calls show in the
   Actions panel.
+- Interactive state lives in `render` (with `useArgs`) or in a small named
+  component in the stories file, not in a hook called from an arrow function.
+
+## Overlays
+
+Modals, drawers, popovers and notification stacks portal out of the story.
+Use the helpers in `src/stories/helpers.tsx`:
+
+```tsx
+parameters: overlayDocs("400px"),
+render: function Render(args) {
+  const setOpen = useOpenArg(args.onOpenChange);
+  return (
+    <>
+      <Button label="Open modal" onClick={() => setOpen(true)} />
+      <Modal {...args} onOpenChange={setOpen} />
+    </>
+  );
+},
+```
+
+- `overlayDocs(height)` gives each story its own frame on the Documentation
+  page, so an open overlay does not cover it.
+- `useOpenArg` keeps the `isOpen` arg, the Controls panel and the Actions panel
+  in step. Start with `isOpen: true` so the story shows the overlay.
 
 ## Docs
 
@@ -91,14 +121,16 @@ document a prop in the component, not in the story.
 
 The global decorator (`.storybook/decorators.tsx`) already wraps every story in
 `<Theme>` and Astryx's `InternationalizationProvider`. A story adds no provider
-of its own. A story-level decorator is for layout only, such as a width limit.
+of its own. A story-level decorator is for layout only: `withMaxWidth(360)` from
+`src/stories/helpers.tsx` for a component that fills its container.
 
 ## Content
 
 - Sample text in English. Built-in strings (Retry, Dismiss) come from the
   catalog and follow the locale toolbar; pass them as props only when the story
   is about overriding them.
-- No styles in stories. A component that needs CSS to look right is missing it.
+- No styles in stories beyond layout (a grid of variants, a scroll container's
+  height). A component that needs CSS to look right is missing it.
 - This repository is public, and `pnpm check:boundary` scans `src/`. Use
   generic sample data: no internal hostnames, people or unannounced products.
 

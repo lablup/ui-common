@@ -261,6 +261,7 @@ export default defineConfig({
       exclude: [
         "src/**/*.test.*",
         "src/**/*.stories.*",
+        "src/stories/**",
         "src/test/**",
         "src/theme/*/built/**",
       ],
