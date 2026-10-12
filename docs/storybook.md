@@ -10,11 +10,33 @@ pnpm build-storybook    # static build in storybook-static/
 
 ## Where
 
-- One `<Name>.stories.tsx` per component, in the component's directory:
-  `src/components/StatCard/StatCard.stories.tsx`.
-- A directory that holds several components (`Skeleton/`) gets one stories
-  file per component: `SkeletonCard.stories.tsx`, `SkeletonText.stories.tsx`.
+- One stories file per component directory, named after the directory:
+  `src/components/StatCard/StatCard.stories.tsx`. A directory is one entry in
+  the Storybook sidebar.
 - Forks of Astryx components (`src/forks/<Name>/`) follow the same rule.
+
+### A directory with several components
+
+`Skeleton/` exports `SkeletonCard`, `SkeletonText`, `SkeletonRow` and
+`SkeletonChart`. It still gets one file, `Skeleton.stories.tsx`, titled
+`Components/Skeleton`:
+
+- `component` is the one most used; the rest go in `subcomponents`, so the
+  Documentation page shows every member's props.
+- One story per member, named after it (`Card`, `Text`, `Row`, `Chart`),
+  rendering that member with `render`. A member's variants or states follow,
+  prefixed with its name (`CardVariants`).
+
+```tsx
+const meta = {
+  title: "Components/Skeleton",
+  component: SkeletonCard,
+  subcomponents: { SkeletonText, SkeletonRow, SkeletonChart },
+} satisfies Meta<typeof SkeletonCard>;
+
+export const Card: Story = {};
+export const Text: Story = { render: () => <SkeletonText /> };
+```
 
 ## Meta
 
