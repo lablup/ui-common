@@ -9,7 +9,14 @@ import { Text } from "../../astryx/Text";
 import { TextInput, type TextInputProps } from "../../astryx/TextInput";
 import { StepNumberInput } from "../StepNumberInput";
 import FormRoot from "./Form";
-import { ErrorList, Form, FormItem, FormList, type FormProps } from "./index";
+import {
+  ErrorList,
+  Form,
+  FormItem,
+  FormItemVisual,
+  FormList,
+  type FormProps,
+} from "./index";
 
 /**
  * `TextInput` requires `value`; inside `Form.Item` the item supplies it, so
@@ -184,7 +191,7 @@ const meta = {
   title: "Components/Form",
   // `Form` itself: its static members (`Form.Item`, ...) are not part of the props.
   component: FormRoot,
-  subcomponents: { FormItem, FormList, ErrorList },
+  subcomponents: { FormItem, FormItemVisual, FormList, ErrorList },
   args: {
     onFinish: fn(),
     onFinishFailed: fn(),
@@ -209,4 +216,40 @@ export const HorizontalLayout: Story = {
 
 export const List: Story = {
   render: (args) => <MembersForm {...args} />,
+};
+
+/**
+ * `FormItemVisual`: an item's layout without the form engine, for a field whose
+ * value and status the caller manages itself.
+ */
+export const ItemVisual: Story = {
+  render: () => (
+    <VStack gap={2} align="stretch" style={{ maxWidth: 480 }}>
+      <FormItemVisual
+        label="Project name"
+        required
+        status="error"
+        hasFeedback
+        errors={["Enter a project name."]}
+      >
+        <TextField label="Project name" isLabelHidden />
+      </FormItemVisual>
+      <FormItemVisual
+        label="Contact email"
+        status="warning"
+        hasFeedback
+        warnings={["This address has not been verified."]}
+      >
+        <TextField label="Contact email" isLabelHidden value="owner@example.com" />
+      </FormItemVisual>
+      <FormItemVisual
+        label="Region"
+        status="success"
+        hasFeedback
+        extra="Closest to your team."
+      >
+        <TextField label="Region" isLabelHidden value="North" />
+      </FormItemVisual>
+    </VStack>
+  ),
 };

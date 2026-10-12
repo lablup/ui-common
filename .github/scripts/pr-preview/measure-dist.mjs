@@ -22,8 +22,12 @@ if (!distDir || !output) {
   process.exit(1);
 }
 
+// Sorted, so a group's hash depends on its files and not on directory order.
 function* walk(dir) {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+  const entries = readdirSync(dir, { withFileTypes: true }).sort((a, b) =>
+    a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
+  );
+  for (const entry of entries) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) yield* walk(path);
     else yield path;
