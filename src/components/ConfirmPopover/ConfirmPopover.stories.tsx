@@ -19,6 +19,8 @@ const meta = {
     children: <Button label="Deactivate" />,
   },
   argTypes: {
+    // The trigger element; editing it as JSON in Controls only breaks it.
+    children: { control: false },
     actionVariant: {
       control: "select",
       options: ["primary", "secondary", "ghost", "destructive"],
