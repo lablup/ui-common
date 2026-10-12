@@ -1,1 +1,0 @@
-import{t as e}from"./iframe-DCNg6pyh.js";e();
