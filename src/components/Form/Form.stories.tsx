@@ -187,6 +187,35 @@ function MembersForm(props: FormProps) {
   );
 }
 
+/** `labelExtra`: an action in the label row, outside the `<label>`. */
+function LabelExtraForm(props: FormProps) {
+  const [ascending, setAscending] = useState(true);
+  const options = ascending ? REGIONS : [...REGIONS].reverse();
+  return (
+    <Form layout="vertical" {...props} style={{ maxWidth: 480 }}>
+      <FormItem
+        name="region"
+        label="Region"
+        labelExtra={
+          <Button
+            variant="ghost"
+            size="sm"
+            label={ascending ? "Sort Z–A" : "Sort A–Z"}
+            onClick={() => setAscending((value) => !value)}
+          />
+        }
+      >
+        <Selector
+          label="Region"
+          isLabelHidden
+          options={options}
+          placeholder="Select a region"
+        />
+      </FormItem>
+    </Form>
+  );
+}
+
 const meta = {
   title: "Components/Form",
   // `Form` itself: its static members (`Form.Item`, ...) are not part of the props.
@@ -252,4 +281,8 @@ export const ItemVisual: Story = {
       </FormItemVisual>
     </VStack>
   ),
+};
+
+export const LabelExtra: Story = {
+  render: (args) => <LabelExtraForm {...args} />,
 };
