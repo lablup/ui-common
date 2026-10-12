@@ -42,16 +42,6 @@ const signed = (bytes) =>
 const link = (text, href) =>
   `<a href="${href}" target="_blank" rel="noopener noreferrer">${text}</a>`;
 
-// Story titles come from the PR's own tree, so they are escaped before they
-// reach the Markdown.
-const escapeText = (value) =>
-  String(value ?? "")
-    .replace(/\s+/g, " ")
-    .replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c])
-    .replace(/([\\`*_[\]|~])/g, "\\$1")
-    .trim()
-    .slice(0, 120);
-
 const out = [];
 out.push("## PR Analysis Report");
 out.push("");
@@ -99,17 +89,10 @@ if (analysis.components.length === 0) {
     ]
       .filter(Boolean)
       .join(" + ");
-    // One link per stories file in the directory, named by its story title
-    // when there is more than one.
-    const open = c.links
-      .map((l) =>
-        link(
-          c.links.length === 1 ? "Storybook ↗" : `${escapeText(l.title)} ↗`,
-          `${meta.storybookUrl}${l.deepLink}`,
-        ),
-      )
-      .join("<br>");
-    out.push(`| \`${label(c)}\` | ${changed} | ${c.storyCount} | ${open} |`);
+    out.push(
+      `| \`${label(c)}\` | ${changed} | ${c.storyCount} | ` +
+        `${link("Storybook ↗", `${meta.storybookUrl}${c.deepLink}`)} |`,
+    );
   }
   if (previewable.length > MAX_ROWS) {
     out.push(`| _…and ${previewable.length - MAX_ROWS} more_ | | | |`);

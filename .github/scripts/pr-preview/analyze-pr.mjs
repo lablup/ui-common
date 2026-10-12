@@ -97,29 +97,17 @@ function loadStoryEntries() {
 }
 
 /**
- * The stories built for one component directory, one link per story title
- * (a directory such as `Skeleton/` can hold several components, each with its
- * own stories file). The autodocs page comes first — it shows every story of
+ * Where a component directory's stories open (one stories file per directory,
+ * docs/storybook.md). The autodocs page comes first — it shows every story of
  * the component on one page, which is what a reviewer wants first.
  */
-function linksFor(dir, storyEntries) {
-  const byTitle = new Map();
-  for (const entry of storyEntries) {
-    if (!entry.importPath?.startsWith(`./${dir}`)) continue;
-    const list = byTitle.get(entry.title) ?? [];
-    list.push(entry);
-    byTitle.set(entry.title, list);
-  }
-  return [...byTitle.entries()]
-    .map(([title, entries]) => {
-      const preferred = entries.find((e) => e.type === "docs") ?? entries[0];
-      return {
-        title,
-        storyCount: entries.filter((e) => e.type === "story").length,
-        deepLink: `?path=/${preferred.type}/${preferred.id}`,
-      };
-    })
-    .sort((a, b) => a.title.localeCompare(b.title));
+function storiesFor(dir, storyEntries) {
+  const entries = storyEntries.filter((e) => e.importPath?.startsWith(`./${dir}`));
+  const preferred = entries.find((e) => e.type === "docs") ?? entries[0];
+  return {
+    storyCount: entries.filter((e) => e.type === "story").length,
+    deepLink: preferred ? `?path=/${preferred.type}/${preferred.id}` : null,
+  };
 }
 
 const { files, diffMode } = changedFiles();
@@ -137,14 +125,14 @@ for (const { status, file } of files) {
 
   let row = rows.get(dir);
   if (!row) {
-    const links = linksFor(dir, storyEntries);
+    const { storyCount, deepLink } = storiesFor(dir, storyEntries);
     row = {
       name,
       kind,
       dir,
-      links,
-      hasStories: links.length > 0,
-      storyCount: links.reduce((n, l) => n + l.storyCount, 0),
+      deepLink,
+      hasStories: deepLink !== null,
+      storyCount,
       sourceChanged: false,
       storiesChanged: false,
       isNew: false,

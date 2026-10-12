@@ -129,12 +129,7 @@ describe("analyze-pr.mjs", () => {
       storiesChanged: true,
       isNew: false,
       storyCount: 1,
-      links: [
-        {
-          title: "Components/StatCard",
-          deepLink: "?path=/docs/components-statcard--documentation",
-        },
-      ],
+      deepLink: "?path=/docs/components-statcard--documentation",
     });
 
     const fresh = analysis.components.find((c: { name: string }) => c.name === "Fresh");
@@ -153,18 +148,7 @@ describe("generate-pr-comment.mjs", () => {
         name: "Skeleton",
         kind: "components",
         dir: "src/components/Skeleton/",
-        links: [
-          {
-            title: "Components/SkeletonCard",
-            storyCount: 2,
-            deepLink: "?path=/docs/a",
-          },
-          {
-            title: "Components/SkeletonText",
-            storyCount: 1,
-            deepLink: "?path=/docs/b",
-          },
-        ],
+        deepLink: "?path=/docs/components-skeleton--documentation",
         hasStories: true,
         storyCount: 3,
         sourceChanged: true,
@@ -175,7 +159,7 @@ describe("generate-pr-comment.mjs", () => {
         name: "Fresh",
         kind: "components",
         dir: "src/components/Fresh/",
-        links: [],
+        deepLink: null,
         hasStories: false,
         storyCount: 0,
         sourceChanged: true,
@@ -184,7 +168,7 @@ describe("generate-pr-comment.mjs", () => {
       },
     ],
     otherSourceFiles: ["src/index.ts"],
-    summary: { componentsChanged: 2, newWithoutStories: 1, totalStories: 3 },
+    summary: { newWithoutStories: 1 },
   };
 
   it("links the preview and every changed component's stories", () => {
@@ -192,10 +176,9 @@ describe("generate-pr-comment.mjs", () => {
 
     expect(body).toContain("## PR Analysis Report");
     expect(body).toContain(`href="${META.storybookUrl}"`);
-    expect(body).toContain(`href="${META.storybookUrl}?path=/docs/a"`);
-    expect(body).toContain(`href="${META.storybookUrl}?path=/docs/b"`);
-    // Several stories files in one directory are told apart by title.
-    expect(body).toContain("Components/SkeletonCard ↗");
+    expect(body).toContain(
+      `href="${META.storybookUrl}?path=/docs/components-skeleton--documentation"`,
+    );
     expect(body).toContain("| `Skeleton` | source | 3 |");
     expect(body).toContain("New component(s) without a `*.stories.tsx`: `Fresh`");
     expect(body).toContain("1 changed component(s) with no story");
@@ -229,24 +212,5 @@ describe("generate-pr-comment.mjs", () => {
     expect(body).toContain(
       "**Total gzip (JS + CSS):** 3.5 kB (+1.0 kB vs `origin/main`)",
     );
-  });
-
-  it("escapes story titles from the PR's tree", () => {
-    const body = renderComment({
-      analysis: {
-        ...ANALYSIS,
-        components: [
-          {
-            ...ANALYSIS.components[0],
-            links: [
-              { title: "<img src=x>", storyCount: 1, deepLink: "?path=/docs/a" },
-              { title: "b", storyCount: 1, deepLink: "?path=/docs/b" },
-            ],
-          },
-        ],
-      },
-    });
-    expect(body).not.toContain("<img");
-    expect(body).toContain("&lt;img src=x&gt;");
   });
 });
