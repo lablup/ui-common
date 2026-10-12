@@ -4,7 +4,7 @@ import { fn } from "storybook/test";
 import { Button } from "../../astryx/Button";
 import type { DataGridColumn } from "../DataGrid/DataGrid";
 import { BulkErrorModal } from "./BulkErrorModal";
-import { overlayDocs, useOpenArg } from "../../stories/helpers";
+import { overlayDocs, useOpenState } from "../../stories/helpers";
 
 interface Failure {
   key: string;
@@ -42,11 +42,11 @@ const meta = {
   },
   parameters: overlayDocs("520px"),
   render: function Render(args) {
-    const setOpen = useOpenArg(args.onOpenChange);
+    const [isOpen, setOpen] = useOpenState(args.isOpen, args.onOpenChange);
     return (
       <>
         <Button label="Show errors" onClick={() => setOpen(true)} />
-        <BulkErrorModal {...args} onOpenChange={setOpen} />
+        <BulkErrorModal {...args} isOpen={isOpen} onOpenChange={setOpen} />
       </>
     );
   },

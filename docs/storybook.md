@@ -85,8 +85,10 @@ type Story = StoryObj<typeof meta>;
   one story per variant.
 - Callback props take `fn()` from `storybook/test`, so calls show in the
   Actions panel.
-- Interactive state lives in `render` (with `useArgs`) or in a small named
-  component in the stories file, not in a hook called from an arrow function.
+- Interactive state is React state, in a `function Render(args)` or a small
+  named component in the stories file. Never Storybook's `useArgs`: the global
+  decorator re-renders stories (dark mode, locale), and Storybook hooks throw
+  when that happens.
 
 ## Overlays
 
@@ -96,11 +98,11 @@ Use the helpers in `src/stories/helpers.tsx`:
 ```tsx
 parameters: overlayDocs("400px"),
 render: function Render(args) {
-  const setOpen = useOpenArg(args.onOpenChange);
+  const [isOpen, setOpen] = useOpenState(args.isOpen, args.onOpenChange);
   return (
     <>
       <Button label="Open modal" onClick={() => setOpen(true)} />
-      <Modal {...args} onOpenChange={setOpen} />
+      <Modal {...args} isOpen={isOpen} onOpenChange={setOpen} />
     </>
   );
 },
@@ -108,8 +110,9 @@ render: function Render(args) {
 
 - `overlayDocs(height)` gives each story its own frame on the Documentation
   page, so an open overlay does not cover it.
-- `useOpenArg` keeps the `isOpen` arg, the Controls panel and the Actions panel
-  in step. Start with `isOpen: true` so the story shows the overlay.
+- `useOpenState` holds the open state, starts from the `isOpen` arg (set it
+  to `true` so the story shows the overlay) and reports every change to the
+  Actions panel. `useArgState` is the same for any other arg a story changes.
 
 ## Docs
 

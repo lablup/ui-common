@@ -6,7 +6,7 @@ import { Button } from "../../astryx/Button";
 import { Text } from "../../astryx/Text";
 import { Modal } from "./Modal";
 import { ModalHeader } from "./index";
-import { overlayDocs, useOpenArg } from "../../stories/helpers";
+import { overlayDocs, useOpenState } from "../../stories/helpers";
 
 const meta = {
   title: "Components/Modal",
@@ -30,11 +30,11 @@ const meta = {
   },
   parameters: overlayDocs("400px"),
   render: function Render(args) {
-    const setOpen = useOpenArg(args.onOpenChange);
+    const [isOpen, setOpen] = useOpenState(args.isOpen, args.onOpenChange);
     return (
       <>
         <Button label="Open modal" onClick={() => setOpen(true)} />
-        <Modal {...args} onOpenChange={setOpen} />
+        <Modal {...args} isOpen={isOpen} onOpenChange={setOpen} />
       </>
     );
   },
@@ -93,11 +93,11 @@ export const Bare: Story = {
 /** `ModalHeader` builds a header by hand, for a surface without the generated one. */
 export const Header: Story = {
   render: function Render(args) {
-    const setOpen = useOpenArg(args.onOpenChange);
+    const [isOpen, setOpen] = useOpenState(args.isOpen, args.onOpenChange);
     return (
       <>
         <Button label="Open modal" onClick={() => setOpen(true)} />
-        <Modal isOpen={args.isOpen} onOpenChange={setOpen}>
+        <Modal isOpen={isOpen} onOpenChange={setOpen}>
           <ModalHeader
             title="Folder details"
             subtitle="Read only"
@@ -116,12 +116,12 @@ export const Header: Story = {
 export const Nested: Story = {
   render: function Render(args) {
     const [isInnerOpen, setIsInnerOpen] = useState(false);
-    const setOpen = useOpenArg(args.onOpenChange);
+    const [isOpen, setOpen] = useOpenState(args.isOpen, args.onOpenChange);
     return (
       <>
         <Button label="Open modal" onClick={() => setOpen(true)} />
         <Modal
-          isOpen={args.isOpen}
+          isOpen={isOpen}
           onOpenChange={setOpen}
           title="Project settings"
           footer={null}

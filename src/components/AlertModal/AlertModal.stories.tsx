@@ -3,7 +3,7 @@ import { fn } from "storybook/test";
 
 import { Button } from "../../astryx/Button";
 import { AlertModal } from "./AlertModal";
-import { overlayDocs, useOpenArg } from "../../stories/helpers";
+import { overlayDocs, useOpenState } from "../../stories/helpers";
 
 const meta = {
   title: "Components/AlertModal",
@@ -24,11 +24,11 @@ const meta = {
   },
   parameters: overlayDocs("360px"),
   render: function Render(args) {
-    const setOpen = useOpenArg(args.onOpenChange);
+    const [isOpen, setOpen] = useOpenState(args.isOpen, args.onOpenChange);
     return (
       <>
         <Button label="Open alert" onClick={() => setOpen(true)} />
-        <AlertModal {...args} onOpenChange={setOpen} />
+        <AlertModal {...args} isOpen={isOpen} onOpenChange={setOpen} />
       </>
     );
   },

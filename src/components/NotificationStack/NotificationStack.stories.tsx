@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { Key } from "react";
-import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
 
 import { NotificationItem } from "../NotificationItem/NotificationItem";
 import { NotificationStack, type NotificationStackItem } from "./NotificationStack";
-import { overlayDocs } from "../../stories/helpers";
+import { overlayDocs, useArgState } from "../../stories/helpers";
 
 const meta = {
   title: "Components/NotificationStack",
@@ -25,14 +24,14 @@ const meta = {
   parameters: overlayDocs("400px"),
   // The caller owns the list: closing a notice removes it here.
   render: function Render(args) {
-    const [, updateArgs] = useArgs();
+    const [notifications, setNotifications] = useArgState(args.notifications);
     const onClose = (key: Key) => {
       args.onClose?.(key);
-      updateArgs({
-        notifications: args.notifications.filter((item) => item.key !== key),
-      });
+      setNotifications((items) => items.filter((item) => item.key !== key));
     };
-    return <NotificationStack {...args} onClose={onClose} />;
+    return (
+      <NotificationStack {...args} notifications={notifications} onClose={onClose} />
+    );
   },
 } satisfies Meta<typeof NotificationStack>;
 

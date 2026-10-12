@@ -5,7 +5,7 @@ import { fn } from "storybook/test";
 import { Button } from "../../astryx/Button";
 import { CheckboxInput } from "../../astryx/CheckboxInput";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
-import { overlayDocs, useOpenArg } from "../../stories/helpers";
+import { overlayDocs, useOpenState } from "../../stories/helpers";
 
 const folders = (count: number) =>
   Array.from({ length: count }, (_, index) => ({
@@ -35,11 +35,11 @@ const meta = {
   },
   parameters: overlayDocs("440px"),
   render: function Render(args) {
-    const setOpen = useOpenArg(args.onOpenChange);
+    const [isOpen, setOpen] = useOpenState(args.isOpen, args.onOpenChange);
     return (
       <>
         <Button label="Delete" variant="destructive" onClick={() => setOpen(true)} />
-        <DeleteConfirmModal {...args} onOpenChange={setOpen} />
+        <DeleteConfirmModal {...args} isOpen={isOpen} onOpenChange={setOpen} />
       </>
     );
   },

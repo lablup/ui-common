@@ -2,19 +2,41 @@
  * Shared pieces for `*.stories.tsx` (docs/storybook.md). Storybook only: the
  * library build and its declarations skip this directory.
  */
+import { useState } from "react";
 import type { Decorator } from "@storybook/react-vite";
-import { useArgs } from "storybook/preview-api";
 
 /**
- * The `isOpen` arg as a setter for an overlay's `onOpenChange`: it reports to
- * the Actions panel and updates the arg, so the Controls panel stays in sync.
+ * Local state that starts from an arg and resets when the arg changes in the
+ * Controls panel.
+ *
+ * React state, not Storybook's `useArgs`: the global decorator re-renders the
+ * story (dark mode, a locale catalog arriving), and Storybook hooks throw when
+ * React re-renders a story outside Storybook's own render pass.
  */
-export function useOpenArg(onOpenChange: (isOpen: boolean) => void) {
-  const [, updateArgs] = useArgs();
-  return (isOpen: boolean) => {
-    onOpenChange(isOpen);
-    updateArgs({ isOpen });
+export function useArgState<T>(arg: T) {
+  const [value, setValue] = useState(arg);
+  const [prevArg, setPrevArg] = useState(arg);
+  if (arg !== prevArg) {
+    setPrevArg(arg);
+    setValue(arg);
+  }
+  return [value, setValue] as const;
+}
+
+/**
+ * An overlay's open state, from its `isOpen` arg. The setter also reports to
+ * `onOpenChange`, so the Actions panel logs every change.
+ */
+export function useOpenState(
+  isOpen: boolean | undefined,
+  onOpenChange: (isOpen: boolean) => void,
+) {
+  const [open, setOpen] = useArgState(Boolean(isOpen));
+  const change = (next: boolean) => {
+    setOpen(next);
+    onOpenChange(next);
   };
+  return [open, change] as const;
 }
 
 /**
