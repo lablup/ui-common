@@ -1,1 +1,0 @@
-import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./jsx-runtime-DeHZSEgm.js";import{n,t as r}from"./Stack-VqQQX3OB.js";function i({ref:e,justify:t,align:n,hAlign:i,vAlign:o,...s}){return(0,a.jsx)(r,{...s,direction:`vertical`,hAlign:i??n,vAlign:o??t,ref:e})}var a;function o(){return(o=e((()=>{n(),a=t(),i.displayName=`VStack`})))()}export{o as n,i as t};
