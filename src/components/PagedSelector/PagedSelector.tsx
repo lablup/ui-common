@@ -97,9 +97,12 @@ type Passthrough = Pick<
   | "placement"
   | "alignment"
   | "onOpenChange"
-  | "xstyle"
-  | "className"
-  | "style"
+  | "containerXstyle"
+  | "containerClassName"
+  | "containerStyle"
+  | "controlXstyle"
+  | "controlClassName"
+  | "controlStyle"
   | "data-testid"
 >;
 

@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/lab 0.6.5-canary.8701623, src/Drawer/Drawer.tsx
+// Forked from @astryxdesign/lab 0.7.0-canary.97a0d31, src/Drawer/Drawer.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -72,6 +72,20 @@
  * `DrawerHeader` with `onOpenChange` for a visible close action, as with
  * `DialogHeader`.
  *
+ * The scrolling content area is the drawer's container, like Dialog's inner
+ * box: the `padding` prop, else the theme's `padding` on `drawer`, insets it
+ * through container tokens, defaulting to `--spacing-4` like Dialog, and the
+ * applied inset is published so a lone Section child escapes it and a Layout
+ * redistributes it to its regions. Compose `DrawerHeader` inside a `Layout`, as
+ * `DialogHeader` is composed in Dialog, so the header is not padded twice. The
+ * root dialog stays the overlay boundary (`overlayPaddingReset`).
+ *
+ * SYNC: When modified, update these files to stay in sync:
+ * - /packages/lab/src/Drawer/Drawer.doc.mjs (props table, features, usage)
+ * - /packages/lab/src/Drawer/Drawer.test.tsx (tests for new/changed behavior)
+ * - /packages/lab/src/Drawer/Drawer.spec.md (component contract)
+ * - /packages/lab/src/Drawer/index.ts (exports if types change)
+ * - /apps/storybook/stories/Drawer.stories.tsx (examples and visual coverage)
  */
 
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
@@ -82,7 +96,15 @@ import type { DialogPurpose } from "@astryxdesign/core/Dialog";
 import { useFocusTrap, useMergedRefs, useScrollLock } from "@astryxdesign/core/hooks";
 import { LayerDepthProvider, useLayerDismissal } from "@astryxdesign/core/Layer";
 import { composeEventHandlers, mergeProps, themeProps } from "@astryxdesign/core/utils";
-import { overlayPaddingReset } from "@astryxdesign/core/Layout";
+import { container, overlayPaddingReset } from "@astryxdesign/core/Layout";
+import {
+  containerPaddingBlockEndVarStyles,
+  containerPaddingBlockStartVarStyles,
+  containerPaddingInlineVarStyles,
+  paddingStyles,
+  spacingStepToToken,
+} from "@astryxdesign/core/Layout/padding.stylex";
+import type { SpacingStep, SpacingToken } from "@astryxdesign/core/Layout";
 
 import { compiledStyles } from "../compiled";
 import * as compiled from "./Drawer.styles";
@@ -124,11 +146,6 @@ function registerNonModalDrawer(id: string): number {
 function unregisterNonModalDrawer(id: string): void {
   openNonModalDrawers.delete(id);
 }
-
-// Upstream's `content` style, which its compiler folded into this class list
-// (dist/Drawer/Drawer.js).
-const CONTENT_CLASS_NAME =
-  "x1iyjqo2 x2lwn1j xh8yej3 x1odjw0f x6ikm8r xish69e xx69xxh x1a148e8 x1a2a7pz";
 
 // =============================================================================
 // Types
@@ -207,6 +224,17 @@ export interface DrawerProps extends BaseProps<HTMLDialogElement> {
   purpose?: DialogPurpose;
 
   /**
+   * Internal padding of the drawer content using the spacing scale, matching
+   * Dialog. Accepts numeric spacing steps: 0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8,
+   * 10. When omitted, uses the theme default for drawers (`--spacing-4`, 16px,
+   * unless the theme sets `padding` on `drawer`), as Dialog does. Pass `0` for
+   * a full-bleed content area. The content area is a container: a Section that
+   * is its only child escapes the padding, bleed children such as Table and
+   * Divider compensate against it, and a Layout picks it up for its regions.
+   */
+  padding?: SpacingStep;
+
+  /**
    * Drawer content. Rendered inside a full-height scrollable area.
    * Focus the element with `data-autofocus` on open, if present.
    */
@@ -238,6 +266,11 @@ export interface DrawerProps extends BaseProps<HTMLDialogElement> {
  * close the drawer, and `DrawerHeader` renders a close button when given
  * `onOpenChange`.
  *
+ * Like Dialog, the drawer is a container: `padding` (or a theme's `padding`
+ * on `drawer`) insets the content area, a lone Section child escapes that
+ * inset, and a Layout inside picks it up for its header, content, and footer
+ * regions. The default inset is `--spacing-4`, matching Dialog.
+ *
  * @example
  * ```
  * const [selected, setSelected] = useState(null);
@@ -246,8 +279,10 @@ export interface DrawerProps extends BaseProps<HTMLDialogElement> {
  *   isOpen={selected != null}
  *   onOpenChange={handleOpenChange}
  *   label={`Details: ${selected?.name}`}>
- *   <DrawerHeader title={selected?.name} onOpenChange={handleOpenChange} />
- *   <HostDetails host={selected} />
+ *   <Layout
+ *     header={<DrawerHeader title={selected?.name} onOpenChange={handleOpenChange} />}
+ *     content={<LayoutContent><HostDetails host={selected} /></LayoutContent>}
+ *   />
  * </Drawer>
  * ```
  */
@@ -260,6 +295,7 @@ export function Drawer({
   label,
   hasScrim = true,
   purpose = "info",
+  padding,
   children,
   xstyle,
   className,
@@ -277,6 +313,12 @@ export function Drawer({
   // Derive dismissal behavior from purpose, as Dialog does.
   const allowEscape = purpose !== "required";
   const allowScrimClick = purpose === "info";
+  // Same lowering as Dialog: with no padding prop the content area reads the
+  // theme's --astryx-drawer-padding chain (--spacing-4 when unset), else the
+  // explicit step.
+  const usesThemePadding = padding == null;
+  const effectivePadding = padding ?? 4;
+  const paddingToken = spacingStepToToken[effectivePadding] as SpacingToken;
   // Whether the panel paints: true while open and for the whole slide-out.
   const [isRendered, setIsRendered] = useState(isOpen);
 
@@ -420,7 +462,35 @@ export function Drawer({
       <LayerDepthProvider>
         {/* Scrollable content area — tabIndex so the dialog's focusing steps
             land on the panel body rather than the first button inside. */}
-        <div tabIndex={-1} className={CONTENT_CLASS_NAME}>
+        <div
+          tabIndex={-1}
+          {...stylex.props(
+            styles.content,
+            ...container(
+              usesThemePadding
+                ? { useThemeDefault: "drawer" }
+                : {
+                    paddingInnerX: paddingToken,
+                    paddingInnerY: paddingToken,
+                    paddingOuterX: paddingToken,
+                    paddingOuterY: paddingToken,
+                  },
+            ),
+            !usesThemePadding &&
+              effectivePadding !== 4 &&
+              paddingStyles[effectivePadding],
+            !usesThemePadding &&
+              effectivePadding !== 4 &&
+              containerPaddingInlineVarStyles[effectivePadding],
+            !usesThemePadding &&
+              effectivePadding !== 4 &&
+              containerPaddingBlockStartVarStyles[effectivePadding],
+            !usesThemePadding &&
+              effectivePadding !== 4 &&
+              containerPaddingBlockEndVarStyles[effectivePadding],
+            styles.contentSafeArea,
+          )}
+        >
           <ModalPortalContext value={modalHost}>{children}</ModalPortalContext>
         </div>
       </LayerDepthProvider>

@@ -1,23 +1,20 @@
 {
   "ComplexSelector": {
     "package": "@astryxdesign/core",
-    "version": "0.6.5",
+    "version": "0.7.0",
     "upstream": "https://github.com/facebook/astryx/pull/6362",
     "files": {
-      "src/ComplexSelector/ComplexSelector.tsx": "c7b7c7462dd7dd321befd79b94a25413907e83a6691f66bb73007826bb887ee3",
-      "src/ComplexSelector/index.ts": "c33bc95b12e5c3dc3834469b9e057f66f0cb1979c366f880cf24517c710c4314",
-      "src/ComplexSelector/ComplexSelector.test.tsx": "ff7d2a1754cb460cf45266e5ea96ab64c9e6b5a61b8cc7a322e8f54a7884a93a",
+      "src/ComplexSelector/ComplexSelector.tsx": "9343db919000a47d1a9de2466417320fa819e3182f7d780266b8847189659536",
+      "src/ComplexSelector/index.ts": "afba2b6a8d7b7e686cae84eb033c2ad4eafc8b48c8f30997022a1597d943b359",
+      "src/ComplexSelector/ComplexSelector.test.tsx": "ab8c68f949c9d59cfa62d91ee790992de02eb5ce406d6711d519df2ffbaa28ff",
       "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
-      "dist/ComplexSelector/ComplexSelector.js": "ad045e743acb232a469769d4ce6babfbe20aba401de659927b92f01feac15a04",
-      "dist/utils/interactionOverlay.stylex.js": "e7213810b186baa7fbabcbf665e4e7428fe367f2a47f2ec4bbca83e7b8c53efe"
+      "dist/ComplexSelector/ComplexSelector.js": "be465f539f7bcef4338f959b6f86c023bb8f1b0dc0b19ae4d9ea12e64ae7859a",
+      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
     },
     "styles": {
       "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
       "from": [
-        {
-          "file": "dist/ComplexSelector/ComplexSelector.js",
-          "consts": ["styles"]
-        },
+        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -27,15 +24,15 @@
   },
   "Drawer": {
     "package": "@astryxdesign/lab",
-    "version": "0.6.5-canary.8701623",
+    "version": "0.7.0-canary.97a0d31",
     "upstream": null,
     "notes": "Deliberate divergence beyond a fix: a scrimless drawer opens with show() and a z-index (base 1000, later drawers above) instead of lab 0.6.5's manual popover, because ui-common's Modal and notification stack are z-index surfaces a top-layer drawer would cover; aria-modal passes through; a scrimmed (modal) drawer provides its dialog through ModalPortalContext so ui-common's Modal opened inside renders there, in the top layer. Escape routing is upstream's. On an Astryx bump, keep these until ui-common's Modal and notification stack are top layer and lab passes aria-modal through.",
     "files": {
-      "src/Drawer/Drawer.tsx": "5e97093a6aabe2ae9761c68c8a62272f12aeadcf9c7f745e218655b460707298",
+      "src/Drawer/Drawer.tsx": "117abff3861956f7a9fc9799ad65e6824e74aab8db3a7aed4fc3c9370a5a0a59",
       "src/Drawer/useDrawerDialogPresence.ts": "abc5e33ec791f38a5f41d17b6dac2946db9477b9f921fd52dccc6c14ae7be57b",
       "src/Drawer/index.ts": "8fdd7454ab0e3e7037860801a91ccefeb545f455813872394dba86ef2dc50d9b",
-      "src/Drawer/Drawer.test.tsx": "24f673d83a100ddff7b5aabd469ccc744e703e63a40010734000cfa9087e6b02",
-      "dist/Drawer/Drawer.js": "30b2b7e77708e7b7b13d96b373590bc20daf76e1d8ccc9f723d0cd1d721d8499"
+      "src/Drawer/Drawer.test.tsx": "f99ac4299e215c281470780354cd17bb81c817297bddc31e332cf2a297f82398",
+      "dist/Drawer/Drawer.js": "247a302c5c0f929091e08bf9c536feeafbb01cea298a5c19144d92b6147c14e1"
     },
     "styles": {
       "file": "src/forks/Drawer/Drawer.styles.ts",
@@ -49,25 +46,20 @@
   },
   "Tour": {
     "package": "@astryxdesign/lab",
-    "version": "0.6.5-canary.8701623",
+    "version": "0.7.0-canary.97a0d31",
     "upstream": null,
     "files": {
-      "src/Tour/Tour.tsx": "a379030d01f7e2f0d2b2cdae25aafdeacb6b5dd1c858d5cdb7511d8556735325",
+      "src/Tour/Tour.tsx": "22a39b4c8d6a0ad73e9392bfe6e50deb9eba2831c70bb54e6227b875dc240554",
       "src/Tour/TourStep.tsx": "8977c221017d9a8b466528f1e9ba3d652308a3446d6d42afbfac25c8401da038",
       "src/Tour/TourContext.ts": "638a4cde7e3b10952a04dc1d86de5e2fbc3fff88c7ed12243e30f072458dff36",
       "src/Tour/useTour.ts": "431878830f7c070e7520dd8c402e6c8cfab1e5ececefa289b3058791ec0ac49b",
       "src/Tour/index.ts": "127c290fb8ed1a977d282e0dd407724c0f133634ec8f38b515dc038f1da2efa8",
-      "src/Tour/Tour.test.tsx": "1df4a3d933bc4ca06b882864b91d7dfc0c8302fc7dd3ee34a652f83a9fdec867",
+      "src/Tour/Tour.test.tsx": "1cdae08a08cda7aa0a9ed29456cb7efa8c6e57135d3d1ab2ce18735f36cfd1ad",
       "dist/Tour/TourStep.js": "67b192f77652222b3a0eafac98ea1397a224108e0f35d4534efca261a27c64b5"
     },
     "styles": {
       "file": "src/forks/Tour/TourStep.styles.ts",
-      "from": [
-        {
-          "file": "dist/Tour/TourStep.js",
-          "consts": ["styles"]
-        }
-      ]
+      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
     }
   }
 }

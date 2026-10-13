@@ -1,6 +1,6 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 //
-// Forked from @astryxdesign/lab 0.6.5-canary.8701623, src/Drawer/useDrawerDialogPresence.ts
+// Forked from @astryxdesign/lab 0.7.0-canary.97a0d31, src/Drawer/useDrawerDialogPresence.ts
 // (MIT; see NOTICE). Changed (marked `ui-common:`): a non-modal drawer opens
 // with `show()`, not `showPopover()`, so it stays out of the top layer (Drawer.tsx).
 // Provenance and the drift guard: src/forks/provenance.json.

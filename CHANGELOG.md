@@ -5,6 +5,43 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.19]
+
+Astryx 0.6.5 → 0.7.0 (`@astryxdesign/lab` 0.7.0-canary.97a0d31). Astryx's
+own release notes: https://github.com/facebook/astryx/releases/tag/v0.7.0
+(rem spacing, 16px phone typography, Field-composed input styling parts,
+Banner live regions, data-color tokens in StyleX).
+
+### Changed
+
+- **Astryx 0.7.0, which is breaking for Field-composed inputs.**
+  `TextInput`, `Selector`, `ComplexSelector`, the date and time inputs,
+  `Typeahead`, `Tokenizer`, `CheckboxList`, `RadioList` and `Slider` no
+  longer take a root `xstyle` / `className` / `style`: style the Field box
+  with `containerXstyle` / `containerClassName` / `containerStyle` and the
+  control box with `controlXstyle` / `controlClassName` / `controlStyle`.
+  `pnpm exec ui-common upgrade --from 0.2.0-alpha.18` runs Astryx's 0.6.7
+  and 0.7.0 codemods (`migrate-field-input-styling`,
+  `rename-empty-search-results-text`, `preserve-bottom-sheet-content-padding`,
+  `migrate-deprecated-theme-surface`, `validate-data-token-ownership`), moves
+  the lab canary to `0.7.0-canary.97a0d31` and its core override to `0.7.0`,
+  and bumps the `@lablup/ui-common` / `@lablup/ui-common-cli` pins.
+- **`PagedSelector` follows the same contract**: `xstyle` / `className` /
+  `style` are replaced by the `container*` and `control*` props it passes to
+  `ComplexSelector`.
+- `Banner` no longer derives `role="status"` / `role="alert"` from `status`
+  (Astryx #6630). `NotificationStack` sets the role it had explicitly
+  (`alert` for an error or warning, `status` otherwise), so notices are
+  still announced. A `Banner` or `ListBanner` placed by a consumer is now
+  silent unless it passes a `role` or announces with `useAnnounce`.
+- Core spacing tokens are rem, and phone typography starts at 16px in the
+  Neutral theme; the Lablup theme was rebuilt with `astryx theme build`.
+- The `ComplexSelector`, `Drawer` and `Tour` forks are re-taken from 0.7.0.
+  `ComplexSelector` gains Astryx's `renderTrigger` (and the exported
+  `ComplexSelectorRenderTriggerProps`); `Drawer` takes lab's `padding` prop
+  and container inset. Both keep their fixes (`hasClear` / `onClear`; the
+  z-index host, `aria-modal` passthrough and the `Modal` portal host).
+
 ### Added
 
 - **`Form.Item` / `FormItemVisual` take `labelExtra`** for actions that belong
@@ -15,6 +52,18 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   column stops clipping so its focus ring stays whole. Horizontal and inline
   layout put it right after the label, and the colon moves to the end of the
   slot. Ignored without a `label`.
+
+- New mirrored subpaths: `theme/dataTokens.stylex`, `theme/neutral/fonts.css`,
+  `Markdown/plugin-renderer`, and the StyleX helper modules Astryx now
+  exports (`DateInput/tokens.stylex`, `Icon/IconSize.stylex`,
+  `Indicator/indicator.markers.stylex`, `Layer/layerAnimations.stylex`,
+  `Layer/layerTextReset.stylex`, `Layer/layerViewportInset.stylex`,
+  `Layout/container.stylex`, `Layout/edgeCompensation.stylex`,
+  `Layout/padding.stylex`, `NavItem/navItemStyles.stylex`,
+  `Selector/selectorPresentation.stylex`, `Stack/stack.stylex`,
+  `Stack/stackItem.stylex`, `Text/text.stylex`, `utils/focusOutline.stylex`,
+  `utils/interactionOverlay.stylex`). New root names include the
+  `*MenuGroup` components. No subpath was removed.
 
 ## [0.2.0-alpha.18]
 

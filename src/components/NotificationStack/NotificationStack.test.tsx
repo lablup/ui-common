@@ -52,6 +52,27 @@ describe("NotificationStack", () => {
     expect(screen.getByTestId("notification-title")).toHaveTextContent("Saved");
   });
 
+  it("announces each notice: an error or warning as an alert, the rest as a status", () => {
+    render(
+      <NotificationStack
+        notifications={[
+          { key: "e", title: "Failed", status: "error" },
+          { key: "w", title: "Careful", status: "warning" },
+          { key: "s", title: "Saved", status: "success" },
+          { key: "i", title: "FYI" },
+        ]}
+      />,
+    );
+    const roleOf = (key: string) =>
+      document
+        .querySelector(`[data-notification-key='${key}'] > [role]`)
+        ?.getAttribute("role");
+    expect(roleOf("e")).toBe("alert");
+    expect(roleOf("w")).toBe("alert");
+    expect(roleOf("s")).toBe("status");
+    expect(roleOf("i")).toBe("status");
+  });
+
   it("wraps a description in the scrollable body, never the notice itself", () => {
     render(
       <NotificationStack

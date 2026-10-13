@@ -334,7 +334,13 @@ describe("upgrade registry", () => {
   it("registers the Astryx 0.6.5 codemods under 0.2.0-alpha.16", async () => {
     expect(registeredVersions()).toContain("0.2.0-alpha.16");
     expect(await stepsBetween("0.2.0-alpha.15", "0.2.0-alpha.16")).toHaveLength(1);
-    expect(await stepsBetween("0.2.0-alpha.16", "0.2.0")).toHaveLength(0);
+    expect(await stepsBetween("0.2.0-alpha.16", "0.2.0-alpha.18")).toHaveLength(0);
+  });
+
+  it("registers the Astryx 0.7.0 codemods under 0.2.0-alpha.19", async () => {
+    expect(registeredVersions()).toContain("0.2.0-alpha.19");
+    expect(await stepsBetween("0.2.0-alpha.18", "0.2.0-alpha.19")).toHaveLength(1);
+    expect(await stepsBetween("0.2.0-alpha.19", "0.2.0")).toHaveLength(0);
   });
 
   it("maps every removed export onto something the installed Astryx exports", () => {
