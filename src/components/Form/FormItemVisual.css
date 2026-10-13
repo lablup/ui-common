@@ -152,6 +152,60 @@
     visibility: hidden;
   }
 
+  /* `labelExtra`: the label column becomes a flex row and the colon moves from
+     the label to the end of the slot. Vertical pushes the slot to the far end. */
+  .uic-form-item__label-col[data-has-label-extra] {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .uic-form-item__label-col[data-has-label-extra][data-align="left"] {
+    justify-content: flex-start;
+  }
+
+  /* `overflow: visible` keeps the flush-right button's focus ring unclipped. */
+  .uic-form-item[data-layout="vertical"]
+    .uic-form-item__label-col[data-has-label-extra] {
+    justify-content: space-between;
+    overflow: visible;
+  }
+
+  .uic-form-item__label-col[data-has-label-extra] > .uic-form-item__label {
+    min-width: 0;
+  }
+
+  /* A too-narrow column clips the label text instead of painting it over the slot. */
+  .uic-form-item__label-col[data-has-label-extra]:not([data-wrap])
+    > .uic-form-item__label {
+    overflow: hidden;
+  }
+
+  .uic-form-item__label-col[data-has-label-extra] > .uic-form-item__label::after {
+    content: none;
+  }
+
+  .uic-form-item__label-extra {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    margin-inline-start: var(--spacing-1);
+  }
+
+  .uic-form-item__label-extra::after {
+    content: ":";
+    margin-inline-start: var(--spacing-0-5);
+    margin-inline-end: var(--spacing-2);
+  }
+
+  .uic-form-item__label-extra[data-no-colon]::after {
+    content: "\a0";
+  }
+
+  .uic-form-item[data-layout="vertical"] .uic-form-item__label-extra::after {
+    content: none;
+  }
+
   .uic-form-item__optional {
     display: inline-block;
     margin-inline-start: var(--spacing-1);
