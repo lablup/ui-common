@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
+import storybook from "eslint-plugin-storybook";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
@@ -10,6 +11,7 @@ export default tseslint.config(
       "coverage",
       "fixture/node_modules",
       "fixture/dist",
+      "storybook-static",
       // `astryx theme build` output, committed as generated.
       "src/theme/*/built/**",
       // Consumer code the upgrade codemods run on, and their expected output.
@@ -70,6 +72,12 @@ export default tseslint.config(
     files: ["src/components/Form/**"],
     rules: { "@typescript-eslint/no-explicit-any": "off" },
   },
+  ...storybook.configs["flat/recommended"],
+  {
+    // Storybook's own config runs in Node (main.ts, vite.config.ts).
+    files: [".storybook/main.ts", ".storybook/vite.config.ts"],
+    languageOptions: { globals: globals.node },
+  },
   {
     files: ["**/*.test.{ts,tsx}", "src/test/**"],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
@@ -77,6 +85,7 @@ export default tseslint.config(
   {
     files: [
       "scripts/**/*.mjs",
+      ".github/scripts/**/*.mjs",
       "packages/cli/{bin,cli,codemods,scripts}/**/*.mjs",
       "*.config.{js,ts}",
     ],

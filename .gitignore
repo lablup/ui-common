@@ -8,3 +8,5 @@ coverage/
 fixture/node_modules/
 fixture/dist/
 fixture/pnpm-lock.yaml
+storybook-static/
+*storybook.log

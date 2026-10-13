@@ -1,0 +1,27 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Introduction" />
+
+# @lablup/ui-common
+
+Lablup's UI layer on top of [Astryx](https://github.com/facebook/astryx): the
+Astryx surface re-exported 1:1, the Lablup brand theme, and the components
+Lablup products share.
+
+The stories here cover ui-common's own components. Astryx's components are
+documented by Astryx.
+
+## Toolbar
+
+- **Theme**: the Lablup brand theme, or Astryx's neutral baseline. A component
+  that only looks right under Lablup is assuming the brand.
+- **Locale**: the locale handed to Astryx's `InternationalizationProvider`,
+  with Astryx's and ui-common's catalogs. Built-in strings follow it.
+- **Dark mode**: the moon icon. It switches the `mode` of `<Theme>`.
+
+## Writing a story
+
+See [docs/storybook.md](https://github.com/lablup/ui-common/blob/main/docs/storybook.md).
+
+See the [README](https://github.com/lablup/ui-common#readme) for installing
+and setting up the package in an app.
