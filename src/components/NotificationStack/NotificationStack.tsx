@@ -229,6 +229,9 @@ function NotificationStackItemView({
           )
         }
         icon={item.icon}
+        // Astryx 0.7 no longer derives a live role from `status`; a notice
+        // arrives asynchronously, so it keeps the one it had.
+        role={item.status === "error" || item.status === "warning" ? "alert" : "status"}
         // Banner is normally in flow; a floating notice needs a shadow.
         elevation="high"
         isDismissable={item.isClosable ?? true}
@@ -370,7 +373,7 @@ export function NotificationStack({
       className={["uic-notification-stack", className].filter(Boolean).join(" ")}
       data-testid={testId}
       {...{ [MODAL_LIVE_ATTRIBUTE]: "" }}
-      // Each Banner announces itself; the container stays out of the tree.
+      // Each Banner announces itself (its explicit role); the container stays out of the tree.
       role="presentation"
     >
       {stillExiting.map((item) => (

@@ -1,0 +1,44 @@
+{
+  "$comment": "Written by `ui-common sync-astryx`. Astryx codemods consumers need when they upgrade across this ui-common version; `ui-common upgrade` runs them with @lablup/ui-common specifiers swapped for Astryx's, and moves the consumer's lab pin and core override.",
+  "astryx": {
+    "from": "0.6.5",
+    "to": "0.7.0"
+  },
+  "lab": {
+    "from": "0.6.5-canary.8701623",
+    "to": "0.7.0-canary.97a0d31"
+  },
+  "codemods": [
+    {
+      "id": "migrate-copied-themes-to-descriptors",
+      "version": "0.6.7",
+      "title": "Give copied app themes their local descriptors"
+    },
+    {
+      "id": "migrate-deprecated-theme-surface",
+      "version": "0.7.0",
+      "title": "Migrate removed component theme aliases and selectors"
+    },
+    {
+      "id": "validate-data-token-ownership",
+      "version": "0.7.0",
+      "title": "Validate data-token ownership"
+    },
+    {
+      "id": "migrate-field-input-styling",
+      "version": "0.7.0",
+      "title": "Migrate input root styling to container/control parts"
+    },
+    {
+      "id": "preserve-bottom-sheet-content-padding",
+      "version": "0.7.0",
+      "title": "Preserve BottomSheet content padding"
+    },
+    {
+      "id": "rename-empty-search-results-text",
+      "version": "0.7.0",
+      "title": "Rename emptySearchResultsText to emptySearchText"
+    }
+  ],
+  "optional": []
+}

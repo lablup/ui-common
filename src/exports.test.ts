@@ -187,6 +187,7 @@ describe("forks of Astryx components", () => {
     "ComplexSelectorHandle",
     "ComplexSelectorProps",
     "ComplexSelectorRenderState",
+    "ComplexSelectorRenderTriggerProps",
     "ComplexSelectorSize",
     "ComplexSelectorStatus",
     "ComplexSelectorVariant",

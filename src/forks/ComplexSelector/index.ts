@@ -8,6 +8,7 @@ export type {
   ComplexSelectorHandle,
   ComplexSelectorProps,
   ComplexSelectorRenderState,
+  ComplexSelectorRenderTriggerProps,
   ComplexSelectorSize,
   ComplexSelectorStatus,
   ComplexSelectorVariant,

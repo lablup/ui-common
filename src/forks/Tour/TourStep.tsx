@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/lab 0.6.5-canary.8701623, src/Tour/TourStep.tsx
+// Forked from @astryxdesign/lab 0.7.0-canary.97a0d31, src/Tour/TourStep.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";

@@ -102,14 +102,14 @@ there):
 
 ```yaml
 overrides:
-  "@astryxdesign/lab>@astryxdesign/core": "0.6.5"
+  "@astryxdesign/lab>@astryxdesign/core": "0.7.0"
 ```
 
 npm, in the root `package.json`:
 
 ```json
 "overrides": {
-  "@astryxdesign/lab": { "@astryxdesign/core": "0.6.5" }
+  "@astryxdesign/lab": { "@astryxdesign/core": "0.7.0" }
 }
 ```
 

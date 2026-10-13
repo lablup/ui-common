@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/lab 0.6.5-canary.8701623, src/Tour/Tour.test.tsx
+// Forked from @astryxdesign/lab 0.7.0-canary.97a0d31, src/Tour/Tour.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
 // in the *.fork.test.tsx beside it.
 // Provenance and the drift guard: src/forks/provenance.json.
@@ -18,7 +18,7 @@
 
 import { describe, it, expect, vi, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { useRef, useState } from "react";
+import { Profiler, useRef, useState } from "react";
 import { Tour } from "./Tour";
 import { TourStep } from "./TourStep";
 import { useTour } from "./useTour";
@@ -262,5 +262,57 @@ describe("useTour", () => {
     expect(last.index).toBe(0);
     expect(last.first).toBe(true);
     expect(last.last).toBe(false);
+  });
+});
+
+describe("Tour reset timing", () => {
+  function StepProbe() {
+    const tour = useTour();
+    return <output data-testid="step-index">{tour?.activeStepIndex}</output>;
+  }
+
+  function Harness({ isActive }: { isActive: boolean }) {
+    const aRef = useRef<HTMLButtonElement>(null);
+    const bRef = useRef<HTMLButtonElement>(null);
+    return (
+      <>
+        <button type="button" ref={aRef}>
+          Target A
+        </button>
+        <button type="button" ref={bRef}>
+          Target B
+        </button>
+        <Tour isActive={isActive} onDismiss={() => {}}>
+          <StepProbe />
+          <TourStep targetRef={aRef} heading="First">
+            First body
+          </TourStep>
+          <TourStep targetRef={bRef} heading="Second">
+            Second body
+          </TourStep>
+        </Tour>
+      </>
+    );
+  }
+
+  it("resets to the first step in the same commit that deactivates the tour", () => {
+    const frames: string[] = [];
+    const onRender = () =>
+      frames.push(screen.getByTestId("step-index").textContent ?? "");
+    const ui = (isActive: boolean) => (
+      <Profiler id="tour" onRender={onRender}>
+        <Harness isActive={isActive} />
+      </Profiler>
+    );
+    const { rerender } = render(ui(true));
+    fireEvent.click(screen.getByText("Next"));
+    expect(screen.getByTestId("step-index")).toHaveTextContent("1");
+
+    frames.length = 0;
+    rerender(ui(false));
+
+    expect(frames.length).toBeGreaterThan(0);
+    expect(frames).not.toContain("1");
+    expect(screen.getByTestId("step-index")).toHaveTextContent("0");
   });
 });

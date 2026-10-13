@@ -1,6 +1,6 @@
 {
   "name": "@lablup/ui-common",
-  "version": "0.2.0-alpha.18",
+  "version": "0.2.0-alpha.19",
   "description": "Lablup's UI layer on Astryx: the Astryx surface re-exported 1:1, the Lablup theme, and shared components",
   "license": "Apache-2.0",
   "author": "Lablup Inc.",
@@ -79,9 +79,77 @@
       "types": "./dist/astryx/theme/tokens.stylex.d.ts",
       "import": "./dist/astryx/theme/tokens.stylex.js"
     },
+    "./theme/dataTokens.stylex": {
+      "types": "./dist/astryx/theme/dataTokens.stylex.d.ts",
+      "import": "./dist/astryx/theme/dataTokens.stylex.js"
+    },
     "./theme/syntax": {
       "types": "./dist/astryx/theme/syntax.d.ts",
       "import": "./dist/astryx/theme/syntax.js"
+    },
+    "./DateInput/tokens.stylex": {
+      "types": "./dist/astryx/DateInput/tokens.stylex.d.ts",
+      "import": "./dist/astryx/DateInput/tokens.stylex.js"
+    },
+    "./Icon/IconSize.stylex": {
+      "types": "./dist/astryx/Icon/IconSize.stylex.d.ts",
+      "import": "./dist/astryx/Icon/IconSize.stylex.js"
+    },
+    "./Indicator/indicator.markers.stylex": {
+      "types": "./dist/astryx/Indicator/indicator.markers.stylex.d.ts",
+      "import": "./dist/astryx/Indicator/indicator.markers.stylex.js"
+    },
+    "./Layer/layerAnimations.stylex": {
+      "types": "./dist/astryx/Layer/layerAnimations.stylex.d.ts",
+      "import": "./dist/astryx/Layer/layerAnimations.stylex.js"
+    },
+    "./Layer/layerTextReset.stylex": {
+      "types": "./dist/astryx/Layer/layerTextReset.stylex.d.ts",
+      "import": "./dist/astryx/Layer/layerTextReset.stylex.js"
+    },
+    "./Layer/layerViewportInset.stylex": {
+      "types": "./dist/astryx/Layer/layerViewportInset.stylex.d.ts",
+      "import": "./dist/astryx/Layer/layerViewportInset.stylex.js"
+    },
+    "./Layout/container.stylex": {
+      "types": "./dist/astryx/Layout/container.stylex.d.ts",
+      "import": "./dist/astryx/Layout/container.stylex.js"
+    },
+    "./Layout/edgeCompensation.stylex": {
+      "types": "./dist/astryx/Layout/edgeCompensation.stylex.d.ts",
+      "import": "./dist/astryx/Layout/edgeCompensation.stylex.js"
+    },
+    "./Layout/padding.stylex": {
+      "types": "./dist/astryx/Layout/padding.stylex.d.ts",
+      "import": "./dist/astryx/Layout/padding.stylex.js"
+    },
+    "./NavItem/navItemStyles.stylex": {
+      "types": "./dist/astryx/NavItem/navItemStyles.stylex.d.ts",
+      "import": "./dist/astryx/NavItem/navItemStyles.stylex.js"
+    },
+    "./Selector/selectorPresentation.stylex": {
+      "types": "./dist/astryx/Selector/selectorPresentation.stylex.d.ts",
+      "import": "./dist/astryx/Selector/selectorPresentation.stylex.js"
+    },
+    "./Stack/stack.stylex": {
+      "types": "./dist/astryx/Stack/stack.stylex.d.ts",
+      "import": "./dist/astryx/Stack/stack.stylex.js"
+    },
+    "./Stack/stackItem.stylex": {
+      "types": "./dist/astryx/Stack/stackItem.stylex.d.ts",
+      "import": "./dist/astryx/Stack/stackItem.stylex.js"
+    },
+    "./Text/text.stylex": {
+      "types": "./dist/astryx/Text/text.stylex.d.ts",
+      "import": "./dist/astryx/Text/text.stylex.js"
+    },
+    "./utils/focusOutline.stylex": {
+      "types": "./dist/astryx/utils/focusOutline.stylex.d.ts",
+      "import": "./dist/astryx/utils/focusOutline.stylex.js"
+    },
+    "./utils/interactionOverlay.stylex": {
+      "types": "./dist/astryx/utils/interactionOverlay.stylex.d.ts",
+      "import": "./dist/astryx/utils/interactionOverlay.stylex.js"
     },
     "./locales/*.json": "./dist/locales/*.json",
     "./locales/*.generated.js": {
@@ -516,6 +584,10 @@
       "types": "./dist/astryx/Markdown/plugins.d.ts",
       "import": "./dist/astryx/Markdown/plugins.js"
     },
+    "./Markdown/plugin-renderer": {
+      "types": "./dist/astryx/Markdown/plugin-renderer.d.ts",
+      "import": "./dist/astryx/Markdown/plugin-renderer.js"
+    },
     "./Markdown/parser": {
       "types": "./dist/astryx/Markdown/parser.d.ts",
       "import": "./dist/astryx/Markdown/parser.js"
@@ -566,6 +638,7 @@
       "import": "./dist/astryx/theme/neutral/built.js"
     },
     "./theme/neutral/theme.css": "./dist/astryx/theme/neutral/theme.css",
+    "./theme/neutral/fonts.css": "./dist/astryx/theme/neutral/fonts.css",
     "./AlertModal": {
       "types": "./dist/components/AlertModal/index.d.ts",
       "import": "./dist/components/AlertModal/index.js"
@@ -604,8 +677,8 @@
     "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run theme:check && pnpm run test && pnpm run build && pnpm run check:pack && pnpm run check:integration"
   },
   "dependencies": {
-    "@astryxdesign/core": "0.6.5",
-    "@astryxdesign/theme-neutral": "0.6.5",
+    "@astryxdesign/core": "0.7.0",
+    "@astryxdesign/theme-neutral": "0.7.0",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/modifiers": "9.0.0",
     "@dnd-kit/sortable": "10.0.0",
@@ -614,7 +687,7 @@
     "lucide-react": "^1.18.0"
   },
   "peerDependencies": {
-    "@astryxdesign/lab": "0.6.5-canary.8701623",
+    "@astryxdesign/lab": "0.7.0-canary.97a0d31",
     "@stylexjs/stylex": "^0.19.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
@@ -625,8 +698,8 @@
     }
   },
   "devDependencies": {
-    "@astryxdesign/cli": "0.6.5",
-    "@astryxdesign/lab": "0.6.5-canary.8701623",
+    "@astryxdesign/cli": "0.7.0",
+    "@astryxdesign/lab": "0.7.0-canary.97a0d31",
     "@eslint/js": "^9.39.0",
     "@storybook/addon-docs": "^10.6.1",
     "@storybook/react-vite": "^10.6.1",
