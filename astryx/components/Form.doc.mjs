@@ -102,12 +102,12 @@ export default {
   ],
   usage: {
     description:
-      "Data-entry screens whose state, validation and submit need more than a few controlled fields. Form.Item's labelExtra puts actions (a filter or sort toggle) in the label row, outside the <label> so they stay out of the control's accessible name: at the far end in vertical layout, right after the label otherwise. Style hooks: .uic-form-item and its __label, __label-extra, __control, __explain-error, __extra elements, and --form-item-margin-bottom, --form-item-gap and --form-item-line-height. Help, extra and the tooltip glyph take the theme's --color-text-description when it declares one (default --color-text-secondary). A control reaches its item's status through Form.Item.useStatus() or FormItemInputContext.",
+      "Data-entry screens whose state, validation and submit need more than a few controlled fields. Form.Item's labelExtra puts actions (a filter or sort toggle) in the label row, outside the <label> so they stay out of the control's accessible name: at the far end in vertical layout, right after the label otherwise. Style hooks: .uic-form-item and its __label, __label-extra, __control, __explain-error, __extra elements, and --form-item-margin-bottom, --form-item-gap and --form-item-line-height. Help, extra and the tooltip glyph take the theme's --color-text-description when it declares one (default --color-text-secondary). ui-common's form controls (TextInput, Selector, Switch and the rest) take no label, description or status message of their own: the item owns them, and the control reads the item's status, id and disabled state itself. A custom control reaches its item's status through Form.Item.useStatus() or FormItemInputContext.",
   },
   examples: [
     {
       label: "A validated form",
-      code: 'import { Form } from "@lablup/ui-common/Form";\n\nconst [form] = Form.useForm();\n\n<Form form={form} layout="vertical" onFinish={save}>\n  <Form.Item name="name" label="Name" rules={[{ required: true }]}>\n    <TextInput label="Name" isLabelHidden />\n  </Form.Item>\n</Form>',
+      code: 'import { Form } from "@lablup/ui-common/Form";\n\nconst [form] = Form.useForm();\n\n<Form form={form} layout="vertical" onFinish={save}>\n  <Form.Item name="name" label="Name" rules={[{ required: true }]}>\n    <TextInput />\n  </Form.Item>\n</Form>',
     },
   ],
 };

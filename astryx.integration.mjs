@@ -29,6 +29,7 @@ export default {
       "Theme with <Theme theme={lablupTheme}> from @lablup/ui-common/theme/lablup/built (pairs with theme.css). Declare @layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities; first.",
       "ui-common strings resolve through Astryx InternationalizationProvider: pass uiCommonMessages from @lablup/ui-common/i18n-catalog in its messages.",
       "ComplexSelector, and lab's Drawer and Tour, come from ui-common: fixed copies of Astryx's, same API and import paths. ComplexSelector adds hasClear/onClear.",
+      "Form controls (TextInput, Selector, Switch, ...) take no label/description/isRequired/status message: put them in Form.Item, which owns label, extra, rules, help. status is 'error'|'warning' (border only).",
     ],
   },
   issuesUrl: "https://github.com/lablup/ui-common/issues",

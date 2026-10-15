@@ -43,5 +43,90 @@
     "name": "groups.doc.mjs",
     "replacedBy": null,
     "reason": "Documentation data for the Astryx CLI, not runtime API. The CLI reads it from @astryxdesign/core directly."
+  },
+  {
+    "name": "CheckboxInput",
+    "replacedBy": "CheckboxInput",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "CheckboxList",
+    "replacedBy": "CheckboxList",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "DateInput",
+    "replacedBy": "DateInput",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "DateRangeInput",
+    "replacedBy": "DateRangeInput",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "DateTimeInput",
+    "replacedBy": "DateTimeInput",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "FileInput",
+    "replacedBy": "FileInput",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "MultiSelector",
+    "replacedBy": "MultiSelector",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "NumberInput",
+    "replacedBy": "NumberInput",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "RadioList",
+    "replacedBy": "RadioList",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "Selector",
+    "replacedBy": "Selector",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "Slider",
+    "replacedBy": "Slider",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "Switch",
+    "replacedBy": "Switch",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "TextArea",
+    "replacedBy": "TextArea",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "TextInput",
+    "replacedBy": "TextInput",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "TimeInput",
+    "replacedBy": "TimeInput",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "Tokenizer",
+    "replacedBy": "Tokenizer",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "Typeahead",
+    "replacedBy": "Typeahead",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
   }
 ]

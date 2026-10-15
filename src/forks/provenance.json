@@ -14,7 +14,10 @@
     "styles": {
       "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
       "from": [
-        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
+        {
+          "file": "dist/ComplexSelector/ComplexSelector.js",
+          "consts": ["styles"]
+        },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -59,7 +62,86 @@
     },
     "styles": {
       "file": "src/forks/Tour/TourStep.styles.ts",
-      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
+      "from": [
+        {
+          "file": "dist/Tour/TourStep.js",
+          "consts": ["styles"]
+        }
+      ]
+    }
+  },
+  "Switch": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "Switch",
+    "files": {
+      "src/Switch/Switch.tsx": "cb3133544fa181874ef003f5f3b5f57c1ce7f7ff1ef1497e21c3b94387757aa5",
+      "src/Switch/index.ts": "b3e10a21443b08868eedcb4a26660145c16f7a06216e5e5bed85148c9d78168b",
+      "src/Switch/Switch.test.tsx": "fec38a2d49d10d677b5d52437430d0e89cf4ef2a03c6c223c0c2702b29b13e24",
+      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
+      "dist/Switch/Switch.js": "e61e25d042382abc686bc9fff6014967c0f392c9f7fbcba25771591d79a14d4e",
+      "dist/Switch/switch.markers.stylex.js": "2f75e0fa34b13fead69d5f2a58f70c7511ad743777e10db4384a4c71a3a418f9",
+      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
+    },
+    "styles": {
+      "file": "src/forks/Switch/Switch.styles.ts",
+      "from": [
+        {
+          "file": "dist/Switch/Switch.js",
+          "consts": [
+            "wrapperSizeStyles",
+            "inputSizeStyles",
+            "trackSizeStyles",
+            "thumbOffSizeStyles",
+            "thumbOnSizeStyles",
+            "labelWrapperSizeStyles",
+            "styles",
+            "dynamicWidthStyles"
+          ]
+        },
+        {
+          "file": "dist/Switch/switch.markers.stylex.js",
+          "consts": ["switchScope"]
+        },
+        {
+          "file": "dist/utils/interactionOverlay.stylex.js",
+          "consts": ["interactionOverlayStyles"]
+        }
+      ]
+    }
+  },
+  "CheckboxInput": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "CheckboxInput",
+    "files": {
+      "src/CheckboxInput/CheckboxInput.tsx": "f2737fde11f7c0ec2d7664bae924ccdc88e4c490c59e91764655f20d3a11ed7e",
+      "src/CheckboxInput/index.ts": "96c777158469fb6577150a33c5b8e6eb78ae2b2b6d2fd84eb3baf8c6da733cd2",
+      "src/CheckboxInput/CheckboxInput.test.tsx": "721ea33aaebe92780521682a047b6704792b9740b7fd31499c836d3c57f30e0e",
+      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
+      "src/CheckboxList/CheckboxListContext.tsx": "71ca207c4f0b76a3f94adde708d57ed7eae8a91ed2a302473d4816af0b6740b1",
+      "dist/CheckboxInput/CheckboxInput.js": "56fb5f38de7a67b068a7b0aa025f3a33fa1654cecd4464fa1af3fe2bf26c8b04",
+      "dist/Indicator/indicator.markers.stylex.js": "c8c67b02b729ebc8b03694d7399c701eb434cc68e094dcd358261144444bd5fb",
+      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
+    },
+    "styles": {
+      "file": "src/forks/CheckboxInput/CheckboxInput.styles.ts",
+      "from": [
+        {
+          "file": "dist/CheckboxInput/CheckboxInput.js",
+          "consts": ["styles", "wrapperSizeStyles", "dynamicWidthStyles"]
+        },
+        {
+          "file": "dist/Indicator/indicator.markers.stylex.js",
+          "consts": ["indicatorScope"]
+        },
+        {
+          "file": "dist/utils/interactionOverlay.stylex.js",
+          "consts": ["interactionOverlayStyles"]
+        }
+      ]
     }
   }
 }

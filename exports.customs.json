@@ -9,6 +9,18 @@
   { "name": "BooleanToken", "source": "components/BooleanToken/index.ts" },
   { "name": "BulkEditFormItem", "source": "components/BulkEditFormItem/index.ts" },
   { "name": "BulkErrorModal", "source": "components/BulkErrorModal/index.ts" },
+  {
+    "name": "CheckboxInput",
+    "source": "formControls/CheckboxInput/index.ts",
+    "subpath": "CheckboxInput",
+    "wraps": "@astryxdesign/core/CheckboxInput"
+  },
+  {
+    "name": "CheckboxList",
+    "source": "formControls/CheckboxList/index.ts",
+    "subpath": "CheckboxList",
+    "wraps": "@astryxdesign/core/CheckboxList"
+  },
   { "name": "ColorPicker", "source": "components/ColorPicker/index.ts" },
   {
     "name": "ComplexSelector",
@@ -20,6 +32,24 @@
   { "name": "CountBadge", "source": "components/CountBadge/index.ts" },
   { "name": "CountdownBorder", "source": "components/CountdownBorder/index.ts" },
   { "name": "DataGrid", "source": "components/DataGrid/index.ts" },
+  {
+    "name": "DateInput",
+    "source": "formControls/DateInput/index.ts",
+    "subpath": "DateInput",
+    "wraps": "@astryxdesign/core/DateInput"
+  },
+  {
+    "name": "DateRangeInput",
+    "source": "formControls/DateRangeInput/index.ts",
+    "subpath": "DateRangeInput",
+    "wraps": "@astryxdesign/core/DateRangeInput"
+  },
+  {
+    "name": "DateTimeInput",
+    "source": "formControls/DateTimeInput/index.ts",
+    "subpath": "DateTimeInput",
+    "wraps": "@astryxdesign/core/DateTimeInput"
+  },
   { "name": "DeleteConfirmModal", "source": "components/DeleteConfirmModal/index.ts" },
   { "name": "DigitPopIn", "source": "components/DigitPopIn/index.ts" },
   { "name": "DividedRow", "source": "components/DividedRow/index.ts" },
@@ -31,31 +61,103 @@
     "fork": "@astryxdesign/lab"
   },
   { "name": "ErrorState", "source": "components/ErrorState/index.ts" },
+  {
+    "name": "FileInput",
+    "source": "formControls/FileInput/index.ts",
+    "subpath": "FileInput",
+    "wraps": "@astryxdesign/core/FileInput"
+  },
   { "name": "Form", "source": "components/Form/index.ts", "subpath": "Form" },
   { "name": "IconWithTooltip", "source": "components/IconWithTooltip/index.ts" },
   { "name": "ImageWithFallback", "source": "components/ImageWithFallback/index.ts" },
   { "name": "ListBanner", "source": "components/ListBanner/index.ts" },
   { "name": "Modal", "source": "components/Modal/index.ts", "subpath": "Modal" },
+  {
+    "name": "MultiSelector",
+    "source": "formControls/MultiSelector/index.ts",
+    "subpath": "MultiSelector",
+    "wraps": "@astryxdesign/core/MultiSelector"
+  },
   { "name": "NotificationItem", "source": "components/NotificationItem/index.ts" },
   { "name": "NotificationStack", "source": "components/NotificationStack/index.ts" },
+  {
+    "name": "NumberInput",
+    "source": "formControls/NumberInput/index.ts",
+    "subpath": "NumberInput",
+    "wraps": "@astryxdesign/core/NumberInput"
+  },
   { "name": "OverlayScrollbar", "source": "components/OverlayScrollbar/index.ts" },
   { "name": "PageHeader", "source": "components/PageHeader/index.ts" },
   { "name": "PageLayout", "source": "components/PageLayout/index.ts" },
   { "name": "PagedSelector", "source": "components/PagedSelector/index.ts" },
   { "name": "ProgressWithLabel", "source": "components/ProgressWithLabel/index.ts" },
+  {
+    "name": "RadioList",
+    "source": "formControls/RadioList/index.ts",
+    "subpath": "RadioList",
+    "wraps": "@astryxdesign/core/RadioList"
+  },
   { "name": "SelectionLabel", "source": "components/SelectionLabel/index.ts" },
+  {
+    "name": "Selector",
+    "source": "formControls/Selector/index.ts",
+    "subpath": "Selector",
+    "wraps": "@astryxdesign/core/Selector"
+  },
   { "name": "Skeleton composites", "source": "components/Skeleton/index.ts" },
+  {
+    "name": "Slider",
+    "source": "formControls/Slider/index.ts",
+    "subpath": "Slider",
+    "wraps": "@astryxdesign/core/Slider"
+  },
   { "name": "SmoothHeight", "source": "components/SmoothHeight/index.ts" },
   { "name": "StatCard", "source": "components/StatCard/index.ts" },
   { "name": "Statistic", "source": "components/Statistic/index.ts" },
   { "name": "StepNumberInput", "source": "components/StepNumberInput/index.ts" },
+  {
+    "name": "Switch",
+    "source": "formControls/Switch/index.ts",
+    "subpath": "Switch",
+    "wraps": "@astryxdesign/core/Switch"
+  },
+  {
+    "name": "TextArea",
+    "source": "formControls/TextArea/index.ts",
+    "subpath": "TextArea",
+    "wraps": "@astryxdesign/core/TextArea"
+  },
   { "name": "TextHighlighter", "source": "components/TextHighlighter/index.ts" },
+  {
+    "name": "TextInput",
+    "source": "formControls/TextInput/index.ts",
+    "subpath": "TextInput",
+    "wraps": "@astryxdesign/core/TextInput"
+  },
+  {
+    "name": "TimeInput",
+    "source": "formControls/TimeInput/index.ts",
+    "subpath": "TimeInput",
+    "wraps": "@astryxdesign/core/TimeInput"
+  },
   { "name": "TokenList", "source": "components/TokenList/index.ts" },
   { "name": "TokenRow", "source": "components/TokenRow/index.ts" },
+  {
+    "name": "Tokenizer",
+    "source": "formControls/Tokenizer/index.ts",
+    "subpath": "Tokenizer",
+    "wraps": "@astryxdesign/core/Tokenizer"
+  },
   {
     "name": "Tour",
     "source": "forks/Tour/index.ts",
     "fork": "@astryxdesign/lab"
+  },
+  {
+    "name": "Typeahead",
+    "source": "formControls/Typeahead/index.ts",
+    "subpath": "Typeahead",
+    "wraps": "@astryxdesign/core/Typeahead"
   },
   { "name": "UncontrolledInput", "source": "components/UncontrolledInput/index.ts" },
   { "name": "UnitGrid", "source": "components/UnitGrid/index.ts" },

@@ -150,6 +150,12 @@ export interface FormItemStatusContextValue {
   warnings?: React.ReactNode[];
   hasFeedback?: boolean;
   isFormItemInput?: boolean;
+  /**
+   * The item's label as plain text. A control the item's `<label htmlFor>`
+   * cannot name (a group, a slider, a file picker's button) names itself
+   * with it.
+   */
+  label?: string;
 }
 
 /** Read by `Form.Item.useStatus()` and by controls that paint the item's status. */
