@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./react-BZJXY1be.js";import{c as n,s as r}from"./FieldStatus-DAD8AX7h.js";function i({isRequired:e=!1,isOptional:t=!1}){let{defaultOptionality:n}=(0,a.use)(r);return!t&&(e||n===`required`)}var a;function o(){return(o=e((()=>{a=t(),n()})))()}export{i as n,o as t};
