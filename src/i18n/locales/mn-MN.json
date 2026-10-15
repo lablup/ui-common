@@ -59,10 +59,6 @@
     "defaultMessage": "Хэмжээний өөрчлөлтийг цуцаллаа.",
     "description": "Screen reader announcement when resizing a board item is cancelled"
   },
-  "uic.Board.itemRemoved": {
-    "defaultMessage": "Элементийг хаслаа.",
-    "description": "Screen reader announcement when a board item is removed"
-  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Өнгө сонгох",
     "description": "Accessible name of a color picker whose caller gave it no label"

@@ -75,6 +75,10 @@ type Story = StoryObj<typeof meta>;
   still renders and stays in the props table; only the edit field goes.
 - Import the component relatively (`./StatCard`), never from
   `@lablup/ui-common`.
+- A `render` function that puts elements it creates into a prop's data (an
+  `items` array with node titles, say) hangs the Docs page's JSX snippet, which
+  walks every prop. Give that story
+  `parameters: { docs: { source: { type: "code" } } }`.
 - A generic component takes its type argument in both places:
   `component: DataGrid<Resource>` and `satisfies Meta<typeof DataGrid<Resource>>`.
 - If `tsc` reports TS2742 on `meta` (the inferred type names an Astryx internal

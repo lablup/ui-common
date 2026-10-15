@@ -63,10 +63,6 @@
     "defaultMessage": "크기 조절을 취소했습니다.",
     "description": "Screen reader announcement when resizing a board item is cancelled"
   },
-  "uic.Board.itemRemoved": {
-    "defaultMessage": "항목을 제거했습니다.",
-    "description": "Screen reader announcement when a board item is removed"
-  },
   "uic.BooleanToken.true": {
     "defaultMessage": "예",
     "description": "Default label of a token showing a boolean value that is true"

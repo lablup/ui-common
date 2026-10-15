@@ -5,6 +5,31 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`Board` draws an item's title row and description.** `BoardItem` takes `title`
+  and `description`, each a string or a node: a string title renders as a
+  level-5 heading, a string description as text, a node (a `BoardItemTitle`
+  with a tooltip and actions, say) as is. The drag handle sits in the inline
+  padding on the title row's first line, where it stays when the title wraps
+  or grows; without a title there is no header row and the description takes
+  the whole item. `itemPadding` sets every item's padding, a number (px) or
+  a CSS length for every side or one per side (default `--spacing-5` top
+  and bottom, `--spacing-8` left and right); the CSS knobs behind it are
+  `--board-item-padding-top` / `-right` / `-bottom` / `-left`.
+
+### Changed
+
+- **`BoardItemTitle` is a `Board` item's `title` node**, no longer a
+  self-padded, sticky row: the board pads and places it.
+
+### Removed
+
+- **`Board`'s `renderItem`**, with `BoardItemActions`, `removeItem`,
+  `removedItem`, `liveAnnouncementItemRemoved` and the `uic.Board.itemRemoved`
+  catalog key. An item is its `title` and `description`; removing one is the
+  consumer's, by passing `items` without it.
+
 ## [0.2.0-alpha.19]
 
 Astryx 0.6.5 → 0.7.0 (`@astryxdesign/lab` 0.7.0-canary.97a0d31). Astryx's

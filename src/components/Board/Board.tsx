@@ -8,8 +8,11 @@
  * controlled: `onItemsChange` reports the whole board in its new order, and
  * what the parent passes back is what renders.
  *
- * A drag handle at an item's top-left corner moves it, a handle at the
- * bottom-right resizes it. Dragging a handle moves or resizes by pointer: the
+ * An item renders a header row with its `title` and its `description`
+ * under it; without a title the description takes the whole item. Both
+ * are padded by `itemPadding`. A drag handle at the item's top-left corner
+ * moves it, on the header row's first line; a handle at the bottom-right
+ * resizes it. Dragging a handle moves or resizes by pointer: the
  * item follows the pointer, the rest of the board previews where everything
  * lands, and releasing snaps to the grid. Clicking a handle, or pressing
  * Enter or Space on it, activates it instead: direction buttons appear around
@@ -24,9 +27,10 @@
  *   isMovable
  *   isResizable
  *   variant="bordered"
- *   renderItem={(item) => <Panel {...item.data} />}
  *   onItemsChange={({ items }) => setItems(items)}
  * />
+ * // items: [{ id: "sessions", title: "Active sessions", description: <SessionCount />, data: {} }]
+ * // itemPadding={12}, itemPadding="1rem" or itemPadding={{ top: 12, left: 16 }} set the content padding.
  */
 import {
   useEffect,
@@ -38,14 +42,15 @@ import {
   type PointerEvent,
   type ReactNode,
 } from "react";
+import { Heading } from "@astryxdesign/core/Heading";
 import { IconButton } from "@astryxdesign/core/IconButton";
+import { Text } from "@astryxdesign/core/Text";
 import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
 import {
   appendPath,
   LayoutEngine,
-  removeItem as removeFromLayout,
   type Direction,
   type LayoutShift,
   type Position,
@@ -85,22 +90,25 @@ export interface BoardDndDetail<D = unknown> {
   placement: BoardItemPlacement;
 }
 
-export interface BoardItemRemovedDetail<D = unknown> {
-  item: BoardItem<D>;
-}
-
 export interface BoardItemsChangeDetail<D = unknown> {
   /** The whole board in its new order, spans and column offsets updated. */
   items: ReadonlyArray<BoardItem<D>>;
   movedItem?: BoardItem<D>;
   resizedItem?: BoardItem<D>;
-  removedItem?: BoardItem<D>;
 }
 
-export interface BoardItemActions {
-  /** Removes the item: `onItemsChange` fires with the rest, re-laid out. */
-  removeItem: () => void;
-}
+/** A length: a number is px, a string any CSS length (`"1rem"`, `"var(--spacing-3)"`). */
+export type BoardLength = number | string;
+
+/** An item's content padding: one length for every side, or a length per side. */
+export type BoardItemPadding =
+  | BoardLength
+  | {
+      top?: BoardLength;
+      right?: BoardLength;
+      bottom?: BoardLength;
+      left?: BoardLength;
+    };
 
 export interface BoardColumnBreakpoint {
   /** The least content width, in px, at which the board has `columns` columns. */
@@ -124,9 +132,14 @@ export interface BoardProps<D = unknown> extends Omit<
   "children" | "onChange"
 > {
   items: ReadonlyArray<BoardItem<D>>;
-  /** An item's content. The board draws the surface, border and handles around it. */
-  renderItem: (item: BoardItem<D>, actions: BoardItemActions) => ReactNode;
-  /** Called when the user moves, resizes or removes an item. */
+  /**
+   * The padding of every item's title row and description: a number (px) or
+   * a CSS length for every side, or one per side. The drag handle is not
+   * padded: it keeps the item's top-left corner, so the left padding is what
+   * clears it. @default `--spacing-5` top and bottom, `--spacing-8` left and right
+   */
+  itemPadding?: BoardItemPadding;
+  /** Called when the user moves or resizes an item. */
   onItemsChange: (detail: BoardItemsChangeDetail<D>) => void;
   /** Whether items have a drag handle and can be moved. @default false */
   isMovable?: boolean;
@@ -158,8 +171,24 @@ export interface BoardProps<D = unknown> extends Omit<
   liveAnnouncementDndCommitted?: (operation: BoardOperation) => string;
   /** Announced when a move or resize is discarded. Default: `uic.Board.moveDiscarded` / `resizeDiscarded` */
   liveAnnouncementDndDiscarded?: (operation: BoardOperation) => string;
-  /** Announced when an item is removed. Default: `uic.Board.itemRemoved` */
-  liveAnnouncementItemRemoved?: (detail: BoardItemRemovedDetail<D>) => string;
+}
+
+const toLength = (value: BoardLength) =>
+  typeof value === "number" ? `${value}px` : value;
+
+/** The custom properties `itemPadding` sets on an item; empty when unset. */
+export function itemPaddingStyle(padding: BoardItemPadding | undefined): CSSProperties {
+  if (padding === undefined) return {};
+  const sides =
+    typeof padding === "object"
+      ? padding
+      : { top: padding, right: padding, bottom: padding, left: padding };
+  const style: Record<string, string> = {};
+  for (const side of ["top", "right", "bottom", "left"] as const) {
+    const value = sides[side];
+    if (value !== undefined) style[`--board-item-padding-${side}`] = toLength(value);
+  }
+  return style as CSSProperties;
 }
 
 export interface BoardMetrics {
@@ -384,7 +413,6 @@ const cx = (...names: Array<string | false | null | undefined>) =>
 
 export function Board<D = unknown>({
   items,
-  renderItem,
   onItemsChange,
   isMovable = false,
   isResizable = false,
@@ -401,7 +429,7 @@ export function Board<D = unknown>({
   liveAnnouncementDndItemResized,
   liveAnnouncementDndCommitted,
   liveAnnouncementDndDiscarded,
-  liveAnnouncementItemRemoved,
+  itemPadding,
   className,
   ...divProps
 }: BoardProps<D>): ReactNode {
@@ -653,18 +681,6 @@ export function Board<D = unknown>({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isPointerDrag]);
-
-  const removeItemAction = (item: BoardItem<D>) => {
-    const current = interpretItems(itemsRef.current, columns);
-    const rest = itemsRef.current.filter((it) => it.id !== item.id);
-    onItemsChange({
-      items: transformItems(rest, removeFromLayout(current, item.id)),
-      removedItem: item,
-    });
-    setAnnouncement(
-      liveAnnouncementItemRemoved?.({ item }) ?? t("uic.Board.itemRemoved"),
-    );
-  };
 
   /** One keyboard or direction-button step of the active transition. */
   const stepBy = (tr: Transition, direction: Direction) => {
@@ -967,6 +983,8 @@ export function Board<D = unknown>({
     cells * (cell + (transition?.metrics.gap ?? 0));
 
   /** The direction buttons of an activated handle. */
+  const paddingStyle = itemPaddingStyle(itemPadding);
+
   const renderDirections = (operation: BoardOperation, itemId: string) => {
     const shown =
       transition !== null &&
@@ -1042,6 +1060,7 @@ export function Board<D = unknown>({
               }
             }
             const style: CSSProperties = {
+              ...paddingStyle,
               gridColumn: column,
               gridRow: row,
               transform,
@@ -1050,6 +1069,25 @@ export function Board<D = unknown>({
             };
             const extra =
               typeof itemClassName === "function" ? itemClassName(item) : itemClassName;
+            const hasHeader = item.title != null && item.title !== false;
+            const dragHandle = isMovable ? (
+              <span className="uic-board-item__handle uic-board-item__handle--drag">
+                <IconButton
+                  className="uic-board-item__drag-handle"
+                  variant="ghost"
+                  size="sm"
+                  label={dragHandleLabel ?? t("uic.Board.dragHandle")}
+                  icon={dragHandleIcon ?? <GripGlyph />}
+                  onPointerDown={onHandlePointerDown("move", item.id)}
+                  onPointerMove={onHandlePointerMove}
+                  onPointerUp={onHandlePointerUp}
+                  onPointerCancel={onHandlePointerCancel}
+                  onKeyDown={onHandleKeyDown("move", item.id)}
+                  onBlur={onHandleBlur}
+                />
+                {renderDirections("move", item.id)}
+              </span>
+            ) : null;
             return (
               <div
                 key={item.id}
@@ -1076,26 +1114,26 @@ export function Board<D = unknown>({
                 style={style}
                 data-board-item-id={item.id}
               >
-                {isMovable ? (
-                  <span className="uic-board-item__handle uic-board-item__handle--drag">
-                    <IconButton
-                      className="uic-board-item__drag-handle"
-                      variant="ghost"
-                      size="sm"
-                      label={dragHandleLabel ?? t("uic.Board.dragHandle")}
-                      icon={dragHandleIcon ?? <GripGlyph />}
-                      onPointerDown={onHandlePointerDown("move", item.id)}
-                      onPointerMove={onHandlePointerMove}
-                      onPointerUp={onHandlePointerUp}
-                      onPointerCancel={onHandlePointerCancel}
-                      onKeyDown={onHandleKeyDown("move", item.id)}
-                      onBlur={onHandleBlur}
-                    />
-                    {renderDirections("move", item.id)}
-                  </span>
+                {dragHandle}
+                {hasHeader ? (
+                  <div className="uic-board-item__header">
+                    <div className="uic-board-item__title">
+                      {typeof item.title === "string" ? (
+                        <Heading level={5} className="uic-board-item__heading">
+                          {item.title}
+                        </Heading>
+                      ) : (
+                        item.title
+                      )}
+                    </div>
+                  </div>
                 ) : null}
                 <div className="uic-board-item__content">
-                  {renderItem(item, { removeItem: () => removeItemAction(item) })}
+                  {typeof item.description === "string" ? (
+                    <Text>{item.description}</Text>
+                  ) : (
+                    item.description
+                  )}
                 </div>
                 {isResizable ? (
                   <span className="uic-board-item__handle uic-board-item__handle--resize">

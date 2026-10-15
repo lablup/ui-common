@@ -26,30 +26,18 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
-type Data = { title: string };
+type Data = null;
 
 const THREE: BoardItem<Data>[] = [
-  { id: "a", rowSpan: 2, columnSpan: 2, data: { title: "Alpha" } },
-  { id: "b", rowSpan: 2, columnSpan: 2, data: { title: "Beta" } },
-  { id: "c", rowSpan: 2, columnSpan: 4, data: { title: "Gamma" } },
+  { id: "a", rowSpan: 2, columnSpan: 2, title: "Alpha", data: null },
+  { id: "b", rowSpan: 2, columnSpan: 2, title: "Beta", data: null },
+  { id: "c", rowSpan: 2, columnSpan: 4, title: "Gamma", data: null },
 ];
 
 function renderBoard(props: Partial<ComponentProps<typeof Board<Data>>> = {}) {
   const onItemsChange = vi.fn<(detail: BoardItemsChangeDetail<Data>) => void>();
   const view = render(
-    <Board<Data>
-      items={THREE}
-      renderItem={(item, { removeItem }) => (
-        <div>
-          <h5>{item.data.title}</h5>
-          <button type="button" onClick={removeItem}>
-            Remove {item.data.title}
-          </button>
-        </div>
-      )}
-      onItemsChange={onItemsChange}
-      {...props}
-    />,
+    <Board<Data> items={THREE} onItemsChange={onItemsChange} {...props} />,
   );
   return { ...view, onItemsChange };
 }
@@ -106,28 +94,32 @@ describe("Board", () => {
           rowSpan: 3,
           columnSpan: 1,
           columnOffset: { 4: 0 },
-          data: { title: "Alpha" },
+          title: "Alpha",
+          data: null,
         },
         {
           id: "b",
           rowSpan: 3,
           columnSpan: 1,
           columnOffset: { 4: 1 },
-          data: { title: "Beta" },
+          title: "Beta",
+          data: null,
         },
         {
           id: "c",
           rowSpan: 3,
           columnSpan: 1,
           columnOffset: { 4: 3 },
-          data: { title: "Gamma" },
+          title: "Gamma",
+          data: null,
         },
         {
           id: "d",
           rowSpan: 2,
           columnSpan: 2,
           columnOffset: { 4: 1 },
-          data: { title: "Delta" },
+          title: "Delta",
+          data: null,
         },
       ],
     });
@@ -176,14 +168,7 @@ describe("Board", () => {
       screen.queryByRole("button", { name: "Resize handle" }),
     ).not.toBeInTheDocument();
 
-    rerender(
-      <Board<Data>
-        items={THREE}
-        isMovable
-        renderItem={(item) => <h5>{item.data.title}</h5>}
-        onItemsChange={() => {}}
-      />,
-    );
+    rerender(<Board<Data> items={THREE} isMovable onItemsChange={() => {}} />);
     expect(screen.getAllByRole("button", { name: "Drag handle" })).toHaveLength(3);
     expect(
       screen.queryByRole("button", { name: "Resize handle" }),
@@ -195,7 +180,6 @@ describe("Board", () => {
         isResizable
         dragHandleLabel="Move"
         resizeHandleLabel="Grow"
-        renderItem={(item) => <h5>{item.data.title}</h5>}
         onItemsChange={() => {}}
       />,
     );
@@ -217,7 +201,6 @@ describe("Board", () => {
     const { container } = render(
       <Board
         items={[]}
-        renderItem={() => null}
         onItemsChange={() => {}}
         className="extra"
         data-testid="board"
@@ -282,7 +265,7 @@ describe("Board", () => {
       ]);
       expect(detail.movedItem?.id).toBe("b");
       expect(detail.resizedItem).toBeUndefined();
-      expect(detail.items[0]?.data).toBe(THREE[1]?.data);
+      expect(detail.items[0]?.id).toBe("b");
       expect(shell("Beta")).not.toHaveClass("uic-board-item--active");
       expect(directionButtons("Beta")).toEqual([]);
     });
@@ -366,14 +349,14 @@ describe("Board", () => {
         isMovable: true,
         liveAnnouncementDndStarted: (op) => `start ${op}`,
         liveAnnouncementDndItemMoved: ({ item, placement }) =>
-          `${item.data.title} at ${placement.x},${placement.y}`,
+          `${item.id} at ${placement.x},${placement.y}`,
         liveAnnouncementDndCommitted: (op) => `done ${op}`,
       });
       dragHandleOf("Beta").focus();
       await userEvent.keyboard(" ");
       expect(liveText()).toBe("start move");
       await userEvent.keyboard("{ArrowLeft}{ArrowLeft}");
-      expect(liveText()).toBe("Beta at 0,0");
+      expect(liveText()).toBe("b at 0,0");
       await userEvent.keyboard("{Enter}");
       expect(liveText()).toBe("done move");
     });
@@ -615,7 +598,8 @@ describe("Board", () => {
             rowSpan: 3,
             columnSpan: 2,
             definition: { minColumnSpan: 2 },
-            data: { title: "Alpha" },
+            title: "Alpha",
+            data: null,
           },
         ],
       });
@@ -630,29 +614,13 @@ describe("Board", () => {
     });
   });
 
-  it("removes an item through the render actions and re-lays the rest out", async () => {
-    const { onItemsChange } = renderBoard();
-    await userEvent.click(screen.getByRole("button", { name: "Remove Alpha" }));
-    expect(onItemsChange).toHaveBeenCalledTimes(1);
-    const detail = onItemsChange.mock.calls[0]?.[0] as BoardItemsChangeDetail<Data>;
-    expect(detail.removedItem?.id).toBe("a");
-    expect(detail.items.map((it) => it.id)).toEqual(["b", "c"]);
-    expect(detail.items.map((it) => it.columnOffset)).toEqual([{ 4: 2 }, { 4: 0 }]);
-    expect(liveText()).toBe("Item removed.");
-  });
-
   it("is controlled: renders what the parent passes after a change", async () => {
     const { onItemsChange, rerender } = renderBoard({ isMovable: true });
     dragHandleOf("Beta").focus();
     await userEvent.keyboard("{Enter}{ArrowLeft}{ArrowLeft}{Enter}");
     const detail = onItemsChange.mock.calls[0]?.[0] as BoardItemsChangeDetail<Data>;
     rerender(
-      <Board<Data>
-        items={detail.items}
-        isMovable
-        renderItem={(item) => <h5>{item.data.title}</h5>}
-        onItemsChange={onItemsChange}
-      />,
+      <Board<Data> items={detail.items} isMovable onItemsChange={onItemsChange} />,
     );
     expect(placement("Beta")).toBe("1 / span 2 | 1 / span 2");
     expect(placement("Alpha")).toBe("3 / span 2 | 1 / span 2");
@@ -660,6 +628,135 @@ describe("Board", () => {
       "Beta",
       "Alpha",
       "Gamma",
+    ]);
+  });
+});
+
+describe("Board item title and description", () => {
+  const item = (overrides: Partial<BoardItem<Data>>): BoardItem<Data> => ({
+    id: "a",
+    rowSpan: 2,
+    columnSpan: 2,
+    data: null,
+    ...overrides,
+  });
+  const header = () => document.querySelector(".uic-board-item__header");
+  const dragHandle = () => screen.getByRole("button", { name: "Drag handle" });
+
+  it("renders a string title as a heading in a header row and the description as the body", () => {
+    render(
+      <Board<Data>
+        items={[item({ title: "Alpha", description: "The first one." })]}
+        isMovable
+        onItemsChange={vi.fn()}
+      />,
+    );
+    const heading = within(header() as HTMLElement).getByRole("heading", {
+      name: "Alpha",
+    });
+    expect(heading.classList.contains("uic-board-item__heading")).toBe(true);
+    expect(
+      within(
+        document.querySelector(".uic-board-item__content") as HTMLElement,
+      ).getByText("The first one."),
+    ).toBeTruthy();
+    expect(
+      document.querySelector(".uic-board-item__header + .uic-board-item__content"),
+    ).not.toBeNull();
+  });
+
+  it("keeps the drag handle on the item itself, outside the header row", () => {
+    render(
+      <Board<Data>
+        items={[item({ title: "Alpha", description: "The first one." })]}
+        isMovable
+        onItemsChange={vi.fn()}
+      />,
+    );
+    expect(dragHandle().closest(".uic-board-item__header")).toBeNull();
+    expect(dragHandle().closest(".uic-board-item__handle--drag")?.parentElement).toBe(
+      document.querySelector(".uic-board-item"),
+    );
+  });
+
+  it("renders a node title as is", () => {
+    render(
+      <Board<Data>
+        items={[
+          item({
+            title: (
+              <span>
+                Alpha <button type="button">Refresh</button>
+              </span>
+            ),
+            description: <em>The first one.</em>,
+          }),
+        ]}
+        onItemsChange={vi.fn()}
+      />,
+    );
+    expect(
+      within(header() as HTMLElement).getByRole("button", { name: "Refresh" }),
+    ).toBeTruthy();
+    expect(screen.queryByRole("heading")).toBeNull();
+  });
+
+  it("draws no header row without a title: the description takes the item", () => {
+    render(
+      <Board<Data>
+        items={[item({ description: "Body only." })]}
+        isMovable
+        onItemsChange={vi.fn()}
+      />,
+    );
+    expect(header()).toBeNull();
+    expect(screen.queryByRole("heading")).toBeNull();
+    expect(dragHandle().closest(".uic-board-item__handle--drag")?.parentElement).toBe(
+      document.querySelector(".uic-board-item"),
+    );
+    expect(screen.getByText("Body only.")).toBeTruthy();
+  });
+
+  it("sets the padding custom properties from itemPadding", () => {
+    const titled = [item({ title: "Alpha", description: "The first one." })];
+    const { rerender } = render(
+      <Board<Data>
+        items={titled}
+        itemPadding={{ top: 4, left: "1rem" }}
+        onItemsChange={vi.fn()}
+      />,
+    );
+    const prop = (name: string) =>
+      (document.querySelector(".uic-board-item") as HTMLElement).style.getPropertyValue(
+        `--board-item-padding-${name}`,
+      );
+    expect([prop("top"), prop("right"), prop("bottom"), prop("left")]).toEqual([
+      "4px",
+      "",
+      "",
+      "1rem",
+    ]);
+    rerender(<Board<Data> items={titled} itemPadding={13} onItemsChange={vi.fn()} />);
+    expect([prop("top"), prop("right"), prop("bottom"), prop("left")]).toEqual([
+      "13px",
+      "13px",
+      "13px",
+      "13px",
+    ]);
+    rerender(
+      <Board<Data>
+        items={titled}
+        itemPadding="var(--spacing-3)"
+        onItemsChange={vi.fn()}
+      />,
+    );
+    expect(prop("left")).toBe("var(--spacing-3)");
+    rerender(<Board<Data> items={titled} onItemsChange={vi.fn()} />);
+    expect([prop("top"), prop("right"), prop("bottom"), prop("left")]).toEqual([
+      "",
+      "",
+      "",
+      "",
     ]);
   });
 });

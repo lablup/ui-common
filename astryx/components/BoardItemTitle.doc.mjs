@@ -9,9 +9,9 @@ export default {
   displayName: "BoardItemTitle",
   import: "@lablup/ui-common",
   category: "Layout",
-  keywords: ["title", "panel", "dashboard", "board", "sticky", "header"],
+  keywords: ["title", "panel", "dashboard", "board", "header"],
   description:
-    "The title row of a dashboard panel: a heading with an optional help tooltip, and actions at the end. It sticks to the top of the panel's scroll area on the surface colour, and its two groups wrap onto separate lines when the panel is narrow.",
+    "A Board item's title node: a heading with an optional help tooltip, and actions at the end. The board pads and places the row, and its two groups wrap onto separate lines when the item is narrow.",
   props: [
     {
       name: "title",
@@ -40,7 +40,7 @@ export default {
   ],
   usage: {
     description:
-      "At the top of a dashboard panel or a board item. Other div attributes (className, style, data-*) reach the row. The --board-item-title-z property sets its z-index (default 50).",
+      "As a Board item's title. Other div attributes (className, style, data-*) reach the row.",
   },
   examples: [
     {
