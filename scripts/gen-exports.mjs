@@ -76,6 +76,10 @@ export const OWN_EXPORTS = {
   "./legacy-tokens.css": "./dist/legacy-tokens.css",
   "./styles/base.css": "./dist/styles/base.css",
   "./styles/themes/*.css": "./dist/styles/themes/*.css",
+  // The page and block templates, as source. The Astryx CLI requires each
+  // integration template to resolve through a package subpath; consumers copy
+  // them with `ui-common template`, they do not import them.
+  "./astryx/templates/*": "./astryx/templates/*.tsx",
 };
 
 /**

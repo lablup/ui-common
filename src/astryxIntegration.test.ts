@@ -48,4 +48,31 @@ describe("astryx.integration.mjs", () => {
       expect(stub).toContain(`export { ${name} } from "${doc.import}";`);
     }
   });
+
+  it("documents every non-legacy PascalCase custom, bar the allow-listed", () => {
+    const customs = JSON.parse(
+      readFileSync(join(ROOT, "exports.customs.json"), "utf8"),
+    ) as Array<{ name: string; legacy?: unknown }>;
+    const documented = new Set(
+      readdirSync(join(ROOT, "astryx", "components"))
+        .filter((f) => f.endsWith(".doc.mjs"))
+        .map((f) => f.replace(/\.doc\.mjs$/, "")),
+    );
+    // ComplexSelector shares its name with an Astryx core component. A doc of
+    // that name makes `astryx component ComplexSelector` fail as provided by
+    // multiple packages (and warns in `doctor integration components`) unless
+    // the doc sets `replaces`, which needs an @astryxdesign/cli peer we decline.
+    // Astryx's own doc already describes the same API.
+    const undocumented = new Set(["ComplexSelector"]);
+    const missing = customs
+      .filter((c) => !c.legacy && /^[A-Z]/.test(c.name))
+      .map((c) => c.name)
+      .filter((name) => !documented.has(name) && !undocumented.has(name));
+    expect(missing).toEqual([]);
+    for (const name of undocumented) {
+      expect(documented.has(name), `${name} is allow-listed but documented`).toBe(
+        false,
+      );
+    }
+  });
 });

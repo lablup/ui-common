@@ -560,7 +560,9 @@ Then:
 
 ```
 pnpm exec ui-common component Button     # any Astryx command: component, search,
-pnpm exec ui-common search "date picker" # docs, build, template, theme, hook, ...
+pnpm exec ui-common search "date picker" # docs, build, theme, hook, ...
+pnpm exec ui-common build "list page with a create modal"
+pnpm exec ui-common template list-page src/pages/items
 pnpm exec ui-common agents --write AGENTS.md
 pnpm exec ui-common upgrade --from 0.1 --dry-run
 ```
@@ -568,6 +570,7 @@ pnpm exec ui-common upgrade --from 0.1 --dry-run
 | Command                                                                                                      | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ui-common <astryx command> …`                                                                               | Runs the pinned Astryx CLI and rewrites its output to ui-common: `@astryxdesign/core/<X>` is `@lablup/ui-common/<X>`, `@astryxdesign/lab` is `@lablup/ui-common/lab`, `@astryxdesign/theme-neutral` is `@lablup/ui-common/theme/neutral`, and commands read `ui-common …`. A name ui-common hides gets a note ("Use Modal, not Dialog"). `--json` output stays valid JSON; the note goes to stderr. The exit code is Astryx's.                                                           |
+| `ui-common template [<name> [<path>]] [--list] [--type page\|block] [--overwrite] [--json]`                  | Lists, prints or writes one of ui-common's templates (below). A page is written as `<path>/page.tsx`, a block as `<path>/<name>.tsx`, and the command names any package the template needs that the project does not list (`lucide-react`, and `@astryxdesign/lab` for `detail-drawer`). Astryx's own templates are refused.                                                                                                                                                             |
 | `ui-common astryx …`                                                                                         | The same, without rewriting.                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `ui-common agents [--write <file>] [--check]`                                                                | Prints the agent block: Astryx's `init --features agents` block, rewritten, plus ui-common's rules. It sits between `<!-- UI-COMMON:START -->` and `<!-- UI-COMMON:END -->`, which `astryx init` never touches. `--write` replaces the block in place and keeps the rest of the file; `--check` exits 1 when it is stale.                                                                                                                                                                |
 | `ui-common upgrade [--from <v>] [--to <v>] [--dry-run] [--diff] [--report <path>] [--scan <path>]… [paths…]` | Runs the codemods between two ui-common versions over `src/` (or `paths`), updates `package.json`, and writes `ui-common-upgrade-report.md` (a `--dry-run` writes nothing and prints the report, unless `--report` names a file). The report's manual-review findings come from the whole project (tests, e2e specs, scripts), or only from the `--scan` paths. `--from` defaults to the version `package.json` declares, `--to` to the CLI's own (the ui-common version it ships with). |
@@ -585,6 +588,29 @@ one-off as `pnpm dlx @lablup/ui-common-cli@next <command>` (or `npx`; plain
 ui-common is also an Astryx CLI integration: `ui-common docs ui-common` (or
 `astryx docs ui-common`) explains the layer, and `ui-common component Modal`
 documents ui-common's own components.
+
+### Templates
+
+ui-common ships its own page and block templates, written against
+`@lablup/ui-common`, React and lucide-react only. They hold presentation:
+data, state and callbacks are props or placeholders, and labels are English
+strings to replace.
+
+| Template          | Kind  | What it is                                                                              |
+| ----------------- | ----- | --------------------------------------------------------------------------------------- |
+| `list-page`       | page  | PageHeader with refresh and create, PowerSearch, a server-paged DataGrid with selection |
+| `tabbed-page`     | page  | A card of tabs with counts, one list or settings view per tab                           |
+| `settings-page`   | page  | Grouped settings in cards, saved together, with Reset                                   |
+| `dashboard-board` | page  | A Board of movable, resizable panels                                                    |
+| `list-toolbar`    | block | Scope segment and filter; selection count, bulk actions and refresh                     |
+| `create-modal`    | block | A Modal around a validated Form                                                         |
+| `detail-drawer`   | block | The lab Drawer with DrawerHeader, a MetadataList and footer actions                     |
+| `info-modal`      | block | A read-only Modal of one record's facts                                                 |
+
+Astryx's own templates import `@astryxdesign/*` and Heroicons directly, so
+the CLI does not offer them: `template` refuses them, `search` leaves them
+out, and `build` recommends ui-common's templates in their place.
+`ui-common astryx template …` still runs Astryx's command as is.
 
 ## Development
 
