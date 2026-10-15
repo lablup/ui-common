@@ -220,10 +220,6 @@
       "types": "./dist/astryx/Chat.d.ts",
       "import": "./dist/astryx/Chat.js"
     },
-    "./CheckboxInput": {
-      "types": "./dist/astryx/CheckboxInput.d.ts",
-      "import": "./dist/astryx/CheckboxInput.js"
-    },
     "./CheckboxList": {
       "types": "./dist/astryx/CheckboxList.d.ts",
       "import": "./dist/astryx/CheckboxList.js"
@@ -480,10 +476,6 @@
       "types": "./dist/astryx/Stepper.d.ts",
       "import": "./dist/astryx/Stepper.js"
     },
-    "./Switch": {
-      "types": "./dist/astryx/Switch.d.ts",
-      "import": "./dist/astryx/Switch.js"
-    },
     "./TabList": {
       "types": "./dist/astryx/TabList.d.ts",
       "import": "./dist/astryx/TabList.js"
@@ -643,6 +635,10 @@
       "types": "./dist/components/AlertModal/index.d.ts",
       "import": "./dist/components/AlertModal/index.js"
     },
+    "./CheckboxInput": {
+      "types": "./dist/forks/CheckboxInput/index.d.ts",
+      "import": "./dist/forks/CheckboxInput/index.js"
+    },
     "./ComplexSelector": {
       "types": "./dist/forks/ComplexSelector/index.d.ts",
       "import": "./dist/forks/ComplexSelector/index.js"
@@ -654,6 +650,10 @@
     "./Modal": {
       "types": "./dist/components/Modal/index.d.ts",
       "import": "./dist/components/Modal/index.js"
+    },
+    "./Switch": {
+      "types": "./dist/forks/Switch/index.d.ts",
+      "import": "./dist/forks/Switch/index.js"
     },
     "./package.json": "./package.json"
   },

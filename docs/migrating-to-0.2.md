@@ -27,7 +27,7 @@ else, with their own theme and layer contexts.
 **Local patches on Astryx do not travel.** pnpm `patchedDependencies` apply
 only in the project that declares them. A patch shipped inside a library
 reaches nobody. If you carry a patch on Astryx, either drop it (ui-common
-0.2 ships fixed copies of `ComplexSelector`, lab `Drawer` and lab `Tour`) or
+0.2 ships fixed copies of `ComplexSelector`, `Switch`, `CheckboxInput`, lab `Drawer` and lab `Tour`) or
 keep it in your own workspace and know that ui-common's copies do not see it.
 
 **Trying an unpublished ui-common.** A `workspace:` or `link:` dependency

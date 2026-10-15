@@ -10,6 +10,11 @@
     "reason": "Adds hasClear and onClear, a clear button as Selector has (facebook/astryx#6362)."
   },
   {
+    "name": "CheckboxInput",
+    "replacedBy": "CheckboxInput",
+    "reason": "A passed id reaches the native checkbox, so Form.Item's <label htmlFor> names and toggles it."
+  },
+  {
     "name": "lab",
     "exports": ["Drawer", "DrawerProps"],
     "replacedBy": "Drawer",
@@ -43,5 +48,10 @@
     "name": "groups.doc.mjs",
     "replacedBy": null,
     "reason": "Documentation data for the Astryx CLI, not runtime API. The CLI reads it from @astryxdesign/core directly."
+  },
+  {
+    "name": "Switch",
+    "replacedBy": "Switch",
+    "reason": "A passed id reaches the native checkbox, so Form.Item's <label htmlFor> names and toggles it."
   }
 ]

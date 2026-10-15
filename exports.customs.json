@@ -9,6 +9,12 @@
   { "name": "BooleanToken", "source": "components/BooleanToken/index.ts" },
   { "name": "BulkEditFormItem", "source": "components/BulkEditFormItem/index.ts" },
   { "name": "BulkErrorModal", "source": "components/BulkErrorModal/index.ts" },
+  {
+    "name": "CheckboxInput",
+    "source": "forks/CheckboxInput/index.ts",
+    "subpath": "CheckboxInput",
+    "fork": "@astryxdesign/core/CheckboxInput"
+  },
   { "name": "ColorPicker", "source": "components/ColorPicker/index.ts" },
   {
     "name": "ComplexSelector",
@@ -49,6 +55,12 @@
   { "name": "StatCard", "source": "components/StatCard/index.ts" },
   { "name": "Statistic", "source": "components/Statistic/index.ts" },
   { "name": "StepNumberInput", "source": "components/StepNumberInput/index.ts" },
+  {
+    "name": "Switch",
+    "source": "forks/Switch/index.ts",
+    "subpath": "Switch",
+    "fork": "@astryxdesign/core/Switch"
+  },
   { "name": "TextHighlighter", "source": "components/TextHighlighter/index.ts" },
   { "name": "TokenList", "source": "components/TokenList/index.ts" },
   { "name": "TokenRow", "source": "components/TokenRow/index.ts" },
