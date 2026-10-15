@@ -16,9 +16,11 @@
  * DialogVariant.
  *
  * Astryx names exported from ui-common's own copy of the component:
- * ComplexSelector, ComplexSelectorHandle, ComplexSelectorProps,
- * ComplexSelectorRenderState, ComplexSelectorRenderTriggerProps,
- * ComplexSelectorSize, ComplexSelectorStatus, ComplexSelectorVariant.
+ * CheckboxInput, CheckboxInputProps, CheckboxInputSize, ComplexSelector,
+ * ComplexSelectorHandle, ComplexSelectorProps, ComplexSelectorRenderState,
+ * ComplexSelectorRenderTriggerProps, ComplexSelectorSize,
+ * ComplexSelectorStatus, ComplexSelectorVariant, Switch, SwitchLabelPosition,
+ * SwitchLabelSpacing, SwitchProps.
  */
 
 export {
@@ -67,7 +69,6 @@ export {
   ChatToolCalls,
   CheckIndicator,
   CheckboxIndicator,
-  CheckboxInput,
   CheckboxList,
   CheckboxListItem,
   Citation,
@@ -206,7 +207,6 @@ export {
   StatusDot,
   Step,
   Stepper,
-  Switch,
   SyntaxTheme,
   TOKEN_TYPES,
   Tab,
@@ -638,8 +638,6 @@ export type {
   ChatToolCallItem,
   ChatToolCallStatus,
   ChatToolCallsProps,
-  CheckboxInputProps,
-  CheckboxInputSize,
   CheckboxListItemProps,
   CheckboxListProps,
   CitationProps,
@@ -1137,9 +1135,6 @@ export type {
   StringListOperatorValue,
   StringOperatorValue,
   StyleOverrides,
-  SwitchLabelPosition,
-  SwitchLabelSpacing,
-  SwitchProps,
   SyntaxThemeDefinition,
   SyntaxThemeInput,
   SyntaxThemeTokenInput,
@@ -1434,6 +1429,10 @@ export type { BulkEditFormItemProps } from "./components/BulkEditFormItem";
 export { BulkErrorModal } from "./components/BulkErrorModal";
 export type { BulkErrorModalProps } from "./components/BulkErrorModal";
 
+// CheckboxInput: ui-common's own copy, in place of Astryx's.
+export { CheckboxInput } from "./forks/CheckboxInput";
+export type { CheckboxInputProps, CheckboxInputSize } from "./forks/CheckboxInput";
+
 // ColorPicker
 export { ColorPicker, toHexColor } from "./components/ColorPicker";
 export type { ColorPickerProps } from "./components/ColorPicker";
@@ -1696,6 +1695,14 @@ export type {
   StepDirection,
   StepNumberInputProps,
 } from "./components/StepNumberInput";
+
+// Switch: ui-common's own copy, in place of Astryx's.
+export { Switch } from "./forks/Switch";
+export type {
+  SwitchLabelPosition,
+  SwitchLabelSpacing,
+  SwitchProps,
+} from "./forks/Switch";
 
 // TextHighlighter
 export { TextHighlighter } from "./components/TextHighlighter";

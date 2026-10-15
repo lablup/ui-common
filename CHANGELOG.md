@@ -7,6 +7,12 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`Switch` and `CheckboxInput` take a passed `id`.** Astryx 0.7.0 replaces
+  it with `useId()` (Switch spreads it onto the row), so `Form.Item`'s
+  `<label htmlFor>` pointed at nothing: the label neither named nor toggled
+  the control. ui-common now ships fixed copies under Astryx's names and
+  import paths (`@lablup/ui-common/Switch`, `@lablup/ui-common/CheckboxInput`);
+  the `id` lands on the native checkbox, as TextInput's does. Part of #69.
 - **`UnitGrid` draws full-size cells again under Astryx 0.7.0.** Cell, gap
   and radius sizes came from `parseFloat()` on the raw `--spacing-4`,
   `--spacing-0-5` and `--radius-element` values, which are rem since 0.7.0,
