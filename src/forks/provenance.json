@@ -14,7 +14,10 @@
     "styles": {
       "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
       "from": [
-        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
+        {
+          "file": "dist/ComplexSelector/ComplexSelector.js",
+          "consts": ["styles"]
+        },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -59,13 +62,19 @@
     },
     "styles": {
       "file": "src/forks/Tour/TourStep.styles.ts",
-      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
+      "from": [
+        {
+          "file": "dist/Tour/TourStep.js",
+          "consts": ["styles"]
+        }
+      ]
     }
   },
   "Switch": {
     "package": "@astryxdesign/core",
     "version": "0.7.0",
     "upstream": null,
+    "wrappedBy": "Switch",
     "files": {
       "src/Switch/Switch.tsx": "cb3133544fa181874ef003f5f3b5f57c1ce7f7ff1ef1497e21c3b94387757aa5",
       "src/Switch/index.ts": "b3e10a21443b08868eedcb4a26660145c16f7a06216e5e5bed85148c9d78168b",
@@ -91,7 +100,10 @@
             "dynamicWidthStyles"
           ]
         },
-        { "file": "dist/Switch/switch.markers.stylex.js", "consts": ["switchScope"] },
+        {
+          "file": "dist/Switch/switch.markers.stylex.js",
+          "consts": ["switchScope"]
+        },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -103,6 +115,7 @@
     "package": "@astryxdesign/core",
     "version": "0.7.0",
     "upstream": null,
+    "wrappedBy": "CheckboxInput",
     "files": {
       "src/CheckboxInput/CheckboxInput.tsx": "f2737fde11f7c0ec2d7664bae924ccdc88e4c490c59e91764655f20d3a11ed7e",
       "src/CheckboxInput/index.ts": "96c777158469fb6577150a33c5b8e6eb78ae2b2b6d2fd84eb3baf8c6da733cd2",

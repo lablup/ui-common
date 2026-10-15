@@ -13,7 +13,8 @@ pnpm build-storybook    # static build in storybook-static/
 - One stories file per component directory, named after the directory:
   `src/components/StatCard/StatCard.stories.tsx`. A directory is one entry in
   the Storybook sidebar.
-- Forks of Astryx components (`src/forks/<Name>/`) follow the same rule.
+- Forks of Astryx components (`src/forks/<Name>/`) and the form-control
+  wrappers (`src/formControls/<Name>/`) follow the same rule.
 
 ### A directory with several components
 
@@ -63,7 +64,7 @@ type Story = StoryObj<typeof meta>;
 ```
 
 - `title`: `Components/<Name>` for `src/components`, `Forks/<Name>` for
-  `src/forks`.
+  `src/forks`, `Form Controls/<Name>` for `src/formControls`.
 - `satisfies Meta<typeof X>`, not `: Meta<…>`, so `args` stay type-checked.
 - `args`: every required prop, with realistic values.
 - `argTypes`: only for union props, as `select` or `inline-radio` with the

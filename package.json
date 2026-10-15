@@ -220,10 +220,6 @@
       "types": "./dist/astryx/Chat.d.ts",
       "import": "./dist/astryx/Chat.js"
     },
-    "./CheckboxList": {
-      "types": "./dist/astryx/CheckboxList.d.ts",
-      "import": "./dist/astryx/CheckboxList.js"
-    },
     "./Citation": {
       "types": "./dist/astryx/Citation.d.ts",
       "import": "./dist/astryx/Citation.js"
@@ -252,18 +248,6 @@
       "types": "./dist/astryx/ContextMenu.d.ts",
       "import": "./dist/astryx/ContextMenu.js"
     },
-    "./DateInput": {
-      "types": "./dist/astryx/DateInput.d.ts",
-      "import": "./dist/astryx/DateInput.js"
-    },
-    "./DateRangeInput": {
-      "types": "./dist/astryx/DateRangeInput.d.ts",
-      "import": "./dist/astryx/DateRangeInput.js"
-    },
-    "./DateTimeInput": {
-      "types": "./dist/astryx/DateTimeInput.d.ts",
-      "import": "./dist/astryx/DateTimeInput.js"
-    },
     "./Divider": {
       "types": "./dist/astryx/Divider.d.ts",
       "import": "./dist/astryx/Divider.js"
@@ -283,10 +267,6 @@
     "./FieldStatus": {
       "types": "./dist/astryx/FieldStatus.d.ts",
       "import": "./dist/astryx/FieldStatus.js"
-    },
-    "./FileInput": {
-      "types": "./dist/astryx/FileInput.d.ts",
-      "import": "./dist/astryx/FileInput.js"
     },
     "./FormLayout": {
       "types": "./dist/astryx/FormLayout.d.ts",
@@ -372,10 +352,6 @@
       "types": "./dist/astryx/MoreMenu.d.ts",
       "import": "./dist/astryx/MoreMenu.js"
     },
-    "./MultiSelector": {
-      "types": "./dist/astryx/MultiSelector.d.ts",
-      "import": "./dist/astryx/MultiSelector.js"
-    },
     "./NavIcon": {
       "types": "./dist/astryx/NavIcon.d.ts",
       "import": "./dist/astryx/NavIcon.js"
@@ -383,10 +359,6 @@
     "./NavMenu": {
       "types": "./dist/astryx/NavMenu.d.ts",
       "import": "./dist/astryx/NavMenu.js"
-    },
-    "./NumberInput": {
-      "types": "./dist/astryx/NumberInput.d.ts",
-      "import": "./dist/astryx/NumberInput.js"
     },
     "./Outline": {
       "types": "./dist/astryx/Outline.d.ts",
@@ -416,10 +388,6 @@
       "types": "./dist/astryx/ProgressBar.d.ts",
       "import": "./dist/astryx/ProgressBar.js"
     },
-    "./RadioList": {
-      "types": "./dist/astryx/RadioList.d.ts",
-      "import": "./dist/astryx/RadioList.js"
-    },
     "./Resizable": {
       "types": "./dist/astryx/Resizable.d.ts",
       "import": "./dist/astryx/Resizable.js"
@@ -440,10 +408,6 @@
       "types": "./dist/astryx/SelectableCard.d.ts",
       "import": "./dist/astryx/SelectableCard.js"
     },
-    "./Selector": {
-      "types": "./dist/astryx/Selector.d.ts",
-      "import": "./dist/astryx/Selector.js"
-    },
     "./SideNav": {
       "types": "./dist/astryx/SideNav.d.ts",
       "import": "./dist/astryx/SideNav.js"
@@ -455,10 +419,6 @@
     "./Skeleton": {
       "types": "./dist/astryx/Skeleton.d.ts",
       "import": "./dist/astryx/Skeleton.js"
-    },
-    "./Slider": {
-      "types": "./dist/astryx/Slider.d.ts",
-      "import": "./dist/astryx/Slider.js"
     },
     "./Spinner": {
       "types": "./dist/astryx/Spinner.d.ts",
@@ -488,21 +448,9 @@
       "types": "./dist/astryx/Text.d.ts",
       "import": "./dist/astryx/Text.js"
     },
-    "./TextArea": {
-      "types": "./dist/astryx/TextArea.d.ts",
-      "import": "./dist/astryx/TextArea.js"
-    },
-    "./TextInput": {
-      "types": "./dist/astryx/TextInput.d.ts",
-      "import": "./dist/astryx/TextInput.js"
-    },
     "./Thumbnail": {
       "types": "./dist/astryx/Thumbnail.d.ts",
       "import": "./dist/astryx/Thumbnail.js"
-    },
-    "./TimeInput": {
-      "types": "./dist/astryx/TimeInput.d.ts",
-      "import": "./dist/astryx/TimeInput.js"
     },
     "./Timer": {
       "types": "./dist/astryx/Timer.d.ts",
@@ -524,10 +472,6 @@
       "types": "./dist/astryx/Token.d.ts",
       "import": "./dist/astryx/Token.js"
     },
-    "./Tokenizer": {
-      "types": "./dist/astryx/Tokenizer.d.ts",
-      "import": "./dist/astryx/Tokenizer.js"
-    },
     "./Toolbar": {
       "types": "./dist/astryx/Toolbar.d.ts",
       "import": "./dist/astryx/Toolbar.js"
@@ -543,10 +487,6 @@
     "./TreeList": {
       "types": "./dist/astryx/TreeList.d.ts",
       "import": "./dist/astryx/TreeList.js"
-    },
-    "./Typeahead": {
-      "types": "./dist/astryx/Typeahead.d.ts",
-      "import": "./dist/astryx/Typeahead.js"
     },
     "./VStack": {
       "types": "./dist/astryx/VStack.d.ts",
@@ -636,12 +576,32 @@
       "import": "./dist/components/AlertModal/index.js"
     },
     "./CheckboxInput": {
-      "types": "./dist/forks/CheckboxInput/index.d.ts",
-      "import": "./dist/forks/CheckboxInput/index.js"
+      "types": "./dist/formControls/CheckboxInput/index.d.ts",
+      "import": "./dist/formControls/CheckboxInput/index.js"
+    },
+    "./CheckboxList": {
+      "types": "./dist/formControls/CheckboxList/index.d.ts",
+      "import": "./dist/formControls/CheckboxList/index.js"
     },
     "./ComplexSelector": {
       "types": "./dist/forks/ComplexSelector/index.d.ts",
       "import": "./dist/forks/ComplexSelector/index.js"
+    },
+    "./DateInput": {
+      "types": "./dist/formControls/DateInput/index.d.ts",
+      "import": "./dist/formControls/DateInput/index.js"
+    },
+    "./DateRangeInput": {
+      "types": "./dist/formControls/DateRangeInput/index.d.ts",
+      "import": "./dist/formControls/DateRangeInput/index.js"
+    },
+    "./DateTimeInput": {
+      "types": "./dist/formControls/DateTimeInput/index.d.ts",
+      "import": "./dist/formControls/DateTimeInput/index.js"
+    },
+    "./FileInput": {
+      "types": "./dist/formControls/FileInput/index.d.ts",
+      "import": "./dist/formControls/FileInput/index.js"
     },
     "./Form": {
       "types": "./dist/components/Form/index.d.ts",
@@ -651,9 +611,49 @@
       "types": "./dist/components/Modal/index.d.ts",
       "import": "./dist/components/Modal/index.js"
     },
+    "./MultiSelector": {
+      "types": "./dist/formControls/MultiSelector/index.d.ts",
+      "import": "./dist/formControls/MultiSelector/index.js"
+    },
+    "./NumberInput": {
+      "types": "./dist/formControls/NumberInput/index.d.ts",
+      "import": "./dist/formControls/NumberInput/index.js"
+    },
+    "./RadioList": {
+      "types": "./dist/formControls/RadioList/index.d.ts",
+      "import": "./dist/formControls/RadioList/index.js"
+    },
+    "./Selector": {
+      "types": "./dist/formControls/Selector/index.d.ts",
+      "import": "./dist/formControls/Selector/index.js"
+    },
+    "./Slider": {
+      "types": "./dist/formControls/Slider/index.d.ts",
+      "import": "./dist/formControls/Slider/index.js"
+    },
     "./Switch": {
-      "types": "./dist/forks/Switch/index.d.ts",
-      "import": "./dist/forks/Switch/index.js"
+      "types": "./dist/formControls/Switch/index.d.ts",
+      "import": "./dist/formControls/Switch/index.js"
+    },
+    "./TextArea": {
+      "types": "./dist/formControls/TextArea/index.d.ts",
+      "import": "./dist/formControls/TextArea/index.js"
+    },
+    "./TextInput": {
+      "types": "./dist/formControls/TextInput/index.d.ts",
+      "import": "./dist/formControls/TextInput/index.js"
+    },
+    "./TimeInput": {
+      "types": "./dist/formControls/TimeInput/index.d.ts",
+      "import": "./dist/formControls/TimeInput/index.js"
+    },
+    "./Tokenizer": {
+      "types": "./dist/formControls/Tokenizer/index.d.ts",
+      "import": "./dist/formControls/Tokenizer/index.js"
+    },
+    "./Typeahead": {
+      "types": "./dist/formControls/Typeahead/index.d.ts",
+      "import": "./dist/formControls/Typeahead/index.js"
     },
     "./package.json": "./package.json"
   },

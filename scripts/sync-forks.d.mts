@@ -7,6 +7,8 @@ export interface ForkProvenance {
   version: string;
   /** The upstream issue or pull request carrying the fix, if any. */
   upstream: string | null;
+  /** The src/formControls wrapper that renders this fork, when it is not exported itself. */
+  wrappedBy?: string;
   /** Package-relative path to SHA-256 of every upstream file the fork uses. */
   files: Record<string, string>;
   /** The generated styles file and the compiled constants it copies. */

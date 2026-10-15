@@ -205,6 +205,7 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
     labelWrap: formLabelWrap,
   } = React.useContext(FormItemLayoutContext);
   const notifyParentMetaChange = React.useContext(NoStyleItemContext);
+  const parentItem = React.useContext(FormItemInputContext);
   const listContext = React.useContext(ListContext);
 
   const layout = propsLayout || formLayout;
@@ -298,6 +299,9 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
       warnings: mergedWarnings,
       hasFeedback,
       isFormItemInput: true,
+      // A `noStyle` item has no label of its own; its control is still named
+      // by the item it sits in.
+      label: noStyle ? parentItem.label : nodeText(label),
     };
 
     // A `noStyle` item contributes state only. Its errors were already sent
@@ -478,6 +482,21 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
     </Field>
   );
 };
+
+/** The text of a label node: strings and numbers, through elements' children. */
+function nodeText(node: React.ReactNode): string | undefined {
+  if (node === null || node === undefined || typeof node === "boolean")
+    return undefined;
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) {
+    const text = node.map(nodeText).filter(Boolean).join("");
+    return text || undefined;
+  }
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return nodeText(node.props.children);
+  }
+  return undefined;
+}
 
 /**
  * Evaluate `rules` — INCLUDING function rules, against the live form — to

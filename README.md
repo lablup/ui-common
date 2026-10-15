@@ -356,11 +356,15 @@ What it adds:
   title="Rename folder"
   actionLabel="Rename"
   onAction={async () => {
-    await rename(name);
+    await rename(form.getFieldValue("name"));
     setIsOpen(false);
   }}
 >
-  <TextInput label="Name" value={name} onChange={setName} />
+  <Form form={form} layout="vertical">
+    <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+      <TextInput />
+    </Form.Item>
+  </Form>
 </Modal>
 ```
 
@@ -382,7 +386,7 @@ const [form] = Form.useForm();
 
 <Form form={form} layout="vertical" onFinish={save}>
   <Form.Item name="name" label="Name" rules={[{ required: true }]}>
-    <TextInput label="Name" isLabelHidden />
+    <TextInput />
   </Form.Item>
 </Form>;
 ```
@@ -391,7 +395,15 @@ const [form] = Form.useForm();
   nearest `InternationalizationProvider` (see Strings). `FormConfigProvider`
   sets `validateMessages`, `requiredMark` and `optionalLabel` app-wide; a
   form's own `validateMessages` wins over both.
-- A control shows its item's validation state by reading
+- ui-common's form controls (TextInput, TextArea, NumberInput, Selector, MultiSelector, Typeahead, Tokenizer, DateInput, TimeInput, DateTimeInput, DateRangeInput, Switch, CheckboxInput, CheckboxList, RadioList, Slider and FileInput) follow antd's contract. They take no `label`,
+  `isLabelHidden`, `description`, `labelTooltip`, `labelIcon`, `isRequired`,
+  `isOptional`, `isDisabled` or status message: `Form.Item`'s `label`,
+  `extra`, `tooltip`, `rules` and `help` own those. The control reads the
+  item's status and paints its border, takes the item's `id`, and is
+  disabled by `<Form disabled>`. `status` (`'error' | 'warning' | ''`) sets
+  the border by hand. `value` may be left out. `Switch` and `CheckboxInput`
+  take `checked` beside `value`, and their inline text as `children`.
+- A custom control shows its item's validation state by reading
   `Form.Item.useStatus()` or `FormItemInputContext`.
 - `form.scrollToField` and `scrollToFirstError` find the control by
   `data-uic-field-id`, which `Form.Item` puts on its child; Astryx inputs
@@ -413,13 +425,16 @@ const [form] = Form.useForm();
 A few Astryx subpaths are deliberately not re-exported. They are listed, with
 the reason and the replacement, in [`exports.exclude.json`](exports.exclude.json).
 Today that is `Dialog` (use `Modal`), `AlertDialog` (use `AlertModal`) and two
-Astryx CLI data files.
+Astryx CLI data files. The form controls' subpaths are excluded too, and
+replaced under the same names by ui-common's `Form.Item` wrappers (see Form).
 
 ### Name rule
 
 A ui-common component never shares a name with an Astryx core or lab export.
 If a name is `Button`, it is Astryx's `Button`. The same holds the other way:
 `DialogHeader` from `@lablup/ui-common/Modal` is Astryx's own `DialogHeader`.
+The exceptions keep Astryx's name on purpose: the forks (fixed copies, same
+API) and the form controls (wrapped for `Form.Item`).
 
 ## Strings
 

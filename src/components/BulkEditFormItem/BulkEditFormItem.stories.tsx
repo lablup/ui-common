@@ -3,10 +3,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { Button } from "../../astryx/Button";
-import { Selector } from "../../astryx/Selector";
 import { VStack } from "../../astryx/Stack";
 import { Text } from "../../astryx/Text";
 import { Form } from "../Form";
+import { Selector } from "../../formControls/Selector";
 import { BulkEditFormItem } from "./BulkEditFormItem";
 
 const STATUSES = [
@@ -63,7 +63,7 @@ const meta = {
   render: (args) => (
     <BulkEditForm onFinish={fn()}>
       <BulkEditFormItem {...args}>
-        <Selector label="Status" isLabelHidden options={STATUSES} />
+        <Selector options={STATUSES} />
       </BulkEditFormItem>
     </BulkEditForm>
   ),
@@ -85,10 +85,10 @@ export const SeveralFields: Story = {
   render: () => (
     <BulkEditForm onFinish={fn()}>
       <BulkEditFormItem name="status" label="Status">
-        <Selector label="Status" isLabelHidden options={STATUSES} />
+        <Selector options={STATUSES} />
       </BulkEditFormItem>
       <BulkEditFormItem name="owner" label="Owner" hasClear clearValueLabel="No owner">
-        <Selector label="Owner" isLabelHidden options={OWNERS} />
+        <Selector options={OWNERS} />
       </BulkEditFormItem>
     </BulkEditForm>
   ),

@@ -130,7 +130,16 @@ describe("output rewriting", { timeout: 60_000 }, () => {
     expect(lab[1]).toMatch(
       /^Note: Tour \(@lablup\/ui-common\/lab\) comes from ui-common/,
     );
-    expect(exclusionNotes("Selector and Tourniquet")).toEqual([]);
+    expect(exclusionNotes("Selectors and Tourniquet")).toEqual([]);
+  });
+
+  it("says ui-common's form controls are Form.Item wrappers without field chrome", () => {
+    const [note] = exclusionNotes("nothing", ["component", "TextInput"]);
+    expect(note).toMatch(
+      /^Note: TextInput \(@lablup\/ui-common\/TextInput\) comes from ui-common: .*Form\.Item/,
+    );
+    expect(note).toMatch(/no label/);
+    expect(note).not.toMatch(/does not export|Use TextInput|same API/);
   });
 
   it("keeps --json output valid and puts notes on stderr", () => {

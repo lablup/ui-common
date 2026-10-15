@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
-import { Form } from "../../components/Form";
 import { CheckboxInput, type CheckboxInputProps } from "./CheckboxInput";
 import { useArgState } from "../../stories/helpers";
 
@@ -50,18 +49,4 @@ export const Disabled: Story = {
 
 export const WithStatus: Story = {
   args: { status: { type: "error", message: "Required." } },
-};
-
-/**
- * The fork's fix: a passed `id` reaches the native checkbox, so the
- * `Form.Item` label names the control, and clicking it toggles the control.
- */
-export const InFormItem: Story = {
-  render: (args) => (
-    <Form layout="vertical" initialValues={{ flag: false }}>
-      <Form.Item label="Accept terms" name="flag" valuePropName="value">
-        <CheckboxInput {...args} isLabelHidden value={false} />
-      </Form.Item>
-    </Form>
-  ),
 };

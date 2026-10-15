@@ -5,14 +5,29 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking: the form controls take no field chrome; `Form.Item` owns it, as
+  in antd (#69).** `TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector`, `Typeahead`, `Tokenizer`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, `Switch`, `CheckboxInput`, `CheckboxList`, `RadioList`, `Slider` and `FileInput` are now ui-common's wrappers at Astryx's names
+  and import paths. They drop `label`, `isLabelHidden`, `description`,
+  `labelTooltip`, `labelIcon`, `isRequired`, `isOptional`, `isDisabled`,
+  `statusVariant` and the status message. Inside a `Form.Item` they read the
+  item's status and paint their border (the item shows the one message),
+  take the item's `id` so its label names them, are disabled by
+  `<Form disabled>`, and announce `required` from its rules. `status` is
+  antd's `'error' | 'warning' | ''`. `value` and `onChange` are optional, so
+  `?? ''` is no longer needed, and `MultiSelector` no longer throws on a
+  missing value. `Switch` and `CheckboxInput` take `checked` beside `value`
+  (`valuePropName="checked"` works) and their inline text as `children`.
+  Move each control's `label`/`description` to the enclosing `Form.Item`
+  (`label`/`extra`) and drop `isLabelHidden`.
+
 ### Fixed
 
-- **`Switch` and `CheckboxInput` take a passed `id`.** Astryx 0.7.0 replaces
-  it with `useId()` (Switch spreads it onto the row), so `Form.Item`'s
-  `<label htmlFor>` pointed at nothing: the label neither named nor toggled
-  the control. ui-common now ships fixed copies under Astryx's names and
-  import paths (`@lablup/ui-common/Switch`, `@lablup/ui-common/CheckboxInput`);
-  the `id` lands on the native checkbox, as TextInput's does. Part of #69.
+- **`Switch` and `CheckboxInput` honour the item's `id`.** Astryx 0.7.0
+  replaces it with `useId()`, so `Form.Item`'s `<label htmlFor>` pointed at
+  nothing. The wrappers render fixed copies (src/forks) that put the `id` on
+  the native checkbox, as TextInput does.
 
 ## [0.2.0-alpha.19]
 

@@ -170,7 +170,7 @@ export default {
   examples: [
     {
       label: "Rename dialog",
-      code: '<Modal\n  isOpen={isOpen}\n  onOpenChange={setIsOpen}\n  title="Rename folder"\n  actionLabel="Rename"\n  onAction={async () => {\n    await rename();\n    setIsOpen(false);\n  }}\n>\n  <TextInput label="Name" value={name} onChange={setName} />\n</Modal>',
+      code: '<Modal\n  isOpen={isOpen}\n  onOpenChange={setIsOpen}\n  title="Rename folder"\n  actionLabel="Rename"\n  onAction={async () => {\n    await rename(form.getFieldValue("name"));\n    setIsOpen(false);\n  }}\n>\n  <Form form={form} layout="vertical">\n    <Form.Item name="name" label="Name" rules={[{ required: true }]}>\n      <TextInput />\n    </Form.Item>\n  </Form>\n</Modal>',
     },
   ],
 };
