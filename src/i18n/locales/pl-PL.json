@@ -63,10 +63,6 @@
     "defaultMessage": "Zmianę rozmiaru odrzucono.",
     "description": "Screen reader announcement when resizing a board item is cancelled"
   },
-  "uic.Board.itemRemoved": {
-    "defaultMessage": "Element usunięto.",
-    "description": "Screen reader announcement when a board item is removed"
-  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Wybierz kolor",
     "description": "Accessible name of a color picker whose caller gave it no label"

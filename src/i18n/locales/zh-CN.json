@@ -63,10 +63,6 @@
     "defaultMessage": "已放弃大小调整。",
     "description": "Screen reader announcement when resizing a board item is cancelled"
   },
-  "uic.Board.itemRemoved": {
-    "defaultMessage": "已移除项目。",
-    "description": "Screen reader announcement when a board item is removed"
-  },
   "uic.ColorPicker.label": {
     "defaultMessage": "选择颜色",
     "description": "Accessible name of a color picker whose caller gave it no label"

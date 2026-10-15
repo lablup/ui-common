@@ -4,9 +4,9 @@ export type {
   BoardOperation,
   BoardItemPlacement,
   BoardDndDetail,
-  BoardItemRemovedDetail,
   BoardItemsChangeDetail,
-  BoardItemActions,
+  BoardItemPadding,
+  BoardLength,
   BoardColumnBreakpoint,
 } from "./Board";
 export { interpretItems, transformItems } from "./layout";

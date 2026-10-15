@@ -63,10 +63,6 @@
     "defaultMessage": "Η αλλαγή μεγέθους ακυρώθηκε.",
     "description": "Screen reader announcement when resizing a board item is cancelled"
   },
-  "uic.Board.itemRemoved": {
-    "defaultMessage": "Το στοιχείο αφαιρέθηκε.",
-    "description": "Screen reader announcement when a board item is removed"
-  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Επιλογή χρώματος",
     "description": "Accessible name of a color picker whose caller gave it no label"
