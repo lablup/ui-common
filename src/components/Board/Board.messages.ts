@@ -46,10 +46,6 @@ export const boardMessages = defineMessages({
     defaultMessage: "Resize discarded.",
     description: "Screen reader announcement when resizing a board item is cancelled",
   },
-  "uic.Board.itemRemoved": {
-    defaultMessage: "Item removed.",
-    description: "Screen reader announcement when a board item is removed",
-  },
   "uic.Board.directionUp": {
     defaultMessage: "Up",
     description:

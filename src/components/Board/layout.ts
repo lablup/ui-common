@@ -11,6 +11,8 @@
  * (the board this one replaces), so a stored dashboard renders identically.
  */
 
+import type { ReactNode } from "react";
+
 export interface BoardItemDefinition {
   /** The least rows the item may take. Floor 2. @default 2 */
   minRowSpan?: number;
@@ -35,6 +37,14 @@ export interface BoardItem<D = unknown> {
   rowSpan?: number;
   /** Columns, from 1. Written back by `onItemsChange` after a resize. */
   columnSpan?: number;
+  /**
+   * The header row's content. A string renders as a level-5 heading; a node
+   * renders as is. Without one there is no header row: the description takes
+   * the whole item.
+   */
+  title?: ReactNode;
+  /** The content under the title. A string renders as text; a node renders as is. */
+  description?: ReactNode;
   data: D;
 }
 
