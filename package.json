@@ -60,6 +60,7 @@
     "./legacy-tokens.css": "./dist/legacy-tokens.css",
     "./styles/base.css": "./dist/styles/base.css",
     "./styles/themes/*.css": "./dist/styles/themes/*.css",
+    "./astryx/templates/*": "./astryx/templates/*.tsx",
     "./reset.css": "./dist/astryx/reset.css",
     "./astryx.css": "./dist/astryx/astryx.css",
     "./tailwind-theme.css": "./dist/astryx/tailwind-theme.css",
@@ -691,12 +692,16 @@
     "lucide-react": "^1.18.0"
   },
   "peerDependencies": {
+    "@astryxdesign/cli": ">=0.6.6",
     "@astryxdesign/lab": "0.7.0-canary.97a0d31",
     "@stylexjs/stylex": "^0.19.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
   "peerDependenciesMeta": {
+    "@astryxdesign/cli": {
+      "optional": true
+    },
     "@astryxdesign/lab": {
       "optional": true
     }

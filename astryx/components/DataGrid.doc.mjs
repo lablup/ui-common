@@ -10,7 +10,10 @@ export default {
   import: "@lablup/ui-common",
   category: "Data Display",
   keywords: [
+    "data table",
     "data grid",
+    "datatable",
+    "list page",
     "table",
     "pagination",
     "sorting",
@@ -20,7 +23,7 @@ export default {
     "expandable rows",
   ],
   description:
-    "Astryx Table with what a list page needs around it: a page bar with a range line, client or server sorting, row selection by key, resizable and pinnable columns, expandable rows, per-user column settings (visibility, order, width in one overrides record) and a CSV export picker. Rows are paged unless pagination.totalItems says they already are one page. DataGridSettingsModal and DataGridExportModal, from the same import, are its dialogs on their own. Astryx Table props it does not own (isStriped, verticalAlign, aria-*) pass through.",
+    "The data table for a list page: Astryx Table with what the page needs around it: a page bar with a range line, client or server sorting, row selection by key, resizable and pinnable columns, expandable rows, per-user column settings (visibility, order, width in one overrides record) and a CSV export picker. Rows are paged unless pagination.totalItems says they already are one page. DataGridSettingsModal and DataGridExportModal, from the same import, are its dialogs on their own. Astryx Table props it does not own (isStriped, verticalAlign, aria-*) pass through.",
   props: [
     {
       name: "data",

@@ -52,6 +52,20 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   controls, named by the item's label. It renders a fork that merges the
   item's `aria-describedby` instead of overwriting it; import
   `SegmentedControlItem` from `@lablup/ui-common/SegmentedControl` too.
+- **ui-common's own templates** (#70): `list-page`, `tabbed-page`,
+  `settings-page` and `dashboard-board` pages, and `list-toolbar`,
+  `create-modal`, `detail-drawer` and `info-modal` blocks, written against
+  `@lablup/ui-common` and lucide-react. The refresh button in `list-page` and
+  `list-toolbar` is `IconButton` inside `CountdownBorder`. The package exports
+  them as source at `@lablup/ui-common/astryx/templates/<name>`, which the
+  Astryx CLI requires of an integration's templates.
+- **`ui-common template`** is the CLI's own command: it lists, prints and
+  writes ui-common's templates and names the packages a written template
+  needs (`lucide-react`, `@astryxdesign/lab`).
+- Component docs for `PageLayout`, `StatCard`, `ErrorState`, `DigitPopIn`,
+  `SmoothHeight`, the Skeleton composites and the lab `Drawer` and `Tour`, so
+  `search` and `build` find them. `search "data table"` now ranks `DataGrid`
+  above `Table`, and `"delete confirm"` finds `DeleteConfirmModal`.
 
 ### Changed
 
@@ -87,6 +101,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `onChange={(v) => …}` is typed again on `Selector` (from `hasClear`, as on
   Astryx's) and on `Slider` (a single value unless the value is a range,
   which Astryx's leaves untyped), instead of an implicit `any`.
+- The CLI no longer offers Astryx's templates, which import
+  `@astryxdesign/*` and Heroicons directly: `template` refuses them,
+  `search` leaves them out, and `build` recommends ui-common's templates
+  instead. `ui-common astryx template …` still runs Astryx's command.
+- The ui-common agent block lists the templates.
+- `@lablup/ui-common` declares an optional `@astryxdesign/cli` peer
+  (`>=0.6.6`): an Astryx CLI before 0.6.6 does not know a template's
+  `keywords` and would drop the templates. A project without the CLI is not
+  affected.
 
 ### Fixed
 

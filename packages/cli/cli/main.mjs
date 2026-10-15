@@ -12,6 +12,7 @@ import {
 } from "./paths.mjs";
 import { ASTRYX_COMMANDS } from "./rewrite.mjs";
 import { SYNC_HELP, syncAstryxCommand } from "./sync-astryx.mjs";
+import { TEMPLATE_HELP, templateCommand } from "./templates.mjs";
 import { UPGRADE_HELP, upgradeCommand } from "./upgrade.mjs";
 import { ADOPT_HELP, adoptCommand } from "./adopt.mjs";
 import { DOCTOR_HELP, doctorCommand } from "./doctor.mjs";
@@ -38,13 +39,17 @@ ui-common commands:
   agents [--write <file>] [--check] [--skill [--dir <dir>]]
         Print, write or check the ui-common agent block (UI-COMMON markers);
         install the ui-common-adopt agent skill.
+  template [<name> [<path>]] [--list] [--type page|block] [--overwrite]
+        List, print or scaffold one of ui-common's page and block templates.
+        Astryx's own templates are not offered; \`search\` and \`build\` leave
+        them out too.
   upgrade [--from <v>] [--to <v>] [--dry-run] [--diff] [--report <path>] [paths…]
         Run the codemods between two ui-common versions and write a report.
   sync-astryx <version> [--lab <version>] [--as <version>] [--dry-run]
         Maintainers, inside the ui-common repository: move to a new Astryx.
 
 Astryx commands (rewritten to @lablup/ui-common paths):
-  ${ASTRYX_COMMANDS.filter((c) => c !== "upgrade" && c !== "help").join(", ")}
+  ${ASTRYX_COMMANDS.filter((c) => c !== "upgrade" && c !== "help" && c !== "template").join(", ")}
   e.g. ui-common component Button, ui-common search "date picker",
        ui-common docs tokens, ui-common build "settings page"
 
@@ -93,6 +98,8 @@ export async function main(argv) {
       return 0;
     case "agents":
       return agentsCommand(rest);
+    case "template":
+      return templateCommand(rest);
     case "upgrade":
       return upgradeCommand(rest);
     case "adopt":
@@ -110,4 +117,4 @@ export async function main(argv) {
   }
 }
 
-export { ADOPT_HELP, AGENTS_HELP, DOCTOR_HELP, SYNC_HELP, UPGRADE_HELP };
+export { ADOPT_HELP, AGENTS_HELP, DOCTOR_HELP, SYNC_HELP, TEMPLATE_HELP, UPGRADE_HELP };
