@@ -10,6 +10,10 @@ export default {
   import: "@lablup/ui-common",
   category: "Overlay",
   keywords: [
+    "delete confirm",
+    "delete confirmation",
+    "confirm delete",
+    "delete dialog",
     "delete",
     "confirm",
     "type to confirm",
@@ -18,7 +22,7 @@ export default {
     "remove",
   ],
   description:
-    "Confirms a deletion on Modal: a warning title, a question, the items about to go and a destructive action. For several items, or with isConfirmInputRequired, the user types confirmText before the action enables. isReversible keeps the layout without the typed confirmation or the warning.",
+    "Delete confirmation dialog: confirms a deletion on Modal: a warning title, a question, the items about to go and a destructive action. For several items, or with isConfirmInputRequired, the user types confirmText before the action enables. isReversible keeps the layout without the typed confirmation or the warning.",
   props: [
     {
       name: "isOpen",

@@ -5,6 +5,35 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **ui-common's own templates** (#70): `list-page`, `tabbed-page`,
+  `settings-page` and `dashboard-board` pages, and `list-toolbar`,
+  `create-modal`, `detail-drawer` and `info-modal` blocks, written against
+  `@lablup/ui-common` and lucide-react. The refresh button in `list-page` and
+  `list-toolbar` is `IconButton` inside `CountdownBorder`. The package exports
+  them as source at `@lablup/ui-common/astryx/templates/<name>`, which the
+  Astryx CLI requires of an integration's templates.
+- **`ui-common template`** is the CLI's own command: it lists, prints and
+  writes ui-common's templates and names the packages a written template
+  needs (`lucide-react`, `@astryxdesign/lab`).
+- Component docs for `PageLayout`, `StatCard`, `ErrorState`, `DigitPopIn`,
+  `SmoothHeight`, the Skeleton composites and the lab `Drawer` and `Tour`, so
+  `search` and `build` find them. `search "data table"` now ranks `DataGrid`
+  above `Table`, and `"delete confirm"` finds `DeleteConfirmModal`.
+
+### Changed
+
+- The CLI no longer offers Astryx's templates, which import
+  `@astryxdesign/*` and Heroicons directly: `template` refuses them,
+  `search` leaves them out, and `build` recommends ui-common's templates
+  instead. `ui-common astryx template …` still runs Astryx's command.
+- The ui-common agent block lists the templates.
+- `@lablup/ui-common` declares an optional `@astryxdesign/cli` peer
+  (`>=0.6.6`): an Astryx CLI before 0.6.6 does not know a template's
+  `keywords` and would drop the templates. A project without the CLI is not
+  affected.
+
 ## [0.2.0-alpha.19]
 
 Astryx 0.6.5 → 0.7.0 (`@astryxdesign/lab` 0.7.0-canary.97a0d31). Astryx's

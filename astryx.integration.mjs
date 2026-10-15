@@ -13,6 +13,13 @@
  * sits beside a one-line `{Name}.tsx` that re-exports the component from the
  * package. `astryx swizzle` on one copies that line, not an implementation.
  *
+ * `templates` holds ui-common's page and block templates
+ * (`ui-common template list-page <dir>`), written against `@lablup/ui-common`
+ * and lucide-react. The CLI checks that each `{id}.tsx` resolves through a
+ * package subpath with a default export, so package.json exports
+ * `./astryx/templates/*`. ui-common's CLI hides Astryx's own templates, which
+ * import `@astryxdesign/*` directly (packages/cli/cli/templates.mjs).
+ *
  * Identity (name, version) comes from package.json. Each root is shipped in
  * the tarball (see `files` in package.json). `pnpm run check:integration`
  * validates the manifest and proves the packed package carries it.
@@ -22,6 +29,7 @@
 export default {
   docs: "./astryx/docs",
   components: "./astryx/components",
+  templates: "./astryx/templates",
   agentDocs: {
     append: [
       "Import Astryx through @lablup/ui-common, never @astryxdesign/*: same subpaths (@lablup/ui-common/Button, /theme/tokens.stylex, /reset.css, /lab).",
@@ -29,6 +37,7 @@ export default {
       "Theme with <Theme theme={lablupTheme}> from @lablup/ui-common/theme/lablup/built (pairs with theme.css). Declare @layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities; first.",
       "ui-common strings resolve through Astryx InternationalizationProvider: pass uiCommonMessages from @lablup/ui-common/i18n-catalog in its messages.",
       "ComplexSelector, and lab's Drawer and Tour, come from ui-common: fixed copies of Astryx's, same API and import paths. ComplexSelector adds hasClear/onClear.",
+      'Before hand-writing a page, run `ui-common build "<need>"` and scaffold from ui-common\'s templates: list-page, list-toolbar, tabbed-page, create-modal, detail-drawer, info-modal, settings-page, dashboard-board.',
     ],
   },
   issuesUrl: "https://github.com/lablup/ui-common/issues",
