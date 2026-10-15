@@ -222,25 +222,41 @@ export function customExports(root = uiCommonRoot()) {
 }
 
 /**
- * ui-common's own copies of Astryx components (src/forks/): same names and
- * import paths as Astryx's, which exports.exclude.json hides. `names` are the
- * names a reader may meet it by; `from` is where a consumer imports it.
+ * ui-common's own versions of Astryx components, under the same names and
+ * import paths as Astryx's, which exports.exclude.json hides: copies with a
+ * fix and the same API (`kind: "fork"`, src/forks/), and Form.Item wrappers
+ * that drop the field chrome (`kind: "wrapper"`, src/formControls/). `names`
+ * are the names a reader may meet it by; `from` is where a consumer imports
+ * it.
  *
- * @returns {Array<{name: string, from: string, names: string[], reason: string}>}
+ * @returns {Array<{name: string, kind: "fork" | "wrapper", from: string, names: string[], reason: string}>}
  */
 export function forkedExports() {
   const exclusions = excludedExports();
   return customExports()
-    .filter((c) => c.fork !== undefined)
+    .filter((c) => c.fork !== undefined || c.wraps !== undefined)
     .map((c) => {
       const exclusion = exclusions.find((e) => e.replacedBy === c.name);
       return {
         name: c.name,
+        kind: c.wraps !== undefined ? "wrapper" : "fork",
         from: `@lablup/ui-common/${c.subpath ?? exclusion?.name ?? ""}`,
         names: exclusion?.exports ?? [c.name],
         reason: exclusion?.reason ?? "",
       };
     });
+}
+
+/**
+ * What to tell a reader about one of `forkedExports()`.
+ *
+ * @param {{name: string, kind: "fork" | "wrapper", from: string, reason: string}} entry
+ */
+export function replacementNote(entry) {
+  return entry.kind === "wrapper"
+    ? `${entry.name} (${entry.from}) comes from ui-common: Astryx's, wrapped for Form.Item, same import path. ` +
+        `It takes no label, description, required or status message; Form.Item's label, extra, rules and help do.`
+    : `${entry.name} (${entry.from}) comes from ui-common: its own copy of Astryx's, same API and import path. ${entry.reason}`;
 }
 
 /**

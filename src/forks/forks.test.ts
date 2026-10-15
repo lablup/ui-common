@@ -49,14 +49,22 @@ describe.each(Object.entries(provenance))("fork %s", (fork, entry) => {
 });
 
 describe("fork bookkeeping", () => {
-  it("records every fork exports.customs.json declares, and nothing else", () => {
+  it("records every fork exports.customs.json declares or a wrapper uses, and nothing else", () => {
     const customs = JSON.parse(
       readFileSync(join(ROOT, "exports.customs.json"), "utf8"),
-    ) as Array<{ name: string; fork?: string }>;
+    ) as Array<{ name: string; fork?: string; wraps?: string }>;
     const forks = customs.filter((c) => c.fork !== undefined);
-    expect(forks.map((c) => c.name).sort()).toEqual(Object.keys(provenance).sort());
+    // A fork a src/formControls wrapper renders is not exported itself; the
+    // wrapper takes its name and subpath.
+    const wrapped = Object.entries(provenance).filter(([, e]) => e.wrappedBy);
+    expect([...forks.map((c) => c.name), ...wrapped.map(([n]) => n)].sort()).toEqual(
+      Object.keys(provenance).sort(),
+    );
     for (const c of forks) {
       expect(c.fork?.startsWith(provenance[c.name]!.package)).toBe(true);
+    }
+    for (const [, e] of wrapped) {
+      expect(customs.some((c) => c.name === e.wrappedBy && c.wraps)).toBe(true);
     }
   });
 

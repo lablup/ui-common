@@ -6,21 +6,80 @@
  * exports.customs.json. Edit those files and run `pnpm run gen:exports`.
  *
  * Left out because their subpath is excluded:
- * AlertDialog, AlertDialogProps, Dialog, DialogHeader, DialogHeaderProps,
+ * AlertDialog, AlertDialogProps, BaseTypeahead, BaseTypeaheadProps,
+ * CheckboxInputSize, CheckboxListItem, CheckboxListItemProps,
+ * CreateStaticSourceOptions, DateInputFormat, DateInputNativePicker,
+ * DateInputPresentation, DateInputSize, DateInputStatus, DateInputStatusType,
+ * DateRange, DateRangeInputSize, DateRangeInputStatus,
+ * DateRangeInputStatusType, DateRangePreset, DateTimeInputHourFormat,
+ * DateTimeInputNativePicker, DateTimeInputPresentation, DateTimeInputSize,
+ * DateTimeInputStatus, DateTimeInputStatusType, DateTimeInputTimeIncrement,
+ * DateTimeInputTimeOptionInterval, Dialog, DialogHeader, DialogHeaderProps,
  * DialogPosition, DialogProps, DialogPurpose, DialogVariant, DialogVariantMap,
- * ImperativeAlertDialogReturn, ImperativeDialogReturn,
- * useImperativeAlertDialog, useImperativeDialog.
+ * FileInputStatus, FileInputStatusType, ISODateTimeString, ISOTimeString,
+ * ImperativeAlertDialogReturn, ImperativeDialogReturn, MultiSelectorChange,
+ * MultiSelectorDivider, MultiSelectorHandle, MultiSelectorOptionData,
+ * MultiSelectorOptionType, MultiSelectorPresentation,
+ * MultiSelectorRenderTriggerProps, MultiSelectorSection,
+ * MultiSelectorSelectedItem, MultiSelectorSize, MultiSelectorStatus,
+ * MultiSelectorStatusType, NumberInputSize, NumberInputStatus,
+ * NumberInputStatusType, RadioListContext, RadioListContextValue,
+ * RadioListItem, RadioListItemProps, RadioListSize, SearchSource,
+ * SearchableItem, SelectorDivider, SelectorOption, SelectorOptionData,
+ * SelectorOptionType, SelectorPresentation, SelectorSection, SelectorSize,
+ * SelectorStatus, SelectorStatusType, SliderBaseProps, SliderRangeProps,
+ * SliderSingleProps, SwitchLabelPosition, SwitchLabelSpacing, TextAreaSize,
+ * TextAreaStatus, TextAreaStatusType, TextInputSize, TextInputStatus,
+ * TextInputStatusType, TextInputType, TimeInputHourFormat,
+ * TimeInputNativePicker, TimeInputPresentation, TimeInputSize, TimeInputStatus,
+ * TimeInputStatusType, TokenizerChange, TokenizerHandle,
+ * TokenizerOverflowBehavior, TokenizerSize, TokenizerStatus,
+ * TokenizerStatusType, TypeaheadItem, TypeaheadItemProps, TypeaheadSize,
+ * TypeaheadStatus, TypeaheadStatusType, createStaticSource, useCombobox,
+ * useImperativeAlertDialog, useImperativeDialog, useMultiCombobox,
+ * useSelectedItemOffset.
  *
  * Excluded Astryx names re-exported unchanged by their replacement:
- * DialogHeader, DialogHeaderProps, DialogPosition, DialogPurpose,
- * DialogVariant.
+ * CheckboxInputSize, CheckboxListItem, CheckboxListItemProps, DateInputFormat,
+ * DateInputNativePicker, DateInputPresentation, DateInputSize, DateInputStatus,
+ * DateInputStatusType, DateRange, DateRangeInputSize, DateRangeInputStatus,
+ * DateRangeInputStatusType, DateRangePreset, DateTimeInputHourFormat,
+ * DateTimeInputNativePicker, DateTimeInputPresentation, DateTimeInputSize,
+ * DateTimeInputStatus, DateTimeInputStatusType, DateTimeInputTimeIncrement,
+ * DateTimeInputTimeOptionInterval, ISODateTimeString, FileInputStatus,
+ * FileInputStatusType, DialogHeader, DialogHeaderProps, DialogPosition,
+ * DialogPurpose, DialogVariant, useMultiCombobox, MultiSelectorChange,
+ * MultiSelectorDivider, MultiSelectorHandle, MultiSelectorOptionData,
+ * MultiSelectorOptionType, MultiSelectorPresentation,
+ * MultiSelectorRenderTriggerProps, MultiSelectorSection,
+ * MultiSelectorSelectedItem, MultiSelectorSize, MultiSelectorStatus,
+ * MultiSelectorStatusType, NumberInputSize, NumberInputStatus,
+ * NumberInputStatusType, RadioListContext, RadioListItem,
+ * RadioListContextValue, RadioListItemProps, RadioListSize, SelectorOption,
+ * useCombobox, useSelectedItemOffset, SelectorDivider, SelectorOptionData,
+ * SelectorOptionType, SelectorPresentation, SelectorSection, SelectorSize,
+ * SelectorStatus, SelectorStatusType, SliderBaseProps, SliderRangeProps,
+ * SliderSingleProps, SwitchLabelPosition, SwitchLabelSpacing, TextAreaSize,
+ * TextAreaStatus, TextAreaStatusType, TextInputSize, TextInputStatus,
+ * TextInputStatusType, TextInputType, ISOTimeString, TimeInputHourFormat,
+ * TimeInputNativePicker, TimeInputPresentation, TimeInputSize, TimeInputStatus,
+ * TimeInputStatusType, TokenizerChange, TokenizerHandle,
+ * TokenizerOverflowBehavior, TokenizerSize, TokenizerStatus,
+ * TokenizerStatusType, BaseTypeahead, TypeaheadItem, createStaticSource,
+ * BaseTypeaheadProps, CreateStaticSourceOptions, SearchSource, SearchableItem,
+ * TypeaheadItemProps, TypeaheadSize, TypeaheadStatus, TypeaheadStatusType.
  *
  * Astryx names exported from ui-common's own copy of the component:
- * CheckboxInput, CheckboxInputProps, CheckboxInputSize, ComplexSelector,
- * ComplexSelectorHandle, ComplexSelectorProps, ComplexSelectorRenderState,
- * ComplexSelectorRenderTriggerProps, ComplexSelectorSize,
- * ComplexSelectorStatus, ComplexSelectorVariant, Switch, SwitchLabelPosition,
- * SwitchLabelSpacing, SwitchProps.
+ * CheckboxInput, CheckboxInputProps, CheckboxList, CheckboxListProps,
+ * ComplexSelector, ComplexSelectorHandle, ComplexSelectorProps,
+ * ComplexSelectorRenderState, ComplexSelectorRenderTriggerProps,
+ * ComplexSelectorSize, ComplexSelectorStatus, ComplexSelectorVariant,
+ * DateInput, DateInputProps, DateRangeInput, DateRangeInputProps,
+ * DateTimeInput, DateTimeInputProps, FileInput, FileInputProps, MultiSelector,
+ * MultiSelectorProps, NumberInput, NumberInputProps, RadioList, RadioListProps,
+ * Selector, SelectorProps, Slider, SliderProps, Switch, SwitchProps, TextArea,
+ * TextAreaProps, TextInput, TextInputProps, TimeInput, TimeInputProps,
+ * Tokenizer, TokenizerProps, Typeahead, TypeaheadProps.
  */
 
 export {
@@ -33,7 +92,6 @@ export {
   AvatarStatusDot,
   Badge,
   Banner,
-  BaseTypeahead,
   Blockquote,
   BottomSheet,
   BottomSheetSwitcher,
@@ -69,8 +127,6 @@ export {
   ChatToolCalls,
   CheckIndicator,
   CheckboxIndicator,
-  CheckboxList,
-  CheckboxListItem,
   Citation,
   ClickableCard,
   Code,
@@ -102,9 +158,6 @@ export {
   DATE_FORMAT_WITH_WEEKDAY,
   DEFAULT_MIN_COLUMN_WIDTH,
   DEFAULT_WIDTH_BREAKPOINTS,
-  DateInput,
-  DateRangeInput,
-  DateTimeInput,
   Divider,
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -120,7 +173,6 @@ export {
   Field,
   FieldLabel,
   FieldStatus,
-  FileInput,
   FormLayout,
   FormLayoutContext,
   Grid,
@@ -161,13 +213,11 @@ export {
   MobileNav,
   MobileNavToggle,
   MoreMenu,
-  MultiSelector,
   NavHeadingCloseContext,
   NavHeadingMenu,
   NavHeadingMenuContext,
   NavHeadingMenuItem,
   NavIcon,
-  NumberInput,
   Outline,
   OverflowList,
   Overlay,
@@ -178,9 +228,6 @@ export {
   PowerSearchToken,
   ProgressBar,
   RadioIndicator,
-  RadioList,
-  RadioListContext,
-  RadioListItem,
   ResizeHandle,
   SHARED_DATE_FORMAT_OPTIONS,
   SYNC_TOKENIZE_THRESHOLD,
@@ -189,8 +236,6 @@ export {
   SegmentedControl,
   SegmentedControlItem,
   SelectableCard,
-  Selector,
-  SelectorOption,
   SideNav,
   SideNavCollapseButton,
   SideNavHeading,
@@ -200,7 +245,6 @@ export {
   SizeContext,
   SizeProvider,
   Skeleton,
-  Slider,
   Spinner,
   Stack,
   StackItem,
@@ -222,19 +266,15 @@ export {
   TableRow,
   TableSelectionToolbar,
   Text,
-  TextArea,
-  TextInput,
   Theme,
   ThemeContext,
   Thumbnail,
-  TimeInput,
   Timer,
   Timestamp,
   Toast,
   ToggleButton,
   ToggleButtonGroup,
   Token,
-  Tokenizer,
   Toolbar,
   Tooltip,
   TopNav,
@@ -246,8 +286,6 @@ export {
   TopNavMenu,
   TopNavRenderContext,
   TreeList,
-  Typeahead,
-  TypeaheadItem,
   VStack,
   VisuallyHidden,
   WIDTH_BREAKPOINT_NAMES,
@@ -268,7 +306,6 @@ export {
   createISOTimeString,
   createIncrementalState,
   createPowerSearchConfig,
-  createStaticSource,
   dataTokenDefaults,
   dateToISO,
   decodeMarkdownCharacterReferences,
@@ -448,7 +485,6 @@ export {
   useClipboard,
   useCollapsible,
   useCollator,
-  useCombobox,
   useCommandPaletteContext,
   useContainerReveal,
   useDevWarning,
@@ -479,7 +515,6 @@ export {
   useMediaQuery,
   useMenuPress,
   useMergedRefs,
-  useMultiCombobox,
   useNavHeadingCloseContext,
   useNavHeadingMenuContext,
   useOutlineFromDOM,
@@ -493,7 +528,6 @@ export {
   useScrollLock,
   useScrollOverflow,
   useScrollableArea,
-  useSelectedItemOffset,
   useSideNavCollapse,
   useSideNavRenderMode,
   useSize,
@@ -561,7 +595,6 @@ export type {
   BannerStatusMap,
   BaseProps,
   BaseTableProps,
-  BaseTypeaheadProps,
   BlockNode,
   BlockNodeWithMath,
   BlockquoteProps,
@@ -638,8 +671,6 @@ export type {
   ChatToolCallItem,
   ChatToolCallStatus,
   ChatToolCallsProps,
-  CheckboxListItemProps,
-  CheckboxListProps,
   CitationProps,
   CitationSource,
   ClassProps,
@@ -690,36 +721,13 @@ export type {
   ContextRenderProps,
   CoreIndicatorName,
   CoreTokenName,
-  CreateStaticSourceOptions,
   CustomOperatorValue,
   CustomTextTypes,
   DataTokenName,
   DateAbsoluteOperatorValue,
-  DateInputFormat,
-  DateInputNativePicker,
-  DateInputPresentation,
-  DateInputProps,
-  DateInputSize,
-  DateInputStatus,
-  DateInputStatusType,
-  DateRange,
   DateRangeFilterPreset,
-  DateRangeInputProps,
-  DateRangeInputSize,
-  DateRangeInputStatus,
-  DateRangeInputStatusType,
   DateRangeOperatorValue,
-  DateRangePreset,
   DateRelativeOperatorValue,
-  DateTimeInputHourFormat,
-  DateTimeInputNativePicker,
-  DateTimeInputPresentation,
-  DateTimeInputProps,
-  DateTimeInputSize,
-  DateTimeInputStatus,
-  DateTimeInputStatusType,
-  DateTimeInputTimeIncrement,
-  DateTimeInputTimeOptionInterval,
   DateTimeRange,
   DateTimeRangePart,
   DayOfWeek,
@@ -771,9 +779,6 @@ export type {
   FieldStatusType,
   FieldStatusVariant,
   FieldStatusVariantMap,
-  FileInputProps,
-  FileInputStatus,
-  FileInputStatusType,
   FilterValue,
   FilterValueCustom,
   FilterValueDateAbsolute,
@@ -818,8 +823,6 @@ export type {
   HoverCardReturn,
   HoverCardTouchTrigger,
   ISODateString,
-  ISODateTimeString,
-  ISOTimeString,
   IconButtonProps,
   IconColor,
   IconName,
@@ -955,19 +958,6 @@ export type {
   MoreMenuProps,
   MotionScaleConfig,
   MotionScaleTokens,
-  MultiSelectorChange,
-  MultiSelectorDivider,
-  MultiSelectorHandle,
-  MultiSelectorOptionData,
-  MultiSelectorOptionType,
-  MultiSelectorPresentation,
-  MultiSelectorProps,
-  MultiSelectorRenderTriggerProps,
-  MultiSelectorSection,
-  MultiSelectorSelectedItem,
-  MultiSelectorSize,
-  MultiSelectorStatus,
-  MultiSelectorStatusType,
   NamespacedIconName,
   NavHeadingCloseContextValue,
   NavHeadingMenuContextValue,
@@ -976,10 +966,6 @@ export type {
   NavHeadingMenuSize,
   NavIconProps,
   NestedOperatorValue,
-  NumberInputProps,
-  NumberInputSize,
-  NumberInputStatus,
-  NumberInputStatusType,
   OperatorTokenizationConfig,
   OperatorValue,
   OutlineItem,
@@ -1029,10 +1015,6 @@ export type {
   ProseElement,
   ProviderMessagesByLocale,
   RGBA,
-  RadioListContextValue,
-  RadioListItemProps,
-  RadioListProps,
-  RadioListSize,
   RadiusScaleConfig,
   RadiusScaleTokens,
   RadiusVarName,
@@ -1060,8 +1042,6 @@ export type {
   ScrollableAreaState,
   ScrollableAreaStickyContainment,
   ScrollableElementProps,
-  SearchSource,
-  SearchableItem,
   SectionProps,
   SectionVariant,
   SectionVariantMap,
@@ -1070,15 +1050,6 @@ export type {
   SegmentedControlProps,
   SegmentedControlSize,
   SelectableCardProps,
-  SelectorDivider,
-  SelectorOptionData,
-  SelectorOptionType,
-  SelectorPresentation,
-  SelectorProps,
-  SelectorSection,
-  SelectorSize,
-  SelectorStatus,
-  SelectorStatusType,
   ShadowVarName,
   SharedDateFormat,
   ShowToastFn,
@@ -1096,10 +1067,6 @@ export type {
   SizeVarName,
   SkeletonProps,
   SkeletonRadius,
-  SliderBaseProps,
-  SliderProps,
-  SliderRangeProps,
-  SliderSingleProps,
   SourceRange,
   SpacingStep,
   SpacingToken,
@@ -1185,18 +1152,9 @@ export type {
   TableTextOverflow,
   TableTreeRowMeta,
   TableVerticalAlign,
-  TextAreaProps,
-  TextAreaSize,
-  TextAreaStatus,
-  TextAreaStatusType,
   TextColor,
   TextColorMap,
   TextDisplay,
-  TextInputProps,
-  TextInputSize,
-  TextInputStatus,
-  TextInputStatusType,
-  TextInputType,
   TextJustify,
   TextProps,
   TextSize,
@@ -1218,13 +1176,6 @@ export type {
   ThemeProps,
   ThemeRulesSplit,
   ThumbnailProps,
-  TimeInputHourFormat,
-  TimeInputNativePicker,
-  TimeInputPresentation,
-  TimeInputProps,
-  TimeInputSize,
-  TimeInputStatus,
-  TimeInputStatusType,
   TimeOperatorValue,
   TimerFormat,
   TimerProps,
@@ -1253,13 +1204,6 @@ export type {
   TokenProps,
   TokenSize,
   TokenValue,
-  TokenizerChange,
-  TokenizerHandle,
-  TokenizerOverflowBehavior,
-  TokenizerProps,
-  TokenizerSize,
-  TokenizerStatus,
-  TokenizerStatusType,
   ToolbarProps,
   ToolbarSize,
   TooltipFocusTrigger,
@@ -1286,11 +1230,6 @@ export type {
   TypeScaleConfig,
   TypeScaleTokens,
   TypeScaleVarName,
-  TypeaheadItemProps,
-  TypeaheadProps,
-  TypeaheadSize,
-  TypeaheadStatus,
-  TypeaheadStatusType,
   TypographyConfig,
   TypographyRole,
   TypographyVarName,
@@ -1429,9 +1368,19 @@ export type { BulkEditFormItemProps } from "./components/BulkEditFormItem";
 export { BulkErrorModal } from "./components/BulkErrorModal";
 export type { BulkErrorModalProps } from "./components/BulkErrorModal";
 
-// CheckboxInput: ui-common's own copy, in place of Astryx's.
-export { CheckboxInput } from "./forks/CheckboxInput";
-export type { CheckboxInputProps, CheckboxInputSize } from "./forks/CheckboxInput";
+// CheckboxInput: ui-common's Form.Item wrapper, in place of Astryx's.
+export { CheckboxInput } from "./formControls/CheckboxInput";
+export type {
+  CheckboxInputProps,
+  CheckboxInputSize,
+} from "./formControls/CheckboxInput";
+
+// CheckboxList: ui-common's Form.Item wrapper, in place of Astryx's.
+export { CheckboxList, CheckboxListItem } from "./formControls/CheckboxList";
+export type {
+  CheckboxListItemProps,
+  CheckboxListProps,
+} from "./formControls/CheckboxList";
 
 // ColorPicker
 export { ColorPicker, toHexColor } from "./components/ColorPicker";
@@ -1489,6 +1438,44 @@ export type {
   DataGridSortDirection,
 } from "./components/DataGrid";
 
+// DateInput: ui-common's Form.Item wrapper, in place of Astryx's.
+export { DateInput } from "./formControls/DateInput";
+export type {
+  DateInputFormat,
+  DateInputNativePicker,
+  DateInputPresentation,
+  DateInputProps,
+  DateInputSize,
+  DateInputStatus,
+  DateInputStatusType,
+} from "./formControls/DateInput";
+
+// DateRangeInput: ui-common's Form.Item wrapper, in place of Astryx's.
+export { DateRangeInput } from "./formControls/DateRangeInput";
+export type {
+  DateRange,
+  DateRangeInputProps,
+  DateRangeInputSize,
+  DateRangeInputStatus,
+  DateRangeInputStatusType,
+  DateRangePreset,
+} from "./formControls/DateRangeInput";
+
+// DateTimeInput: ui-common's Form.Item wrapper, in place of Astryx's.
+export { DateTimeInput } from "./formControls/DateTimeInput";
+export type {
+  DateTimeInputHourFormat,
+  DateTimeInputNativePicker,
+  DateTimeInputPresentation,
+  DateTimeInputProps,
+  DateTimeInputSize,
+  DateTimeInputStatus,
+  DateTimeInputStatusType,
+  DateTimeInputTimeIncrement,
+  DateTimeInputTimeOptionInterval,
+  ISODateTimeString,
+} from "./formControls/DateTimeInput";
+
 // DeleteConfirmModal
 export { DeleteConfirmModal } from "./components/DeleteConfirmModal";
 export type {
@@ -1519,6 +1506,14 @@ export type {
 // ErrorState
 export { ErrorState } from "./components/ErrorState";
 export type { ErrorAction, ErrorStateProps, ErrorTone } from "./components/ErrorState";
+
+// FileInput: ui-common's Form.Item wrapper, in place of Astryx's.
+export { FileInput } from "./formControls/FileInput";
+export type {
+  FileInputProps,
+  FileInputStatus,
+  FileInputStatusType,
+} from "./formControls/FileInput";
 
 // Form
 export {
@@ -1607,6 +1602,24 @@ export type {
   ModalZIndexBand,
 } from "./components/Modal";
 
+// MultiSelector: ui-common's Form.Item wrapper, in place of Astryx's.
+export { MultiSelector, useMultiCombobox } from "./formControls/MultiSelector";
+export type {
+  MultiSelectorChange,
+  MultiSelectorDivider,
+  MultiSelectorHandle,
+  MultiSelectorOptionData,
+  MultiSelectorOptionType,
+  MultiSelectorPresentation,
+  MultiSelectorProps,
+  MultiSelectorRenderTriggerProps,
+  MultiSelectorSection,
+  MultiSelectorSelectedItem,
+  MultiSelectorSize,
+  MultiSelectorStatus,
+  MultiSelectorStatusType,
+} from "./formControls/MultiSelector";
+
 // NotificationItem
 export { NotificationItem } from "./components/NotificationItem";
 export type { NotificationItemProps } from "./components/NotificationItem";
@@ -1617,6 +1630,15 @@ export type {
   NotificationStackItem,
   NotificationStackProps,
 } from "./components/NotificationStack";
+
+// NumberInput: ui-common's Form.Item wrapper, in place of Astryx's.
+export { NumberInput } from "./formControls/NumberInput";
+export type {
+  NumberInputProps,
+  NumberInputSize,
+  NumberInputStatus,
+  NumberInputStatusType,
+} from "./formControls/NumberInput";
 
 // OverlayScrollbar
 export {
@@ -1647,9 +1669,37 @@ export type {
 export { ProgressWithLabel } from "./components/ProgressWithLabel";
 export type { ProgressWithLabelProps } from "./components/ProgressWithLabel";
 
+// RadioList: ui-common's Form.Item wrapper, in place of Astryx's.
+export { RadioList, RadioListContext, RadioListItem } from "./formControls/RadioList";
+export type {
+  RadioListContextValue,
+  RadioListItemProps,
+  RadioListProps,
+  RadioListSize,
+} from "./formControls/RadioList";
+
 // SelectionLabel
 export { SelectionLabel } from "./components/SelectionLabel";
 export type { SelectionLabelProps } from "./components/SelectionLabel";
+
+// Selector: ui-common's Form.Item wrapper, in place of Astryx's.
+export {
+  Selector,
+  SelectorOption,
+  useCombobox,
+  useSelectedItemOffset,
+} from "./formControls/Selector";
+export type {
+  SelectorDivider,
+  SelectorOptionData,
+  SelectorOptionType,
+  SelectorPresentation,
+  SelectorProps,
+  SelectorSection,
+  SelectorSize,
+  SelectorStatus,
+  SelectorStatusType,
+} from "./formControls/Selector";
 
 // Skeleton composites
 export {
@@ -1664,6 +1714,15 @@ export type {
   SkeletonRowProps,
   SkeletonTextProps,
 } from "./components/Skeleton";
+
+// Slider: ui-common's Form.Item wrapper, in place of Astryx's.
+export { Slider } from "./formControls/Slider";
+export type {
+  SliderBaseProps,
+  SliderProps,
+  SliderRangeProps,
+  SliderSingleProps,
+} from "./formControls/Slider";
 
 // SmoothHeight
 export { SmoothHeight } from "./components/SmoothHeight";
@@ -1696,17 +1755,49 @@ export type {
   StepNumberInputProps,
 } from "./components/StepNumberInput";
 
-// Switch: ui-common's own copy, in place of Astryx's.
-export { Switch } from "./forks/Switch";
+// Switch: ui-common's Form.Item wrapper, in place of Astryx's.
+export { Switch } from "./formControls/Switch";
 export type {
   SwitchLabelPosition,
   SwitchLabelSpacing,
   SwitchProps,
-} from "./forks/Switch";
+} from "./formControls/Switch";
+
+// TextArea: ui-common's Form.Item wrapper, in place of Astryx's.
+export { TextArea } from "./formControls/TextArea";
+export type {
+  TextAreaProps,
+  TextAreaSize,
+  TextAreaStatus,
+  TextAreaStatusType,
+} from "./formControls/TextArea";
 
 // TextHighlighter
 export { TextHighlighter } from "./components/TextHighlighter";
 export type { TextHighlighterProps } from "./components/TextHighlighter";
+
+// TextInput: ui-common's Form.Item wrapper, in place of Astryx's.
+export { TextInput } from "./formControls/TextInput";
+export type {
+  TextInputProps,
+  TextInputSize,
+  TextInputStatus,
+  TextInputStatusType,
+  TextInputType,
+} from "./formControls/TextInput";
+
+// TimeInput: ui-common's Form.Item wrapper, in place of Astryx's.
+export { TimeInput } from "./formControls/TimeInput";
+export type {
+  ISOTimeString,
+  TimeInputHourFormat,
+  TimeInputNativePicker,
+  TimeInputPresentation,
+  TimeInputProps,
+  TimeInputSize,
+  TimeInputStatus,
+  TimeInputStatusType,
+} from "./formControls/TimeInput";
 
 // TokenList
 export { TokenList } from "./components/TokenList";
@@ -1715,6 +1806,37 @@ export type { TokenListItem, TokenListProps } from "./components/TokenList";
 // TokenRow
 export { TokenRow } from "./components/TokenRow";
 export type { TokenRowItem, TokenRowProps } from "./components/TokenRow";
+
+// Tokenizer: ui-common's Form.Item wrapper, in place of Astryx's.
+export { Tokenizer } from "./formControls/Tokenizer";
+export type {
+  TokenizerChange,
+  TokenizerHandle,
+  TokenizerOverflowBehavior,
+  TokenizerProps,
+  TokenizerSize,
+  TokenizerStatus,
+  TokenizerStatusType,
+} from "./formControls/Tokenizer";
+
+// Typeahead: ui-common's Form.Item wrapper, in place of Astryx's.
+export {
+  BaseTypeahead,
+  Typeahead,
+  TypeaheadItem,
+  createStaticSource,
+} from "./formControls/Typeahead";
+export type {
+  BaseTypeaheadProps,
+  CreateStaticSourceOptions,
+  SearchSource,
+  SearchableItem,
+  TypeaheadItemProps,
+  TypeaheadProps,
+  TypeaheadSize,
+  TypeaheadStatus,
+  TypeaheadStatusType,
+} from "./formControls/Typeahead";
 
 // UncontrolledInput
 export { UncontrolledInput } from "./components/UncontrolledInput";

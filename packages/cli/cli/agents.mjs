@@ -19,6 +19,7 @@ import {
   forkedExports,
   hiddenExports,
   importAstryxInternal,
+  replacementNote,
   uiCommonPackageJson,
 } from "./paths.mjs";
 import { rewriteOutput } from "./rewrite.mjs";
@@ -71,7 +72,7 @@ async function coreComponentCount() {
 /** ui-common's own lines, appended to the rewritten Astryx block. */
 function uiCommonSection({ version, astryxVersion, invocation }) {
   const components = customExports()
-    .filter((c) => !c.legacy && !c.fork && /^[A-Z]/.test(c.name))
+    .filter((c) => !c.legacy && !c.fork && !c.wraps && /^[A-Z]/.test(c.name))
     .map((c) => c.name);
   const lines = [
     `UI-COMMON (@lablup/ui-common v${version} wraps Astryx v${astryxVersion}):`,
@@ -84,9 +85,14 @@ function uiCommonSection({ version, astryxVersion, invocation }) {
       `- Use ${entry.replacedBy} (@lablup/ui-common/${entry.replacedBy}), not ${entry.name}: ui-common hides ${entry.name}.`,
     );
   }
-  for (const fork of forkedExports()) {
+  const replacements = forkedExports();
+  for (const fork of replacements.filter((f) => f.kind === "fork")) {
+    lines.push(`- ${replacementNote(fork)}`);
+  }
+  const wrappers = replacements.filter((f) => f.kind === "wrapper");
+  if (wrappers.length > 0) {
     lines.push(
-      `- ${fork.name} (${fork.from}) comes from ui-common: its own copy of Astryx's, same API and import path. ${fork.reason}`,
+      `- Form controls (${wrappers.map((w) => w.name).join(", ")}) are ui-common's Form.Item wrappers at Astryx's import paths: no label, description, isRequired or status message props. Use them inside Form.Item, which owns label, extra, rules and help; \`status\` is "error" | "warning" for the border only.`,
     );
   }
   lines.push(

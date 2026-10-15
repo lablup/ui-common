@@ -135,7 +135,10 @@ describe("export surface rules", () => {
   });
 
   it("lets Modal re-export Dialog's own parts unchanged, and nothing else of Dialog", () => {
-    expect([...result.report.reinstated].sort()).toEqual([
+    // The src/formControls wrappers re-export the rest of their Astryx
+    // subpath unchanged too; only Dialog's names are Modal's.
+    const dialogNames = result.report.reinstated.filter((n) => n.startsWith("Dialog"));
+    expect([...dialogNames].sort()).toEqual([
       "DialogHeader",
       "DialogHeaderProps",
       "DialogPosition",

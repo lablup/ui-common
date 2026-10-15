@@ -3,11 +3,11 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { Button } from "../../astryx/Button";
-import { Selector } from "../../astryx/Selector";
 import { HStack, VStack } from "../../astryx/Stack";
 import { Text } from "../../astryx/Text";
-import { TextInput, type TextInputProps } from "../../astryx/TextInput";
 import { StepNumberInput } from "../StepNumberInput";
+import { Selector } from "../../formControls/Selector";
+import { TextInput } from "../../formControls/TextInput";
 import FormRoot from "./Form";
 import {
   ErrorList,
@@ -17,17 +17,6 @@ import {
   FormList,
   type FormProps,
 } from "./index";
-
-/**
- * `TextInput` requires `value`; inside `Form.Item` the item supplies it, so
- * the field takes it as optional.
- */
-function TextField({
-  value,
-  ...props
-}: Omit<TextInputProps, "value"> & { value?: string }) {
-  return <TextInput {...props} value={value ?? ""} />;
-}
 
 const REGIONS = [
   { value: "north", label: "North" },
@@ -67,7 +56,7 @@ function ProjectForm(props: FormProps) {
             { min: 3, message: "Use at least 3 characters." },
           ]}
         >
-          <TextField label="Project name" isLabelHidden placeholder="my-project" />
+          <TextInput placeholder="my-project" />
         </FormItem>
         <FormItem
           name="email"
@@ -75,24 +64,14 @@ function ProjectForm(props: FormProps) {
           tooltip="Notifications about this project go here."
           rules={[{ type: "email", message: "Enter a valid email address." }]}
         >
-          <TextField
-            label="Contact email"
-            isLabelHidden
-            type="email"
-            placeholder="owner@example.com"
-          />
+          <TextInput type="email" placeholder="owner@example.com" />
         </FormItem>
         <FormItem
           name="region"
           label="Region"
           rules={[{ required: true, message: "Choose a region." }]}
         >
-          <Selector
-            label="Region"
-            isLabelHidden
-            options={REGIONS}
-            placeholder="Select a region"
-          />
+          <Selector options={REGIONS} placeholder="Select a region" />
         </FormItem>
         <FormItem
           name="storage"
@@ -166,7 +145,7 @@ function MembersForm(props: FormProps) {
                   ]}
                   style={{ flex: 1 }}
                 >
-                  <TextField label={`Member ${index + 1}`} isLabelHidden />
+                  <TextInput aria-label={`Member ${index + 1}`} />
                 </FormItem>
                 <Button
                   variant="ghost"
@@ -205,12 +184,7 @@ function LabelExtraForm(props: FormProps) {
           />
         }
       >
-        <Selector
-          label="Region"
-          isLabelHidden
-          options={options}
-          placeholder="Select a region"
-        />
+        <Selector options={options} placeholder="Select a region" />
       </FormItem>
     </Form>
   );
@@ -256,28 +230,31 @@ export const ItemVisual: Story = {
     <VStack gap={2} align="stretch" style={{ maxWidth: 480 }}>
       <FormItemVisual
         label="Project name"
+        fieldId="visual-name"
         required
         status="error"
         hasFeedback
         errors={["Enter a project name."]}
       >
-        <TextField label="Project name" isLabelHidden />
+        <TextInput id="visual-name" status="error" />
       </FormItemVisual>
       <FormItemVisual
         label="Contact email"
+        fieldId="visual-email"
         status="warning"
         hasFeedback
         warnings={["This address has not been verified."]}
       >
-        <TextField label="Contact email" isLabelHidden value="owner@example.com" />
+        <TextInput id="visual-email" status="warning" value="owner@example.com" />
       </FormItemVisual>
       <FormItemVisual
         label="Region"
+        fieldId="visual-region"
         status="success"
         hasFeedback
         extra="Closest to your team."
       >
-        <TextField label="Region" isLabelHidden value="North" />
+        <TextInput id="visual-region" value="North" />
       </FormItemVisual>
     </VStack>
   ),

@@ -32,6 +32,9 @@ function entryPoints(): Record<string, string> {
     // Astryx components"). A core fork has its own subpath; lab's are reached
     // through the lab mirror.
     "src/forks/**/index.ts",
+    // ui-common's Form.Item wrappers of Astryx's form controls (#69), each at
+    // the Astryx subpath it replaces.
+    "src/formControls/*/index.ts",
     // The generated Astryx mirrors (scripts/gen-exports.mjs). Each one is a
     // one-line re-export that stays a one-line re-export in dist, because
     // every @astryxdesign/* specifier is external.
