@@ -666,7 +666,7 @@ out, and `build` recommends ui-common's templates in their place.
 pnpm install
 pnpm run verify      # typecheck, lint, format, boundary, theme, test, build, pack, integration
 pnpm run test:watch
-pnpm ui-common template --list   # this checkout's CLI, run against the repository
+pnpm uic template --list         # this checkout's CLI, run against the repository
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/astryx.md](docs/astryx.md).
