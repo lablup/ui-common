@@ -674,6 +674,7 @@
     "build-storybook": "storybook build",
     "gen:exports": "node scripts/gen-exports.mjs",
     "sync:forks": "node scripts/sync-forks.mjs",
+    "ui-common": "node packages/cli/bin/ui-common.mjs",
     "theme:build": "astryx theme build src/theme/lablup/lablupTheme.ts -o src/theme/lablup/built/theme.css --icons-specifier @astryxdesign/theme-neutral",
     "theme:check": "astryx theme build -c src/theme/lablup/lablupTheme.ts -o src/theme/lablup/built/theme.css --icons-specifier @astryxdesign/theme-neutral",
     "check:pack": "node scripts/check-pack.mjs",
