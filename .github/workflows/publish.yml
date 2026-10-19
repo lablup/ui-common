@@ -233,7 +233,7 @@ jobs:
             if npm view "@lablup/$NAME@$VERSION" version --registry "$REGISTRY" > /dev/null 2>&1; then
               npm dist-tag add "@lablup/$NAME@$VERSION" "$TAG" --registry "$REGISTRY"
             else
-              npm publish "packed/lablup-$NAME-$VERSION.tgz" --access public --tag "$TAG" --registry "$REGISTRY"
+              npm publish "./packed/lablup-$NAME-$VERSION.tgz" --access public --tag "$TAG" --registry "$REGISTRY"
             fi
           done
         env:
@@ -246,7 +246,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
         run: |
           for NAME in ui-common ui-common-cli; do
-            npm publish "packed/lablup-$NAME-$VERSION.tgz" --dry-run --access public --tag "$TAG" --registry https://npm.pkg.github.com
+            npm publish "./packed/lablup-$NAME-$VERSION.tgz" --dry-run --access public --tag "$TAG" --registry https://npm.pkg.github.com
           done
         env:
           VERSION: ${{ needs.build.outputs.version }}
@@ -301,7 +301,7 @@ jobs:
             if npm view "@lablup/$NAME@$VERSION" version --registry "$REGISTRY" > /dev/null 2>&1; then
               npm dist-tag add "@lablup/$NAME@$VERSION" "$TAG" --registry "$REGISTRY"
             else
-              npm publish "packed/lablup-$NAME-$VERSION.tgz" --provenance --access public --tag "$TAG" --registry "$REGISTRY"
+              npm publish "./packed/lablup-$NAME-$VERSION.tgz" --provenance --access public --tag "$TAG" --registry "$REGISTRY"
             fi
           done
         env:
@@ -314,7 +314,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
         run: |
           for NAME in ui-common ui-common-cli; do
-            npm publish "packed/lablup-$NAME-$VERSION.tgz" --dry-run --access public --tag "$TAG" --registry https://registry.npmjs.org
+            npm publish "./packed/lablup-$NAME-$VERSION.tgz" --dry-run --access public --tag "$TAG" --registry https://registry.npmjs.org
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
