@@ -5,6 +5,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`UnitGrid` draws full-size cells again under Astryx 0.7.0.** Cell, gap
+  and radius sizes came from `parseFloat()` on the raw `--spacing-4`,
+  `--spacing-0-5` and `--radius-element` values, which are rem since 0.7.0,
+  so a `1rem` cell drew 1px wide. The tokens are now resolved to px through
+  probe elements; a token that cannot be resolved keeps the 16px / 2px / 4px
+  default.
+
 ## [0.2.0-alpha.19]
 
 Astryx 0.6.5 → 0.7.0 (`@astryxdesign/lab` 0.7.0-canary.97a0d31). Astryx's

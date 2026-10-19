@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
@@ -285,6 +286,63 @@ describe("UnitGrid strings and theming", () => {
         ink,
       );
     }
+  });
+
+  it("sizes cells from the resolved px length of rem spacing tokens", () => {
+    // jsdom does not resolve var(); stand in for a browser that computes
+    // the probes' var() lengths to px.
+    const resolved: Record<string, string> = {
+      "var(--spacing-4)": "24px",
+      "var(--spacing-0-5)": "3px",
+      "var(--radius-element)": "10px",
+    };
+    const real = window.getComputedStyle.bind(window);
+    const spy = vi.spyOn(window, "getComputedStyle").mockImplementation((el) => {
+      const cs = real(el);
+      const { style } = el as HTMLElement;
+      return new Proxy(cs, {
+        get: (target, prop) =>
+          prop === "getPropertyValue"
+            ? (name: string) =>
+                resolved[style.getPropertyValue(name)] ?? target.getPropertyValue(name)
+            : Reflect.get(target, prop, target),
+      });
+    });
+    try {
+      const { container } = render(
+        <UnitGrid
+          groups={GROUPS}
+          columns={8}
+          style={
+            {
+              "--spacing-4": "1.5rem",
+              "--spacing-0-5": "0.1875rem",
+              "--radius-element": "0.625rem",
+            } as CSSProperties
+          }
+        />,
+      );
+      const cell = cellsOf(container)[0]!;
+      expect(cell).toHaveAttribute("width", "24");
+      expect(cell).toHaveAttribute("height", "24");
+      expect(cell).toHaveAttribute("rx", "4");
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("keeps the default cell size when a rem token cannot be resolved", () => {
+    // Parsing the raw "1rem" would give a 1px cell.
+    const { container } = render(
+      <UnitGrid
+        groups={GROUPS}
+        columns={8}
+        style={{ "--spacing-4": "1rem", "--spacing-0-5": "0.125rem" } as CSSProperties}
+      />,
+    );
+    const cell = cellsOf(container)[0]!;
+    expect(cell).toHaveAttribute("width", "16");
+    expect(cell).toHaveAttribute("height", "16");
   });
 
   it("passes class names and attributes to the root", () => {
