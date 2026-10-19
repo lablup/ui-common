@@ -52,11 +52,6 @@ export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
   ? Omit<T, K>
   : never;
 
-/** A required Astryx prop made optional, because `Form.Item` injects it. */
-export type Injected<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
-export const noop = () => {};
-
 /**
  * The empty value of a list control. One array for every render: Astryx
  * memoizes on the value's identity (Tokenizer rebuilds its search source and
