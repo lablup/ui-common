@@ -47,6 +47,7 @@ export function TextInput({
     ...rest,
     ...field,
     statusVariant: "detached",
+    width: rest.width ?? "100%",
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxTextInputProps;

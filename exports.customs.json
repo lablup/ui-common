@@ -103,6 +103,12 @@
     "subpath": "RadioList",
     "wraps": "@astryxdesign/core/RadioList"
   },
+  {
+    "name": "SegmentedControl",
+    "source": "formControls/SegmentedControl/index.ts",
+    "subpath": "SegmentedControl",
+    "wraps": "@astryxdesign/core/SegmentedControl"
+  },
   { "name": "SelectionLabel", "source": "components/SelectionLabel/index.ts" },
   {
     "name": "Selector",
@@ -126,6 +132,11 @@
     "source": "formControls/Switch/index.ts",
     "subpath": "Switch",
     "wraps": "@astryxdesign/core/Switch"
+  },
+  {
+    "name": "TagsInput",
+    "source": "formControls/TagsInput/index.ts",
+    "subpath": "TagsInput"
   },
   {
     "name": "TextArea",

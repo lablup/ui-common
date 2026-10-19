@@ -402,5 +402,9 @@
   "uic.Board.directionRight": {
     "defaultMessage": "오른쪽으로",
     "description": "Accessible name of the button that moves an activated board item, or grows a resized one, one column right"
+  },
+  "uic.TagsInput.create": {
+    "defaultMessage": "\"{value}\" 추가",
+    "description": "Label of the row in a tag input's list that adds the typed text as a new tag"
   }
 }

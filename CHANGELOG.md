@@ -8,7 +8,7 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 ### Changed
 
 - **Breaking: the form controls take no field chrome; `Form.Item` owns it, as
-  in antd (#69).** `TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector`, `Typeahead`, `Tokenizer`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, `Switch`, `CheckboxInput`, `CheckboxList`, `RadioList`, `Slider` and `FileInput` are now ui-common's wrappers at Astryx's names
+  in antd (#69).** `TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector`, `Typeahead`, `Tokenizer`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, `Switch`, `CheckboxInput`, `CheckboxList`, `RadioList`, `SegmentedControl`, `Slider` and `FileInput` are now ui-common's wrappers at Astryx's names
   and import paths. They drop `label`, `isLabelHidden`, `description`,
   `labelTooltip`, `labelIcon`, `isRequired`, `isOptional`, `isDisabled`,
   `statusVariant` and the status message. Inside a `Form.Item` they read the
@@ -27,6 +27,27 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   (`valuePropName="checked"` works) and their inline text as `children`.
   Move each control's `label`/`description` to the enclosing `Form.Item`
   (`label`/`extra`) and drop `isLabelHidden`.
+- **The form controls do what a host app's adapter used to add**, as
+  antd's controls do. `TextInput`, `TextArea`, `NumberInput`, `Selector`,
+  `MultiSelector` and `Tokenizer` default to `width="100%"`; `Selector` to
+  `placement="below"`, so its panel no longer covers the item's label;
+  `MultiSelector` to `triggerDisplay="labels"`. `NumberInput` defaults to
+  `hasClear` (an emptied field reports `null`; pass `hasClear={false}` to
+  keep the last number), takes a numeric string as `value`, and rounds a
+  decimal typed into an `isIntegerOnly` field on blur instead of dropping
+  it. Its `onChange` is `(value: number | null) => void`.
+
+### Added
+
+- **`TagsInput`** (`@lablup/ui-common/TagsInput`), antd's
+  `Select mode="tags"` on ui-common's `Tokenizer`: `string[]` tags,
+  deduplicated, `tokenSeparators` on the keystroke and on paste, text left
+  in the input committed on blur, and a translated create row
+  (`uic.TagsInput.create`).
+- **`SegmentedControl` for `Form.Item`**: a wrapper like the other form
+  controls, named by the item's label. It renders a fork that merges the
+  item's `aria-describedby` instead of overwriting it; import
+  `SegmentedControlItem` from `@lablup/ui-common/SegmentedControl` too.
 
 ### Fixed
 

@@ -51,6 +51,9 @@ export function MultiSelector<
     ...rest,
     ...field,
     statusVariant: "detached",
+    width: rest.width ?? "100%",
+    // The selection itself, as antd's multiple Select shows it, not a count.
+    triggerDisplay: rest.triggerDisplay ?? "labels",
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxMultiSelectorProps<T>;

@@ -54,6 +54,10 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     ...rest,
     ...field,
     statusVariant: "detached",
+    width: rest.width ?? "100%",
+    // Without a placement Astryx lays the panel over the trigger, the selected
+    // option on top of it, which hides the item's label above.
+    placement: rest.placement ?? "below",
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxSelectorProps<T>;

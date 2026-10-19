@@ -13,7 +13,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { cloneElement, useState, type ReactElement } from "react";
+import { cloneElement, useState, type ComponentProps, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Form, type FormInstance } from "../components/Form";
@@ -28,9 +28,11 @@ import { FileInput } from "./FileInput";
 import { MultiSelector } from "./MultiSelector";
 import { NumberInput } from "./NumberInput";
 import { RadioList, RadioListItem } from "./RadioList";
+import { SegmentedControl, SegmentedControlItem } from "./SegmentedControl";
 import { Selector } from "./Selector";
 import { Slider } from "./Slider";
 import { Switch } from "./Switch";
+import { TagsInput } from "./TagsInput";
 import { TextArea } from "./TextArea";
 import { TextInput } from "./TextInput";
 import { TimeInput } from "./TimeInput";
@@ -58,6 +60,7 @@ const CASES: Array<[string, ReactElement, string]> = [
   ["MultiSelector", <MultiSelector options={OPTIONS} />, "#field"],
   ["Typeahead", <Typeahead searchSource={source} />, "input"],
   ["Tokenizer", <Tokenizer searchSource={source} />, "input"],
+  ["TagsInput", <TagsInput />, "input"],
   ["DateInput", <DateInput />, "#field"],
   ["TimeInput", <TimeInput />, "#field"],
   ["DateTimeInput", <DateTimeInput />, "#field"],
@@ -76,6 +79,13 @@ const CASES: Array<[string, ReactElement, string]> = [
     <RadioList>
       <RadioListItem value="a" label="Alpha" />
     </RadioList>,
+    "[role=radiogroup]",
+  ],
+  [
+    "SegmentedControl",
+    <SegmentedControl>
+      <SegmentedControlItem value="a" label="Alpha" />
+    </SegmentedControl>,
     "[role=radiogroup]",
   ],
   ["Slider", <Slider />, "[role=slider]"],
@@ -419,5 +429,115 @@ describe("surfaces that are not part of the item", () => {
     });
     const search = screen.getByRole("textbox", { name: "Search users", hidden: true });
     expect(search).not.toHaveAttribute("aria-invalid", "true");
+  });
+});
+
+describe("what a host app's adapter used to add", () => {
+  it("fill the field's width, as antd's inputs do", () => {
+    const { container } = render(
+      <>
+        <TextInput aria-label="a" />
+        <TextArea aria-label="b" />
+        <NumberInput aria-label="c" />
+        <Selector aria-label="d" options={OPTIONS} />
+        <MultiSelector aria-label="e" options={OPTIONS} />
+        <Tokenizer aria-label="f" searchSource={source} />
+        <TextInput aria-label="g" width={120} />
+      </>,
+    );
+    const widths = [...container.querySelectorAll<HTMLElement>("[style]")]
+      .map((el) => el.style.getPropertyValue("--x-width"))
+      .filter(Boolean);
+    expect(widths).toEqual(["100%", "100%", "100%", "100%", "100%", "100%", "120px"]);
+  });
+
+  it("show MultiSelector's selection, not a count", () => {
+    render(<MultiSelector aria-label="Tags" options={OPTIONS} value={["a", "b"]} />);
+    expect(screen.getByRole("combobox")).toHaveTextContent("Alpha, Beta");
+  });
+
+  it("let NumberInput report null when emptied, as antd's InputNumber does", async () => {
+    const onChange = vi.fn();
+    render(<NumberInput aria-label="Count" value={5} onChange={onChange} />);
+    const input = screen.getByRole("spinbutton", { name: "Count" });
+    await userEvent.clear(input);
+    await userEvent.tab();
+    expect(onChange).toHaveBeenLastCalledWith(null);
+  });
+
+  it("let NumberInput read a numeric string", () => {
+    render(<NumberInput aria-label="Port" value="8080" />);
+    expect(screen.getByRole("spinbutton", { name: "Port" })).toHaveValue("8080");
+  });
+
+  it("round a decimal typed into an integer NumberInput", async () => {
+    const onChange = vi.fn();
+    render(
+      <NumberInput aria-label="Replicas" isIntegerOnly max={10} onChange={onChange} />,
+    );
+    await userEvent.type(screen.getByRole("spinbutton", { name: "Replicas" }), "2.6");
+    await userEvent.tab();
+    expect(onChange).toHaveBeenLastCalledWith(3);
+  });
+});
+
+describe("TagsInput", () => {
+  function renderTags(props: Partial<ComponentProps<typeof TagsInput>> = {}) {
+    const form: { current?: FormInstance } = {};
+    function Harness() {
+      const [instance] = Form.useForm();
+      form.current = instance;
+      return (
+        <Form form={instance}>
+          <Form.Item label="Hosts" name="hosts">
+            <TagsInput {...props} />
+          </Form.Item>
+          <button type="button">Elsewhere</button>
+        </Form>
+      );
+    }
+    render(<Harness />);
+    return form;
+  }
+
+  it("holds the tags as strings, one per separator typed", async () => {
+    const form = renderTags({ tokenSeparators: [",", " "] });
+    const input = screen.getByRole("combobox", { name: "Hosts" });
+    // fireEvent, not userEvent: user-event keeps its own copy of the text and
+    // misses the input being emptied.
+    for (const [text, separator] of [
+      ["a", ","],
+      ["b", " "],
+      ["c", ","],
+    ]) {
+      fireEvent.change(input, { target: { value: text } });
+      fireEvent.keyDown(input, { key: separator });
+      expect(input).toHaveValue("");
+    }
+    expect(form.current!.getFieldValue("hosts")).toEqual(["a", "b", "c"]);
+  });
+
+  it("splits a pasted entry when it is committed, dropping duplicates", async () => {
+    const form = renderTags({ tokenSeparators: [","], defaultValue: ["a"] });
+    const input = screen.getByRole("combobox", { name: "Hosts" });
+    await userEvent.click(input);
+    await userEvent.paste("a,b,c");
+    await userEvent.keyboard("{Enter}");
+    expect(form.current!.getFieldValue("hosts")).toEqual(["a", "b", "c"]);
+  });
+
+  it("keeps text left in the input when focus leaves", async () => {
+    const form = renderTags();
+    await userEvent.type(screen.getByRole("combobox", { name: "Hosts" }), "left");
+    await userEvent.click(screen.getByRole("button", { name: "Elsewhere" }));
+    expect(form.current!.getFieldValue("hosts")).toEqual(["left"]);
+  });
+
+  it("labels the create row with ui-common's message", async () => {
+    renderTags();
+    await userEvent.type(screen.getByRole("combobox", { name: "Hosts" }), "new");
+    expect(
+      await screen.findByRole("option", { name: 'Create "new"', hidden: true }),
+    ).toBeInTheDocument();
   });
 });

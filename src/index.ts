@@ -78,7 +78,9 @@
  * DateInput, DateInputProps, DateRangeInput, DateRangeInputProps,
  * DateTimeInput, DateTimeInputProps, FileInput, FileInputProps, MultiSelector,
  * MultiSelectorProps, NumberInput, NumberInputProps, Popover, RadioList,
- * RadioListProps, Selector, SelectorProps, Slider, SliderProps, Switch,
+ * RadioListProps, SegmentedControl, SegmentedControlItem,
+ * SegmentedControlItemProps, SegmentedControlLayout, SegmentedControlProps,
+ * SegmentedControlSize, Selector, SelectorProps, Slider, SliderProps, Switch,
  * SwitchProps, TextArea, TextAreaProps, TextInput, TextInputProps, TimeInput,
  * TimeInputProps, Tokenizer, TokenizerProps, Typeahead, TypeaheadProps.
  */
@@ -233,8 +235,6 @@ export {
   SYNC_TOKENIZE_THRESHOLD,
   ScrollableArea,
   Section,
-  SegmentedControl,
-  SegmentedControlItem,
   SelectableCard,
   SideNav,
   SideNavCollapseButton,
@@ -1042,10 +1042,6 @@ export type {
   SectionProps,
   SectionVariant,
   SectionVariantMap,
-  SegmentedControlItemProps,
-  SegmentedControlLayout,
-  SegmentedControlProps,
-  SegmentedControlSize,
   SelectableCardProps,
   ShadowVarName,
   SharedDateFormat,
@@ -1683,6 +1679,18 @@ export type {
   RadioListSize,
 } from "./formControls/RadioList";
 
+// SegmentedControl: ui-common's Form.Item wrapper, in place of Astryx's.
+export {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "./formControls/SegmentedControl";
+export type {
+  SegmentedControlItemProps,
+  SegmentedControlLayout,
+  SegmentedControlProps,
+  SegmentedControlSize,
+} from "./formControls/SegmentedControl";
+
 // SelectionLabel
 export { SelectionLabel } from "./components/SelectionLabel";
 export type { SelectionLabelProps } from "./components/SelectionLabel";
@@ -1767,6 +1775,10 @@ export type {
   SwitchLabelSpacing,
   SwitchProps,
 } from "./formControls/Switch";
+
+// TagsInput
+export { TagsInput } from "./formControls/TagsInput";
+export type { TagsInputProps } from "./formControls/TagsInput";
 
 // TextArea: ui-common's Form.Item wrapper, in place of Astryx's.
 export { TextArea } from "./formControls/TextArea";

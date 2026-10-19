@@ -133,5 +133,10 @@
     "name": "Popover",
     "replacedBy": "Popover",
     "reason": "Its content is not part of the Form.Item it opens from, as antd's: a control inside takes none of the item's status or label. The API is Astryx's."
+  },
+  {
+    "name": "SegmentedControl",
+    "replacedBy": "SegmentedControl",
+    "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them and honours the item's id, disabled and aria-*. It renders a fork that keeps the item's aria-describedby, with the fork's SegmentedControlItem."
   }
 ]

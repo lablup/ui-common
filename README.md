@@ -395,7 +395,7 @@ const [form] = Form.useForm();
   nearest `InternationalizationProvider` (see Strings). `FormConfigProvider`
   sets `validateMessages`, `requiredMark` and `optionalLabel` app-wide; a
   form's own `validateMessages` wins over both.
-- ui-common's form controls (TextInput, TextArea, NumberInput, Selector, MultiSelector, Typeahead, Tokenizer, DateInput, TimeInput, DateTimeInput, DateRangeInput, Switch, CheckboxInput, CheckboxList, RadioList, Slider and FileInput) follow antd's contract. They take no `label`,
+- ui-common's form controls (TextInput, TextArea, NumberInput, Selector, MultiSelector, Typeahead, Tokenizer, DateInput, TimeInput, DateTimeInput, DateRangeInput, Switch, CheckboxInput, CheckboxList, RadioList, SegmentedControl, Slider and FileInput) follow antd's contract. They take no `label`,
   `isLabelHidden`, `description`, `labelTooltip`, `labelIcon`, `isRequired`,
   `isOptional`, `isDisabled` or status message: `Form.Item`'s `label`,
   `extra`, `tooltip`, `rules` and `help` own those. The control reads the
@@ -407,6 +407,18 @@ const [form] = Form.useForm();
   and `CheckboxInput` take `checked` beside `value`, and their inline text as
   `children`. A `Modal`, a `Drawer`, a `Popover` or a nested `Form` opened inside an item
   is not part of it: its controls take none of the item's status or label.
+- They behave as antd's do where Astryx's differ, so a host app needs no
+  adapter: `TextInput`, `TextArea`, `NumberInput`, `Selector`,
+  `MultiSelector` and `Tokenizer` fill the field's width unless given a
+  `width`; `Selector` opens below its trigger (`placement="below"`) so the
+  item's label stays visible; `MultiSelector` shows the selected labels
+  (`triggerDisplay="labels"`); `NumberInput` reports `null` when emptied
+  (`hasClear` is on unless `false`), reads a numeric string, and rounds a
+  decimal typed into an `isIntegerOnly` field.
+- `TagsInput` is antd's `Select mode="tags"`: free-form tags held as
+  `string[]`, deduplicated. `tokenSeparators` end a tag as they are typed
+  and split a pasted entry; text left in the input when focus leaves
+  becomes tags.
 - A custom control shows its item's validation state by reading
   `Form.Item.useStatus()` or `FormItemInputContext`.
 - `form.scrollToField` and `scrollToFirstError` find the control by

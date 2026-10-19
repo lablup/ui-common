@@ -396,10 +396,6 @@
       "types": "./dist/astryx/Section.d.ts",
       "import": "./dist/astryx/Section.js"
     },
-    "./SegmentedControl": {
-      "types": "./dist/astryx/SegmentedControl.d.ts",
-      "import": "./dist/astryx/SegmentedControl.js"
-    },
     "./SelectableCard": {
       "types": "./dist/astryx/SelectableCard.d.ts",
       "import": "./dist/astryx/SelectableCard.js"
@@ -623,6 +619,10 @@
       "types": "./dist/formControls/RadioList/index.d.ts",
       "import": "./dist/formControls/RadioList/index.js"
     },
+    "./SegmentedControl": {
+      "types": "./dist/formControls/SegmentedControl/index.d.ts",
+      "import": "./dist/formControls/SegmentedControl/index.js"
+    },
     "./Selector": {
       "types": "./dist/formControls/Selector/index.d.ts",
       "import": "./dist/formControls/Selector/index.js"
@@ -634,6 +634,10 @@
     "./Switch": {
       "types": "./dist/formControls/Switch/index.d.ts",
       "import": "./dist/formControls/Switch/index.js"
+    },
+    "./TagsInput": {
+      "types": "./dist/formControls/TagsInput/index.d.ts",
+      "import": "./dist/formControls/TagsInput/index.js"
     },
     "./TextArea": {
       "types": "./dist/formControls/TextArea/index.d.ts",

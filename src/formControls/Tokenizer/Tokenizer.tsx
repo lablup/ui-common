@@ -54,6 +54,7 @@ export function Tokenizer<T extends SearchableItem>({
     ...rest,
     ...field,
     statusVariant: "detached",
+    width: rest.width ?? "100%",
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxTokenizerProps<T>;

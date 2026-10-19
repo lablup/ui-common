@@ -154,5 +154,52 @@
         }
       ]
     }
+  },
+  "SegmentedControl": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "SegmentedControl",
+    "files": {
+      "src/SegmentedControl/SegmentedControl.tsx": "84a68d1f297fadc6db77dc3932afd99aa8174810a8eb12d3187bf1c56fcabff0",
+      "src/SegmentedControl/SegmentedControlContext.ts": "7d8f142a0f016ddc9a44859f881d4485ce5ddc5a74916a91e89aed5d9a2a28ed",
+      "src/SegmentedControl/index.ts": "38e55c0151872a87e37e4d0be8408f2c02b68d26ecfc7ea89312330c9321d636",
+      "src/SegmentedControl/SegmentedControl.test.tsx": "067812b2e7f4780080c0834bb4f181f499050865ef48e8809be3b6ea56e4a317",
+      "dist/SegmentedControl/SegmentedControl.js": "1498559f5e9bd4e6c989b9ee5aea78c96fa3fe1f414d86b2f5fba829268ba362"
+    },
+    "styles": {
+      "file": "src/forks/SegmentedControl/SegmentedControl.styles.ts",
+      "from": [
+        {
+          "file": "dist/SegmentedControl/SegmentedControl.js",
+          "consts": ["styles", "sizeStyles"]
+        }
+      ]
+    }
+  },
+  "SegmentedControlItem": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "SegmentedControl",
+    "notes": "Unchanged; forked with SegmentedControl, whose context it reads. Its compiled styles share names with SegmentedControl's, so they get their own file.",
+    "files": {
+      "src/SegmentedControl/SegmentedControlItem.tsx": "4066978b3a6beb8ab74f2bf84822bc42f6f00c68b27ff49c97d487acfb0622c3",
+      "dist/SegmentedControl/SegmentedControlItem.js": "3e38c3adc5610529a536ead94930f7cb36a5d90453b4c814b1119dd96eae2167",
+      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
+    },
+    "styles": {
+      "file": "src/forks/SegmentedControl/SegmentedControlItem.styles.ts",
+      "from": [
+        {
+          "file": "dist/SegmentedControl/SegmentedControlItem.js",
+          "consts": ["styles", "sizeStyles", "iconSizeStyles"]
+        },
+        {
+          "file": "dist/utils/interactionOverlay.stylex.js",
+          "consts": ["interactionOverlayStyles"]
+        }
+      ]
+    }
   }
 }

@@ -100,14 +100,15 @@ under Astryx's own name and import path until Astryx ships the fix. It exists
 because a product's pnpm `patchedDependencies` never reach that product's
 consumers, and ui-common's consumers import Astryx through ui-common.
 
-| Fork              | Where                                   | Fix                                                                                                                                         | Upstream                                                             |
-| ----------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `ComplexSelector` | `@lablup/ui-common/ComplexSelector`     | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
-| `Switch`          | inside `src/formControls/Switch`        | a passed `id` reaches the native checkbox; a passed `aria-describedby` describes it                                                         | not filed                                                            |
-| `FileInput`       | inside `src/formControls/FileInput`     | `aria-*`, `onFocus` and `onBlur` reach the trigger button, not the hidden native input                                                      | not filed                                                            |
-| `CheckboxInput`   | inside `src/formControls/CheckboxInput` | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
-| `Drawer`          | `@lablup/ui-common/lab`                 | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
-| `Tour`            | `@lablup/ui-common/lab`                 | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
+| Fork               | Where                                      | Fix                                                                                                                                         | Upstream                                                             |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `ComplexSelector`  | `@lablup/ui-common/ComplexSelector`        | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
+| `Switch`           | inside `src/formControls/Switch`           | a passed `id` reaches the native checkbox; a passed `aria-describedby` describes it                                                         | not filed                                                            |
+| `FileInput`        | inside `src/formControls/FileInput`        | `aria-*`, `onFocus` and `onBlur` reach the trigger button, not the hidden native input                                                      | not filed                                                            |
+| `CheckboxInput`    | inside `src/formControls/CheckboxInput`    | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
+| `SegmentedControl` | inside `src/formControls/SegmentedControl` | a passed `aria-describedby` is merged into the radiogroup's own, not overwritten (`SegmentedControlItem` is copied for the context)         | not filed                                                            |
+| `Drawer`           | `@lablup/ui-common/lab`                    | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
+| `Tour`             | `@lablup/ui-common/lab`                    | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
 
 `Drawer`'s other changes are ui-common's own, not upstream fixes. lab 0.6.5
 opens a scrimless drawer as a manual popover, in the top layer; ui-common's
@@ -164,7 +165,7 @@ the recorded version or file. On an Astryx bump:
 Astryx's form controls own their label, description, required marker and
 status message. ui-common's `Form.Item` owns those, as antd's does, so
 ui-common replaces each control that can sit in an item with a wrapper under
-the same name and import path (#69): `TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector`, `Typeahead`, `Tokenizer`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, `Switch`, `CheckboxInput`, `CheckboxList`, `RadioList`, `Slider` and `FileInput`.
+the same name and import path (#69): `TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector`, `Typeahead`, `Tokenizer`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, `Switch`, `CheckboxInput`, `CheckboxList`, `RadioList`, `SegmentedControl`, `Slider` and `FileInput`.
 
 - **Source** is `src/formControls/<Name>/`: `<Name>.tsx`, an `index.ts`
   that re-exports the rest of Astryx's subpath unchanged (`export *`) and
