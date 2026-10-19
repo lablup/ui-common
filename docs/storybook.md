@@ -15,6 +15,11 @@ pnpm build-storybook    # static build in storybook-static/
   the Storybook sidebar.
 - Forks of Astryx components (`src/forks/<Name>/`) and the form-control
   wrappers (`src/formControls/<Name>/`) follow the same rule.
+- A form control's stories show it both ways it is used. On its own:
+  `Default` (uncontrolled, named by `aria-label`), `Controlled`, `Statuses`
+  and `Disabled`. Inside a `Form.Item`, through `FormItemDemo` from
+  `src/stories/formControlStories.tsx`: `InFormItem`, `InFormItemWithValue`,
+  `ValidateOnBlur` and `FormDisabled`.
 
 ### A directory with several components
 
