@@ -22,8 +22,8 @@ pnpm build-storybook    # static build in storybook-static/
   `Disabled`. Inside a `Form.Item`, through `FormItemDemo` from
   `src/stories/formControlStories.tsx`: `InFormItem`, `InFormItemWithValue`,
   `ValidateOnBlur` and `FormDisabled`. `ValidateOnBlur` is left out where a
-  click commits the value (Switch, the checkboxes, the radios,
-  SegmentedControl), and a switch or checkbox that must be on is checked
+  click or a drag commits the value (Switch, the checkboxes, the radios,
+  SegmentedControl, Slider), and a switch or checkbox that must be on is checked
   with a `validator`, since `required` takes `false` as a value.
 
 ### A directory with several components
