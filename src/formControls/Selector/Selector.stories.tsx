@@ -99,7 +99,11 @@ export const InFormItemWithValue: Story = {
   ),
 };
 
-/** Inside a `Form.Item` that validates when focus leaves the control. */
+/**
+ * Inside a `Form.Item` that validates when focus leaves the control
+ * (`validateTrigger="onBlur"`), not while it is edited: empty the field,
+ * then move focus away to see the message. `InFormItem` validates on change.
+ */
 export const ValidateOnBlur: Story = {
   render: () => (
     <FormItemDemo label="Region" validateTrigger="onBlur">
