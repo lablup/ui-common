@@ -71,7 +71,12 @@ export const Disabled: Story = {
  */
 export const InFormItem: Story = {
   render: () => (
-    <FormItemDemo label="Notifications" valuePropName="checked" rules={MUST_BE_ON}>
+    <FormItemDemo
+      label="Notifications"
+      valuePropName="checked"
+      rules={MUST_BE_ON}
+      required
+    >
       <Switch>Email me when a session ends</Switch>
     </FormItemDemo>
   ),
@@ -87,6 +92,7 @@ export const InFormItemWithValue: Story = {
       label="Notifications"
       valuePropName="checked"
       rules={MUST_BE_ON}
+      required
       initialValue={true}
     >
       <Switch>Email me when a session ends</Switch>
@@ -101,6 +107,7 @@ export const FormDisabled: Story = {
       label="Notifications"
       valuePropName="checked"
       rules={MUST_BE_ON}
+      required
       disabled
       initialValue={true}
     >

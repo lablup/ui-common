@@ -71,7 +71,7 @@ export const Disabled: Story = {
  */
 export const InFormItem: Story = {
   render: () => (
-    <FormItemDemo label="Retention" valuePropName="checked" rules={MUST_BE_ON}>
+    <FormItemDemo label="Retention" valuePropName="checked" rules={MUST_BE_ON} required>
       <CheckboxInput>Keep my data for 30 days</CheckboxInput>
     </FormItemDemo>
   ),
@@ -87,6 +87,7 @@ export const InFormItemWithValue: Story = {
       label="Retention"
       valuePropName="checked"
       rules={MUST_BE_ON}
+      required
       initialValue={true}
     >
       <CheckboxInput>Keep my data for 30 days</CheckboxInput>
@@ -101,6 +102,7 @@ export const FormDisabled: Story = {
       label="Retention"
       valuePropName="checked"
       rules={MUST_BE_ON}
+      required
       disabled
       initialValue={true}
     >

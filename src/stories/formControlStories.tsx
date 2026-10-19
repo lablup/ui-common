@@ -41,6 +41,8 @@ export interface FormItemDemoProps {
   disabled?: boolean;
   /** The item's rules; by default the field is required. */
   rules?: Rule[];
+  /** Shows the required mark when `rules` hold no `required` rule. */
+  required?: boolean;
   /** The control, with no label, value or onChange: the item supplies them. */
   children: ReactElement;
 }
@@ -59,6 +61,7 @@ export function FormItemDemo({
   validateTrigger,
   disabled,
   rules = [{ required: true, message: "This field is required." }],
+  required,
   children,
 }: FormItemDemoProps) {
   const [form] = Form.useForm();
@@ -76,6 +79,7 @@ export function FormItemDemo({
         name="field"
         extra={extra}
         valuePropName={valuePropName}
+        required={required}
         validateTrigger={validateTrigger}
         rules={rules}
       >
