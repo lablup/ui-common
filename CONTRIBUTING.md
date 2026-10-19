@@ -499,6 +499,18 @@ the one on `main`:
 A line is `<major>.<minor>` before 1.0 and `<major>` after. The `alpha` tag,
 which 0.1 published under before `release/0.1` existed, is no longer moved.
 
+### Canaries
+
+Every merge to `main` that touches what ships publishes a canary of both
+packages under the `canary` dist-tag, to npmjs and GitHub Packages, with
+nothing committed. `scripts/canary-version.mjs` derives the version from
+`main`'s and the commit: `0.2.0-alpha.19.canary-20261019094312-2ba8853ab`
+sorts after `0.2.0-alpha.19` and before `0.2.0-alpha.20`. Try a merged change
+in a consumer before the next prerelease with
+`pnpm add @lablup/ui-common@canary` and `@lablup/ui-common-cli@canary`, or pin
+the exact version. A canary is not a release: it gets no `CHANGELOG.md` entry,
+tag or GitHub release, and the prereleases below are still cut by hand.
+
 ### From main
 
 1. Update the version in `package.json` and `packages/cli/package.json` and
