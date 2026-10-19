@@ -10,8 +10,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -23,11 +23,14 @@ export type TimeInputProps = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxTimeInputProps["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxTimeInputProps["value"];
     onChange?: AstryxTimeInputProps["onChange"];
   };
 
 export function TimeInput({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -37,13 +40,20 @@ export function TimeInput({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    undefined,
+  );
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value,
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxTimeInputProps;
   return (
     <FormControlScope required={required}>

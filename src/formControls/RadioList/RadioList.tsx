@@ -14,8 +14,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -27,11 +27,14 @@ export type RadioListProps = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxRadioListProps["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxRadioListProps["value"];
     onChange?: AstryxRadioListProps["onChange"];
   };
 
 export function RadioList({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -41,13 +44,15 @@ export function RadioList({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
     namesItself: true,
   });
+  const [mergedValue, handleChange] = useMergedValue(value, defaultValue, onChange, "");
   const props = {
     ...rest,
     ...field,
-    value: value ?? "",
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxRadioListProps;
   return (
     <FormControlScope required={required}>

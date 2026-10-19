@@ -11,8 +11,8 @@ import {
 import {
   EMPTY_ARRAY,
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -24,11 +24,14 @@ export type CheckboxListProps = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxCheckboxListProps["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxCheckboxListProps["value"];
     onChange?: AstryxCheckboxListProps["onChange"];
   };
 
 export function CheckboxList({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -38,13 +41,20 @@ export function CheckboxList({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
     namesItself: true,
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    EMPTY_ARRAY,
+  );
   const props = {
     ...rest,
     ...field,
-    value: value ?? EMPTY_ARRAY,
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxCheckboxListProps;
   return (
     <FormControlScope required={required}>

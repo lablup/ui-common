@@ -175,13 +175,21 @@ the same name and import path (#69): `TextInput`, `TextArea`, `NumberInput`, `Se
   takes `status` (`'error' | 'warning' | ''`) and `disabled`; reads the
   item's status from `FormItemInputContext` and passes Astryx `{ type }` with
   no message and a constant `statusVariant`, so the control never remounts;
-  makes `value` and `onChange` optional with an empty value; and announces
+  makes `value` optional with antd's uncontrolled mode (`useMergedValue`:
+  its own state from `defaultValue` while `value` is not set); and announces
   `required` through Astryx's `FormLayoutContext` (`defaultOptionality`),
   which sets `aria-required` without Astryx's "∙ Required" marker.
-- **Naming**: a control the item's `<label htmlFor>` reaches gets an empty
-  Astryx label. One it does not reach (a group, a slider, a file picker's
-  button, a date-range trigger) passes `namesItself` and takes the item's
-  label text, which `Form.Item` publishes as `FormItemInputContext.label`.
+- **Naming**: every control gets the item's label text as Astryx's (hidden)
+  label, which `Form.Item` publishes as `FormItemInputContext.label`, or
+  standalone the caller's `aria-label`. Astryx builds its parts' names from
+  it ("Clear Name", "Name time"). A control the item's `<label htmlFor>`
+  reaches also gets it as `aria-label`, so the two labels are not read
+  twice. One it does not reach (a group, a slider, a file picker's button, a
+  date-range trigger) passes `namesItself` and is named by Astryx's label
+  alone.
+- **Boundaries**: a surface that is not part of the item it renders under
+  resets `FormItemInputContext` with `NoFormItemContext`, as antd's
+  `NoFormStyle` does: `Modal`, the `Drawer` fork and a nested `Form`.
 - **Exports**: an `exports.exclude.json` entry with `replacedBy` naming the
   wrapper, and an `exports.customs.json` entry with `"wraps"` naming the
   Astryx module and `"subpath"` the Astryx subpath. It must export exactly

@@ -11,8 +11,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -25,11 +25,14 @@ export type SelectorProps<T extends SelectorOptionType = SelectorOptionType> =
   > &
     FormControlProps & {
       value?: AstryxSelectorProps<T>["value"];
+      /** The starting value when `value` is not set (uncontrolled), as in antd. */
+      defaultValue?: AstryxSelectorProps<T>["value"];
       onChange?: AstryxSelectorProps<T>["onChange"];
     };
 
 export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -39,13 +42,20 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    undefined,
+  );
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value,
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxSelectorProps<T>;
   return (
     <FormControlScope required={required}>

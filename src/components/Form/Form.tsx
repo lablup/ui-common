@@ -14,6 +14,7 @@ import {
   FormProviderContext,
   HOOK_MARK,
   ListContext,
+  NoFormItemContext,
   type FormItemCol,
   type FormLayout,
   type FormProviderContextValue,
@@ -235,7 +236,8 @@ const InternalForm = <Values,>(
     <ListContext.Provider value={null}>
       <FormItemLayoutContext.Provider value={layoutContextValue}>
         <FieldContext.Provider value={formContextValue}>
-          {children}
+          {/* A nested form is not part of the item it sits in. */}
+          <NoFormItemContext>{children}</NoFormItemContext>
         </FieldContext.Provider>
       </FormItemLayoutContext.Provider>
     </ListContext.Provider>

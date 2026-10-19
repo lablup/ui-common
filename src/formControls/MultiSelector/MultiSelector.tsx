@@ -12,8 +12,8 @@ import {
 import {
   EMPTY_ARRAY,
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -27,23 +27,32 @@ export type MultiSelectorProps<
 > &
   FormControlProps & {
     value?: AstryxMultiSelectorProps<T>["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxMultiSelectorProps<T>["value"];
     onChange?: AstryxMultiSelectorProps<T>["onChange"];
   };
 
 export function MultiSelector<
   T extends MultiSelectorOptionType = MultiSelectorOptionType,
->({ value, onChange, status, disabled, ...rest }: MultiSelectorProps<T>) {
+>({ value, defaultValue, onChange, status, disabled, ...rest }: MultiSelectorProps<T>) {
   const { required, field } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    EMPTY_ARRAY,
+  );
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? EMPTY_ARRAY,
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxMultiSelectorProps<T>;
   return (
     <FormControlScope required={required}>

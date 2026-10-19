@@ -12,8 +12,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type FormControlChromeProps,
   type FormControlProps,
 } from "../formControl";
@@ -24,6 +24,10 @@ export type CheckboxInputProps = Omit<
 > &
   FormControlProps & {
     value?: boolean | "indeterminate";
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: boolean | "indeterminate";
+    /** antd's name for `defaultValue`. */
+    defaultChecked?: boolean | "indeterminate";
     /** antd's name for the value, for `valuePropName="checked"`. */
     checked?: boolean | "indeterminate";
     onChange?: ForkCheckboxInputProps["onChange"];
@@ -34,6 +38,8 @@ export type CheckboxInputProps = Omit<
 export function CheckboxInput({
   value,
   checked,
+  defaultValue,
+  defaultChecked,
   onChange,
   status,
   disabled,
@@ -44,14 +50,26 @@ export function CheckboxInput({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    checked ?? value,
+    defaultChecked ?? defaultValue,
+    onChange,
+    false,
+  );
   const props = {
     ...rest,
     ...field,
-    label: children ?? "",
+    // The inline text, or standalone a caller's `aria-label`. In an item the
+    // item's `<label htmlFor>` names it as well, so it takes no `aria-label`,
+    // which would drop the inline text from the name.
+    label:
+      children ?? (typeof rest["aria-label"] === "string" ? rest["aria-label"] : ""),
     isLabelHidden: children === undefined,
-    value: checked ?? value ?? false,
-    onChange: onChange ?? noop,
+    "aria-label": undefined,
+    value: mergedValue,
+    onChange: handleChange,
   } as ForkCheckboxInputProps;
   return (
     <FormControlScope required={required}>

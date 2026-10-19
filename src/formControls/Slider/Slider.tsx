@@ -14,6 +14,7 @@ import {
 import {
   FormControlScope,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -25,19 +26,36 @@ export type SliderProps = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxSliderProps["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxSliderProps["value"];
   };
 
-export function Slider({ value, status, disabled, ...rest }: SliderProps) {
+export function Slider({
+  value,
+  defaultValue,
+  onChange,
+  status,
+  disabled,
+  ...rest
+}: SliderProps) {
   const { required, field } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
     namesItself: true,
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    rest.min ?? 0,
+  );
   const props = {
     ...rest,
     ...field,
-    value: value ?? rest.min ?? 0,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxSliderProps;
   return (
     <FormControlScope required={required}>

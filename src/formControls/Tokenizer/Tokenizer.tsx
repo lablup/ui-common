@@ -12,8 +12,8 @@ import type { SearchableItem } from "@astryxdesign/core/Typeahead";
 import {
   EMPTY_ARRAY,
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -25,11 +25,14 @@ export type TokenizerProps<T extends SearchableItem> = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxTokenizerProps<T>["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxTokenizerProps<T>["value"];
     onChange?: AstryxTokenizerProps<T>["onChange"];
   };
 
 export function Tokenizer<T extends SearchableItem>({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -39,13 +42,20 @@ export function Tokenizer<T extends SearchableItem>({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    EMPTY_ARRAY,
+  );
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? EMPTY_ARRAY,
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxTokenizerProps<T>;
   return (
     <FormControlScope required={required}>

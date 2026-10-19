@@ -401,8 +401,12 @@ const [form] = Form.useForm();
   `extra`, `tooltip`, `rules` and `help` own those. The control reads the
   item's status and paints its border, takes the item's `id`, and is
   disabled by `<Form disabled>`. `status` (`'error' | 'warning' | ''`) sets
-  the border by hand. `value` may be left out. `Switch` and `CheckboxInput`
-  take `checked` beside `value`, and their inline text as `children`.
+  the border by hand. Without `value` a control is uncontrolled, as antd's
+  are: it keeps its own state, from `defaultValue` (`defaultChecked`), and
+  still calls `onChange`. On its own it is named by `aria-label`. `Switch`
+  and `CheckboxInput` take `checked` beside `value`, and their inline text as
+  `children`. A `Modal`, a `Drawer` or a nested `Form` opened inside an item
+  is not part of it: its controls take none of the item's status or label.
 - A custom control shows its item's validation state by reading
   `Form.Item.useStatus()` or `FormItemInputContext`.
 - `form.scrollToField` and `scrollToFirstError` find the control by

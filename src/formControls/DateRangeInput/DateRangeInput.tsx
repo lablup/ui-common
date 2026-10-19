@@ -10,8 +10,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -23,11 +23,14 @@ export type DateRangeInputProps = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxDateRangeInputProps["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxDateRangeInputProps["value"];
     onChange?: AstryxDateRangeInputProps["onChange"];
   };
 
 export function DateRangeInput({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -37,14 +40,21 @@ export function DateRangeInput({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
     namesItself: true,
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    null,
+  );
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? null,
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxDateRangeInputProps;
   return (
     <FormControlScope required={required}>

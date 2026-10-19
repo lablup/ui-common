@@ -11,8 +11,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -24,11 +24,14 @@ export type FileInputProps = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxFileInputProps["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxFileInputProps["value"];
     onChange?: AstryxFileInputProps["onChange"];
   };
 
 export function FileInput({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -38,14 +41,21 @@ export function FileInput({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
     namesItself: true,
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    null,
+  );
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? null,
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxFileInputProps;
   return (
     <FormControlScope required={required}>

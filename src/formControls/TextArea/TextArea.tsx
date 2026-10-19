@@ -10,8 +10,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -23,11 +23,14 @@ export type TextAreaProps = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxTextAreaProps["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxTextAreaProps["value"];
     onChange?: AstryxTextAreaProps["onChange"];
   };
 
 export function TextArea({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -37,13 +40,15 @@ export function TextArea({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
   });
+  const [mergedValue, handleChange] = useMergedValue(value, defaultValue, onChange, "");
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? "",
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxTextAreaProps;
   return (
     <FormControlScope required={required}>

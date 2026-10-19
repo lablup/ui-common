@@ -10,8 +10,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -23,11 +23,14 @@ export type TextInputProps = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxTextInputProps["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxTextInputProps["value"];
     onChange?: AstryxTextInputProps["onChange"];
   };
 
 export function TextInput({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -37,13 +40,15 @@ export function TextInput({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
   });
+  const [mergedValue, handleChange] = useMergedValue(value, defaultValue, onChange, "");
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? "",
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxTextInputProps;
   return (
     <FormControlScope required={required}>

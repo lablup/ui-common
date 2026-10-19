@@ -72,6 +72,7 @@ import { useThemeName } from "@astryxdesign/core/theme";
 import { devWarn, isFocusDetached, mergeRefs } from "@astryxdesign/core/utils";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
+import { NoFormItemContext } from "../Form/context";
 import { SkeletonText } from "../Skeleton/SkeletonText";
 import { MODAL_OPEN_ATTRIBUTE, ModalPortalContext, useModalLevel } from "./modalStack";
 import "./Modal.css";
@@ -431,7 +432,12 @@ function ModalSurface({
     ) : null;
   const resolvedFooter = footer === undefined ? generatedFooter : footer;
 
-  const body = isLoading ? <SkeletonText lines={4} /> : children;
+  // A Modal opened from inside a Form.Item is not part of that item.
+  const body = (
+    <NoFormItemContext>
+      {isLoading ? <SkeletonText lines={4} /> : children}
+    </NoFormItemContext>
+  );
 
   const content = isStructured ? (
     <Layout

@@ -13,10 +13,11 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState, type ReactElement } from "react";
+import { cloneElement, useState, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Form, type FormInstance } from "../components/Form";
+import { Modal } from "../components/Modal";
 import { CheckboxInput } from "./CheckboxInput";
 import { CheckboxList, CheckboxListItem } from "./CheckboxList";
 import { DateInput } from "./DateInput";
@@ -252,5 +253,142 @@ describe("form-control wrappers", () => {
     expect(screen.getByRole("switch", { name: /Notifications/ })).toBeChecked();
     expect(screen.getByRole("switch")).toHaveAccessibleName(/Email me/);
     expect(screen.getByRole("checkbox", { name: "I agree" })).toBeChecked();
+  });
+});
+
+describe.each(CASES)("%s on its own", (_, control, selector) => {
+  it("is named by its aria-label, as antd's controls are", () => {
+    const { container } = render(
+      cloneElement(control as ReactElement<Record<string, unknown>>, {
+        id: "field",
+        "aria-label": "Standalone",
+      }),
+    );
+    expect(container.querySelector<HTMLElement>(selector)).toHaveAccessibleName(
+      /^Standalone(: .*)?$/,
+    );
+  });
+});
+
+describe("form-control parts", () => {
+  it("are named after the item's label", () => {
+    renderItem(<TextInput hasClear defaultValue="x" />);
+    expect(
+      screen.getByRole("button", { name: "Clear Field label" }),
+    ).toBeInTheDocument();
+  });
+
+  it("name NumberInput's steppers after the item's label", () => {
+    renderItem(<NumberInput hasNumberSteppers />);
+    expect(
+      screen.getByRole("button", { name: /Increment Field label/, hidden: true }),
+    ).toBeInTheDocument();
+  });
+
+  it("name DateTimeInput's time input after the item's label", () => {
+    const { container } = renderItem(<DateTimeInput />);
+    expect(container.querySelector('[aria-label="Field label time"]')).not.toBeNull();
+  });
+
+  it("are named after a standalone aria-label", () => {
+    render(<TextInput aria-label="Search" hasClear defaultValue="x" />);
+    expect(screen.getByRole("textbox")).toHaveAccessibleName("Search");
+    expect(screen.getByRole("button", { name: "Clear Search" })).toBeInTheDocument();
+  });
+});
+
+describe("form controls without a value (antd's uncontrolled mode)", () => {
+  it("keep what the user types, and still report it", async () => {
+    const onChange = vi.fn();
+    render(<TextInput aria-label="Search" onChange={onChange} />);
+    await userEvent.type(screen.getByRole("textbox"), "abc");
+    expect(screen.getByRole("textbox")).toHaveValue("abc");
+    expect(onChange).toHaveBeenLastCalledWith("abc", expect.anything());
+  });
+
+  it("start at defaultValue", () => {
+    render(<TextInput aria-label="Search" defaultValue="hello" />);
+    expect(screen.getByRole("textbox")).toHaveValue("hello");
+  });
+
+  it("let Switch and CheckboxInput toggle, from defaultChecked", async () => {
+    render(
+      <>
+        <Switch aria-label="Dark mode" />
+        <CheckboxInput defaultChecked>Agree</CheckboxInput>
+      </>,
+    );
+    await userEvent.click(screen.getByRole("switch", { name: "Dark mode" }));
+    expect(screen.getByRole("switch")).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Agree" })).toBeChecked();
+    await userEvent.click(screen.getByRole("checkbox"));
+    expect(screen.getByRole("checkbox")).not.toBeChecked();
+  });
+
+  it("follow the item again when it resets the field", async () => {
+    const form: { current?: FormInstance } = {};
+    renderItem(<TextInput />, { form });
+    const input = screen.getByRole("textbox");
+    await userEvent.type(input, "abc");
+    expect(form.current!.getFieldValue("field")).toBe("abc");
+    act(() => form.current!.resetFields());
+    // The item may remount its control on reset; read the one on screen.
+    expect(screen.getByRole("textbox")).toHaveValue("");
+    await userEvent.type(screen.getByRole("textbox"), "de");
+    act(() => form.current!.setFieldsValue({ field: undefined }));
+    expect(screen.getByRole("textbox")).toHaveValue("");
+  });
+});
+
+describe("surfaces that are not part of the item", () => {
+  it("keep a nested form's controls out of the outer item's status and name", async () => {
+    const form: { current?: FormInstance } = {};
+    function Harness() {
+      const [instance] = Form.useForm();
+      form.current = instance;
+      return (
+        <Form form={instance}>
+          <Form.Item label="Owner" name="owner" rules={[{ required: true }]}>
+            <div>
+              <Form component={false}>
+                <RadioList aria-label="Role">
+                  <RadioListItem value="a" label="Admin" />
+                </RadioList>
+              </Form>
+            </div>
+          </Form.Item>
+        </Form>
+      );
+    }
+    render(<Harness />);
+    await act(async () => {
+      await form.current!.validateFields().catch(() => {});
+    });
+    const group = screen.getByRole("radiogroup");
+    expect(group).toHaveAccessibleName("Role");
+    expect(group).not.toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("keep a Modal's controls out of the item it opens from", async () => {
+    const form: { current?: FormInstance } = {};
+    function Harness() {
+      const [instance] = Form.useForm();
+      form.current = instance;
+      return (
+        <Form form={instance}>
+          <Form.Item label="Owner" name="owner" rules={[{ required: true }]}>
+            <Modal isOpen onOpenChange={() => {}}>
+              <TextInput aria-label="Search users" />
+            </Modal>
+          </Form.Item>
+        </Form>
+      );
+    }
+    render(<Harness />);
+    await act(async () => {
+      await form.current!.validateFields().catch(() => {});
+    });
+    const search = screen.getByRole("textbox", { name: "Search users", hidden: true });
+    expect(search).not.toHaveAttribute("aria-invalid", "true");
   });
 });

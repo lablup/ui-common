@@ -11,8 +11,8 @@ import {
 
 import {
   FormControlScope,
-  noop,
   useFormControl,
+  useMergedValue,
   type DistributiveOmit,
   type FormControlChromeProps,
   type FormControlProps,
@@ -24,11 +24,14 @@ export type TypeaheadProps<T extends SearchableItem> = DistributiveOmit<
 > &
   FormControlProps & {
     value?: AstryxTypeaheadProps<T>["value"];
+    /** The starting value when `value` is not set (uncontrolled), as in antd. */
+    defaultValue?: AstryxTypeaheadProps<T>["value"];
     onChange?: AstryxTypeaheadProps<T>["onChange"];
   };
 
 export function Typeahead<T extends SearchableItem>({
   value,
+  defaultValue,
   onChange,
   status,
   disabled,
@@ -38,13 +41,20 @@ export function Typeahead<T extends SearchableItem>({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
+    ariaLabel: rest["aria-label"],
   });
+  const [mergedValue, handleChange] = useMergedValue(
+    value,
+    defaultValue,
+    onChange,
+    null,
+  );
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? null,
-    onChange: onChange ?? noop,
+    value: mergedValue,
+    onChange: handleChange,
   } as unknown as AstryxTypeaheadProps<T>;
   return (
     <FormControlScope required={required}>

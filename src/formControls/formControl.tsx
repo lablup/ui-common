@@ -13,7 +13,7 @@
  * Astryx control inside `FormControlScope`.
  */
 import { FormLayoutContext } from "@astryxdesign/core/FormLayout";
-import { use, type ReactNode } from "react";
+import { use, useState, type ReactNode } from "react";
 
 import { FormItemInputContext } from "../components/Form/context";
 
@@ -70,11 +70,14 @@ interface UseFormControlOptions {
   disabled?: boolean;
   /** `Form.Item` injects `aria-required="true"` from its rules. */
   ariaRequired?: unknown;
+  /** The caller's `aria-label`: names the control outside a `Form.Item`. */
+  ariaLabel?: unknown;
   /**
    * The control is not reached by the item's `<label htmlFor>` (a group, a
-   * slider, a button named by `aria-label`), so it takes the item's label
-   * text as its own, visually hidden. Everything else gets an empty label:
-   * the item's label already names it, and a second one would be read twice.
+   * slider, a button named by `aria-label`), so Astryx's hidden label alone
+   * names it. Everything else is also named by the item's `<label htmlFor>`,
+   * so it gets the same text as `aria-label`, which takes precedence over
+   * both labels and keeps the name from being read twice.
    */
   namesItself?: boolean;
 }
@@ -86,6 +89,7 @@ export function useFormControl({
   status,
   disabled,
   ariaRequired,
+  ariaLabel,
   namesItself = false,
 }: UseFormControlOptions) {
   const item = use(FormItemInputContext);
@@ -93,15 +97,49 @@ export function useFormControl({
     item.status === "error" || item.status === "warning" ? item.status : "";
   // antd's getMergedStatus: an empty `status` falls back to the item's.
   const merged = status || itemStatus;
+  // Astryx builds its parts' names from `label` ("Clear Name", "Name time",
+  // "Increment Name"), so it gets the name even where the item's label
+  // already names the control.
+  const name =
+    typeof ariaLabel === "string" && ariaLabel ? ariaLabel : (item.label ?? "");
   return {
     required: ariaRequired === true || ariaRequired === "true",
     field: {
-      label: namesItself ? (item.label ?? "") : "",
+      label: name,
       isLabelHidden: true,
+      "aria-label": namesItself || !name ? undefined : name,
       isDisabled: disabled,
       status: (merged ? { type: merged } : undefined) as BorderStatus,
     },
   };
+}
+
+/**
+ * antd's `useMergedState` for a control's value: controlled while `value` is
+ * set, its own state (starting at `defaultValue`) while it is not, and back
+ * to empty when a set `value` is cleared, as `form.resetFields()` does.
+ * `onChange` is called either way.
+ */
+export function useMergedValue<V>(
+  value: V | undefined,
+  defaultValue: V | undefined,
+  // Any value-first handler: Astryx's are unions keyed on other props
+  // (`hasClear`, a range), which the wrapper hands back unchanged.
+  onChange: ((next: never, ...args: never[]) => void) | undefined,
+  empty: NoInfer<V> | undefined,
+): [V | undefined, (next: V, ...args: unknown[]) => void] {
+  const [inner, setInner] = useState(defaultValue);
+  const [prevValue, setPrevValue] = useState(value);
+  if (prevValue !== value) {
+    setPrevValue(value);
+    if (value === undefined) setInner(undefined);
+  }
+  const controlled = value !== undefined;
+  const handleChange = (next: V, ...args: unknown[]) => {
+    if (!controlled) setInner(next);
+    (onChange as ((...args: unknown[]) => void) | undefined)?.(next, ...args);
+  };
+  return [(controlled ? value : inner) ?? empty, handleChange];
 }
 
 /**

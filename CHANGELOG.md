@@ -17,7 +17,12 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `<Form disabled>`, and announce `required` from its rules. `status` is
   antd's `'error' | 'warning' | ''`. `value` and `onChange` are optional, so
   `?? ''` is no longer needed, and `MultiSelector` no longer throws on a
-  missing value. `Switch` and `CheckboxInput` take `checked` beside `value`
+  missing value. Without `value` a control is uncontrolled, as in antd, from
+  `defaultValue` (`defaultChecked` for `Switch` and `CheckboxInput`). On its
+  own a control is named by `aria-label`, which also names its parts ("Clear
+  Search"); in an item they are named after the item's label. A `Modal`, the
+  `Drawer` or a nested `Form` inside an item no longer takes its status or
+  label. `Switch` and `CheckboxInput` take `checked` beside `value`
   (`valuePropName="checked"` works) and their inline text as `children`.
   Move each control's `label`/`description` to the enclosing `Form.Item`
   (`label`/`extra`) and drop `isLabelHidden`.
