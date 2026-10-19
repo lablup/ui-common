@@ -511,6 +511,16 @@ in a consumer before the next prerelease with
 the exact version. A canary is not a release: it gets no `CHANGELOG.md` entry,
 tag or GitHub release, and the prereleases below are still cut by hand.
 
+A PR from a branch of this repository publishes a preview on every push, to
+npmjs only, under `pr-<number>`: `0.2.0-alpha.19.pr-78-20261019094312-2ba8853ab`.
+A comment on the PR carries the exact version. A consumer PR pins it to verify
+the change before this PR merges, then repins to the canary once it has
+(backend.ai-webui: `pnpm run ui-common:pin pr-78`, later `… canary`). Fork and
+Dependabot PRs get no preview. A PR that registers an upgrade codemod bumps the
+version to the release that will carry it, as a "prepare" PR does: the preview
+of `0.2.0-alpha.20` sorts after `0.2.0-alpha.20`, so `ui-common upgrade` runs
+the step against it.
+
 ### From main
 
 1. Update the version in `package.json` and `packages/cli/package.json` and

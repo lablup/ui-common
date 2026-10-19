@@ -15,6 +15,12 @@ describe("canaryVersion", () => {
     );
   });
 
+  it("names a PR preview after its PR", () => {
+    expect(canaryVersion("0.2.0-alpha.19", "20261019094312", SHA, "pr-78")).toBe(
+      "0.2.0-alpha.19.pr-78-20261019094312-2ba8853ab",
+    );
+  });
+
   it("refuses malformed input", () => {
     expect(() => canaryVersion("v0.2.0", "20261019094312", SHA)).toThrow(
       /Not a semver/,
@@ -22,6 +28,9 @@ describe("canaryVersion", () => {
     expect(() => canaryVersion("0.2.0", "2026-10-19", SHA)).toThrow(/timestamp/);
     expect(() => canaryVersion("0.2.0", "20261019094312", "HEAD")).toThrow(
       /commit hash/,
+    );
+    expect(() => canaryVersion("0.2.0", "20261019094312", SHA, "next")).toThrow(
+      /channel/,
     );
   });
 });

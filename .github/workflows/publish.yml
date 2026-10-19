@@ -17,6 +17,20 @@ on:
       - "CHANGELOG.md"
       - "CONTRIBUTING.md"
       - "**/*.stories.tsx"
+  # A PR from a branch of this repository publishes a preview under
+  # `pr-<number>`, so a consumer PR (webui) can pin and verify the change
+  # before it merges. Fork PRs get no secrets and are skipped.
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - ".github/**"
+      - ".claude/**"
+      - ".storybook/**"
+      - "docs/**"
+      - "fixture/**"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "**/*.stories.tsx"
   workflow_dispatch:
     inputs:
       target:
@@ -36,11 +50,14 @@ permissions:
   contents: read
 
 # Canaries queue so `canary` cannot land on an older merge after a newer one;
-# a queued canary that a newer merge supersedes is dropped. Releases and
-# manual runs each get their own group.
+# a queued canary that a newer merge supersedes is dropped. A PR's newer push
+# cancels its running preview. Releases and manual runs each get their own group.
 concurrency:
-  group: publish-${{ github.event_name == 'push' && 'canary' || github.run_id }}
-  cancel-in-progress: false
+  group: >-
+    publish-${{ github.event_name == 'push' && 'canary' ||
+    github.event_name == 'pull_request' &&
+    format('pr-{0}', github.event.pull_request.number) || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # Decided once, before either registry publishes: two jobs each reading
@@ -52,15 +69,24 @@ jobs:
   # is no longer moved. The registry still sets `latest` on a package's
   # first publish, so @lablup/ui-common-cli's `latest` is its first alpha
   # until 0.2.0; the docs say `@next` until then. Do not move `latest` here.
-  # A push to main publishes a canary instead: a version derived from main's
-  # and the commit, under `canary`, with nothing committed.
+  # A push to main publishes a canary instead, and a PR a preview: a version
+  # derived from the package's and the commit, under `canary` or
+  # `pr-<number>`, with nothing committed.
   dist-tag:
+    # Dependabot PRs get Dependabot's secrets, which hold no NPM_TOKEN.
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
       version: ${{ steps.tag.outputs.version }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          # A PR publishes its head commit, not the merge with main.
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: actions/setup-node@v7
         with:
@@ -70,11 +96,14 @@ jobs:
         id: tag
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          if [ "${{ github.event_name }}" = "push" ]; then
+          if [ "$EVENT" = "push" ] || [ "$EVENT" = "pull_request" ]; then
+            CHANNEL=canary
+            [ "$EVENT" = "pull_request" ] && CHANNEL="pr-$PR_NUMBER"
+            SHA=$(git rev-parse HEAD)
             STAMP=$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d%H%M%S)
-            CANARY=$(node scripts/canary-version.mjs "$VERSION" "$STAMP" "$GITHUB_SHA")
-            echo "Publishing $CANARY under dist-tag canary (main is at $VERSION)"
-            echo "tag=canary" >> "$GITHUB_OUTPUT"
+            CANARY=$(node scripts/canary-version.mjs "$VERSION" "$STAMP" "$SHA" "$CHANNEL")
+            echo "Publishing $CANARY under dist-tag $CHANNEL (package.json is at $VERSION)"
+            echo "tag=$CHANNEL" >> "$GITHUB_OUTPUT"
             echo "version=$CANARY" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -84,6 +113,9 @@ jobs:
           echo "Publishing $VERSION under dist-tag $TAG (main is at $MAIN_VERSION)"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
 
   # Consumed by internal projects that already authenticate to GitHub.
   github-packages:
@@ -185,6 +217,7 @@ jobs:
   npmjs:
     if: >-
       github.event_name == 'release' || github.event_name == 'push' ||
+      github.event_name == 'pull_request' ||
       inputs.target == 'both' || inputs.target == 'npmjs'
     runs-on: ubuntu-latest
     needs: dist-tag
@@ -204,6 +237,8 @@ jobs:
       NODE_AUTH_TOKEN: ""
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: pnpm/action-setup@v6
 
@@ -245,7 +280,7 @@ jobs:
 
       # After verify, so the checks run on the files as committed.
       - name: Set the canary version
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: |
           npm pkg set version=${{ needs.dist-tag.outputs.version }}
           npm pkg set version=${{ needs.dist-tag.outputs.version }} --prefix packages/cli
@@ -270,7 +305,7 @@ jobs:
       - name: Publish
         if: >-
           github.event_name == 'release' || github.event_name == 'push' ||
-          inputs.dry_run == false
+          github.event_name == 'pull_request' || inputs.dry_run == false
         run: |
           for PKG in lablup-ui-common lablup-ui-common-cli; do
             npm publish "$RUNNER_TEMP/packed/$PKG-${{ needs.dist-tag.outputs.version }}.tgz" --provenance --access public --tag ${{ needs.dist-tag.outputs.tag }} --registry https://registry.npmjs.org
@@ -286,3 +321,41 @@ jobs:
           done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # One comment per PR, updated on every push: the exact preview version and
+  # the command a consumer runs to pin it. Agents read the version from here.
+  preview-comment:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: [dist-tag, npmjs]
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Upsert the preview comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          VERSION: ${{ needs.dist-tag.outputs.version }}
+          TAG: ${{ needs.dist-tag.outputs.tag }}
+        run: |
+          MARKER="<!-- ui-common-preview -->"
+          BODY=$(cat <<EOF
+          $MARKER
+          **Preview published** under the \`$TAG\` dist-tag (npmjs): \`$VERSION\`
+
+          \`\`\`sh
+          pnpm add @lablup/ui-common@$VERSION
+          pnpm add -D @lablup/ui-common-cli@$VERSION
+          \`\`\`
+
+          In backend.ai-webui: \`pnpm run ui-common:pin $TAG\`. A consumer PR pinned to a preview cannot merge; repin to \`canary\` after this PR merges.
+          EOF
+          )
+          ID=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" --paginate \
+            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+          if [ -n "$ID" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$ID" -f body="$BODY" > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$PR_NUMBER/comments" -f body="$BODY" > /dev/null
+          fi

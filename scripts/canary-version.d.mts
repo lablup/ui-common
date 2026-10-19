@@ -4,4 +4,5 @@ export declare function canaryVersion(
   version: string,
   timestamp: string,
   sha: string,
+  channel?: string,
 ): string;
