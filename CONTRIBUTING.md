@@ -103,7 +103,8 @@ consumers, and ui-common's consumers import Astryx through ui-common.
 | Fork              | Where                                   | Fix                                                                                                                                         | Upstream                                                             |
 | ----------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | `ComplexSelector` | `@lablup/ui-common/ComplexSelector`     | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
-| `Switch`          | inside `src/formControls/Switch`        | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
+| `Switch`          | inside `src/formControls/Switch`        | a passed `id` reaches the native checkbox; a passed `aria-describedby` describes it                                                         | not filed                                                            |
+| `FileInput`       | inside `src/formControls/FileInput`     | `aria-*`, `onFocus` and `onBlur` reach the trigger button, not the hidden native input                                                      | not filed                                                            |
 | `CheckboxInput`   | inside `src/formControls/CheckboxInput` | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
 | `Drawer`          | `@lablup/ui-common/lab`                 | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
 | `Tour`            | `@lablup/ui-common/lab`                 | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
@@ -186,7 +187,8 @@ the same name and import path (#69): `TextInput`, `TextArea`, `NumberInput`, `Se
   Astryx module and `"subpath"` the Astryx subpath. It must export exactly
   Astryx's names, as a fork does.
 - **A wrapper over a fork**: when Astryx itself has to change (Switch and
-  CheckboxInput dropped the item's `id`), the wrapper renders a fork, and
+  CheckboxInput dropped the item's `id`; Switch and FileInput put its
+  `aria-describedby` on an element that is not the control), the wrapper renders a fork, and
   the fork's `provenance.json` entry names it in `wrappedBy`. The fork is not
   exported itself.
 - **Tests**: `src/formControls/formControls.test.tsx` runs every wrapper

@@ -10,6 +10,7 @@ import {
 import type { SearchableItem } from "@astryxdesign/core/Typeahead";
 
 import {
+  EMPTY_ARRAY,
   FormControlScope,
   noop,
   useFormControl,
@@ -43,7 +44,7 @@ export function Tokenizer<T extends SearchableItem>({
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? [],
+    value: value ?? EMPTY_ARRAY,
     onChange: onChange ?? noop,
   } as unknown as AstryxTokenizerProps<T>;
   return (

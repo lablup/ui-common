@@ -2,6 +2,10 @@
  * `RadioList` for `Form.Item`: Astryx's RadioList without the field chrome the item
  * owns (label, description, required marker, status message; see
  * ../formControl.tsx). It is not reached by the item's `<label htmlFor>`, so it takes the item's label text as its own, visually hidden.
+ *
+ * An empty field is Astryx's `""`, its "nothing selected" (it also keys the
+ * group's tab stop on it), so a `RadioListItem` whose value is `""` reads as
+ * selected while the field is empty. Give every option a non-empty value.
  */
 import {
   RadioList as AstryxRadioList,

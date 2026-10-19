@@ -1,10 +1,11 @@
 /**
- * ui-common's tests for its Switch fork: the fix it carries (a passed `id`
+ * ui-common's tests for its Switch fork: the fixes it carries (a passed `id`
  * reaches the native checkbox, so an outside `<label htmlFor>` names and
- * toggles it), and that everything else renders exactly as Astryx's does.
+ * toggles it; a passed `aria-describedby` describes it), and that everything
+ * else renders exactly as Astryx's does.
  */
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Switch as UpstreamSwitch } from "@astryxdesign/core/Switch";
 
@@ -66,6 +67,49 @@ describe("Switch fork: a passed id", () => {
   });
 });
 
+describe("Switch fork: a passed aria-describedby", () => {
+  it("describes the native checkbox, ahead of the switch's own ids", () => {
+    render(
+      <>
+        <p id="hint">Sent weekly.</p>
+        <Switch
+          label="Notifications"
+          description="Email only"
+          value={false}
+          onChange={() => {}}
+          aria-describedby="hint"
+        />
+      </>,
+    );
+    const control = screen.getByRole("switch");
+    expect(control.getAttribute("aria-describedby")).toMatch(/^hint /);
+    expect(control).toHaveAccessibleDescription(/^Sent weekly\. Email only/);
+  });
+
+  it("carries Form.Item's message and extra", async () => {
+    const { container } = render(
+      <Form>
+        <Form.Item
+          label="Accept"
+          name="accept"
+          extra="Read the terms"
+          rules={[{ required: true, message: "Must accept." }]}
+        >
+          <Switch label="Accept" isLabelHidden value={false} onChange={() => {}} />
+        </Form.Item>
+      </Form>,
+    );
+    const form = container.querySelector("form")!;
+    await act(async () => {
+      form.requestSubmit();
+    });
+    const control = await screen.findByRole("switch");
+    await waitFor(() =>
+      expect(control).toHaveAccessibleDescription(/Must accept\..*Read the terms/),
+    );
+  });
+});
+
 describe("Switch fork: parity with Astryx", () => {
   const cases: Array<[string, Props]> = [
     ["off", {}],
@@ -105,5 +149,17 @@ describe("Switch fork: parity with Astryx", () => {
       />,
     );
     expect(screen.getByRole("switch")).not.toHaveAttribute("id", "field");
+  });
+
+  it("still differs from Astryx's, which puts aria-describedby on the row", () => {
+    render(
+      <UpstreamSwitch
+        label="Notifications"
+        value={false}
+        onChange={() => {}}
+        aria-describedby="hint"
+      />,
+    );
+    expect(screen.getByRole("switch")).not.toHaveAttribute("aria-describedby", "hint");
   });
 });

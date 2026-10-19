@@ -4,8 +4,16 @@
  * error state; disabled by `<Form disabled>`; required announced without
  * Astryx's "Required" marker; and no `value` needed up front.
  */
-import { act, render, screen } from "@testing-library/react";
-import type * as React from "react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { useState, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Form, type FormInstance } from "../components/Form";
@@ -40,7 +48,7 @@ const OPTIONS = [
 const source = createStaticSource([{ id: "a", label: "Alpha" }]);
 
 /** `control` is the element `Form.Item`'s label is meant to name. */
-const CASES: Array<[string, React.ReactElement, string]> = [
+const CASES: Array<[string, ReactElement, string]> = [
   ["TextInput", <TextInput />, "input"],
   ["TextArea", <TextArea />, "textarea"],
   ["NumberInput", <NumberInput />, "input"],
@@ -73,7 +81,7 @@ const CASES: Array<[string, React.ReactElement, string]> = [
 ];
 
 function renderItem(
-  control: React.ReactElement,
+  control: ReactElement,
   {
     disabled,
     required,
@@ -123,12 +131,19 @@ describe.each(CASES)("%s in Form.Item", (_, control, selector) => {
 
   it("announces required without Astryx's Required marker", () => {
     const { container } = renderItem(control, { required: true });
-    expect(
-      container.querySelector('[aria-required="true"], [required]'),
-    ).not.toBeNull();
-    // Astryx's marker is "∙ Required" in the label. (DateRangeInput's trigger is
-    // a button, which cannot carry aria-required, so Astryx describes it with a
-    // visually hidden "Required" instead; that one stays.)
+    // A button (FileInput's and DateRangeInput's triggers) cannot carry
+    // aria-required, so Astryx describes it with a visually hidden "Required"
+    // instead; that one stays.
+    const announced =
+      container.querySelector('[aria-required="true"], [required]') !== null ||
+      /Required/.test(
+        (find(container).getAttribute("aria-describedby") ?? "")
+          .split(" ")
+          .map((id) => document.getElementById(id)?.textContent ?? "")
+          .join(" "),
+      );
+    expect(announced).toBe(true);
+    // Astryx's marker is "∙ Required" in the label.
     expect(screen.queryByText("∙", { exact: false })).toBeNull();
   });
 
@@ -154,10 +169,70 @@ describe("form-control wrappers", () => {
     expect(input).toHaveAttribute("aria-invalid", "true");
   });
 
+  it("fall back to the item's status when status is empty, as antd's do", async () => {
+    const form: { current?: FormInstance } = {};
+    const { container } = renderItem(<TextInput status="" />, { required: true, form });
+    await act(async () => {
+      await form.current!.validateFields().catch(() => {});
+    });
+    expect(container.querySelector("input")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("let CheckboxList fill a field that has no initial value", async () => {
+    const form: { current?: FormInstance } = {};
+    renderItem(
+      <CheckboxList>
+        <CheckboxListItem value="a" label="Alpha" />
+      </CheckboxList>,
+      { form },
+    );
+    await userEvent.click(screen.getByRole("checkbox", { name: "Alpha" }));
+    expect(form.current!.getFieldValue("field")).toEqual(["a"]);
+    expect(screen.getByRole("checkbox", { name: "Alpha" })).toBeChecked();
+  });
+
+  it("keep Tokenizer's search alive through a parent re-render while empty", async () => {
+    let settle: (items: { id: string; label: string }[]) => void = () => {};
+    const search = vi.fn(
+      () =>
+        new Promise<{ id: string; label: string }[]>((resolve) => {
+          settle = resolve;
+        }),
+    );
+    const asyncSource = { search, bootstrap: () => [] };
+    let rerender: () => void = () => {};
+    function Harness() {
+      const [, setTick] = useState(0);
+      rerender = () => setTick((n) => n + 1);
+      return (
+        <Form>
+          <Form.Item label="Tags" name="tags">
+            <Tokenizer searchSource={asyncSource} debounceMs={0} />
+          </Form.Item>
+        </Form>
+      );
+    }
+    render(<Harness />);
+    const input = screen.getByRole("combobox");
+    fireEvent.change(input, { target: { value: "Al" } });
+    await waitFor(() => expect(search).toHaveBeenCalled());
+    act(() => rerender());
+    await act(async () => {
+      settle([{ id: "a", label: "Alpha" }]);
+    });
+    // The menu is a popover, which jsdom never shows, so the option is hidden
+    // from the accessibility tree.
+    expect(
+      await screen.findByRole("option", { name: /Alpha/, hidden: true }),
+    ).toBeInTheDocument();
+    expect(input).not.toHaveAttribute("aria-busy", "true");
+  });
+
   it("take an antd-style status for the border, with no message", () => {
-    render(<TextInput aria-label="Name" status="warning" />);
+    const { container } = render(<TextInput aria-label="Name" status="warning" />);
     expect(screen.getByRole("textbox", { name: "Name" })).toBeInTheDocument();
-    expect(screen.queryByRole("alert")).toBeNull();
+    // Scoped: Astryx's shared live regions outlive a test.
+    expect(within(container).queryByRole("alert")).toBeNull();
   });
 
   it("let Switch and CheckboxInput take checked and children, as antd's do", () => {

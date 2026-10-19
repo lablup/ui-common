@@ -7,11 +7,15 @@
 "use client";
 
 /**
- * Switch, ui-common's copy of Astryx's, with one upstream fix applied: a
- * passed `id` lands on the native checkbox, as TextInput's does, instead of
- * being replaced by `useId()` and spread onto the row. Without it a
- * `<label htmlFor>` outside the component, such as `Form.Item`'s, points at
- * nothing.
+ * Switch, ui-common's copy of Astryx's, with two upstream fixes applied:
+ *
+ * - A passed `id` lands on the native checkbox, as TextInput's does, instead
+ *   of being replaced by `useId()` and spread onto the row. Without it a
+ *   `<label htmlFor>` outside the component, such as `Form.Item`'s, points
+ *   at nothing.
+ * - A passed `aria-describedby` is merged into the checkbox's own, as
+ *   CheckboxInput's is, instead of being spread onto the row. Without it
+ *   `Form.Item`'s message and extra never describe the switch.
  *
  * Everything else is upstream's, line for line. Two things differ in form
  * only: the style namespaces and the `switchScope` marker are Astryx's
@@ -259,6 +263,7 @@ export function Switch({
   className,
   style,
   ref,
+  "aria-describedby": ariaDescribedByProp,
   id: idProp,
   ...rest
 }: SwitchProps) {
@@ -306,7 +311,13 @@ export function Switch({
   // Only include descriptionID when the element actually renders.
   // FieldLabel renders the description (with descriptionID) even when the
   // label is visually hidden — it's sr-only, so keep it linked.
+  // ui-common fix: a passed `aria-describedby` (Form.Item's help and extra)
+  // describes the switch, as CheckboxInput's does, instead of landing on the
+  // row through `...rest`.
   const describedByParts: string[] = [];
+  if (ariaDescribedByProp) {
+    describedByParts.push(ariaDescribedByProp);
+  }
   if (description) {
     describedByParts.push(descriptionID);
   }

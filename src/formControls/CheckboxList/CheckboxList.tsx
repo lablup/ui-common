@@ -9,6 +9,7 @@ import {
 } from "@astryxdesign/core/CheckboxList";
 
 import {
+  EMPTY_ARRAY,
   FormControlScope,
   noop,
   useFormControl,
@@ -42,7 +43,7 @@ export function CheckboxList({
   const props = {
     ...rest,
     ...field,
-    value: value,
+    value: value ?? EMPTY_ARRAY,
     onChange: onChange ?? noop,
   } as unknown as AstryxCheckboxListProps;
   return (

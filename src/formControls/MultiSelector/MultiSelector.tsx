@@ -10,6 +10,7 @@ import {
 } from "@astryxdesign/core/MultiSelector";
 
 import {
+  EMPTY_ARRAY,
   FormControlScope,
   noop,
   useFormControl,
@@ -41,7 +42,7 @@ export function MultiSelector<
     ...rest,
     ...field,
     statusVariant: "detached",
-    value: value ?? [],
+    value: value ?? EMPTY_ARRAY,
     onChange: onChange ?? noop,
   } as unknown as AstryxMultiSelectorProps<T>;
   return (

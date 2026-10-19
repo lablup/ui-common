@@ -996,9 +996,17 @@ export class FormStore {
     if (!node) return;
     // The handle may sit on a wrapper (Astryx Switch / SegmentedControl spread
     // `rest` onto their root; the item wrapper is the fallback).
-    const target = node.matches(EDITABLE)
+    let target = node.matches(EDITABLE)
       ? node
       : (node.querySelector<HTMLElement>(EDITABLE) ?? node);
+    // A control hidden from focus (FileInput's native input, `aria-hidden`
+    // with tabindex -1) is stood in for by its focusable sibling, the trigger.
+    if (target.tabIndex < 0 && target.getAttribute("aria-hidden") === "true") {
+      target =
+        target.parentElement?.querySelector<HTMLElement>(
+          `${EDITABLE},button:not([disabled])`,
+        ) ?? target;
+    }
     target.focus?.({ preventScroll: true });
   };
 

@@ -28,6 +28,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   replaces it with `useId()`, so `Form.Item`'s `<label htmlFor>` pointed at
   nothing. The wrappers render fixed copies (src/forks) that put the `id` on
   the native checkbox, as TextInput does.
+- **`Form.Item`'s message and extra describe `Switch` and `FileInput`.**
+  Astryx 0.7.0 spreads the item's `aria-describedby` onto Switch's row and
+  FileInput's hidden native input. The Switch fork merges it into the
+  switch's own; a new FileInput fork hands the `aria-*` props and the focus
+  handlers to its trigger button, so a blur validates it, its required state
+  is announced, and `focusField` lands on the trigger.
+- **`CheckboxList` fills a field that has no initial value**, and `Tokenizer`
+  keeps an in-flight search through a parent re-render while empty: list
+  wrappers pass one shared empty array instead of a new one per render.
+- **An empty `status` falls back to the item's**, as antd's
+  `getMergedStatus` does, instead of clearing the item's error border.
 - **`UnitGrid` draws full-size cells again under Astryx 0.7.0.** Cell, gap
   and radius sizes came from `parseFloat()` on the raw `--spacing-4`,
   `--spacing-0-5` and `--radius-element` values, which are rem since 0.7.0,

@@ -14,10 +14,7 @@
     "styles": {
       "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
       "from": [
-        {
-          "file": "dist/ComplexSelector/ComplexSelector.js",
-          "consts": ["styles"]
-        },
+        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -62,12 +59,7 @@
     },
     "styles": {
       "file": "src/forks/Tour/TourStep.styles.ts",
-      "from": [
-        {
-          "file": "dist/Tour/TourStep.js",
-          "consts": ["styles"]
-        }
-      ]
+      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
     }
   },
   "Switch": {
@@ -100,10 +92,7 @@
             "dynamicWidthStyles"
           ]
         },
-        {
-          "file": "dist/Switch/switch.markers.stylex.js",
-          "consts": ["switchScope"]
-        },
+        { "file": "dist/Switch/switch.markers.stylex.js", "consts": ["switchScope"] },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -140,6 +129,28 @@
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
+        }
+      ]
+    }
+  },
+  "FileInput": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "FileInput",
+    "files": {
+      "src/FileInput/FileInput.tsx": "ff628d0f941d2ef5b14505077b06be1e53bca6288a2404a03c58a207be0e293b",
+      "src/FileInput/index.ts": "7b0a29d5e380a860c86919aa059e607e3bf3d36ebb67108670e8bf629145bedc",
+      "src/FileInput/FileInput.test.tsx": "0284bdbdc957f0b4fab65f3aaf46d450a9ecb0c3116cf6e511a364af35bdfcf4",
+      "src/Field/fieldParts.ts": "67444f567388150535f53437f686d0c950a5360f2e9f15b0ff941f6f5ac74083",
+      "dist/FileInput/FileInput.js": "c02a188fbac502385bb93a458b6efa327c0131fdbafdc8a8c40e495e28f805a9"
+    },
+    "styles": {
+      "file": "src/forks/FileInput/FileInput.styles.ts",
+      "from": [
+        {
+          "file": "dist/FileInput/FileInput.js",
+          "consts": ["styles", "statusBorderStyles"]
         }
       ]
     }

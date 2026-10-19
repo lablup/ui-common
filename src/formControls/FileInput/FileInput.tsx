@@ -1,12 +1,13 @@
 /**
- * `FileInput` for `Form.Item`: Astryx's FileInput without the field chrome the item
- * owns (label, description, required marker, status message; see
- * ../formControl.tsx). It is not reached by the item's `<label htmlFor>`, so it takes the item's label text as its own, visually hidden.
+ * `FileInput` for `Form.Item`: ui-common's FileInput fork (src/forks/FileInput,
+ * which hands the item's `aria-*` and focus handlers to the trigger) without
+ * the field chrome the item owns (label, description, required marker, status
+ * message; see ../formControl.tsx). It is not reached by the item's `<label htmlFor>`, so it takes the item's label text as its own, visually hidden.
  */
 import {
   FileInput as AstryxFileInput,
   type FileInputProps as AstryxFileInputProps,
-} from "@astryxdesign/core/FileInput";
+} from "../../forks/FileInput";
 
 import {
   FormControlScope,

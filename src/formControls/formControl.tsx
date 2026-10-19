@@ -57,6 +57,14 @@ export type Injected<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export const noop = () => {};
 
+/**
+ * The empty value of a list control. One array for every render: Astryx
+ * memoizes on the value's identity (Tokenizer rebuilds its search source and
+ * abandons an in-flight search), and CheckboxList only reports clicks when it
+ * has a value at all.
+ */
+export const EMPTY_ARRAY: never[] = [];
+
 interface UseFormControlOptions {
   status?: FormControlStatus;
   disabled?: boolean;
@@ -83,7 +91,8 @@ export function useFormControl({
   const item = use(FormItemInputContext);
   const itemStatus =
     item.status === "error" || item.status === "warning" ? item.status : "";
-  const merged = status ?? itemStatus;
+  // antd's getMergedStatus: an empty `status` falls back to the item's.
+  const merged = status || itemStatus;
   return {
     required: ariaRequired === true || ariaRequired === "true",
     field: {
