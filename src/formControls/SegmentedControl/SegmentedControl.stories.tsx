@@ -3,11 +3,7 @@ import { useState } from "react";
 import { fn } from "storybook/test";
 
 import { SegmentedControl, SegmentedControlItem } from "./index";
-import {
-  FormItemDemo,
-  StatusesDemo,
-  ValueReadout,
-} from "../../stories/formControlStories";
+import { FormItemDemo, ValueReadout } from "../../stories/formControlStories";
 import { withMaxWidth } from "../../stories/helpers";
 
 const ITEMS = (
@@ -23,6 +19,9 @@ const ITEMS = (
  * `aria-label` and, without `value`, keeps its own state, as antd's
  * controls do. Inside an item, the item owns the label, the help text and the
  * message, and supplies the value (src/formControls).
+ *
+ * It draws no border for `status`, as antd's checkbox, radio and switch draw
+ * none: an error shows as the item's message, and as `aria-invalid`.
  */
 const meta = {
   title: "Form Controls/SegmentedControl",
@@ -53,17 +52,6 @@ export const Controlled: Story = {
       </>
     );
   },
-};
-
-/** On its own with a border status, antd's `status`: no message. */
-export const Statuses: Story = {
-  render: (args) => (
-    <StatusesDemo
-      render={(status) => (
-        <SegmentedControl {...args} aria-label={`View (${status})`} status={status} />
-      )}
-    />
-  ),
 };
 
 /** On its own, disabled. */

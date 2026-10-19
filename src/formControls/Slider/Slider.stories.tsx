@@ -4,11 +4,7 @@ import { fn } from "storybook/test";
 
 import { Slider, type SliderSingleProps } from "./index";
 import type { FormControlValueProps } from "../formControl";
-import {
-  FormItemDemo,
-  StatusesDemo,
-  ValueReadout,
-} from "../../stories/formControlStories";
+import { FormItemDemo, ValueReadout } from "../../stories/formControlStories";
 import { withMaxWidth } from "../../stories/helpers";
 
 /** A single-value Slider: Storybook cannot type its overloads. */
@@ -19,6 +15,9 @@ type SliderStoryProps = FormControlValueProps<SliderSingleProps>;
  * `aria-label` and, without `value`, keeps its own state, as antd's
  * controls do. Inside an item, the item owns the label, the help text and the
  * message, and supplies the value (src/formControls).
+ *
+ * It draws no border for `status`, as antd's checkbox, radio and switch draw
+ * none: an error shows as the item's message, and as `aria-invalid`.
  */
 const meta = {
   title: "Form Controls/Slider",
@@ -48,17 +47,6 @@ export const Controlled: Story = {
       </>
     );
   },
-};
-
-/** On its own with a border status, antd's `status`: no message. */
-export const Statuses: Story = {
-  render: (args) => (
-    <StatusesDemo
-      render={(status) => (
-        <Slider {...args} aria-label={`Memory share (${status})`} status={status} />
-      )}
-    />
-  ),
 };
 
 /** On its own, disabled. */

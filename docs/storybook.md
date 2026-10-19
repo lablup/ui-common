@@ -17,7 +17,9 @@ pnpm build-storybook    # static build in storybook-static/
   wrappers (`src/formControls/<Name>/`) follow the same rule.
 - A form control's stories show it both ways it is used. On its own:
   `Default` (uncontrolled, named by `aria-label`), `Controlled`, `Statuses`
-  and `Disabled`. Inside a `Form.Item`, through `FormItemDemo` from
+  (only for a control that draws a border for `status`; Switch, the
+  checkboxes, the radios, SegmentedControl and Slider draw none) and
+  `Disabled`. Inside a `Form.Item`, through `FormItemDemo` from
   `src/stories/formControlStories.tsx`: `InFormItem`, `InFormItemWithValue`,
   `ValidateOnBlur` and `FormDisabled`.
 
