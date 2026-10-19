@@ -187,17 +187,36 @@ const fixedOriginIn = (host: HTMLElement): { left: number; top: number } => {
   return { left: r.left, top: r.top };
 };
 
+/**
+ * Token lengths in px. The tokens are rem (or calc()) values, so each one is
+ * resolved through a probe element's computed length rather than parsed raw;
+ * an unset or unresolvable token keeps its fallback.
+ */
 const readMetricsFromDOM = (host: HTMLElement): UnitGridMetrics => {
   const cs = getComputedStyle(host);
-  const len = (name: string, fallback: number): number => {
-    const v = parseFloat(cs.getPropertyValue(name));
+  const probeHost = document.createElement("div");
+  probeHost.setAttribute("aria-hidden", "true");
+  probeHost.style.cssText =
+    "position:absolute;visibility:hidden;pointer-events:none;width:0;height:0;overflow:hidden";
+  const tokens = [
+    { name: "--spacing-4", property: "width", fallback: 16 },
+    { name: "--spacing-0-5", property: "width", fallback: 2 },
+    { name: "--radius-element", property: "border-top-left-radius", fallback: 4 },
+  ] as const;
+  const probes = tokens.map(({ name, property }) => {
+    const el = document.createElement("div");
+    el.style.setProperty(property, `var(${name})`);
+    probeHost.appendChild(el);
+    return el;
+  });
+  host.appendChild(probeHost);
+  const [cellPx, gapPx, radiusPx] = tokens.map(({ name, property, fallback }, i) => {
+    if (!cs.getPropertyValue(name).trim()) return fallback;
+    const v = parseFloat(getComputedStyle(probes[i]!).getPropertyValue(property));
     return Number.isFinite(v) ? v : fallback;
-  };
-  return deriveMetrics(
-    len("--spacing-4", 16),
-    len("--spacing-0-5", 2),
-    Math.min(len("--radius-element", 4), 4),
-  );
+  }) as [number, number, number];
+  host.removeChild(probeHost);
+  return deriveMetrics(cellPx, gapPx, Math.min(radiusPx, 4));
 };
 
 export interface UnitGridUnit {
