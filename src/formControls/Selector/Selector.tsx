@@ -13,22 +13,11 @@ import {
   FormControlScope,
   useFormControl,
   useMergedValue,
-  type DistributiveOmit,
-  type FormControlChromeProps,
-  type FormControlProps,
+  type FormControlValueProps,
 } from "../formControl";
 
 export type SelectorProps<T extends SelectorOptionType = SelectorOptionType> =
-  DistributiveOmit<
-    AstryxSelectorProps<T>,
-    FormControlChromeProps | "value" | "onChange"
-  > &
-    FormControlProps & {
-      value?: AstryxSelectorProps<T>["value"];
-      /** The starting value when `value` is not set (uncontrolled), as in antd. */
-      defaultValue?: AstryxSelectorProps<T>["value"];
-      onChange?: AstryxSelectorProps<T>["onChange"];
-    };
+  FormControlValueProps<AstryxSelectorProps<T>>;
 
 export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   value,

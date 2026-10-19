@@ -14,7 +14,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { cloneElement, useState, type ComponentProps, type ReactElement } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, expectTypeOf, it, vi } from "vitest";
 
 import { Form, type FormInstance } from "../components/Form";
 import { Modal } from "../components/Modal";
@@ -429,6 +429,42 @@ describe("surfaces that are not part of the item", () => {
     });
     const search = screen.getByRole("textbox", { name: "Search users", hidden: true });
     expect(search).not.toHaveAttribute("aria-invalid", "true");
+  });
+});
+
+describe("form-control types", () => {
+  // Checked by `tsc`: an inline `onChange` is typed from the props, as on
+  // Astryx's controls, instead of an implicit any.
+  it("type an inline onChange from the branch the props pick", () => {
+    render(
+      <>
+        <Selector
+          aria-label="a"
+          options={OPTIONS}
+          onChange={(v) => expectTypeOf(v).toEqualTypeOf<string>()}
+        />
+        <Selector
+          aria-label="b"
+          options={OPTIONS}
+          hasClear
+          onChange={(v) => expectTypeOf(v).toEqualTypeOf<string | null>()}
+        />
+        <NumberInput
+          aria-label="c"
+          onChange={(v) => expectTypeOf(v).toEqualTypeOf<number | null>()}
+        />
+        <Slider
+          aria-label="d"
+          onChange={(v) => expectTypeOf(v).toEqualTypeOf<number>()}
+        />
+        <Slider
+          aria-label="e"
+          defaultValue={[1, 2]}
+          onChange={(v) => expectTypeOf(v).toEqualTypeOf<[number, number]>()}
+        />
+      </>,
+    );
+    expect(screen.getAllByRole("slider")).toHaveLength(3);
   });
 });
 

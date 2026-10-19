@@ -35,7 +35,10 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `hasClear` (an emptied field reports `null`; pass `hasClear={false}` to
   keep the last number), takes a numeric string as `value`, and rounds a
   decimal typed into an `isIntegerOnly` field on blur instead of dropping
-  it. Its `onChange` is `(value: number | null) => void`.
+  it. Its `onChange` is `(value: number | null) => void`. An inline
+  `onChange={(v) => …}` is typed again on `Selector` (from `hasClear`, as on
+  Astryx's) and on `Slider` (a single value unless the value is a range,
+  which Astryx's leaves untyped), instead of an implicit `any`.
 
 ### Added
 

@@ -53,6 +53,22 @@ export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
   : never;
 
 /**
+ * A wrapper's props over an Astryx props union (Selector's `hasClear`,
+ * Slider's single or range value): the chrome dropped and `value` optional
+ * beside `defaultValue`, per branch. Each branch keeps its own `value` and
+ * `onChange`, so TypeScript still picks the branch that types an inline
+ * `onChange={(v) => …}`.
+ */
+export type FormControlValueProps<P> = P extends { value?: infer V }
+  ? Omit<P, FormControlChromeProps | "value"> &
+      FormControlProps & {
+        value?: V;
+        /** The starting value when `value` is not set (uncontrolled), as in antd. */
+        defaultValue?: V;
+      }
+  : never;
+
+/**
  * The empty value of a list control. One array for every render: Astryx
  * memoizes on the value's identity (Tokenizer rebuilds its search source and
  * abandons an in-flight search), and CheckboxList only reports clicks when it
