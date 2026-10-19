@@ -98,7 +98,13 @@ function renderItem(
     disabled,
     required,
     form,
-  }: { disabled?: boolean; required?: boolean; form?: { current?: FormInstance } } = {},
+    validateTrigger,
+  }: {
+    disabled?: boolean;
+    required?: boolean;
+    form?: { current?: FormInstance };
+    validateTrigger?: string;
+  } = {},
 ) {
   function Harness() {
     const [instance] = Form.useForm();
@@ -108,6 +114,7 @@ function renderItem(
         <Form.Item
           label="Field label"
           name="field"
+          validateTrigger={validateTrigger}
           rules={required ? [{ required: true, message: "Fill this in." }] : []}
         >
           {control}
@@ -164,6 +171,31 @@ describe.each(CASES)("%s in Form.Item", (_, control, selector) => {
     expect(
       container.querySelector('[disabled], [aria-disabled="true"], [data-disabled]'),
     ).not.toBeNull();
+  });
+
+  it('validates when focus leaves it, with validateTrigger="onBlur"', async () => {
+    const { container } = renderItem(control, {
+      required: true,
+      validateTrigger: "onBlur",
+    });
+    // The control the item names, or the first focusable part of it.
+    const FOCUSABLE =
+      'input:not([type=hidden]):not([aria-hidden=true]), textarea, button, [tabindex="0"]';
+    const el = find(container);
+    const focusable = el.matches(FOCUSABLE)
+      ? el
+      : el.querySelector<HTMLElement>(FOCUSABLE)!;
+    act(() => focusable.focus());
+    act(() => focusable.blur());
+    expect(await screen.findByText("Fill this in.")).toBeInTheDocument();
+  });
+
+  it("takes focus from form.focusField, as the first error does", () => {
+    const form: { current?: FormInstance } = {};
+    const { container } = renderItem(control, { form });
+    act(() => form.current!.focusField("field"));
+    expect(container.contains(document.activeElement)).toBe(true);
+    expect(document.activeElement).not.toBe(container);
   });
 });
 

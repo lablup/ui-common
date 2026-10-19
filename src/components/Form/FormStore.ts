@@ -995,10 +995,13 @@ export class FormStore {
     const node = this.getFieldDOMNode(name);
     if (!node) return;
     // The handle may sit on a wrapper (Astryx Switch / SegmentedControl spread
-    // `rest` onto their root; the item wrapper is the fallback).
+    // `rest` onto their root; the item wrapper is the fallback). A group of
+    // buttons (SegmentedControl's radios) has no field: its tab stop stands in.
     let target = node.matches(EDITABLE)
       ? node
-      : (node.querySelector<HTMLElement>(EDITABLE) ?? node);
+      : (node.querySelector<HTMLElement>(EDITABLE) ??
+        node.querySelector<HTMLElement>('[tabindex="0"],button:not([disabled])') ??
+        node);
     // A control hidden from focus (FileInput's native input, `aria-hidden`
     // with tabindex -1) is stood in for by its focusable sibling, the trigger.
     if (target.tabIndex < 0 && target.getAttribute("aria-hidden") === "true") {
