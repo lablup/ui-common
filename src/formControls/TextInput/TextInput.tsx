@@ -26,6 +26,11 @@ export type TextInputProps = DistributiveOmit<
     /** The starting value when `value` is not set (uncontrolled), as in antd. */
     defaultValue?: AstryxTextInputProps["value"];
     onChange?: AstryxTextInputProps["onChange"];
+    /**
+     * The native limit on the text's length, as antd's Input takes. Astryx
+     * passes it to the `<input>` but does not declare it.
+     */
+    maxLength?: number;
   };
 
 export function TextInput({

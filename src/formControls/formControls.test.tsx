@@ -272,6 +272,14 @@ describe("form-control wrappers", () => {
     expect(input).not.toHaveAttribute("aria-busy", "true");
   });
 
+  it("let TextInput take maxLength, as antd's Input does", () => {
+    render(<TextInput aria-label="Code" maxLength={4} />);
+    expect(screen.getByRole("textbox", { name: "Code" })).toHaveAttribute(
+      "maxlength",
+      "4",
+    );
+  });
+
   it("take an antd-style status for the border, with no message", () => {
     const { container } = render(<TextInput aria-label="Name" status="warning" />);
     expect(screen.getByRole("textbox", { name: "Name" })).toBeInTheDocument();
