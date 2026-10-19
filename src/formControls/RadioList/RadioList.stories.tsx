@@ -88,18 +88,6 @@ export const InFormItemWithValue: Story = {
   ),
 };
 
-/** Inside a `Form.Item` that validates when focus leaves the control. */
-export const ValidateOnBlur: Story = {
-  render: () => (
-    <FormItemDemo label="Visibility" validateTrigger="onBlur">
-      <RadioList>
-        <RadioListItem value="private" label="Private" />
-        <RadioListItem value="shared" label="Shared" />
-      </RadioList>
-    </FormItemDemo>
-  ),
-};
-
 /** Inside a disabled form: `<Form disabled>` disables the control. */
 export const FormDisabled: Story = {
   render: () => (

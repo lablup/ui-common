@@ -88,18 +88,6 @@ export const InFormItemWithValue: Story = {
   ),
 };
 
-/** Inside a `Form.Item` that validates when focus leaves the control. */
-export const ValidateOnBlur: Story = {
-  render: () => (
-    <FormItemDemo label="Resources" validateTrigger="onBlur">
-      <CheckboxList>
-        <CheckboxListItem value="cpu" label="CPU" />
-        <CheckboxListItem value="gpu" label="GPU" />
-      </CheckboxList>
-    </FormItemDemo>
-  ),
-};
-
 /** Inside a disabled form: `<Form disabled>` disables the control. */
 export const FormDisabled: Story = {
   render: () => (

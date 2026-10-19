@@ -3,8 +3,22 @@ import { useState } from "react";
 import { fn } from "storybook/test";
 
 import { Switch } from "./index";
+import type { Rule } from "../../components/Form/interface";
 import { FormItemDemo, ValueReadout } from "../../stories/formControlStories";
 import { withMaxWidth } from "../../stories/helpers";
+
+/**
+ * The field must be on. antd's `required` takes `false` as a value, so a
+ * switch or checkbox that has to be on checks it with a `validator`.
+ */
+const MUST_BE_ON: Rule[] = [
+  {
+    validator: (_, value) =>
+      value
+        ? Promise.resolve()
+        : Promise.reject(new Error("Turn this on to continue.")),
+  },
+];
 
 /**
  * Switch on its own and inside `Form.Item`. On its own it is named by
@@ -52,12 +66,12 @@ export const Disabled: Story = {
 };
 
 /**
- * Inside a `Form.Item`: the item's label names the control, and a required
- * rule shows its one message when the form is submitted empty.
+ * Inside a `Form.Item`: the item's label names the control, and a rule that
+ * needs it on shows its one message when the form is submitted with it off.
  */
 export const InFormItem: Story = {
   render: () => (
-    <FormItemDemo label="Notifications" valuePropName="checked">
+    <FormItemDemo label="Notifications" valuePropName="checked" rules={MUST_BE_ON}>
       <Switch>Email me when a session ends</Switch>
     </FormItemDemo>
   ),
@@ -69,19 +83,11 @@ export const InFormItem: Story = {
  */
 export const InFormItemWithValue: Story = {
   render: () => (
-    <FormItemDemo label="Notifications" valuePropName="checked" initialValue={true}>
-      <Switch>Email me when a session ends</Switch>
-    </FormItemDemo>
-  ),
-};
-
-/** Inside a `Form.Item` that validates when focus leaves the control. */
-export const ValidateOnBlur: Story = {
-  render: () => (
     <FormItemDemo
       label="Notifications"
       valuePropName="checked"
-      validateTrigger="onBlur"
+      rules={MUST_BE_ON}
+      initialValue={true}
     >
       <Switch>Email me when a session ends</Switch>
     </FormItemDemo>
@@ -94,6 +100,7 @@ export const FormDisabled: Story = {
     <FormItemDemo
       label="Notifications"
       valuePropName="checked"
+      rules={MUST_BE_ON}
       disabled
       initialValue={true}
     >
