@@ -141,7 +141,8 @@ export function useMergedValue<V>(
 ): [V | undefined, (next: V, ...args: unknown[]) => void] {
   const [inner, setInner] = useState(defaultValue);
   const [prevValue, setPrevValue] = useState(value);
-  if (prevValue !== value) {
+  // Object.is: `NaN !== NaN` would set state on every render.
+  if (!Object.is(prevValue, value)) {
     setPrevValue(value);
     if (value === undefined) setInner(undefined);
   }

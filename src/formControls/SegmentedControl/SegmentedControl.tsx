@@ -52,6 +52,10 @@ export function SegmentedControl({
         {...rest}
         label={field.label}
         isDisabled={field.isDisabled}
+        // Astryx draws no status on it; an error still marks it invalid.
+        aria-invalid={
+          rest["aria-invalid"] ?? (field.status?.type === "error" || undefined)
+        }
         value={mergedValue ?? ""}
         onChange={handleChange}
       />

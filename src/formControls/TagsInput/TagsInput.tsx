@@ -127,7 +127,14 @@ export function TagsInput({
       {...rest}
       ref={mergedRef}
       value={items}
-      onChange={(next) => commit(next.flatMap((item) => split(item.label)))}
+      // Only a new entry is split; a tag already held stays as it is.
+      onChange={(next) =>
+        commit(
+          next.flatMap((item) =>
+            tags.includes(item.label) ? [item.label] : split(item.label),
+          ),
+        )
+      }
       searchSource={NO_SUGGESTIONS}
       hasCreate
       renderItem={

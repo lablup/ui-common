@@ -200,6 +200,32 @@ describe.each(CASES)("%s in Form.Item", (_, control, selector) => {
 });
 
 describe("form-control wrappers", () => {
+  it("let focusField land on SegmentedControl's selected segment", () => {
+    const form: { current?: FormInstance } = {};
+    renderItem(
+      <SegmentedControl>
+        <SegmentedControlItem value="a" label="Alpha" />
+        <SegmentedControlItem value="b" label="Beta" />
+      </SegmentedControl>,
+      { form },
+    );
+    act(() => form.current!.setFieldsValue({ field: "b" }));
+    act(() => form.current!.focusField("field"));
+    expect(document.activeElement).toBe(screen.getByRole("radio", { name: "Beta" }));
+  });
+
+  it("let SegmentedControl's status mark it invalid on its own", () => {
+    render(
+      <SegmentedControl aria-label="View" status="error">
+        <SegmentedControlItem value="a" label="Alpha" />
+      </SegmentedControl>,
+    );
+    expect(screen.getByRole("radiogroup", { name: "View" })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
   it("keep focus while an error appears: the tree does not change shape", async () => {
     const form: { current?: FormInstance } = {};
     const { container } = renderItem(<TextInput />, { required: true, form });
@@ -428,7 +454,12 @@ describe("surfaces that are not part of the item", () => {
       return (
         <Form form={instance}>
           <Form.Item label="Owner" name="owner" rules={[{ required: true }]}>
-            <Modal isOpen onOpenChange={() => {}}>
+            <Modal
+              isOpen
+              onOpenChange={() => {}}
+              title="Pick"
+              footer={<TextInput aria-label="Note" />}
+            >
               <TextInput aria-label="Search users" />
             </Modal>
           </Form.Item>
@@ -441,6 +472,9 @@ describe("surfaces that are not part of the item", () => {
     });
     const search = screen.getByRole("textbox", { name: "Search users", hidden: true });
     expect(search).not.toHaveAttribute("aria-invalid", "true");
+    // The footer and header slots are outside the body but inside the Modal.
+    const note = screen.getByRole("textbox", { name: "Note", hidden: true });
+    expect(note).not.toHaveAttribute("aria-invalid", "true");
   });
 
   it("keep a Popover's controls out of the item it opens from", async () => {
@@ -546,6 +580,11 @@ describe("what a host app's adapter used to add", () => {
     expect(screen.getByRole("spinbutton", { name: "Port" })).toHaveValue("8080");
   });
 
+  it("let NumberInput take NaN without re-rendering forever", () => {
+    render(<NumberInput aria-label="Ratio" value={NaN} />);
+    expect(screen.getByRole("spinbutton", { name: "Ratio" })).toHaveValue("");
+  });
+
   it("round a decimal typed into an integer NumberInput", async () => {
     const onChange = vi.fn();
     render(
@@ -607,6 +646,15 @@ describe("TagsInput", () => {
     await userEvent.type(screen.getByRole("combobox", { name: "Hosts" }), "left");
     await userEvent.click(screen.getByRole("button", { name: "Elsewhere" }));
     expect(form.current!.getFieldValue("hosts")).toEqual(["left"]);
+  });
+
+  it("keeps the other tags as they are when one is removed", async () => {
+    const form = renderTags({
+      tokenSeparators: [","],
+      defaultValue: ["a,b", "x", "y"],
+    });
+    await userEvent.click(screen.getByRole("button", { name: /Remove x/ }));
+    expect(form.current!.getFieldValue("hosts")).toEqual(["a,b", "y"]);
   });
 
   it("labels the create row with ui-common's message", async () => {

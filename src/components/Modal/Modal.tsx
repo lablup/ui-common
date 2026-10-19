@@ -432,41 +432,42 @@ function ModalSurface({
     ) : null;
   const resolvedFooter = footer === undefined ? generatedFooter : footer;
 
-  // A Modal opened from inside a Form.Item is not part of that item.
-  const body = (
-    <NoFormItemContext>
-      {isLoading ? <SkeletonText lines={4} /> : children}
-    </NoFormItemContext>
-  );
+  const body = isLoading ? <SkeletonText lines={4} /> : children;
 
-  const content = isStructured ? (
-    <Layout
-      header={
-        title !== undefined || headerStartContent || headerEndContent ? (
-          <DialogHeader
-            hasDivider
-            // `title` is typed string but renders through `Heading`, whose
-            // children are a node; the cast keeps DialogHeader's a11y wiring.
-            title={(title ?? "") as unknown as string}
-            subtitle={subtitle}
-            startContent={headerStartContent}
-            endContent={headerEndContent}
-            onOpenChange={hasCloseButton ? (next) => !next && close() : undefined}
-            className={headerClassName}
-          />
-        ) : undefined
-      }
-      content={<LayoutContent>{body}</LayoutContent>}
-      footer={
-        resolvedFooter ? (
-          <LayoutFooter hasDivider className={footerClassName}>
-            {resolvedFooter}
-          </LayoutFooter>
-        ) : undefined
-      }
-    />
-  ) : (
-    body
+  // A Modal opened from inside a Form.Item is not part of that item: neither
+  // its body nor the controls a caller puts in its header or footer.
+  const content = (
+    <NoFormItemContext>
+      {isStructured ? (
+        <Layout
+          header={
+            title !== undefined || headerStartContent || headerEndContent ? (
+              <DialogHeader
+                hasDivider
+                // `title` is typed string but renders through `Heading`, whose
+                // children are a node; the cast keeps DialogHeader's a11y wiring.
+                title={(title ?? "") as unknown as string}
+                subtitle={subtitle}
+                startContent={headerStartContent}
+                endContent={headerEndContent}
+                onOpenChange={hasCloseButton ? (next) => !next && close() : undefined}
+                className={headerClassName}
+              />
+            ) : undefined
+          }
+          content={<LayoutContent>{body}</LayoutContent>}
+          footer={
+            resolvedFooter ? (
+              <LayoutFooter hasDivider className={footerClassName}>
+                {resolvedFooter}
+              </LayoutFooter>
+            ) : undefined
+          }
+        />
+      ) : (
+        body
+      )}
+    </NoFormItemContext>
   );
 
   if (isInline) {
