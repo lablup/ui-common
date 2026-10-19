@@ -470,8 +470,9 @@ export async function generate() {
 
   // A same-name replacement says what it is, naming the Astryx module it
   // stands in for (the CLI and the agent block read it): `fork`, a copy of
-  // Astryx's with a fix and the same API (src/forks/), or `wraps`, a wrapper
-  // that changes the API (src/formControls/). Exactly one is required on a
+  // Astryx's with a fix and the same API (src/forks/), or `wraps`, a wrapper:
+  // a Form.Item one that changes the API (src/formControls/), or one with the
+  // same API (Popover, whose content leaves the item's context). Exactly one is required on a
   // replacement, and neither is allowed elsewhere.
   for (const custom of customs) {
     const isFork = mirrorForks.has(custom.name) || subpathForkOf(custom) !== undefined;
@@ -730,9 +731,11 @@ export async function generate() {
     const from = customSpecifier(custom.source);
     let comment = `// ${custom.name}\n`;
     if (fork)
-      comment = custom.wraps
-        ? `// ${custom.name}: ui-common's Form.Item wrapper, in place of Astryx's.\n`
-        : `// ${custom.name}: ui-common's own copy, in place of Astryx's.\n`;
+      comment = !custom.wraps
+        ? `// ${custom.name}: ui-common's own copy, in place of Astryx's.\n`
+        : custom.source.startsWith("formControls/")
+          ? `// ${custom.name}: ui-common's Form.Item wrapper, in place of Astryx's.\n`
+          : `// ${custom.name}: ui-common's wrapper, same API, in place of Astryx's.\n`;
     if (custom.legacy) {
       const what = custom.legacy.names ? custom.legacy.names.join(", ") : "this module";
       comment += `// Deprecated, removed in 0.3: ${what}. Replaced by ${custom.legacy.replacedBy}.\n`;

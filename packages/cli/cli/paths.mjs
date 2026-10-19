@@ -224,12 +224,13 @@ export function customExports(root = uiCommonRoot()) {
 /**
  * ui-common's own versions of Astryx components, under the same names and
  * import paths as Astryx's, which exports.exclude.json hides: copies with a
- * fix and the same API (`kind: "fork"`, src/forks/), and Form.Item wrappers
- * that drop the field chrome (`kind: "wrapper"`, src/formControls/). `names`
+ * fix and the same API (`kind: "fork"`, src/forks/), Form.Item wrappers that
+ * drop the field chrome (`kind: "wrapper"`, src/formControls/), and wrappers
+ * with the same API (`kind: "wrapped"`, Popover). `names`
  * are the names a reader may meet it by; `from` is where a consumer imports
  * it.
  *
- * @returns {Array<{name: string, kind: "fork" | "wrapper", from: string, names: string[], reason: string}>}
+ * @returns {Array<{name: string, kind: "fork" | "wrapper" | "wrapped", from: string, names: string[], reason: string}>}
  */
 export function forkedExports() {
   const exclusions = excludedExports();
@@ -239,7 +240,12 @@ export function forkedExports() {
       const exclusion = exclusions.find((e) => e.replacedBy === c.name);
       return {
         name: c.name,
-        kind: c.wraps !== undefined ? "wrapper" : "fork",
+        kind:
+          c.wraps === undefined
+            ? "fork"
+            : c.source.startsWith("formControls/")
+              ? "wrapper"
+              : "wrapped",
         from: `@lablup/ui-common/${c.subpath ?? exclusion?.name ?? ""}`,
         names: exclusion?.exports ?? [c.name],
         reason: exclusion?.reason ?? "",
@@ -250,12 +256,17 @@ export function forkedExports() {
 /**
  * What to tell a reader about one of `forkedExports()`.
  *
- * @param {{name: string, kind: "fork" | "wrapper", from: string, reason: string}} entry
+ * @param {{name: string, kind: "fork" | "wrapper" | "wrapped", from: string, reason: string}} entry
  */
 export function replacementNote(entry) {
-  return entry.kind === "wrapper"
-    ? `${entry.name} (${entry.from}) comes from ui-common: Astryx's, wrapped for Form.Item, same import path. ` +
-        `It takes no label, description, required or status message; Form.Item's label, extra, rules and help do.`
+  if (entry.kind === "wrapper") {
+    return (
+      `${entry.name} (${entry.from}) comes from ui-common: Astryx's, wrapped for Form.Item, same import path. ` +
+      `It takes no label, description, required or status message; Form.Item's label, extra, rules and help do.`
+    );
+  }
+  return entry.kind === "wrapped"
+    ? `${entry.name} (${entry.from}) comes from ui-common: Astryx's, wrapped, same API and import path. ${entry.reason}`
     : `${entry.name} (${entry.from}) comes from ui-common: its own copy of Astryx's, same API and import path. ${entry.reason}`;
 }
 

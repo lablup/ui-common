@@ -23,21 +23,21 @@
  * MultiSelectorRenderTriggerProps, MultiSelectorSection,
  * MultiSelectorSelectedItem, MultiSelectorSize, MultiSelectorStatus,
  * MultiSelectorStatusType, NumberInputSize, NumberInputStatus,
- * NumberInputStatusType, RadioListContext, RadioListContextValue,
- * RadioListItem, RadioListItemProps, RadioListSize, SearchSource,
- * SearchableItem, SelectorDivider, SelectorOption, SelectorOptionData,
- * SelectorOptionType, SelectorPresentation, SelectorSection, SelectorSize,
- * SelectorStatus, SelectorStatusType, SliderBaseProps, SliderRangeProps,
- * SliderSingleProps, SwitchLabelPosition, SwitchLabelSpacing, TextAreaSize,
- * TextAreaStatus, TextAreaStatusType, TextInputSize, TextInputStatus,
- * TextInputStatusType, TextInputType, TimeInputHourFormat,
- * TimeInputNativePicker, TimeInputPresentation, TimeInputSize, TimeInputStatus,
- * TimeInputStatusType, TokenizerChange, TokenizerHandle,
- * TokenizerOverflowBehavior, TokenizerSize, TokenizerStatus,
+ * NumberInputStatusType, PopoverProps, PopoverTriggerRenderProps,
+ * RadioListContext, RadioListContextValue, RadioListItem, RadioListItemProps,
+ * RadioListSize, SearchSource, SearchableItem, SelectorDivider, SelectorOption,
+ * SelectorOptionData, SelectorOptionType, SelectorPresentation,
+ * SelectorSection, SelectorSize, SelectorStatus, SelectorStatusType,
+ * SliderBaseProps, SliderRangeProps, SliderSingleProps, SwitchLabelPosition,
+ * SwitchLabelSpacing, TextAreaSize, TextAreaStatus, TextAreaStatusType,
+ * TextInputSize, TextInputStatus, TextInputStatusType, TextInputType,
+ * TimeInputHourFormat, TimeInputNativePicker, TimeInputPresentation,
+ * TimeInputSize, TimeInputStatus, TimeInputStatusType, TokenizerChange,
+ * TokenizerHandle, TokenizerOverflowBehavior, TokenizerSize, TokenizerStatus,
  * TokenizerStatusType, TypeaheadItem, TypeaheadItemProps, TypeaheadSize,
- * TypeaheadStatus, TypeaheadStatusType, createStaticSource, useCombobox,
- * useImperativeAlertDialog, useImperativeDialog, useMultiCombobox,
- * useSelectedItemOffset.
+ * TypeaheadStatus, TypeaheadStatusType, UsePopoverOptions, UsePopoverReturn,
+ * createStaticSource, useCombobox, useImperativeAlertDialog,
+ * useImperativeDialog, useMultiCombobox, usePopover, useSelectedItemOffset.
  *
  * Excluded Astryx names re-exported unchanged by their replacement:
  * CheckboxInputSize, CheckboxListItem, CheckboxListItemProps, DateInputFormat,
@@ -54,7 +54,8 @@
  * MultiSelectorRenderTriggerProps, MultiSelectorSection,
  * MultiSelectorSelectedItem, MultiSelectorSize, MultiSelectorStatus,
  * MultiSelectorStatusType, NumberInputSize, NumberInputStatus,
- * NumberInputStatusType, RadioListContext, RadioListItem,
+ * NumberInputStatusType, usePopover, PopoverProps, PopoverTriggerRenderProps,
+ * UsePopoverOptions, UsePopoverReturn, RadioListContext, RadioListItem,
  * RadioListContextValue, RadioListItemProps, RadioListSize, SelectorOption,
  * useCombobox, useSelectedItemOffset, SelectorDivider, SelectorOptionData,
  * SelectorOptionType, SelectorPresentation, SelectorSection, SelectorSize,
@@ -76,10 +77,10 @@
  * ComplexSelectorSize, ComplexSelectorStatus, ComplexSelectorVariant,
  * DateInput, DateInputProps, DateRangeInput, DateRangeInputProps,
  * DateTimeInput, DateTimeInputProps, FileInput, FileInputProps, MultiSelector,
- * MultiSelectorProps, NumberInput, NumberInputProps, RadioList, RadioListProps,
- * Selector, SelectorProps, Slider, SliderProps, Switch, SwitchProps, TextArea,
- * TextAreaProps, TextInput, TextInputProps, TimeInput, TimeInputProps,
- * Tokenizer, TokenizerProps, Typeahead, TypeaheadProps.
+ * MultiSelectorProps, NumberInput, NumberInputProps, Popover, RadioList,
+ * RadioListProps, Selector, SelectorProps, Slider, SliderProps, Switch,
+ * SwitchProps, TextArea, TextAreaProps, TextInput, TextInputProps, TimeInput,
+ * TimeInputProps, Tokenizer, TokenizerProps, Typeahead, TypeaheadProps.
  */
 
 export {
@@ -222,7 +223,6 @@ export {
   OverflowList,
   Overlay,
   Pagination,
-  Popover,
   PowerSearch,
   PowerSearchFilterEditor,
   PowerSearchToken,
@@ -521,7 +521,6 @@ export {
   useOutlineFromMarkdown,
   useOverflow,
   useOverlay,
-  usePopover,
   usePowerSearchConfig,
   usePressFeedback,
   useResizable,
@@ -989,8 +988,6 @@ export type {
   PartialFilter,
   PixelWidth,
   PlainDate,
-  PopoverProps,
-  PopoverTriggerRenderProps,
   PowerSearchChangeType,
   PowerSearchComponentOverride,
   PowerSearchComponents,
@@ -1280,8 +1277,6 @@ export type {
   UseOverflowReturn,
   UseOverlayOptions,
   UseOverlayResult,
-  UsePopoverOptions,
-  UsePopoverReturn,
   UseResizableMultiConfig,
   UseResizableSingleConfig,
   UseScrollableAreaOptions,
@@ -1527,6 +1522,7 @@ export {
   FormList,
   FormProvider,
   FormStore,
+  NoFormItemContext,
   NoStyleItemContext,
   defaultValidateMessages,
   useForm,
@@ -1664,6 +1660,15 @@ export type {
   PagedSelectorSelectedItem,
   PagedSelectorSingleProps,
 } from "./components/PagedSelector";
+
+// Popover: ui-common's wrapper, same API, in place of Astryx's.
+export { Popover, usePopover } from "./components/Popover";
+export type {
+  PopoverProps,
+  PopoverTriggerRenderProps,
+  UsePopoverOptions,
+  UsePopoverReturn,
+} from "./components/Popover";
 
 // ProgressWithLabel
 export { ProgressWithLabel } from "./components/ProgressWithLabel";

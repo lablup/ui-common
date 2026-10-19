@@ -405,7 +405,7 @@ const [form] = Form.useForm();
   are: it keeps its own state, from `defaultValue` (`defaultChecked`), and
   still calls `onChange`. On its own it is named by `aria-label`. `Switch`
   and `CheckboxInput` take `checked` beside `value`, and their inline text as
-  `children`. A `Modal`, a `Drawer` or a nested `Form` opened inside an item
+  `children`. A `Modal`, a `Drawer`, a `Popover` or a nested `Form` opened inside an item
   is not part of it: its controls take none of the item's status or label.
 - A custom control shows its item's validation state by reading
   `Form.Item.useStatus()` or `FormItemInputContext`.

@@ -90,6 +90,12 @@
   { "name": "PageHeader", "source": "components/PageHeader/index.ts" },
   { "name": "PageLayout", "source": "components/PageLayout/index.ts" },
   { "name": "PagedSelector", "source": "components/PagedSelector/index.ts" },
+  {
+    "name": "Popover",
+    "source": "components/Popover/index.ts",
+    "subpath": "Popover",
+    "wraps": "@astryxdesign/core/Popover"
+  },
   { "name": "ProgressWithLabel", "source": "components/ProgressWithLabel/index.ts" },
   {
     "name": "RadioList",

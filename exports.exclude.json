@@ -128,5 +128,10 @@
     "name": "Typeahead",
     "replacedBy": "Typeahead",
     "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
+  },
+  {
+    "name": "Popover",
+    "replacedBy": "Popover",
+    "reason": "Its content is not part of the Form.Item it opens from, as antd's: a control inside takes none of the item's status or label. The API is Astryx's."
   }
 ]

@@ -86,7 +86,7 @@ function uiCommonSection({ version, astryxVersion, invocation }) {
     );
   }
   const replacements = forkedExports();
-  for (const fork of replacements.filter((f) => f.kind === "fork")) {
+  for (const fork of replacements.filter((f) => f.kind !== "wrapper")) {
     lines.push(`- ${replacementNote(fork)}`);
   }
   const wrappers = replacements.filter((f) => f.kind === "wrapper");

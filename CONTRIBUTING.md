@@ -189,7 +189,11 @@ the same name and import path (#69): `TextInput`, `TextArea`, `NumberInput`, `Se
   alone.
 - **Boundaries**: a surface that is not part of the item it renders under
   resets `FormItemInputContext` with `NoFormItemContext`, as antd's
-  `NoFormStyle` does: `Modal`, the `Drawer` fork and a nested `Form`.
+  `NoFormStyle` does: `Modal`, the `Drawer` fork, a nested `Form`, and
+  `Popover`, which ui-common therefore wraps (src/components/Popover, same
+  API; its `exports.customs.json` entry has `"wraps"` too). `usePopover`
+  renders no content of its own, so a custom surface built on it wraps its
+  content in `NoFormItemContext` itself.
 - **Exports**: an `exports.exclude.json` entry with `replacedBy` naming the
   wrapper, and an `exports.customs.json` entry with `"wraps"` naming the
   Astryx module and `"subpath"` the Astryx subpath. It must export exactly

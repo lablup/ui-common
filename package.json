@@ -376,10 +376,6 @@
       "types": "./dist/astryx/Pagination.d.ts",
       "import": "./dist/astryx/Pagination.js"
     },
-    "./Popover": {
-      "types": "./dist/astryx/Popover.d.ts",
-      "import": "./dist/astryx/Popover.js"
-    },
     "./PowerSearch": {
       "types": "./dist/astryx/PowerSearch.d.ts",
       "import": "./dist/astryx/PowerSearch.js"
@@ -618,6 +614,10 @@
     "./NumberInput": {
       "types": "./dist/formControls/NumberInput/index.d.ts",
       "import": "./dist/formControls/NumberInput/index.js"
+    },
+    "./Popover": {
+      "types": "./dist/components/Popover/index.d.ts",
+      "import": "./dist/components/Popover/index.js"
     },
     "./RadioList": {
       "types": "./dist/formControls/RadioList/index.d.ts",

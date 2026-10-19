@@ -18,6 +18,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Form, type FormInstance } from "../components/Form";
 import { Modal } from "../components/Modal";
+import { Popover } from "../components/Popover";
 import { CheckboxInput } from "./CheckboxInput";
 import { CheckboxList, CheckboxListItem } from "./CheckboxList";
 import { DateInput } from "./DateInput";
@@ -380,6 +381,34 @@ describe("surfaces that are not part of the item", () => {
             <Modal isOpen onOpenChange={() => {}}>
               <TextInput aria-label="Search users" />
             </Modal>
+          </Form.Item>
+        </Form>
+      );
+    }
+    render(<Harness />);
+    await act(async () => {
+      await form.current!.validateFields().catch(() => {});
+    });
+    const search = screen.getByRole("textbox", { name: "Search users", hidden: true });
+    expect(search).not.toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("keep a Popover's controls out of the item it opens from", async () => {
+    const form: { current?: FormInstance } = {};
+    function Harness() {
+      const [instance] = Form.useForm();
+      form.current = instance;
+      return (
+        <Form form={instance}>
+          <Form.Item label="Owner" name="owner" rules={[{ required: true }]}>
+            <Popover
+              label="Filter"
+              isOpen
+              onOpenChange={() => {}}
+              content={<TextInput aria-label="Search users" />}
+            >
+              <button type="button">Filter</button>
+            </Popover>
           </Form.Item>
         </Form>
       );
