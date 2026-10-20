@@ -43,11 +43,11 @@ export function DataTableWrapper({
         value={region}
         onChange={setRegion}
         options={[{ value: "kr", label: "Korea" }]}
-        label="Region"
+        aria-label="Region"
         size="sm"
         hasSearch
         width="100%"
-        isLabelHidden />
+      />
       {/* TODO(ui-common-upgrade): Table idKey: idKey takes (item) or a property name; the index argument is gone. */}
       {/* TODO(ui-common-upgrade): Table columns: rename id→key, render→renderCell, initialWidth→width; renderCell takes the row item, and width is pixel()/proportional() from @lablup/ui-common/Table. */}
       {/* TODO(ui-common-upgrade): loading, loadingState and emptyState: render them around the Table. */}

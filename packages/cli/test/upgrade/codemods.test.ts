@@ -173,7 +173,7 @@ export function D({ StatusTag }: { StatusTag: any }) {
     expect(out).toContain("const Select = (p: any) => <em>{p.children}</em>;");
     expect(out).toContain("return <Select disabled>inner</Select>;");
     // C: the module-level Select is migrated.
-    expect(out).toMatch(/<(Selector|UicSelector) isDisabled options=\{\[\]\}/);
+    expect(out).toMatch(/<(Selector|UicSelector) disabled options=\{\[\]\}/);
     // D: the parameter shadows the import.
     expect(out).toContain("export function D({ StatusTag }: { StatusTag: any }) {");
     expect(out).toContain('return <StatusTag state="x" />;');

@@ -5,7 +5,6 @@ import type { SelectorProps } from "@lablup/ui-common/Selector";
 export function Select({ noOptionsLabel, ...rest }: SelectorProps) {
   return (
     // TODO(ui-common-upgrade): props spread into <BaseSelect> are not migrated; check them against Astryx Selector's props.
-    // TODO(ui-common-upgrade): `label` is required and is a string; a node label needs a string for the accessible name.
     <BaseSelect {...rest} emptyText={noOptionsLabel ?? "Nothing matches"} />
   );
 }

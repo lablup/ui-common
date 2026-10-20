@@ -89,6 +89,13 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`upgrade --from 0.1` writes `Selector` for the Form.Item wrapper.** The
+  0.1 `Select` → `Selector` step still produced Astryx's own props, which the
+  wrapper no longer takes: it set `isLabelHidden` and `label` from
+  `aria-label`, renamed `disabled` to `isDisabled`, and turned `invalid` into
+  `status={{ type: "error" }}`. It now keeps `aria-label` and `disabled`,
+  writes `status="error"`, and moves a 0.1 `label` to `aria-label` with a
+  TODO to put it on the enclosing `Form.Item`.
 - **`Switch` and `CheckboxInput` honour the item's `id`.** Astryx 0.7.0
   replaces it with `useId()`, so `Form.Item`'s `<label htmlFor>` pointed at
   nothing. The wrappers render fixed copies (src/forks) that put the `id` on

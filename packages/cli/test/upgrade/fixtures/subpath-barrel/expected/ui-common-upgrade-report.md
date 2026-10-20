@@ -12,9 +12,9 @@ Ran the codemods over 6 files under `src`; searched 6 files under the project ro
 
 | | Count |
 |---|---:|
-| Files changed | 5 |
+| Files changed | 4 |
 | package.json changed | yes |
-| TODO markers left in code | 12 |
+| TODO markers left in code | 11 |
 | Manual-review findings | 7 |
 
 ## Steps
@@ -23,8 +23,7 @@ Ran the codemods over 6 files under `src`; searched 6 files under the project ro
 
 ## Changed files
 
-- `src/components/common/DataTableWrapper.tsx`: +35 −23, components
-- `src/components/common/Select.test.tsx`: +1 −0, components
+- `src/components/common/DataTableWrapper.tsx`: +33 −21, components
 - `src/components/common/index.ts`: +13 −6, components
 - `src/styles/theme.ts`: +1 −2, script-stylesheet-imports
 - `src/styles/ui-common-entry.css` (new): +15 −0, stylesheet-entry
@@ -39,7 +38,7 @@ Ran the codemods over 6 files under `src`; searched 6 files under the project ro
 
 ## Manual review
 
-### TODO markers (12)
+### TODO markers (11)
 
 Each is a `TODO(ui-common-upgrade)` comment in the code, above the call it is about. Resolve it, then delete the comment.
 
@@ -50,7 +49,6 @@ Each is a `TODO(ui-common-upgrade)` comment in the code, above the call it is ab
 - `src/components/common/DataTableWrapper.tsx:54` onRowClick, isRowClickable and rowClassName: use the row-interaction plugin or children mode.
 - `src/components/common/DataTableWrapper.tsx:69` lab Drawer renders no header: render the title, subtitle and footer inside children.
 - `src/components/common/DataTableWrapper.tsx:70` preventDismiss and onDismissAttempt: decline the close in onOpenChange.
-- `src/components/common/Select.test.tsx:5` `label` is required and is a string; a node label needs a string for the accessible name.
 - `src/components/common/index.ts:2` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
 - `src/components/common/index.ts:4` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
 - `src/components/common/index.ts:8` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
@@ -79,7 +77,7 @@ Query by role, label or data-testid instead.
 
 | Where | What | Detail |
 |---|---|---|
-| `src/components/common/Select.test.tsx:7` | `const trigger = container.querySelector(".select__trigger");` | .select__trigger (Select): gone |
+| `src/components/common/Select.test.tsx:6` | `const trigger = container.querySelector(".select__trigger");` | .select__trigger (Select): gone |
 
 ### Module mocks of @lablup/ui-common (0)
 
@@ -120,7 +118,7 @@ None.
 - DataTable → Table (@lablup/ui-common/Table). Sorting, column resizing, column visibility and persisted column state are Table plugins (`plugins`), not props. loading, loadingState and emptyState: render them around the Table. onRowClick, isRowClickable and rowClassName: use the row-interaction plugin or children mode. The .data-table classes are gone.
 - Drawer → Drawer (@lablup/ui-common/lab). lab Drawer renders no header: render the title, subtitle and footer inside children. closeLabel, ariaLabelledBy and ariaDescribedBy have no counterpart. preventDismiss and onDismissAttempt: decline the close in onOpenChange. The .drawer classes are gone.
 - EmptyState → EmptyState (@lablup/ui-common/EmptyState). primaryAction and secondaryAction become `actions`, a node: <Button variant="primary" label={a.label} onClick={a.onClick} /> and a secondary Button, or a Link for a secondaryAction with href. showIllustration={false}: omit `icon`. children has no slot; put it in `actions` or below the EmptyState. The title renders as an h3 by default; set headingLevel to fit the outline. The .empty-state classes are gone.
-- Select → Selector (@lablup/ui-common/Selector). `label` is required and is a string; a node label needs a string for the accessible name. invalid becomes status={{ type: "error" }}. fullWidth, onBlur and aria-describedby (use `description`) have no direct counterpart. Selector is not generic over the value type; onChange receives a string. The .select classes are gone.
+- Select → Selector (@lablup/ui-common/Selector). Selector is ui-common's Form.Item wrapper: it takes no `label`. Inside a form the enclosing Form.Item's `label` names it; on its own, `aria-label` does. invalid becomes status="error" (the border; the message belongs to Form.Item's `help`). fullWidth, onBlur and aria-describedby have no direct counterpart. Selector is not generic over the value type; onChange receives a string. The .select classes are gone.
 - Tabs → TabList (@lablup/ui-common/TabList). TabList renders the strip only. `tabs` (id, label, content) becomes <Tab value={id} label={label} /> children, and the active panel is rendered by the caller. defaultTab (uncontrolled) needs caller state: TabList is controlled. groups, overflowMode, showOverflowControls, showGroupLabels and the overflow labels: TabList chooses overflow itself (`overflow`); groups have no counterpart. variant: underlined is the default; segmented maps to SegmentedControl; compact to size="sm". fillContainer becomes layout="fill". The .tabs classes are gone.
 - A Drawer moved to @lablup/ui-common/lab: @astryxdesign/lab is an optional peer of ui-common, pinned to the canary it is built against. The codemod added it to package.json and @lablup/ui-common/lab/lab.css to the stylesheet entry it rewrote; import lab.css yourself if your entry is elsewhere.
 - Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps them resolving until 0.3.
