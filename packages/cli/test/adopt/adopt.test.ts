@@ -205,6 +205,29 @@ describe("ui-common adopt --from astryx", () => {
     expect(again.code).toBe(0);
   });
 
+  it("leaves a whole-root import or re-export that reaches the Dialog family", async () => {
+    const dir = copyFixture("npm-lab");
+    writeFileSync(
+      join(dir, "src", "B.tsx"),
+      `import * as Astryx from "@astryxdesign/core";\nexport const B = () => <Astryx.Dialog isOpen={false} />;\n`,
+    );
+    writeFileSync(join(dir, "src", "A.ts"), `export * from "@astryxdesign/core";\n`);
+    writeFileSync(
+      join(dir, "src", "C.tsx"),
+      `import * as Core from "@astryxdesign/core";\nexport const C = () => <Core.Button label="x" />;\n`,
+    );
+    const result = await runAdopt({ cwd: dir, version: VERSION, ...quiet });
+    expect(result.left.map((l) => l.file).sort()).toEqual(["src/A.ts", "src/B.tsx"]);
+    expect(result.left.find((l) => l.file === "src/B.tsx")?.detail).toContain(
+      "Astryx.Dialog",
+    );
+    expect(readFileSync(join(dir, "src", "C.tsx"), "utf8")).toContain(
+      'from "@lablup/ui-common"',
+    );
+    const check = await runAdopt({ cwd: dir, version: VERSION, check: true, ...quiet });
+    expect(check.code).toBe(1);
+  });
+
   it("lists form controls that pass the field chrome Form.Item owns", async () => {
     const dir = copyFixture("npm-lab");
     writeFileSync(

@@ -235,3 +235,28 @@ export function importedNamesAt(text, at) {
     .filter(Boolean)
     .map((s) => s.split(/\s+as\s+/)[0].trim());
 }
+
+/**
+ * The whole-module form of the import or export statement whose specifier
+ * starts at `at`: `import * as X from` (with X), `export * from` and
+ * `export * as X from`. Null for any other statement.
+ *
+ * @param {string} text
+ * @param {number} at index of the specifier's opening quote
+ * @returns {{kind: "namespace-import", local: string} | {kind: "export-all"} | null}
+ */
+export function wholeModuleAt(text, at) {
+  const before = text.slice(Math.max(0, at - 400), at);
+  const ns =
+    /\bimport\s+(?:type\s+)?(?:[A-Za-z_$][\w$]*\s*,\s*)?\*\s*as\s+([A-Za-z_$][\w$]*)\s*from\s*['"]?$/.exec(
+      before,
+    );
+  if (ns) return { kind: "namespace-import", local: ns[1] };
+  if (
+    /\bexport\s+(?:type\s+)?\*\s*(?:as\s+[A-Za-z_$][\w$]*\s*)?from\s*['"]?$/.test(
+      before,
+    )
+  )
+    return { kind: "export-all" };
+  return null;
+}

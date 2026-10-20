@@ -49,6 +49,7 @@ import {
   mapSpecifier,
   rewriteSpecifiers,
   UIC,
+  wholeModuleAt,
 } from "../codemods/adopt/specifiers.mjs";
 import { astryxTransformsBetween } from "../codemods/upstream.mjs";
 import { detectPackageManager } from "./lab-peer.mjs";
@@ -266,6 +267,17 @@ export async function runAdopt(options) {
       exportsMap,
       (spec, at) => {
         if (spec !== "@astryxdesign/core") return null;
+        const whole = wholeModuleAt(text, at);
+        if (whole?.kind === "export-all")
+          return `re-exports the whole Astryx root, and ${UIC}'s root has no ${[...HIDDEN_ROOT_NAMES].filter((n) => !/Props|Return|Map$/.test(n)).join(", ")}: re-export ${UIC} and, where the public API needs them, Modal / AlertModal (${UIC}/Modal, ${UIC}/AlertModal) by hand.`;
+        if (whole?.kind === "namespace-import") {
+          const used = [...HIDDEN_ROOT_NAMES].filter((n) =>
+            new RegExp(`\\b${whole.local}\\s*\\.\\s*${n}\\b`).test(text),
+          );
+          return used.length > 0
+            ? `${UIC}'s root does not export ${used.map((n) => `${whole.local}.${n}`).join(", ")}: use Modal / AlertModal (${UIC}/Modal, ${UIC}/AlertModal), then run adopt again.`
+            : null;
+        }
         const names = importedNamesAt(text, at);
         const hidden = names?.filter((n) => HIDDEN_ROOT_NAMES.has(n)) ?? [];
         return hidden.length > 0
