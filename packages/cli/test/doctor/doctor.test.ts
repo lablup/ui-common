@@ -94,6 +94,7 @@ function healthyApp() {
   installed(dir, "@lablup/ui-common", {
     version: V,
     dependencies: { "@astryxdesign/core": CORE },
+    peerDependencies: { "@astryxdesign/lab": LAB },
   });
   installed(dir, "@lablup/ui-common-cli", { version: V });
   installed(dir, "@astryxdesign/core", { version: CORE });
@@ -177,6 +178,27 @@ describe("ui-common doctor", () => {
       ),
     );
     expect((await status(dir))["lab-core"]).toBe("fail");
+  });
+
+  it("wants lab at exactly the canary ui-common peers on", async () => {
+    const dir = healthyApp();
+    expect((await status(dir))["lab-version"]).toBe("pass");
+    const stale = "0.6.1-canary.0000000";
+    write(dir, "pnpm-lock.yaml", lockfile().replaceAll(LAB, stale));
+    installed(dir, "@astryxdesign/lab", { version: stale });
+    const run = await doctor(dir);
+    const check = run.checks.find((c) => c.id === "lab-version");
+    expect(check?.status).toBe("fail");
+    expect(check?.summary).toContain(`${stale} is installed`);
+    // Declared at a range that is not the pin fails even when the lockfile agrees.
+    write(dir, "pnpm-lock.yaml", lockfile());
+    installed(dir, "@astryxdesign/lab", { version: LAB });
+    write(dir, "package.json", {
+      name: "healthy",
+      dependencies: { "@lablup/ui-common": V, "@astryxdesign/lab": `^${LAB}` },
+      devDependencies: { "@lablup/ui-common-cli": V },
+    });
+    expect((await status(dir))["lab-version"]).toBe("fail");
   });
 
   it("wants the lab override where /lab is used, unless core is the package's own", async () => {
