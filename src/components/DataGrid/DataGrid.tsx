@@ -1014,6 +1014,7 @@ export function DataGrid<T extends object = AnyRow>({
           "uic-data-grid__body",
           isLoading && "uic-data-grid__body--loading",
           isHeaderHidden && "uic-data-grid__body--no-header",
+          tableData.length === 0 && "uic-data-grid__body--empty",
           dividers !== "grid" && "uic-data-grid__body--header-split",
           isScrollX && "uic-data-grid__body--scroll-x",
           isScrollY && "uic-data-grid__body--scroll-y",

@@ -213,6 +213,25 @@ describe("DataGrid empty state", () => {
     renderGrid({ data: [], emptyState: false });
     expect(screen.queryByText("No data to display")).not.toBeInTheDocument();
   });
+
+  it("marks the body empty only while there are no rows", () => {
+    const empty = renderGrid({ data: [] });
+    expect(bodyOf(empty.container)).toHaveClass("uic-data-grid__body--empty");
+    empty.unmount();
+    const rows = renderGrid({ data: makeRows(1) });
+    expect(bodyOf(rows.container)).not.toHaveClass("uic-data-grid__body--empty");
+  });
+
+  // jsdom has no layout, so the stylesheet rule itself is the contract.
+  it("keeps the resize handles inside the header while empty", () => {
+    const css = readFileSync(join(__dirname, "DataGrid.css"), "utf8");
+    const rule =
+      /\.uic-data-grid__body--empty table:not\(table table\) > thead\s*\{([^}]*)\}/.exec(
+        css,
+      )?.[1] ?? "";
+    expect(rule).toMatch(/--table-resize-height:\s*initial;/);
+    expect(rule).toMatch(/--table-resize-offset:\s*initial;/);
+  });
 });
 
 describe("DataGrid sorting", () => {
