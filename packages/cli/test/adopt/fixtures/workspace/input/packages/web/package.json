@@ -1,0 +1,12 @@
+{
+  "name": "@observability/web",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@astryxdesign/core": "catalog:",
+    "@observability/kit": "workspace:*",
+    "@stylexjs/stylex": "0.19.0",
+    "react": "catalog:",
+    "react-dom": "^19.2.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "drawer-demo",
+  "private": true,
+  "dependencies": {
+    "@astryxdesign/lab": "^0.6.2-canary.c9fb1ad",
+    "@astryxdesign/theme-neutral": "~0.6.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  }
+}

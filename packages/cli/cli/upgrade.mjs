@@ -697,6 +697,8 @@ One-off, from a project still on 0.1 (\`@next\` until 0.2.0 is published):
 
   --from <version>  The ui-common version the code is written against.
                     Default: the version package.json declares.
+                    \`--from astryx\` (an app on @astryxdesign/*) runs
+                    \`ui-common adopt --from astryx\`; see its --help.
   --to <version>    Default: this CLI's version, which is the @lablup/ui-common
                     version it ships with.
   --dry-run         Write nothing; list what would change and print the report.
@@ -720,6 +722,19 @@ Exit codes: 0 done, 1 some files could not be transformed (see the report),
  * @param {string[]} argv arguments after `upgrade`
  */
 export async function upgradeCommand(argv) {
+  // `upgrade --from astryx` is `adopt --from astryx`: there is no ui-common
+  // version to upgrade from.
+  const fromAt = argv.findIndex((a) => a === "--from" || a.startsWith("--from="));
+  const fromValue =
+    fromAt === -1
+      ? undefined
+      : argv[fromAt].includes("=")
+        ? argv[fromAt].split("=")[1]
+        : argv[fromAt + 1];
+  if (fromValue?.toLowerCase() === "astryx") {
+    const { adoptCommand } = await import("./adopt.mjs");
+    return adoptCommand(argv);
+  }
   /** @type {UpgradeOptions} */
   const options = { cwd: process.cwd(), paths: [] };
   for (let i = 0; i < argv.length; i++) {

@@ -121,6 +121,57 @@ export function wrapAstryxTransform(entry, version) {
 }
 
 /**
+ * Astryx's codemods as ui-common transforms, and notes for the ones that are
+ * not file transforms (config and project codemods).
+ *
+ * @param {Array<{entry: any, version: string}>} found
+ */
+function classify(found) {
+  /** @type {string[]} */
+  const notes = [];
+  /** @type {import('./registry.mjs').Transform[]} */
+  const transforms = [];
+  for (const { entry, version } of found) {
+    if (entry.meta?.codemodType === "config") {
+      notes.push(
+        `Astryx codemod "${entry.name}" edits astryx.config.*; run \`ui-common astryx upgrade\` if you keep one.`,
+      );
+      continue;
+    }
+    // A project codemod takes the package root and returns a plan of writes,
+    // not a file transform; it concerns an Astryx integration package (theme
+    // catalogs, manifests), which a ui-common consumer is not.
+    if (entry.meta?.codemodType === "project") {
+      notes.push(
+        `Astryx codemod "${entry.name}" rewrites an Astryx integration package (${entry.meta.title}); run \`ui-common astryx upgrade\` if this project is one.`,
+      );
+      continue;
+    }
+    transforms.push(wrapAstryxTransform(entry, version));
+  }
+  return { transforms, notes };
+}
+
+/**
+ * Every Astryx codemod after `from` up to and including `to`, from the
+ * `@astryxdesign/cli` this CLI wraps (not the project's installed core).
+ *
+ * @param {string} from
+ * @param {string} to
+ */
+export async function astryxTransformsBetween(from, to) {
+  const { getTransformsBetween } = await importAstryxInternal(
+    "assets/codemods/registry.mjs",
+  );
+  const groups = await getTransformsBetween(from, to);
+  return classify(
+    groups.flatMap((/** @type {any} */ g) =>
+      g.transforms.map((/** @type {any} */ entry) => ({ entry, version: g.version })),
+    ),
+  );
+}
+
+/**
  * @param {UpstreamManifest} manifest
  * @returns {Promise<import('./registry.mjs').Step>}
  */
@@ -135,6 +186,7 @@ export async function upstreamStep(manifest) {
     for (const entry of group.transforms)
       byName.set(entry.name, { entry, version: group.version });
   }
+  /** @type {string[]} */
   const notes = [];
   /** @type {import('./registry.mjs').Transform[]} */
   const transforms = [];
@@ -146,22 +198,9 @@ export async function upstreamStep(manifest) {
       );
       continue;
     }
-    if (found.entry.meta?.codemodType === "config") {
-      notes.push(
-        `Astryx codemod "${codemod.id}" edits astryx.config.*; run \`ui-common astryx upgrade\` if you keep one.`,
-      );
-      continue;
-    }
-    // A project codemod takes the package root and returns a plan of writes,
-    // not a file transform; it concerns an Astryx integration package (theme
-    // catalogs, manifests), which a ui-common consumer is not.
-    if (found.entry.meta?.codemodType === "project") {
-      notes.push(
-        `Astryx codemod "${codemod.id}" rewrites an Astryx integration package (${found.entry.meta.title}); run \`ui-common astryx upgrade\` if this project is one.`,
-      );
-      continue;
-    }
-    transforms.push(wrapAstryxTransform(found.entry, found.version));
+    const one = classify([found]);
+    notes.push(...one.notes);
+    transforms.push(...one.transforms);
   }
   return {
     title: `Astryx ${manifest.astryx.from} → ${manifest.astryx.to} codemods`,

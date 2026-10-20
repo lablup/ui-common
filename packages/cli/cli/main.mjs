@@ -13,6 +13,8 @@ import {
 import { ASTRYX_COMMANDS } from "./rewrite.mjs";
 import { SYNC_HELP, syncAstryxCommand } from "./sync-astryx.mjs";
 import { UPGRADE_HELP, upgradeCommand } from "./upgrade.mjs";
+import { ADOPT_HELP, adoptCommand } from "./adopt.mjs";
+import { DOCTOR_HELP, doctorCommand } from "./doctor.mjs";
 
 export const HELP = `Usage: ui-common <command> [options]
 
@@ -22,12 +24,20 @@ Astryx CLI it pins, with its output rewritten to ui-common import paths.
 One-off, before ui-common is installed or bumped (\`@next\` until 0.2.0 is
 published; npm's \`latest\` for this package is its first alpha):
   pnpm dlx @lablup/ui-common-cli@next upgrade --from 0.1   (npx: npx @lablup/ui-common-cli@next …)
+  pnpm dlx @lablup/ui-common-cli@next adopt --from astryx --dry-run   (an app on @astryxdesign/*)
 Installed as a devDependency next to @lablup/ui-common:
   pnpm exec ui-common <command>
 
 ui-common commands:
-  agents [--write <file>] [--check]
-        Print, write or check the ui-common agent block (UI-COMMON markers).
+  adopt --from astryx [--dry-run | --check] [--diff] [--report <path>] [--ignore <path>]… [paths…]
+        Move an app off @astryxdesign/* onto ui-common and write a report.
+        (\`upgrade --from astryx\` is the same.)
+  doctor [--json] [--verbose]
+        Check the project's ui-common wiring; exit 1 on a failed check.
+        (\`doctor <subcommand>\`, e.g. \`doctor integration validate\`, is Astryx's.)
+  agents [--write <file>] [--check] [--skill [--dir <dir>]]
+        Print, write or check the ui-common agent block (UI-COMMON markers);
+        install the ui-common-adopt agent skill.
   upgrade [--from <v>] [--to <v>] [--dry-run] [--diff] [--report <path>] [paths…]
         Run the codemods between two ui-common versions and write a report.
   sync-astryx <version> [--lab <version>] [--as <version>] [--dry-run]
@@ -85,6 +95,12 @@ export async function main(argv) {
       return agentsCommand(rest);
     case "upgrade":
       return upgradeCommand(rest);
+    case "adopt":
+      return adoptCommand(rest);
+    case "doctor":
+      // `doctor integration validate` and the like are Astryx's doctor.
+      if (rest.some((a) => !a.startsWith("-"))) return passthrough(argv);
+      return doctorCommand(rest);
     case "sync-astryx":
       return syncAstryxCommand(rest);
     case "astryx":
@@ -94,4 +110,4 @@ export async function main(argv) {
   }
 }
 
-export { AGENTS_HELP, SYNC_HELP, UPGRADE_HELP };
+export { ADOPT_HELP, AGENTS_HELP, DOCTOR_HELP, SYNC_HELP, UPGRADE_HELP };

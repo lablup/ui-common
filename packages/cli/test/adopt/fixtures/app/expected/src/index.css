@@ -1,0 +1,13 @@
+/* App entry stylesheet. */
+@layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities;
+
+@import "@lablup/ui-common/reset.css";
+@import "@lablup/ui-common/astryx.css";
+@import "@lablup/ui-common/theme/neutral/theme.css";
+@import "@lablup/ui-common/lab/lab.css";
+
+@layer components {
+  .console-shell {
+    min-height: 100vh;
+  }
+}

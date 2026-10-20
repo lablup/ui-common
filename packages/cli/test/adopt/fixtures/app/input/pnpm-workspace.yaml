@@ -1,0 +1,4 @@
+minimumReleaseAge: 1440
+
+patchedDependencies:
+  "@astryxdesign/core@0.6.2": patches/@astryxdesign__core@0.6.2.patch
