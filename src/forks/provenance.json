@@ -61,5 +61,145 @@
       "file": "src/forks/Tour/TourStep.styles.ts",
       "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
     }
+  },
+  "Switch": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "Switch",
+    "files": {
+      "src/Switch/Switch.tsx": "cb3133544fa181874ef003f5f3b5f57c1ce7f7ff1ef1497e21c3b94387757aa5",
+      "src/Switch/index.ts": "b3e10a21443b08868eedcb4a26660145c16f7a06216e5e5bed85148c9d78168b",
+      "src/Switch/Switch.test.tsx": "fec38a2d49d10d677b5d52437430d0e89cf4ef2a03c6c223c0c2702b29b13e24",
+      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
+      "dist/Switch/Switch.js": "e61e25d042382abc686bc9fff6014967c0f392c9f7fbcba25771591d79a14d4e",
+      "dist/Switch/switch.markers.stylex.js": "2f75e0fa34b13fead69d5f2a58f70c7511ad743777e10db4384a4c71a3a418f9",
+      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
+    },
+    "styles": {
+      "file": "src/forks/Switch/Switch.styles.ts",
+      "from": [
+        {
+          "file": "dist/Switch/Switch.js",
+          "consts": [
+            "wrapperSizeStyles",
+            "inputSizeStyles",
+            "trackSizeStyles",
+            "thumbOffSizeStyles",
+            "thumbOnSizeStyles",
+            "labelWrapperSizeStyles",
+            "styles",
+            "dynamicWidthStyles"
+          ]
+        },
+        { "file": "dist/Switch/switch.markers.stylex.js", "consts": ["switchScope"] },
+        {
+          "file": "dist/utils/interactionOverlay.stylex.js",
+          "consts": ["interactionOverlayStyles"]
+        }
+      ]
+    }
+  },
+  "CheckboxInput": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "CheckboxInput",
+    "files": {
+      "src/CheckboxInput/CheckboxInput.tsx": "f2737fde11f7c0ec2d7664bae924ccdc88e4c490c59e91764655f20d3a11ed7e",
+      "src/CheckboxInput/index.ts": "96c777158469fb6577150a33c5b8e6eb78ae2b2b6d2fd84eb3baf8c6da733cd2",
+      "src/CheckboxInput/CheckboxInput.test.tsx": "721ea33aaebe92780521682a047b6704792b9740b7fd31499c836d3c57f30e0e",
+      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
+      "src/CheckboxList/CheckboxListContext.tsx": "71ca207c4f0b76a3f94adde708d57ed7eae8a91ed2a302473d4816af0b6740b1",
+      "dist/CheckboxInput/CheckboxInput.js": "56fb5f38de7a67b068a7b0aa025f3a33fa1654cecd4464fa1af3fe2bf26c8b04",
+      "dist/Indicator/indicator.markers.stylex.js": "c8c67b02b729ebc8b03694d7399c701eb434cc68e094dcd358261144444bd5fb",
+      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
+    },
+    "styles": {
+      "file": "src/forks/CheckboxInput/CheckboxInput.styles.ts",
+      "from": [
+        {
+          "file": "dist/CheckboxInput/CheckboxInput.js",
+          "consts": ["styles", "wrapperSizeStyles", "dynamicWidthStyles"]
+        },
+        {
+          "file": "dist/Indicator/indicator.markers.stylex.js",
+          "consts": ["indicatorScope"]
+        },
+        {
+          "file": "dist/utils/interactionOverlay.stylex.js",
+          "consts": ["interactionOverlayStyles"]
+        }
+      ]
+    }
+  },
+  "FileInput": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "FileInput",
+    "files": {
+      "src/FileInput/FileInput.tsx": "ff628d0f941d2ef5b14505077b06be1e53bca6288a2404a03c58a207be0e293b",
+      "src/FileInput/index.ts": "7b0a29d5e380a860c86919aa059e607e3bf3d36ebb67108670e8bf629145bedc",
+      "src/FileInput/FileInput.test.tsx": "0284bdbdc957f0b4fab65f3aaf46d450a9ecb0c3116cf6e511a364af35bdfcf4",
+      "src/Field/fieldParts.ts": "67444f567388150535f53437f686d0c950a5360f2e9f15b0ff941f6f5ac74083",
+      "dist/FileInput/FileInput.js": "c02a188fbac502385bb93a458b6efa327c0131fdbafdc8a8c40e495e28f805a9"
+    },
+    "styles": {
+      "file": "src/forks/FileInput/FileInput.styles.ts",
+      "from": [
+        {
+          "file": "dist/FileInput/FileInput.js",
+          "consts": ["styles", "statusBorderStyles"]
+        }
+      ]
+    }
+  },
+  "SegmentedControl": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "SegmentedControl",
+    "files": {
+      "src/SegmentedControl/SegmentedControl.tsx": "84a68d1f297fadc6db77dc3932afd99aa8174810a8eb12d3187bf1c56fcabff0",
+      "src/SegmentedControl/SegmentedControlContext.ts": "7d8f142a0f016ddc9a44859f881d4485ce5ddc5a74916a91e89aed5d9a2a28ed",
+      "src/SegmentedControl/index.ts": "38e55c0151872a87e37e4d0be8408f2c02b68d26ecfc7ea89312330c9321d636",
+      "src/SegmentedControl/SegmentedControl.test.tsx": "067812b2e7f4780080c0834bb4f181f499050865ef48e8809be3b6ea56e4a317",
+      "dist/SegmentedControl/SegmentedControl.js": "1498559f5e9bd4e6c989b9ee5aea78c96fa3fe1f414d86b2f5fba829268ba362"
+    },
+    "styles": {
+      "file": "src/forks/SegmentedControl/SegmentedControl.styles.ts",
+      "from": [
+        {
+          "file": "dist/SegmentedControl/SegmentedControl.js",
+          "consts": ["styles", "sizeStyles"]
+        }
+      ]
+    }
+  },
+  "SegmentedControlItem": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.0",
+    "upstream": null,
+    "wrappedBy": "SegmentedControl",
+    "notes": "Unchanged; forked with SegmentedControl, whose context it reads. Its compiled styles share names with SegmentedControl's, so they get their own file.",
+    "files": {
+      "src/SegmentedControl/SegmentedControlItem.tsx": "4066978b3a6beb8ab74f2bf84822bc42f6f00c68b27ff49c97d487acfb0622c3",
+      "dist/SegmentedControl/SegmentedControlItem.js": "3e38c3adc5610529a536ead94930f7cb36a5d90453b4c814b1119dd96eae2167",
+      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
+    },
+    "styles": {
+      "file": "src/forks/SegmentedControl/SegmentedControlItem.styles.ts",
+      "from": [
+        {
+          "file": "dist/SegmentedControl/SegmentedControlItem.js",
+          "consts": ["styles", "sizeStyles", "iconSizeStyles"]
+        },
+        {
+          "file": "dist/utils/interactionOverlay.stylex.js",
+          "consts": ["interactionOverlayStyles"]
+        }
+      ]
+    }
   }
 }

@@ -42,6 +42,7 @@ import { numberStepperMessages } from "../components/StepNumberInput/NumberStepp
 import { tokenRowMessages } from "../components/TokenRow/TokenRow.messages";
 import { uncontrolledInputMessages } from "../components/UncontrolledInput/UncontrolledInput.messages";
 import { unitGridMessages } from "../components/UnitGrid/UnitGrid.messages";
+import { tagsInputMessages } from "../formControls/TagsInput/TagsInput.messages";
 import { commonMessages } from "./common.messages";
 
 /**
@@ -77,6 +78,7 @@ export const uiCommonCatalog: Catalog = {
   ...selectionLabelMessages,
   ...skeletonMessages,
   ...statisticMessages,
+  ...tagsInputMessages,
   ...tokenRowMessages,
   ...uncontrolledInputMessages,
   ...unitGridMessages,

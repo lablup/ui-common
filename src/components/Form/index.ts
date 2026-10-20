@@ -59,6 +59,9 @@ export {
   // Read by controls that paint their item's validation status, and by
   // custom item shells that publish sub-item metas.
   FormItemInputContext,
+  // Resets FormItemInputContext for a surface that is not part of the item
+  // it renders under (antd's NoFormStyle), such as one built on usePopover.
+  NoFormItemContext,
   NoStyleItemContext,
   FormConfigContext,
   type FormConfig,

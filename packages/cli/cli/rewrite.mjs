@@ -5,7 +5,7 @@
  * no quote, backslash or control character, so it is safe inside JSON string
  * literals: `--json` output stays valid JSON.
  */
-import { forkedExports, hiddenExports } from "./paths.mjs";
+import { forkedExports, hiddenExports, replacementNote } from "./paths.mjs";
 
 /** Astryx CLI subcommands. Used to tell `astryx component` from `astryx-base`. */
 export const ASTRYX_COMMANDS = [
@@ -113,10 +113,7 @@ export function exclusionNotes(text, args = []) {
   }
   for (const fork of forkedExports()) {
     if (fork.names.some(mentions)) {
-      notes.push(
-        `Note: ${fork.name} (${fork.from}) comes from ui-common: its own copy of ` +
-          `Astryx's, same API and import path. ${fork.reason}`,
-      );
+      notes.push(`Note: ${replacementNote(fork)}`);
     }
   }
   return notes;

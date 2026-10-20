@@ -62,7 +62,7 @@ export default {
   examples: [
     {
       label: "An optional field that can be cleared on every record",
-      code: '<BulkEditFormItem name="priority" label="Priority" hasClear clearValueLabel="No priority">\n  <NumberInput label="Priority" isLabelHidden />\n</BulkEditFormItem>',
+      code: '<BulkEditFormItem name="priority" label="Priority" hasClear clearValueLabel="No priority">\n  <NumberInput />\n</BulkEditFormItem>',
     },
   ],
 };

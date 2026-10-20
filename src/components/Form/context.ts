@@ -150,10 +150,33 @@ export interface FormItemStatusContextValue {
   warnings?: React.ReactNode[];
   hasFeedback?: boolean;
   isFormItemInput?: boolean;
+  /**
+   * The item's label as plain text. The src/formControls wrappers pass it to
+   * Astryx as their label, which names the parts Astryx builds from it ("Clear
+   * Name") and names a control the item's `<label htmlFor>` cannot reach (a
+   * group, a slider, a file picker's button).
+   */
+  label?: string;
 }
 
+const NO_ITEM: FormItemStatusContextValue = {};
+
 /** Read by `Form.Item.useStatus()` and by controls that paint the item's status. */
-export const FormItemInputContext = React.createContext<FormItemStatusContextValue>({});
+export const FormItemInputContext =
+  React.createContext<FormItemStatusContextValue>(NO_ITEM);
+
+/**
+ * antd's `NoFormStyle`: a surface that is not part of the item it renders
+ * under (a Modal, a Drawer, a nested Form). Its controls take no status or
+ * label from that item.
+ */
+export function NoFormItemContext({ children }: { children?: React.ReactNode }) {
+  return React.createElement(
+    FormItemInputContext.Provider,
+    { value: NO_ITEM },
+    children,
+  );
+}
 
 export type SubItemMeta = Partial<Meta> & {
   name: InternalNamePath;

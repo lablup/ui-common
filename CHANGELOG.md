@@ -5,8 +5,70 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking: the form controls take no field chrome; `Form.Item` owns it, as
+  in antd (#69).** `TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector`, `Typeahead`, `Tokenizer`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, `Switch`, `CheckboxInput`, `CheckboxList`, `RadioList`, `SegmentedControl`, `Slider` and `FileInput` are now ui-common's wrappers at Astryx's names
+  and import paths. They drop `label`, `isLabelHidden`, `description`,
+  `labelTooltip`, `labelIcon`, `isRequired`, `isOptional`, `isDisabled`,
+  `statusVariant` and the status message. Inside a `Form.Item` they read the
+  item's status and paint their border (the item shows the one message),
+  take the item's `id` so its label names them, are disabled by
+  `<Form disabled>`, and announce `required` from its rules. `status` is
+  antd's `'error' | 'warning' | ''`. `value` and `onChange` are optional, so
+  `?? ''` is no longer needed, and `MultiSelector` no longer throws on a
+  missing value. Without `value` a control is uncontrolled, as in antd, from
+  `defaultValue` (`defaultChecked` for `Switch` and `CheckboxInput`). On its
+  own a control is named by `aria-label`, which also names its parts ("Clear
+  Search"); in an item they are named after the item's label. A `Modal`, the
+  `Drawer`, a `Popover` or a nested `Form` inside an item no longer takes its
+  status or label: `@lablup/ui-common/Popover` is now ui-common's, with
+  Astryx's API. `Switch` and `CheckboxInput` take `checked` beside `value`
+  (`valuePropName="checked"` works) and their inline text as `children`.
+  Move each control's `label`/`description` to the enclosing `Form.Item`
+  (`label`/`extra`) and drop `isLabelHidden`.
+- **The form controls do what a host app's adapter used to add**, as
+  antd's controls do. `TextInput`, `TextArea`, `NumberInput`, `Selector`,
+  `MultiSelector` and `Tokenizer` default to `width="100%"`; `Selector` to
+  `placement="below"`, so its panel no longer covers the item's label;
+  `MultiSelector` to `triggerDisplay="labels"`. `NumberInput` defaults to
+  `hasClear` (an emptied field reports `null`; pass `hasClear={false}` to
+  keep the last number), takes a numeric string as `value`, and rounds a
+  decimal typed into an `isIntegerOnly` field on blur instead of dropping
+  it. Its `onChange` is `(value: number | null) => void`. An inline
+  `onChange={(v) => …}` is typed again on `Selector` (from `hasClear`, as on
+  Astryx's) and on `Slider` (a single value unless the value is a range,
+  which Astryx's leaves untyped), instead of an implicit `any`.
+
+### Added
+
+- **`TagsInput`** (`@lablup/ui-common/TagsInput`), antd's
+  `Select mode="tags"` on ui-common's `Tokenizer`: `string[]` tags,
+  deduplicated, `tokenSeparators` on the keystroke and on paste, text left
+  in the input committed on blur, and a translated create row
+  (`uic.TagsInput.create`).
+- **`SegmentedControl` for `Form.Item`**: a wrapper like the other form
+  controls, named by the item's label. It renders a fork that merges the
+  item's `aria-describedby` instead of overwriting it; import
+  `SegmentedControlItem` from `@lablup/ui-common/SegmentedControl` too.
+
 ### Fixed
 
+- **`Switch` and `CheckboxInput` honour the item's `id`.** Astryx 0.7.0
+  replaces it with `useId()`, so `Form.Item`'s `<label htmlFor>` pointed at
+  nothing. The wrappers render fixed copies (src/forks) that put the `id` on
+  the native checkbox, as TextInput does.
+- **`Form.Item`'s message and extra describe `Switch` and `FileInput`.**
+  Astryx 0.7.0 spreads the item's `aria-describedby` onto Switch's row and
+  FileInput's hidden native input. The Switch fork merges it into the
+  switch's own; a new FileInput fork hands the `aria-*` props and the focus
+  handlers to its trigger button, so a blur validates it, its required state
+  is announced, and `focusField` lands on the trigger.
+- **`CheckboxList` fills a field that has no initial value**, and `Tokenizer`
+  keeps an in-flight search through a parent re-render while empty: list
+  wrappers pass one shared empty array instead of a new one per render.
+- **An empty `status` falls back to the item's**, as antd's
+  `getMergedStatus` does, instead of clearing the item's error border.
 - **`UnitGrid` draws full-size cells again under Astryx 0.7.0.** Cell, gap
   and radius sizes came from `parseFloat()` on the raw `--spacing-4`,
   `--spacing-0-5` and `--radius-element` values, which are rem since 0.7.0,

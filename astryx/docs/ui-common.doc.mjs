@@ -49,6 +49,10 @@ export const docs = {
           text: "The exception is a fixed copy of an Astryx component, carrying an upstream fix Astryx has not shipped yet. It keeps Astryx's name, props and import path, and replaces Astryx's in ui-common's exports: `ComplexSelector` (`@lablup/ui-common/ComplexSelector`) adds `hasClear` and `onClear`; lab's `Drawer` routes Escape through core's layer-dismissal stack, so a popover, selector or modal inside it closes first, and passes `aria-modal` through; lab's `Tour` keeps a step's spotlight under its callout in StrictMode (both at `@lablup/ui-common/lab`).",
         },
         {
+          type: "prose",
+          text: "The form controls are the other exception: TextInput, TextArea, NumberInput, Selector, MultiSelector, Typeahead, Tokenizer, DateInput, TimeInput, DateTimeInput, DateRangeInput, Switch, CheckboxInput, CheckboxList, RadioList, SegmentedControl, Slider and FileInput keep Astryx's names and import paths but are ui-common's wrappers for `Form.Item`, as in antd. They take no `label`, `isLabelHidden`, `description`, `labelTooltip`, `labelIcon`, `isRequired`, `isOptional`, `isDisabled` or status message: `Form.Item`'s `label`, `extra`, `tooltip`, `rules` and `help` own those, and `<Form disabled>` disables them. `status` is `'error' | 'warning' | ''` and paints the border only; inside an item it follows the item's validation. `value` may be left out. `Switch` and `CheckboxInput` take `checked` beside `value` and their inline text as `children`. They also do what antd's do where Astryx's differ: fill the field's width, `Selector` opens below, `MultiSelector` shows the selected labels, and `NumberInput` reports `null` when emptied. `TagsInput` is antd's `Select mode=\"tags\"`: `string[]` tags with `tokenSeparators`.",
+        },
+        {
           type: "list",
           style: "unordered",
           items: [
@@ -87,7 +91,7 @@ export const docs = {
           type: "code",
           lang: "tsx",
           label: "Modal",
-          code: 'import { Modal } from "@lablup/ui-common/Modal";\n\n<Modal\n  isOpen={isOpen}\n  onOpenChange={setIsOpen}\n  title="Rename folder"\n  actionLabel="Rename"\n  onAction={async () => {\n    await rename();\n    setIsOpen(false);\n  }}\n>\n  <TextInput label="Name" value={name} onChange={setName} />\n</Modal>',
+          code: 'import { Modal } from "@lablup/ui-common/Modal";\n\n<Modal\n  isOpen={isOpen}\n  onOpenChange={setIsOpen}\n  title="Rename folder"\n  actionLabel="Rename"\n  onAction={async () => {\n    await rename(form.getFieldValue("name"));\n    setIsOpen(false);\n  }}\n>\n  <Form form={form} layout="vertical">\n    <Form.Item name="name" label="Name" rules={[{ required: true }]}>\n      <TextInput />\n    </Form.Item>\n  </Form>\n</Modal>',
         },
         {
           type: "prose",

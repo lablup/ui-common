@@ -91,7 +91,7 @@ exports. Two exceptions:
 A ui-common component never shares a name with an Astryx core or lab export.
 Pick a different name, or use the Astryx component.
 
-The one exception is a fork.
+The exceptions are a fork and a form-control wrapper (both below).
 
 ## Forks of Astryx components
 
@@ -100,11 +100,15 @@ under Astryx's own name and import path until Astryx ships the fix. It exists
 because a product's pnpm `patchedDependencies` never reach that product's
 consumers, and ui-common's consumers import Astryx through ui-common.
 
-| Fork              | Where                               | Fix                                                                                                                                         | Upstream                                                             |
-| ----------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
-| `Drawer`          | `@lablup/ui-common/lab`             | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
-| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
+| Fork               | Where                                      | Fix                                                                                                                                         | Upstream                                                             |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `ComplexSelector`  | `@lablup/ui-common/ComplexSelector`        | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
+| `Switch`           | inside `src/formControls/Switch`           | a passed `id` reaches the native checkbox; a passed `aria-describedby` describes it                                                         | not filed                                                            |
+| `FileInput`        | inside `src/formControls/FileInput`        | `aria-*`, `onFocus` and `onBlur` reach the trigger button, not the hidden native input                                                      | not filed                                                            |
+| `CheckboxInput`    | inside `src/formControls/CheckboxInput`    | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
+| `SegmentedControl` | inside `src/formControls/SegmentedControl` | a passed `aria-describedby` is merged into the radiogroup's own, not overwritten (`SegmentedControlItem` is copied for the context)         | not filed                                                            |
+| `Drawer`           | `@lablup/ui-common/lab`                    | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
+| `Tour`             | `@lablup/ui-common/lab`                    | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
 
 `Drawer`'s other changes are ui-common's own, not upstream fixes. lab 0.6.5
 opens a scrimless drawer as a manual popover, in the top layer; ui-common's
@@ -155,6 +159,56 @@ the recorded version or file. On an Astryx bump:
 2. Otherwise re-take upstream's new source, re-apply the fix, then run
    `node scripts/sync-forks.mjs --accept` to regenerate the styles and record
    the new version and hashes.
+
+## Form-control wrappers
+
+Astryx's form controls own their label, description, required marker and
+status message. ui-common's `Form.Item` owns those, as antd's does, so
+ui-common replaces each control that can sit in an item with a wrapper under
+the same name and import path (#69): `TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector`, `Typeahead`, `Tokenizer`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, `Switch`, `CheckboxInput`, `CheckboxList`, `RadioList`, `SegmentedControl`, `Slider` and `FileInput`.
+
+- **Source** is `src/formControls/<Name>/`: `<Name>.tsx`, an `index.ts`
+  that re-exports the rest of Astryx's subpath unchanged (`export *`) and
+  overrides `<Name>` and `<Name>Props`, a story, and the shared
+  `src/formControls/formControl.tsx`.
+- **What a wrapper does**, all through `useFormControl` and
+  `FormControlScope`: it omits `FormControlChromeProps` from Astryx's props;
+  takes `status` (`'error' | 'warning' | ''`) and `disabled`; reads the
+  item's status from `FormItemInputContext` and passes Astryx `{ type }` with
+  no message and a constant `statusVariant`, so the control never remounts;
+  makes `value` optional with antd's uncontrolled mode (`useMergedValue`:
+  its own state from `defaultValue` while `value` is not set); and announces
+  `required` through Astryx's `FormLayoutContext` (`defaultOptionality`),
+  which sets `aria-required` without Astryx's "∙ Required" marker.
+- **Naming**: every control gets the item's label text as Astryx's (hidden)
+  label, which `Form.Item` publishes as `FormItemInputContext.label`, or
+  standalone the caller's `aria-label`. Astryx builds its parts' names from
+  it ("Clear Name", "Name time"). A control the item's `<label htmlFor>`
+  reaches also gets it as `aria-label`, so the two labels are not read
+  twice. One it does not reach (a group, a slider, a file picker's button, a
+  date-range trigger) passes `namesItself` and is named by Astryx's label
+  alone.
+- **Boundaries**: a surface that is not part of the item it renders under
+  resets `FormItemInputContext` with `NoFormItemContext`, as antd's
+  `NoFormStyle` does: `Modal`, the `Drawer` fork, a nested `Form`, and
+  `Popover`, which ui-common therefore wraps (src/components/Popover, same
+  API; its `exports.customs.json` entry has `"wraps"` too). `usePopover`
+  renders no content of its own, so a custom surface built on it wraps its
+  content in `NoFormItemContext` itself.
+- **Exports**: an `exports.exclude.json` entry with `replacedBy` naming the
+  wrapper, and an `exports.customs.json` entry with `"wraps"` naming the
+  Astryx module and `"subpath"` the Astryx subpath. It must export exactly
+  Astryx's names, as a fork does.
+- **A wrapper over a fork**: when Astryx itself has to change (Switch and
+  CheckboxInput dropped the item's `id`; Switch and FileInput put its
+  `aria-describedby` on an element that is not the control), the wrapper renders a fork, and
+  the fork's `provenance.json` entry names it in `wrappedBy`. The fork is not
+  exported itself.
+- **Tests**: `src/formControls/formControls.test.tsx` runs every wrapper
+  inside a `Form.Item`. Add a new wrapper to its table.
+
+ui-common's own components keep importing Astryx's controls from
+`@astryxdesign/core/<Name>`: they set their own labels.
 
 ## Components
 

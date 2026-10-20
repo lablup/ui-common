@@ -108,6 +108,7 @@ import type { SpacingStep, SpacingToken } from "@astryxdesign/core/Layout";
 
 import { compiledStyles } from "../compiled";
 import * as compiled from "./Drawer.styles";
+import { NoFormItemContext } from "../../components/Form/context";
 import { ModalPortalContext, modalZIndexBase } from "../../components/Modal/modalStack";
 import { useDrawerDialogPresence } from "./useDrawerDialogPresence";
 
@@ -491,7 +492,10 @@ export function Drawer({
             styles.contentSafeArea,
           )}
         >
-          <ModalPortalContext value={modalHost}>{children}</ModalPortalContext>
+          <ModalPortalContext value={modalHost}>
+            {/* ui-common: not part of a Form.Item it opens from. */}
+            <NoFormItemContext>{children}</NoFormItemContext>
+          </ModalPortalContext>
         </div>
       </LayerDepthProvider>
     </dialog>

@@ -72,6 +72,7 @@ import { useThemeName } from "@astryxdesign/core/theme";
 import { devWarn, isFocusDetached, mergeRefs } from "@astryxdesign/core/utils";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
+import { NoFormItemContext } from "../Form/context";
 import { SkeletonText } from "../Skeleton/SkeletonText";
 import { MODAL_OPEN_ATTRIBUTE, ModalPortalContext, useModalLevel } from "./modalStack";
 import "./Modal.css";
@@ -433,34 +434,40 @@ function ModalSurface({
 
   const body = isLoading ? <SkeletonText lines={4} /> : children;
 
-  const content = isStructured ? (
-    <Layout
-      header={
-        title !== undefined || headerStartContent || headerEndContent ? (
-          <DialogHeader
-            hasDivider
-            // `title` is typed string but renders through `Heading`, whose
-            // children are a node; the cast keeps DialogHeader's a11y wiring.
-            title={(title ?? "") as unknown as string}
-            subtitle={subtitle}
-            startContent={headerStartContent}
-            endContent={headerEndContent}
-            onOpenChange={hasCloseButton ? (next) => !next && close() : undefined}
-            className={headerClassName}
-          />
-        ) : undefined
-      }
-      content={<LayoutContent>{body}</LayoutContent>}
-      footer={
-        resolvedFooter ? (
-          <LayoutFooter hasDivider className={footerClassName}>
-            {resolvedFooter}
-          </LayoutFooter>
-        ) : undefined
-      }
-    />
-  ) : (
-    body
+  // A Modal opened from inside a Form.Item is not part of that item: neither
+  // its body nor the controls a caller puts in its header or footer.
+  const content = (
+    <NoFormItemContext>
+      {isStructured ? (
+        <Layout
+          header={
+            title !== undefined || headerStartContent || headerEndContent ? (
+              <DialogHeader
+                hasDivider
+                // `title` is typed string but renders through `Heading`, whose
+                // children are a node; the cast keeps DialogHeader's a11y wiring.
+                title={(title ?? "") as unknown as string}
+                subtitle={subtitle}
+                startContent={headerStartContent}
+                endContent={headerEndContent}
+                onOpenChange={hasCloseButton ? (next) => !next && close() : undefined}
+                className={headerClassName}
+              />
+            ) : undefined
+          }
+          content={<LayoutContent>{body}</LayoutContent>}
+          footer={
+            resolvedFooter ? (
+              <LayoutFooter hasDivider className={footerClassName}>
+                {resolvedFooter}
+              </LayoutFooter>
+            ) : undefined
+          }
+        />
+      ) : (
+        body
+      )}
+    </NoFormItemContext>
   );
 
   if (isInline) {

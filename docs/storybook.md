@@ -13,7 +13,18 @@ pnpm build-storybook    # static build in storybook-static/
 - One stories file per component directory, named after the directory:
   `src/components/StatCard/StatCard.stories.tsx`. A directory is one entry in
   the Storybook sidebar.
-- Forks of Astryx components (`src/forks/<Name>/`) follow the same rule.
+- Forks of Astryx components (`src/forks/<Name>/`) and the form-control
+  wrappers (`src/formControls/<Name>/`) follow the same rule.
+- A form control's stories show it both ways it is used. On its own:
+  `Default` (uncontrolled, named by `aria-label`), `Controlled`, `Statuses`
+  (only for a control that draws a border for `status`; Switch, the
+  checkboxes, the radios, SegmentedControl and Slider draw none) and
+  `Disabled`. Inside a `Form.Item`, through `FormItemDemo` from
+  `src/stories/formControlStories.tsx`: `InFormItem`, `InFormItemWithValue`,
+  `ValidateOnBlur` and `FormDisabled`. `ValidateOnBlur` is left out where a
+  click or a drag commits the value (Switch, the checkboxes, the radios,
+  SegmentedControl, Slider), and a switch or checkbox that must be on is checked
+  with a `validator`, since `required` takes `false` as a value.
 
 ### A directory with several components
 
@@ -63,7 +74,7 @@ type Story = StoryObj<typeof meta>;
 ```
 
 - `title`: `Components/<Name>` for `src/components`, `Forks/<Name>` for
-  `src/forks`.
+  `src/forks`, `Form Controls/<Name>` for `src/formControls`.
 - `satisfies Meta<typeof X>`, not `: Meta<…>`, so `args` stay type-checked.
 - `args`: every required prop, with realistic values.
 - `argTypes`: only for union props, as `select` or `inline-radio` with the

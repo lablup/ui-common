@@ -995,10 +995,28 @@ export class FormStore {
     const node = this.getFieldDOMNode(name);
     if (!node) return;
     // The handle may sit on a wrapper (Astryx Switch / SegmentedControl spread
-    // `rest` onto their root; the item wrapper is the fallback).
-    const target = node.matches(EDITABLE)
+    // `rest` onto their root; the item wrapper is the fallback). A group of
+    // buttons (SegmentedControl's radios) has no field: its selected segment
+    // stands in (Astryx's roving tab stop does not follow a value set in
+    // code), then its tab stop, then its first button. Queried apart, since one
+    // selector list matches in document order, not in the list's order.
+    let target = node.matches(EDITABLE)
       ? node
-      : (node.querySelector<HTMLElement>(EDITABLE) ?? node);
+      : (node.querySelector<HTMLElement>(EDITABLE) ??
+        node.querySelector<HTMLElement>(
+          '[role="radio"][aria-checked="true"]:not([aria-disabled="true"])',
+        ) ??
+        node.querySelector<HTMLElement>('[tabindex="0"]') ??
+        node.querySelector<HTMLElement>("button:not([disabled])") ??
+        node);
+    // A control hidden from focus (FileInput's native input, `aria-hidden`
+    // with tabindex -1) is stood in for by its focusable sibling, the trigger.
+    if (target.tabIndex < 0 && target.getAttribute("aria-hidden") === "true") {
+      target =
+        target.parentElement?.querySelector<HTMLElement>(
+          `${EDITABLE},button:not([disabled])`,
+        ) ?? target;
+    }
     target.focus?.({ preventScroll: true });
   };
 

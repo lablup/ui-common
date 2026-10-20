@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { InputGroup } from "../../astryx/InputGroup";
-import { NumberInput } from "../../astryx/NumberInput";
+import { NumberInput } from "@astryxdesign/core/NumberInput";
 import { getNextStepIndex, NumberStepper } from "./NumberStepper";
 import { StepNumberInput, type StepNumberInputProps } from "./StepNumberInput";
 import { useArgState, withMaxWidth } from "../../stories/helpers";
