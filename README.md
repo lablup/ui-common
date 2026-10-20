@@ -26,6 +26,10 @@ Until 0.2.0 is published, the `latest` dist-tag still points at 0.1's last
 alpha, so a bare `pnpm add @lablup/ui-common` installs 0.1: name `@next` for
 0.2.
 
+Every merge to `main` also publishes a canary under `@lablup/ui-common@canary`
+(and `@lablup/ui-common-cli@canary`), for trying a merged change before the
+next prerelease. Pin a canary's exact version; it is not a release.
+
 An app that stays on 0.1 keeps getting fixes as patch releases of the 0.1
 line, published under the `release-0.1` dist-tag, never under `next` or
 `latest`. 0.1 never had a plain release, so its fixes continue its prerelease
