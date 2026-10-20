@@ -1,5 +1,8 @@
 # @lablup/ui-common
 
+**Storybook:** <https://lablup.github.io/ui-common/storybook/> (built from `main`
+on every merge)
+
 Lablup's UI layer on top of [Astryx](https://github.com/facebook/astryx).
 
 It gives Lablup products three things through one dependency:
