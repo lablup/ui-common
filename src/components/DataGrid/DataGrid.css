@@ -79,6 +79,15 @@
       100% 100%;
   }
 
+  /* With no rows the body is a single cell, the empty state. The resize
+     plugin runs every handle down the whole table, so on header hover the
+     boundaries would cross it. Unset the plugin's measured height and offset
+     below the header: each handle falls back to its header cell's height. */
+  .uic-data-grid__body--empty table:not(table table) > thead {
+    --table-resize-height: initial;
+    --table-resize-offset: initial;
+  }
+
   /* On a sortable header the resize handle anchors to the wrapper around the
      sort button, one cell padding inside the cell. Re-anchor it to the cell. */
   .uic-data-grid__body thead th > div:has(> [role="separator"]) {

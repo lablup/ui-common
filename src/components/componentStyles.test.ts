@@ -62,6 +62,8 @@ const ASTRYX_NAMES = new Set(
 const ASTRYX_VARIABLES_SET = new Set([
   "--container-padding-block-start",
   "--container-padding-block-end",
+  "--table-resize-height",
+  "--table-resize-offset",
 ]);
 
 /** `UnitGrid` -> `unit-grid`. */

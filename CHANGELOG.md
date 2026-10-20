@@ -75,6 +75,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   so a `1rem` cell drew 1px wide. The tokens are now resolved to px through
   probe elements; a token that cannot be resolved keeps the 16px / 2px / 4px
   default.
+- **`DataGrid`'s column boundaries stay in the header while it has no rows.**
+  Astryx's resize plugin runs every handle down the whole table, so hovering
+  the header of an empty grid drew the boundaries through the empty state. An
+  empty grid's body now carries `uic-data-grid__body--empty`, which caps each
+  handle at its header cell.
 
 ## [0.2.0-alpha.19]
 
