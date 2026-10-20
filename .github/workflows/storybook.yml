@@ -1,0 +1,132 @@
+# Publish the Storybook built from main to gh-pages under `storybook/`, so the
+# README can link one stable URL: https://lablup.github.io/ui-common/storybook/
+#
+# The per-PR previews live beside it under `pr/<N>/storybook/` (pr-preview.yml).
+# PR Preview Cleanup only removes `pr/<n>/` and the weekly compaction keeps the
+# tree as is, so neither touches this directory.
+#
+# Same split as pr-preview.yml: `build` runs repository code with a read-only
+# token, `publish` holds the write token and only copies the built artifact.
+
+name: Storybook
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/**
+      - .storybook/**
+      - package.json
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - scripts/build-defines.mjs
+      - .github/workflows/storybook.yml
+      - .github/scripts/pr-preview/write-index.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer merge supersedes a queued deploy; a running one finishes, so gh-pages
+# never gets a half-pushed tree.
+concurrency:
+  group: storybook-main
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build Storybook
+        run: pnpm run build-storybook
+
+      - name: Upload Storybook artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: main-storybook
+          path: storybook-static/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the maintenance scripts
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts/pr-preview
+
+      - name: Download Storybook artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: main-storybook
+          path: storybook-dist
+
+      - name: Deploy to gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Retry on conflict, as pr-preview.yml does: PR previews and the
+          # cleanup push to the same branch.
+          set -euo pipefail
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
+          WORK_DIR="$PWD"
+          PAGES_DIR="${RUNNER_TEMP}/gh-pages"
+          MAX_ATTEMPTS=8
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          for attempt in $(seq 1 $MAX_ATTEMPTS); do
+            echo "::group::Attempt ${attempt} of ${MAX_ATTEMPTS}"
+            cd "$WORK_DIR"
+            rm -rf "$PAGES_DIR"
+
+            if git clone --depth=1 --single-branch --branch gh-pages "$REPO_URL" "$PAGES_DIR" 2>/dev/null; then
+              :
+            else
+              echo "No gh-pages branch — creating it."
+              git init "$PAGES_DIR"
+              git -C "$PAGES_DIR" checkout -b gh-pages
+              git -C "$PAGES_DIR" remote add origin "$REPO_URL"
+            fi
+
+            rm -rf "${PAGES_DIR}/storybook"
+            mkdir -p "${PAGES_DIR}/storybook"
+            cp -r storybook-dist/. "${PAGES_DIR}/storybook/"
+            touch "${PAGES_DIR}/.nojekyll"
+            node .github/scripts/pr-preview/write-index.mjs --root "$PAGES_DIR"
+
+            cd "$PAGES_DIR"
+            git add -A
+            git commit -m "Deploy main Storybook (${GITHUB_SHA::7})" \
+              || { echo "Nothing to commit."; echo "::endgroup::"; exit 0; }
+
+            if git push origin gh-pages; then
+              echo "Deployed on attempt ${attempt}."
+              echo "::endgroup::"
+              exit 0
+            fi
+
+            delay=$((attempt + RANDOM % 5))
+            echo "Push failed (likely a concurrent update); retrying in ${delay}s."
+            echo "::endgroup::"
+            sleep "$delay"
+          done
+
+          echo "::error::Failed to deploy the main Storybook after ${MAX_ATTEMPTS} attempts."
+          exit 1

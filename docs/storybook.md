@@ -163,3 +163,7 @@ of its own. A story-level decorator is for layout only: `withMaxWidth(360)` from
 A PR that touches `src/` gets a preview: the PR Preview workflow comments with a
 link to each changed component's stories, and flags a new component that has
 none.
+
+Every merge to `main` that changes the stories or the components republishes
+the Storybook at <https://lablup.github.io/ui-common/storybook/> (the
+Storybook workflow).

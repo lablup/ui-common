@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Regenerate the gh-pages landing page from whatever `pr/<n>/` directories are
-// currently on disk. Both the deploy and the cleanup job call this after they
-// change the tree, so the index never claims a preview that is gone.
+// Regenerate the gh-pages landing page from whatever `storybook/` (main, from
+// storybook.yml) and `pr/<n>/` directories are currently on disk. Every job
+// that changes the tree calls this, so the index never claims a build that is
+// gone.
 //
 // Usage: node write-index.mjs --root <gh-pages checkout>
 
@@ -28,6 +29,8 @@ const previews = isDir(prRoot)
       .sort((a, b) => b - a)
   : [];
 
+const hasMain = isDir(join(root, "storybook"));
+
 const items = previews
   .map(
     (n) =>
@@ -42,7 +45,7 @@ const html = `<!doctype html>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
-    <title>ui-common — PR previews</title>
+    <title>ui-common — Storybook</title>
     <style>
       :root { color-scheme: light dark; }
       body {
@@ -50,6 +53,7 @@ const html = `<!doctype html>
         margin: 0 auto; max-width: 42rem; padding: 3rem 1.5rem;
       }
       h1 { font-size: 1.4rem; margin-bottom: .25rem; }
+      h2 { font-size: 1.1rem; margin: 2rem 0 .25rem; }
       p { color: color-mix(in srgb, currentColor 65%, transparent); margin-top: 0; }
       ul { padding-left: 1.1rem; }
       li { margin: .3rem 0; }
@@ -57,7 +61,8 @@ const html = `<!doctype html>
     </style>
   </head>
   <body>
-    <h1>ui-common — PR previews</h1>
+    <h1>ui-common — Storybook</h1>
+${hasMain ? `    <p><a href="./storybook/">Storybook for main</a>, rebuilt on every merge.</p>\n` : ""}    <h2>PR previews</h2>
     <p>
       One Storybook build per open pull request that changed it. Previews are
       removed when their PR is merged or closed.
@@ -68,4 +73,6 @@ ${previews.length > 0 ? `    <ul>\n${items}\n    </ul>` : "    <p>No live previe
 `;
 
 writeFileSync(join(root, "index.html"), html);
-console.log(`Wrote index.html listing ${previews.length} preview(s).`);
+console.log(
+  `Wrote index.html listing ${hasMain ? "main and " : ""}${previews.length} preview(s).`,
+);
