@@ -46,13 +46,12 @@ const isIndirect = (spec) =>
  * @property {boolean} addCli add `@lablup/ui-common-cli` here
  * @property {ReturnType<typeof import("../../cli/project.mjs").pnpmCatalogs>} catalogs
  * @property {(message: string) => void} note
- * @property {(message: string) => void} alert
  */
 
 /**
  * @param {string} text package.json source
  * @param {AdoptPackageContext} ctx
- * @returns {{text: string | undefined, labAdded: boolean, declaresCore: boolean}}
+ * @returns {{text: string | undefined, labAdded: boolean, declaresCore: boolean, astryxFrom: string | null}}
  */
 export function adoptPackageJson(text, ctx) {
   const pkg = JSON.parse(text);
@@ -123,18 +122,25 @@ export function adoptPackageJson(text, ctx) {
         continue;
       }
       if (spec === pin) continue;
-      const from = coerce(spec);
       pkg[field][name] = pin;
       note(
         `${field}["${name}"]: "${spec}" → "${pin}", the version ${UIC} ${ctx.version} pins.`,
       );
-      if (name === CORE && from && compare(from, pin) < 0) {
-        ctx.alert(
-          `**Astryx moves from ${from} to ${pin}${where ? ` in ${ctx.rel}` : ""}.** ${UIC} ${ctx.version} is built on Astryx ${pin}. Run Astryx's own codemods for that span while the code still imports \`@astryxdesign/*\` (before this adopt run, or on a revert of it): \`ui-common astryx upgrade --from ${from} --path <src> --apply\`, then adopt again.`,
-        );
-      }
     }
   };
+
+  // The Astryx version the package is on now, before any edit: core where it
+  // is declared, else theme-neutral or lab, which move in lockstep with it.
+  let astryxFrom = null;
+  for (const name of [CORE, NEUTRAL, LAB]) {
+    for (const field of DEP_FIELDS) {
+      const spec = pkg[field]?.[name];
+      if (typeof spec !== "string") continue;
+      const v = coerce(resolveSpec(name, spec, ctx.catalogs))?.replace(/-.*$/, "");
+      if (v && (astryxFrom == null || compare(v, astryxFrom) < 0)) astryxFrom = v;
+    }
+    if (astryxFrom) break;
+  }
 
   // ui-common itself, and what it needs.
   if (!has(UIC)) {
@@ -201,6 +207,7 @@ export function adoptPackageJson(text, ctx) {
   return {
     text: out === text ? undefined : out,
     labAdded,
+    astryxFrom,
     declaresCore: DEP_FIELDS.some(
       (f) => f !== "peerDependencies" && pkg[f]?.[CORE] != null,
     ),

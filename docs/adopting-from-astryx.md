@@ -49,8 +49,8 @@ project of the user. Or paste this:
 > Move this app off `@astryxdesign/*` onto `@lablup/ui-common`. Work on a new
 > branch with a clean tree. Run
 > `pnpm dlx @lablup/ui-common-cli@next adopt --from astryx --dry-run` and read
-> the report; if it says Astryx moves to a newer version, run Astryx's
-> codemods first as it says. Apply with `adopt --from astryx`, run
+> the report, including the diffs of Astryx's codemods it runs when Astryx
+> moves to a newer version. Apply with `adopt --from astryx`, run
 > `pnpm install`, and commit that alone. Run `pnpm exec ui-common doctor` and
 > fix what it reports until it passes. Resolve every row of
 > `ui-common-adopt-report.md`, following the decision each section states;
@@ -69,9 +69,16 @@ project of the user. Or paste this:
   `@astryxdesign/lab` → `@lablup/ui-common/lab`,
   `@astryxdesign/theme-neutral[/built|/theme.css]` →
   `@lablup/ui-common/theme/neutral[…]`, including `theme/tokens.stylex`,
-  the CSS entry points and `locales/*.json`. Package names in other strings,
+  `theme/dataTokens.stylex`, the StyleX helper modules (`Layout/padding.stylex`,
+  …), `Markdown/plugin-renderer`, the CSS entry points (`fonts.css` among them)
+  and `locales/*.json`, each checked against ui-common's `exports`. Package names in other strings,
   `declare module` augmentations, `@astryxdesign/cli` and files with an
   `@generated` header are left alone.
+- When the app is on an older Astryx than ui-common pins, Astryx's own
+  codemods for that span (the ones `astryx upgrade` would run), from the
+  Astryx CLI ui-common-cli wraps, whatever Astryx the project has installed.
+  The report lists them; config and integration-package codemods are noted,
+  not run.
 - `Dialog` / `AlertDialog` → `Modal` / `AlertModal`, imports and references.
   A module's own re-export keeps its public name (`export { Modal as Dialog }`).
 - Every Astryx `@layer` order statement gains `ui-common` after
@@ -109,9 +116,22 @@ rules: {
 ```
 
 **Local patches on Astryx.** A pnpm patch reaches only the project that
-declares it, and ui-common ships its own `ComplexSelector`, lab `Drawer` and
+declares it, and ui-common ships its own copies of `ComplexSelector`,
+`Switch`, `CheckboxInput`, `FileInput`, `SegmentedControl`, lab `Drawer` and
 lab `Tour`, which no patch on Astryx reaches. The report says which patch a
-fork covers.
+fork covers, and which is keyed to an Astryx version ui-common does not pin:
+pnpm stops the install on that one, so re-cut or drop it first.
+
+**Form controls lose their field chrome.** `TextInput`, `Selector`, `Switch`
+and the other form controls keep their names and paths, but ui-common's are
+wrapped for `Form.Item`, as in antd: they take no `label`, `isLabelHidden`,
+`description`, `labelTooltip`, `labelIcon`, `isRequired`, `isOptional`,
+`isDisabled` or `statusVariant`, and `status` paints the border only. Inside a
+form, the enclosing `Form.Item` takes them (`label`, `extra`, `tooltip`,
+`rules`, `help`); on its own, a control is named by `aria-label`, and
+`isDisabled` is `disabled`. They also default to `width="100%"`, `Selector`
+opens below, and `NumberInput` clears to `null`. The report lists each call
+site that passes one of the dropped props; `tsc` catches the rest.
 
 **A `Modal` is not a `<dialog>`.** Its `ref` is the element with
 `role="dialog"`. It renders into a `document.body` portal and makes the rest of
@@ -143,8 +163,9 @@ register(
 ```
 
 **Fresh releases and quarantine.** A pnpm `minimumReleaseAge` holds back a
-just-published ui-common; list the exact versions under
-`minimumReleaseAgeExclude` (the lab canary never ages out). pnpm's `catalog:`
+just-published ui-common, and the Astryx release it pins; list the exact
+versions the report names under `minimumReleaseAgeExclude` (the lab canary
+never ages out). pnpm's `catalog:`
 rejects `file:` specs: try a tarball through `overrides`.
 
 ## Doctor checks

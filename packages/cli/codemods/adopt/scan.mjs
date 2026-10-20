@@ -6,6 +6,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 
+import { customExports } from "../../cli/paths.mjs";
 import { ASTRYX_COMMANDS } from "../../cli/rewrite.mjs";
 import {
   lineAt,
@@ -49,6 +50,10 @@ export const CATEGORIES = {
     title: "`astryx` CLI invocations",
     help: "`ui-common <command>` runs the Astryx CLI ui-common pins and rewrites its output to ui-common paths; `ui-common astryx <command>` runs it unrewritten. Switch each invocation, or keep `@astryxdesign/cli` as a devDependency at the version `@lablup/ui-common-cli` pins. `astryx theme build` keeps working either way (a recipe that imports ui-common components needs the `.css` stub in docs/adopting-from-astryx.md).",
   },
+  "form-controls": {
+    title: "Form controls: the field chrome moves to Form.Item",
+    help: "ui-common's form controls (`TextInput`, `Selector`, `Switch`, …) are Astryx's wrapped for `Form.Item`, at the same names and paths. They take no `label`, `isLabelHidden`, `description`, `labelTooltip`, `labelIcon`, `isRequired`, `isOptional`, `isDisabled` or `statusVariant`, and `status` is a border only (`'error' | 'warning' | ''`). Inside a form, move each to the enclosing `Form.Item` (`label`, `extra`, `tooltip`, `rules`, `help`); on its own, name the control with `aria-label`. `isDisabled` becomes `disabled`. Check the new defaults too: `width=\"100%\"`, Selector `placement=\"below\"`, NumberInput clears to `null`.",
+  },
   i18n: {
     title: "InternationalizationProvider without ui-common's strings",
     help: "ui-common's built-in strings resolve through Astryx's `InternationalizationProvider`. Merge `uiCommonMessages` (from `@lablup/ui-common/i18n-catalog`) into its `messages` with `mergeMessages`, or ui-common's components stay in English. Map your language codes to Astryx locale names (`ko` → `ko-KR`).",
@@ -88,9 +93,10 @@ const ASTRYX_INVOCATION = new RegExp(
  *
  * @param {string} file
  * @param {string} text
+ * @param {{wrappers?: Set<string>}} [options] `wrappers`: ui-common's Form.Item-wrapped control names
  * @returns {Finding[]}
  */
-export function scanFile(file, text) {
+export function scanFile(file, text, options = {}) {
   /** @type {Finding[]} */
   const out = [];
   const ext = extname(file);
@@ -155,6 +161,8 @@ export function scanFile(file, text) {
           at("escape", file, text, m.index ?? 0, "no preventDefault() in this module"),
         );
     }
+    if (options.wrappers?.size)
+      out.push(...scanFormControls(file, text, options.wrappers));
     if (
       /<InternationalizationProvider\b/.test(text) &&
       !/uiCommonMessages/i.test(text)
@@ -205,35 +213,195 @@ function scriptsOf(/** @type {string} */ text) {
   return block ? [{ text: block[0], offset: block.index ?? 0 }] : [];
 }
 
-/**
- * Astryx components ui-common ships its own copy of (src/forks), by the path
- * fragment a patch on Astryx's dist would touch.
- */
-export const FORKED = [
-  { name: "ComplexSelector", pattern: /ComplexSelector/ },
-  { name: "Drawer (lab)", pattern: /Drawer/ },
-  { name: "Tour (lab)", pattern: /\bTour/ },
+/** Astryx props ui-common's form-control wrappers do not take. */
+const CHROME_PROPS = [
+  "label",
+  "isLabelHidden",
+  "description",
+  "labelTooltip",
+  "labelIcon",
+  "isRequired",
+  "isOptional",
+  "isDisabled",
+  "statusVariant",
+  "status",
 ];
+
+/**
+ * The names ui-common exports as Form.Item wrappers (exports.customs.json,
+ * `wraps` on a `formControls/` source), from the ui-common being adopted.
+ *
+ * @param {string} root
+ */
+export function formControlWrappers(root) {
+  return new Set(
+    customExports(root)
+      .filter(
+        (/** @type {any} */ c) =>
+          c.wraps != null && c.source.startsWith("formControls/"),
+      )
+      .map((c) => c.name),
+  );
+}
+
+/**
+ * Local names a module binds to ui-common's form-control wrappers.
+ *
+ * @param {string} text
+ * @param {Set<string>} wrappers
+ */
+function wrapperBindings(text, wrappers) {
+  /** @type {Map<string, string>} */
+  const local = new Map();
+  for (const m of text.matchAll(
+    /import\s+(?:type\s+)?\{([^}]*)\}\s*from\s*['"]@lablup\/ui-common(?:\/([A-Za-z]+))?['"]/g,
+  )) {
+    for (const part of m[1].split(",")) {
+      const named =
+        /^\s*(?:type\s+)?([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?\s*$/.exec(
+          part,
+        );
+      if (!named || !wrappers.has(named[1])) continue;
+      if (m[2] && m[2] !== named[1]) continue;
+      local.set(named[2] ?? named[1], named[1]);
+    }
+  }
+  return local;
+}
+
+/**
+ * The attribute text of the JSX opening tag that starts at `start` (after
+ * `<Name`), up to its closing `>` outside braces and strings.
+ *
+ * @param {string} text
+ * @param {number} start
+ */
+function openingTag(text, start) {
+  let depth = 0;
+  /** @type {string | null} */
+  let quote = null;
+  for (let i = start; i < text.length && i < start + 4000; i++) {
+    const c = text[i];
+    if (quote) {
+      if (c === "\\") i++;
+      else if (c === quote) quote = null;
+    } else if (c === '"' || c === "'" || c === "`") quote = c;
+    else if (c === "{") depth++;
+    else if (c === "}") depth--;
+    else if (c === ">" && depth === 0) return text.slice(start, i);
+  }
+  return text.slice(start, start + 4000);
+}
+
+/**
+ * JSX of ui-common's form-control wrappers that passes the field chrome
+ * Astryx's controls take and the wrappers do not.
+ *
+ * @param {string} file
+ * @param {string} text
+ * @param {Set<string>} wrappers
+ * @returns {Finding[]}
+ */
+function scanFormControls(file, text, wrappers) {
+  /** @type {Finding[]} */
+  const out = [];
+  const bindings = wrapperBindings(text, wrappers);
+  if (bindings.size === 0) return out;
+  const tag = new RegExp(`<(${[...bindings.keys()].join("|")})(?=[\\s/>])`, "g");
+  const prop = new RegExp(
+    `(?:^|[\\s}])(${CHROME_PROPS.join("|")})(?=\\s*=|[\\s/]|$)`,
+    "g",
+  );
+  for (const m of text.matchAll(tag)) {
+    const attrs = openingTag(text, (m.index ?? 0) + m[0].length);
+    // Attribute names only: values (strings, expressions) become a space.
+    let flat = "";
+    let depth = 0;
+    /** @type {string | null} */
+    let quote = null;
+    for (const c of attrs) {
+      if (quote) {
+        if (c === quote) quote = null;
+      } else if (depth === 0 && (c === '"' || c === "'")) quote = c;
+      else if (c === "{") depth++;
+      else if (c === "}") depth--;
+      else if (depth === 0) {
+        flat += c;
+        continue;
+      }
+      flat += " ";
+    }
+    const props = [...new Set([...flat.matchAll(prop)].map((p) => p[1]))];
+    if (props.length === 0) continue;
+    out.push(
+      at(
+        "form-controls",
+        file,
+        text,
+        m.index ?? 0,
+        `${bindings.get(m[1])}: ${props.map((p) => `\`${p}\``).join(", ")}`,
+      ),
+    );
+  }
+  return out;
+}
+
+/**
+ * The Astryx components ui-common renders from its own copy (its `forks/`),
+ * so a local patch on Astryx's build of them does not reach the page. Read
+ * from the ui-common being adopted; `lab` marks the lab ones.
+ *
+ * @param {string} root
+ * @returns {Array<{name: string, pattern: RegExp}>}
+ */
+export function forkedComponents(root) {
+  const lab = new Set(
+    customExports(root)
+      .filter((/** @type {any} */ c) => c.fork === "@astryxdesign/lab")
+      .map((c) => c.name),
+  );
+  // src/ in a ui-common checkout (built or not), dist/ in the published package.
+  const dir = ["src", "dist"]
+    .map((d) => join(root, d, "forks"))
+    .find((d) => existsSync(d));
+  const names = dir
+    ? readdirSync(dir, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => d.name)
+    : customExports(root)
+        .filter((/** @type {any} */ c) => c.fork != null)
+        .map((c) => c.name);
+  return names.sort().map((name) => ({
+    name: lab.has(name) ? `${name} (lab)` : name,
+    pattern: new RegExp(`(?:^|/)${name}(?=[/.])`),
+  }));
+}
 
 /**
  * Local patches on Astryx: pnpm `patchedDependencies` (pnpm-workspace.yaml or
  * package.json `pnpm`), and patch-package files under `patches/`.
  *
+ * A pnpm patch keyed to a version other than the one ui-common pins comes
+ * back `stale`: pnpm refuses to install with a patch nothing uses.
+ *
  * @param {string} installDir the install root
  * @param {string} projectDir
- * @returns {Finding[]}
+ * @param {{forks?: Array<{name: string, pattern: RegExp}>, pins?: Record<string, string>}} [options]
+ * @returns {Array<Finding & {stale?: {name: string, from: string, to: string}}>}
  */
-export function scanPatches(installDir, projectDir) {
-  /** @type {Finding[]} */
+export function scanPatches(installDir, projectDir, options = {}) {
+  const forks = options.forks ?? [];
+  const pins = options.pins ?? {};
+  /** @type {Array<Finding & {stale?: {name: string, from: string, to: string}}>} */
   const out = [];
   /** @type {Set<string>} */
   const seen = new Set();
   const describe = (/** @type {string | null} */ patchText) => {
     if (!patchText) return "patch file not found";
     const files = [...patchText.matchAll(/^diff --git a\/(\S+)/gm)].map((m) => m[1]);
-    const covered = FORKED.filter((f) => files.some((p) => f.pattern.test(p))).map(
-      (f) => f.name,
-    );
+    const covered = forks
+      .filter((f) => files.some((p) => f.pattern.test(p)))
+      .map((f) => f.name);
     const touched =
       files.length > 0
         ? `touches ${files.slice(0, 4).join(", ")}${files.length > 4 ? ", …" : ""}`
@@ -247,13 +415,26 @@ export function scanPatches(installDir, projectDir) {
     /** @type {string} */ text,
     /** @type {number} */ index,
     /** @type {string} */ patchPath,
+    /** @type {string} */ key,
   ) => {
     const abs = join(installDir, patchPath);
     if (seen.has(abs)) return;
     seen.add(abs);
-    out.push(
-      at("patches", relPath(projectDir, file), text, index, describe(readText(abs))),
+    const finding = at(
+      "patches",
+      relPath(projectDir, file),
+      text,
+      index,
+      describe(readText(abs)),
     );
+    const keyed = /^(@astryxdesign\/[^@]+)@(.+)$/.exec(key);
+    const pin = keyed ? pins[keyed[1]] : undefined;
+    if (keyed && pin && keyed[2] !== pin) {
+      finding.detail = `${finding.detail}; keyed to ${keyed[2]}, not the ${pin} ui-common pins`;
+      out.push({ ...finding, stale: { name: keyed[1], from: keyed[2], to: pin } });
+      return;
+    }
+    out.push(finding);
   };
   const yamlFile = join(installDir, "pnpm-workspace.yaml");
   const yaml = readText(yamlFile);
@@ -267,7 +448,7 @@ export function scanPatches(installDir, projectDir) {
     for (const m of block[1].matchAll(
       /^[ \t]+["']?(@astryxdesign\/[^"':\s]+)["']?\s*:\s*["']?([^"'\s#]+)/gm,
     ))
-      record(yamlFile, yaml, offset + (m.index ?? 0), m[2]);
+      record(yamlFile, yaml, offset + (m.index ?? 0), m[2], m[1]);
   }
   const pkgFile = join(installDir, "package.json");
   const pkgText = readText(pkgFile);
@@ -276,7 +457,7 @@ export function scanPatches(installDir, projectDir) {
       const patched = JSON.parse(pkgText)?.pnpm?.patchedDependencies ?? {};
       for (const [key, path] of Object.entries(patched)) {
         if (!key.startsWith("@astryxdesign/")) continue;
-        record(pkgFile, pkgText, Math.max(0, pkgText.indexOf(key)), String(path));
+        record(pkgFile, pkgText, Math.max(0, pkgText.indexOf(key)), String(path), key);
       }
     } catch {
       // not JSON: nothing to read

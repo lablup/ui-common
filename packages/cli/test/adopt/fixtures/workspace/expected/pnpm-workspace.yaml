@@ -11,4 +11,4 @@ allowBuilds:
   "@astryxdesign/cli": false
 
 overrides:
-  "@astryxdesign/lab>@astryxdesign/core": "0.6.2"
+  "@astryxdesign/lab>@astryxdesign/core": "0.7.0"

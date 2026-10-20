@@ -35,7 +35,13 @@ import {
   layerStatements,
 } from "../codemods/adopt/layers.mjs";
 import { adoptPackageJson, CLI_PACKAGE } from "../codemods/adopt/package-json.mjs";
-import { CATEGORIES, scanFile, scanPatches } from "../codemods/adopt/scan.mjs";
+import {
+  CATEGORIES,
+  forkedComponents,
+  formControlWrappers,
+  scanFile,
+  scanPatches,
+} from "../codemods/adopt/scan.mjs";
 import { isTestFile } from "../codemods/0.2/scan.mjs";
 import {
   findSpecifiers,
@@ -44,6 +50,7 @@ import {
   rewriteSpecifiers,
   UIC,
 } from "../codemods/adopt/specifiers.mjs";
+import { astryxTransformsBetween } from "../codemods/upstream.mjs";
 import { detectPackageManager } from "./lab-peer.mjs";
 import { diffStat, unifiedDiff } from "./diff.mjs";
 import {
@@ -66,6 +73,7 @@ import {
   STYLE_EXTENSIONS,
 } from "./project.mjs";
 import { ADOPT_REPORT_HEADING, renderReport } from "./report.mjs";
+import { compare } from "./semver.mjs";
 
 export const DEFAULT_ADOPT_REPORT = "ui-common-adopt-report.md";
 
@@ -131,7 +139,8 @@ export async function runAdopt(options) {
   // The ui-common version adopted is the CLI's own (they are released in
   // lockstep); `version` overrides it for the tests' fixtures.
   const version = options.version ?? own.version;
-  const target = uiCommonPackageJson(targetUiCommonRoot(projectDir));
+  const targetRoot = targetUiCommonRoot(projectDir);
+  const target = uiCommonPackageJson(targetRoot);
   const exportsMap = /** @type {Record<string, unknown>} */ (target.exports ?? {});
   const corePin = target.dependencies?.["@astryxdesign/core"] ?? "";
   const labPin = target.peerDependencies?.["@astryxdesign/lab"] ?? "";
@@ -362,6 +371,9 @@ export async function runAdopt(options) {
     }) ?? usingList[0];
   /** @type {Array<{file: string, before: string, after: string}>} */
   const pkgEdits = [];
+  /** Package roots on an Astryx older than ui-common's pin → that version. */
+  /** @type {Map<string, string>} */
+  const moves = new Map();
   let anyLab = false;
   const editFile = (
     /** @type {string} */ path,
@@ -418,8 +430,9 @@ export async function runAdopt(options) {
       addCli: !declaresCli && r === cliHome,
       catalogs,
       note: (m) => notes.push(m),
-      alert: (m) => alerts.push(m),
     });
+    if (result.astryxFrom && corePin && compare(result.astryxFrom, corePin) < 0)
+      moves.set(r, result.astryxFrom);
     let after = result.text ?? text;
     if (usesLab && (result.labAdded || !result.declaresCore)) {
       const pkg = JSON.parse(after);
@@ -441,15 +454,20 @@ export async function runAdopt(options) {
     });
     const yaml = readText(workspaceYaml) ?? "";
     if (/^minimumReleaseAge\s*:/m.test(yaml)) {
+      const neutralPin = target.dependencies?.["@astryxdesign/theme-neutral"];
+      const astryxCliPin = own.dependencies?.["@astryxdesign/cli"];
       const wanted = [
         `${UIC}@${version}`,
         `${CLI_PACKAGE}@${version}`,
+        ...(corePin ? [`@astryxdesign/core@${corePin}`] : []),
+        ...(neutralPin ? [`@astryxdesign/theme-neutral@${neutralPin}`] : []),
+        ...(astryxCliPin ? [`@astryxdesign/cli@${astryxCliPin}`] : []),
         ...(labPin && anyLab ? [`@astryxdesign/lab@${labPin}`] : []),
       ];
       const missingExcludes = wanted.filter((w) => !yaml.includes(w));
       if (missingExcludes.length > 0)
         notices.push(
-          `pnpm-workspace.yaml sets \`minimumReleaseAge\`: a ${UIC} release younger than that will not install. Until it ages out, list ${missingExcludes.map((w) => `\`${w}\``).join(", ")} under \`minimumReleaseAgeExclude\`${missingExcludes.some((w) => w.startsWith("@astryxdesign/lab@")) ? " (a lab canary never ages out)" : ""}.`,
+          `pnpm-workspace.yaml sets \`minimumReleaseAge\`: a package younger than that will not install. ${UIC} ${version} brings ${missingExcludes.map((w) => `\`${w}\``).join(", ")}; list each one younger than your window under \`minimumReleaseAgeExclude\` until it ages out${missingExcludes.some((w) => w.startsWith("@astryxdesign/lab@")) ? " (a lab canary never ages out)" : ""}.`,
         );
     }
   }
@@ -462,19 +480,89 @@ export async function runAdopt(options) {
     });
   }
 
-  // 4. Report-only findings, over the whole project as the run leaves it.
+  // 4. Astryx's own codemods for the versions each package moves across. They
+  // run on the rewritten modules through the specifier swap `upgrade` uses,
+  // so the Astryx installed in the project does not matter.
+  for (const [r, from] of moves) {
+    const where = r === projectDir ? "" : ` in ${rel(r)}`;
+    let astryx;
+    try {
+      astryx = await astryxTransformsBetween(from, corePin);
+    } catch (err) {
+      alerts.push(
+        `**Astryx moves from ${from} to ${corePin}${where}**, and its codemods could not be loaded (${/** @type {Error} */ (err).message}). Run \`ui-common astryx upgrade --from ${from} --path <src> --apply\` once ${UIC} is installed.`,
+      );
+      continue;
+    }
+    for (const transform of astryx.transforms) {
+      const extensions = new Set(transform.extensions);
+      for (const [file, entry] of state) {
+        const ext = extname(file);
+        if (entry.created || !extensions.has(ext) || ownerRoot(file, roots) !== r)
+          continue;
+        const j = jscodeshift.withParser(/\.[cm]?tsx?$/.test(ext) ? "tsx" : "babel");
+        let out;
+        try {
+          out = transform.run(
+            { path: file, source: entry.current },
+            { jscodeshift: j },
+          );
+        } catch (err) {
+          errors.push({
+            file: rel(file),
+            transform: transform.id,
+            error: /** @type {Error} */ (err).message,
+          });
+          continue;
+        }
+        if (out == null || out === entry.current) continue;
+        if (transform.parse) {
+          try {
+            j(out);
+          } catch (err) {
+            errors.push({
+              file: rel(file),
+              transform: transform.id,
+              error: `produced unparseable output, not applied: ${/** @type {Error} */ (err).message}`,
+            });
+            continue;
+          }
+        }
+        touch(file, out, transform.id);
+      }
+    }
+    const ids = astryx.transforms.map((t) => `\`${t.id.replace(/^astryx:/, "")}\``);
+    alerts.push(
+      `**Astryx moves from ${from} to ${corePin}${where}.** ${UIC} ${version} is built on Astryx ${corePin}. ${ids.length > 0 ? `adopt ran Astryx's codemods for that span (${ids.join(", ")}); review what they changed (the \`astryx:\` transforms under Changed files)` : "Astryx has no file codemods for that span"}, and read Astryx's release notes for what no codemod covers.`,
+    );
+    for (const n of astryx.notes) if (!notices.includes(n)) notices.push(n);
+  }
+
+  // 5. Report-only findings, over the whole project as the run leaves it.
   // Runtime findings (overlays, shortcuts, i18n) come from the packages that
   // use Astryx, without their tests; tooling findings from everywhere.
   const runtime = new Set(["portals", "hotkeys", "escape", "i18n"]);
+  const wrappers = formControlWrappers(targetRoot);
   for (const file of allFiles) {
     const text = state.get(file)?.current ?? readText(file);
     if (text == null || isGenerated(text)) continue;
     const app = usingRoots.has(ownerRoot(file, roots) ?? "") && !isTestFile(rel(file));
     findings.push(
-      ...scanFile(rel(file), text).filter((f) => app || !runtime.has(f.category)),
+      ...scanFile(rel(file), text, { wrappers }).filter(
+        (f) => app || !runtime.has(f.category),
+      ),
     );
   }
-  findings.push(...scanPatches(install, projectDir));
+  const patches = scanPatches(install, projectDir, {
+    forks: forkedComponents(targetRoot),
+    pins: { "@astryxdesign/core": corePin, "@astryxdesign/lab": labPin },
+  });
+  findings.push(...patches);
+  for (const p of patches)
+    if (p.stale)
+      alerts.push(
+        `\`${p.file}:${p.line}\` patches ${p.stale.name}@${p.stale.from}, but ${UIC} ${version} pins ${p.stale.to}: pnpm stops the install on a patch for a version that is not installed. Re-cut the patch at ${p.stale.to}, or drop it, before you install.`,
+      );
   // ui-common's catalog wired anywhere answers the i18n finding for the project.
   const catalogWired = allFiles.some((f) =>
     /@lablup\/ui-common\/(?:i18n-catalog|ui-common-locales)/.test(
@@ -663,9 +751,12 @@ covered. \`ui-common upgrade --from astryx\` is the same command.
   version, keeps @astryxdesign/core only where declared and at ui-common's
   pin, drops @astryxdesign/theme-neutral and an unused @astryxdesign/lab, and
   (pnpm) declines the Astryx postinstalls in allowBuilds.
+- Runs Astryx's own codemods when the project is on an older Astryx than
+  ui-common pins.
 - Writes ui-common-adopt-report.md: what changed, and what needs a person
-  (local Astryx patches, Modal refs, body portals, global hotkeys, ASTRYX agent
-  blocks, \`astryx\` CLI calls, i18n wiring).
+  (form controls passing field chrome Form.Item owns, local Astryx patches,
+  Modal refs, body portals, global hotkeys, ASTRYX agent blocks, \`astryx\`
+  CLI calls, i18n wiring).
 
 One-off, before ui-common is installed (\`@next\` until 0.2.0 is published):
   pnpm dlx @lablup/ui-common-cli@next adopt --from astryx --dry-run

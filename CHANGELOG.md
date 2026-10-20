@@ -16,14 +16,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   statement to an entry stylesheet or `index.html` without one), edits
   `package.json` in every workspace member (`@lablup/ui-common` and the CLI at
   the CLI's version, core kept only at ui-common's pin, theme-neutral and an
-  unused lab dropped, the lab override, pnpm `allowBuilds`), and writes
-  `ui-common-adopt-report.md` in the upgrade report's format: local Astryx
-  patches (and which a ui-common fork covers), `Modal` refs, body overlays,
-  global shortcuts, Escape handlers, ASTRYX agent blocks and tools anchored on
-  them, `astryx` CLI calls, and i18n wiring. `--dry-run`, `--check` (exit 1
+  unused lab dropped, the lab override, pnpm `allowBuilds`), runs Astryx's own
+  codemods for the versions an app moves across to reach ui-common's pin, and
+  writes `ui-common-adopt-report.md` in the upgrade report's format: form
+  controls passing the field chrome `Form.Item` now owns, local Astryx patches
+  (which a ui-common fork covers, and which are keyed to a version ui-common
+  no longer pins), `Modal` refs, body overlays, global shortcuts, Escape
+  handlers, ASTRYX agent blocks and tools anchored on them, `astryx` CLI
+  calls, and i18n wiring. `--dry-run`, `--check` (exit 1
   while anything is left, for CI), `--ignore`; `upgrade --from astryx` is an
   alias.
-- **`ui-common doctor [--json]`**: read-only checks with a fix and a doc
+- **`ui-common doctor [--json] [--verbose]`**: read-only checks with a fix and a doc
   section each, exit 1 on a failure: one `@astryxdesign/core` (lockfile and
   disk, pnpm and npm) with lab on it, the lab override, no direct Astryx
   import, the layer order (present, first, with `ui-common`, identical in every
@@ -39,6 +42,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 - [docs/adopting-from-astryx.md](docs/adopting-from-astryx.md): the guide for
   direct-Astryx apps, with each doctor check explained and a prompt for a
   coding agent.
+- **`TagsInput`** (`@lablup/ui-common/TagsInput`), antd's
+  `Select mode="tags"` on ui-common's `Tokenizer`: `string[]` tags,
+  deduplicated, `tokenSeparators` on the keystroke and on paste, text left
+  in the input committed on blur, and a translated create row
+  (`uic.TagsInput.create`).
+- **`SegmentedControl` for `Form.Item`**: a wrapper like the other form
+  controls, named by the item's label. It renders a fork that merges the
+  item's `aria-describedby` instead of overwriting it; import
+  `SegmentedControlItem` from `@lablup/ui-common/SegmentedControl` too.
 
 ### Changed
 
@@ -74,18 +86,6 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `onChange={(v) => …}` is typed again on `Selector` (from `hasClear`, as on
   Astryx's) and on `Slider` (a single value unless the value is a range,
   which Astryx's leaves untyped), instead of an implicit `any`.
-
-### Added
-
-- **`TagsInput`** (`@lablup/ui-common/TagsInput`), antd's
-  `Select mode="tags"` on ui-common's `Tokenizer`: `string[]` tags,
-  deduplicated, `tokenSeparators` on the keystroke and on paste, text left
-  in the input committed on blur, and a translated create row
-  (`uic.TagsInput.create`).
-- **`SegmentedControl` for `Form.Item`**: a wrapper like the other form
-  controls, named by the item's label. It renders a fork that merges the
-  item's `aria-describedby` instead of overwriting it; import
-  `SegmentedControlItem` from `@lablup/ui-common/SegmentedControl` too.
 
 ### Fixed
 

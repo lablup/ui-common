@@ -48,9 +48,11 @@ const FIXTURES = join(here, "fixtures");
 const UPDATE = process.env.UPDATE_FIXTURES === "1";
 const VERSION = "0.2.0";
 const bin = resolve(here, "../../bin/ui-common.mjs");
-const exportsMap = JSON.parse(
+const uiCommonPackage = JSON.parse(
   readFileSync(resolve(here, "../../../../package.json"), "utf8"),
-).exports as Record<string, unknown>;
+);
+const exportsMap = uiCommonPackage.exports as Record<string, unknown>;
+const CORE_PIN: string = uiCommonPackage.dependencies["@astryxdesign/core"];
 
 const temps: string[] = [];
 afterEach(() => {
@@ -182,15 +184,42 @@ describe("ui-common adopt --from astryx", () => {
     );
   });
 
-  it("raises an Astryx version move as an action, with the codemod command", async () => {
+  it("runs Astryx's codemods for the version span it moves the app across", async () => {
     const dir = copyFixture("npm-lab");
     const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
-    pkg.dependencies["@astryxdesign/core"] = "^0.5.4";
+    pkg.dependencies["@astryxdesign/core"] = "^0.6.5";
     writeFileSync(join(dir, "package.json"), JSON.stringify(pkg, null, 2));
+    writeFileSync(
+      join(dir, "src", "Search.tsx"),
+      `import { Typeahead } from "@astryxdesign/core/Typeahead";\n\nexport const Search = () => <Typeahead aria-label="Fruit" emptySearchResultsText="None" />;\n`,
+    );
     const result = await runAdopt({ cwd: dir, version: VERSION, ...quiet });
     expect(result.report).toContain("## Action required");
-    expect(result.report).toContain("Astryx moves from 0.5.4 to 0.6.2");
-    expect(result.report).toContain("ui-common astryx upgrade --from 0.5.4");
+    expect(result.report).toContain(`Astryx moves from 0.6.5 to ${CORE_PIN}`);
+    expect(result.report).toContain("`rename-empty-search-results-text`");
+    const search = readFileSync(join(dir, "src", "Search.tsx"), "utf8");
+    expect(search).toContain('from "@lablup/ui-common/Typeahead"');
+    expect(search).toContain('emptySearchText="None"');
+    // A second run has nothing left to move.
+    const again = await runAdopt({ cwd: dir, version: VERSION, check: true, ...quiet });
+    expect(again.code).toBe(0);
+  });
+
+  it("lists form controls that pass the field chrome Form.Item owns", async () => {
+    const dir = copyFixture("npm-lab");
+    writeFileSync(
+      join(dir, "src", "Name.tsx"),
+      `import { TextInput, Switch as Toggle } from "@astryxdesign/core";\n\nexport const Name = () => (\n  <>\n    <TextInput label="Name" placeholder="your label" isRequired />\n    <Toggle aria-label="On" />\n  </>\n);\n`,
+    );
+    const result = await runAdopt({ cwd: dir, version: VERSION, ...quiet });
+    const rows = result.findings.filter((f) => f.category === "form-controls");
+    expect(rows).toEqual([
+      expect.objectContaining({
+        file: "src/Name.tsx",
+        line: 5,
+        detail: "TextInput: `label`, `isRequired`",
+      }),
+    ]);
   });
 
   it("--ignore and paths narrow what is rewritten", async () => {

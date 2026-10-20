@@ -40,9 +40,13 @@ ui-common adopt --from astryx --dry-run --report /tmp/adopt-dry-run.md
 Read the dry-run report before applying:
 
 - **Action required: "Astryx moves from X to Y".** The app is on an older
-  Astryx than ui-common pins. Run Astryx's codemods first, while the code still
-  imports `@astryxdesign/*`: `ui-common astryx upgrade --from X --path <src> --apply`.
-  Commit that separately, then dry-run adopt again.
+  Astryx than ui-common pins. adopt runs Astryx's codemods for that span itself
+  (the `astryx:` transforms under Changed files). Read their diffs
+  (`--dry-run --diff`), then Astryx's release notes for that span for what no
+  codemod covers.
+- **Action required: a patch "keyed to" an older version.** pnpm stops the
+  install on it. Re-cut it at the pinned version if the bug still exists
+  there, or drop it, before installing.
 - **Files you did not expect to change** (vendored code, generated output
   without an `@generated` header): rerun with `--ignore <path>` for each.
 
@@ -63,7 +67,8 @@ Fix each FAIL with the printed fix and rerun. The judgement calls:
 
 - **single-core / lab-core**: find which package pulls the second
   `@astryxdesign/core` (`pnpm why -r @astryxdesign/core`, `npm ls`). Fix the
-  pin or add the override; never silence it with `peerDependencyRules`.
+  pin or add the override. `peerDependencyRules` may quiet lab's peer
+  warning once the override is in, never a real second core.
 - **vite-prebundle / vitest-inline**: add the snippet from the doc to the
   config the check names. Do not restructure the config.
 - **agents**: `ui-common agents --write <the agent file the project uses>`,
@@ -75,17 +80,18 @@ Fix each FAIL with the printed fix and rerun. The judgement calls:
 
 Every row of `ui-common-adopt-report.md` gets a decision. The rules:
 
-| Report section                       | Decide                                                                                                                                                                                                         |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@astryxdesign/*` imports left       | Replace with the ui-common export the row names. With no replacement (`useImperativeDialog`), rewrite the call site to `Modal` state; keep the Astryx import only if the user agrees, and say so in the PR.    |
-| Dialog → Modal: refs                 | A ref used only for focus or measuring can stay (retype to `HTMLDivElement`). A ref used for `showModal()` / `close()` / `open` becomes `isOpen` / `onOpenChange`.                                             |
-| Local patches on Astryx              | Covered by a ui-common fork: drop the patch. Otherwise check whether the bug still exists on the pinned Astryx; keep the patch (re-cut for that version) only if it does.                                      |
-| Overlays into document.body          | Must it work while a modal is open (toasts, notifications, devtools)? Then add `MODAL_LIVE_ATTRIBUTE` to its root (and `refreshModalBackground()` if it can mount over an open modal). If not, leave it inert. |
-| Global keyboard shortcuts            | Should it fire over a modal? Almost never: guard it with `MODAL_OPEN_ATTRIBUTE`.                                                                                                                               |
-| Escape handlers                      | Add `event.preventDefault()` where the handler consumed the key.                                                                                                                                               |
-| ASTRYX agent blocks / anchored tools | Replace the block (step 3); repoint each tool at `<!-- UI-COMMON:END -->` or its own marker.                                                                                                                   |
-| `astryx` CLI invocations             | `astryx <cmd>` → `ui-common <cmd>` in scripts, CI and docs. Keep `astryx theme build` if the project builds a theme; add the `.css` stub only if that build then fails.                                        |
-| InternationalizationProvider         | Merge `uiCommonMessages` for every supported locale; map app language codes to Astryx locale names; list unsupported ones explicitly.                                                                          |
+| Report section                       | Decide                                                                                                                                                                                                                                                                       |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@astryxdesign/*` imports left       | Replace with the ui-common export the row names. With no replacement (`useImperativeDialog`), rewrite the call site to `Modal` state; keep the Astryx import only if the user agrees, and say so in the PR.                                                                  |
+| Dialog → Modal: refs                 | A ref used only for focus or measuring can stay (retype to `HTMLDivElement`). A ref used for `showModal()` / `close()` / `open` becomes `isOpen` / `onOpenChange`.                                                                                                           |
+| Local patches on Astryx              | Covered by a ui-common fork: drop the patch. Otherwise check whether the bug still exists on the pinned Astryx; keep the patch (re-cut for that version) only if it does.                                                                                                    |
+| Form controls: field chrome          | Inside a form: move `label` / `description` / `labelTooltip` / `isRequired` / the status message to the enclosing `Form.Item` (`label` / `extra` / `tooltip` / `rules` / `help`). Standalone: `label` becomes `aria-label`. `isDisabled` → `disabled`. Drop `isLabelHidden`. |
+| Overlays into document.body          | Must it work while a modal is open (toasts, notifications, devtools)? Then add `MODAL_LIVE_ATTRIBUTE` to its root (and `refreshModalBackground()` if it can mount over an open modal). If not, leave it inert.                                                               |
+| Global keyboard shortcuts            | Should it fire over a modal? Almost never: guard it with `MODAL_OPEN_ATTRIBUTE`.                                                                                                                                                                                             |
+| Escape handlers                      | Add `event.preventDefault()` where the handler consumed the key.                                                                                                                                                                                                             |
+| ASTRYX agent blocks / anchored tools | Replace the block (step 3); repoint each tool at `<!-- UI-COMMON:END -->` or its own marker.                                                                                                                                                                                 |
+| `astryx` CLI invocations             | `astryx <cmd>` → `ui-common <cmd>` in scripts, CI and docs. Keep `astryx theme build` if the project builds a theme; add the `.css` stub only if that build then fails.                                                                                                      |
+| InternationalizationProvider         | Merge `uiCommonMessages` for every supported locale; map app language codes to Astryx locale names; list unsupported ones explicitly.                                                                                                                                        |
 
 Then add the guard that keeps it adopted: ban `@astryxdesign/*` in ESLint
 (static and dynamic imports, see the doc) and run
