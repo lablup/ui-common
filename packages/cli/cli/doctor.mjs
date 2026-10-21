@@ -441,6 +441,65 @@ export function checkLabCore(p) {
 }
 
 /** @param {Project} p */
+export function checkLabVersion(p) {
+  const id = "lab-version";
+  const title = `${LAB} at the canary ${UIC} peers on`;
+  const copies = lockCopies(p, LAB);
+  const labDir = p.using.map((r) => resolvePackageDir(LAB, r)).find(Boolean) ?? null;
+  const installed = copies?.versions.length
+    ? [...new Set(copies.versions.map(bareVersion))]
+    : labDir
+      ? [readJsonFile(join(labDir, "package.json"))?.version].filter(Boolean)
+      : [];
+  const declared = p.using.flatMap((r) =>
+    declarations(p.pkgs.get(r), LAB).map(([field, spec]) => ({
+      where: `${p.rel(r)}/package.json ${field}`,
+      spec,
+      resolved: resolveSpec(LAB, spec, p.catalogs) ?? spec,
+    })),
+  );
+  if (installed.length === 0 && declared.length === 0)
+    return result(id, title, "skip", `${LAB} is not used.`);
+  const { dir: uiDir } = pinnedCore(p);
+  const pin = uiDir
+    ? (readJsonFile(join(uiDir, "package.json"))?.peerDependencies?.[LAB] ?? null)
+    : null;
+  if (!pin)
+    return result(
+      id,
+      title,
+      "skip",
+      `${UIC} is not installed, or declares no ${LAB} peer.`,
+    );
+  /** @type {string[]} */
+  const details = [
+    `${UIC} peers on ${LAB} ${pin}`,
+    ...installed.map((v) => `installed: ${v}`),
+    ...declared.map((d) => `${d.where}: "${d.spec}"`),
+  ];
+  const problems = [
+    ...installed.filter((v) => v !== pin).map((v) => `${v} is installed`),
+    ...declared
+      .filter((d) => coerce(d.resolved) != null && d.resolved !== pin)
+      .map((d) => `${d.where} is "${d.spec}"`),
+  ];
+  if (problems.length > 0)
+    return result(
+      id,
+      title,
+      "fail",
+      `${UIC} is built on ${LAB} ${pin}; ${problems.join(", ")}.`,
+      {
+        details,
+        fix: `Declare ${LAB} as exactly ${pin} (\`ui-common upgrade\` moves it on a ${UIC} bump), then reinstall. A lab canary is not semver-compatible with the next one.`,
+      },
+    );
+  return result(id, title, "pass", `${LAB} ${pin}, the canary ${UIC} peers on.`, {
+    details,
+  });
+}
+
+/** @param {Project} p */
 export function checkLabOverride(p) {
   const id = "lab-override";
   const title = "The lab override, where /lab is used";
@@ -965,6 +1024,7 @@ export async function runDoctor(options) {
     checkVersions(p),
     checkSingleCore(p),
     checkLabCore(p),
+    checkLabVersion(p),
     checkLabOverride(p),
     checkImports(p),
     checkLayerOrder(p),

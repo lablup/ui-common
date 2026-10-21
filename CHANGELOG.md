@@ -28,7 +28,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   alias.
 - **`ui-common doctor [--json] [--verbose]`**: read-only checks with a fix and a doc
   section each, exit 1 on a failure: one `@astryxdesign/core` (lockfile and
-  disk, pnpm and npm) with lab on it, the lab override, no direct Astryx
+  disk, pnpm and npm) with lab on it, lab at the canary ui-common peers on,
+  the lab override, no direct Astryx
   import, the layer order (present, first, with `ui-common`, identical in every
   copy), the Vite pre-bundle fix under `@stylexjs/unplugin`, Vitest inlining
   ui-common, i18n wiring, the agent block, matching ui-common / ui-common-cli

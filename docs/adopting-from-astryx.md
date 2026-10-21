@@ -198,6 +198,14 @@ package. Fix the pins until `pnpm why -r @astryxdesign/core` (or
 `@astryxdesign/lab`'s core peer resolves to that same core, in the lockfile and
 on disk. Usually fixed by the override below.
 
+### lab-version
+
+The `@astryxdesign/lab` the project declares and installs is exactly the canary
+ui-common peers on (its `peerDependencies`). Lab canaries are not
+semver-compatible with each other, and the lab override keeps lab-core passing
+on a stale lab, so this is the check that notices one. `ui-common upgrade`
+moves the pin on a ui-common bump.
+
 ### lab-override
 
 Where a module imports `@lablup/ui-common/lab`, lab's core peer needs a
