@@ -339,22 +339,21 @@
       },
       "alternatives": [],
       "propRenames": [
-        { "from": "disabled", "to": "isDisabled" },
         { "from": "searchable", "to": "hasSearch" },
         { "from": "noOptionsLabel", "to": "emptyText" },
         {
-          "from": "aria-label",
-          "to": "label",
-          "onlyWhen": "label is not set; add isLabelHidden"
+          "from": "label",
+          "to": "aria-label",
+          "onlyWhen": "aria-label is not set; the visible label belongs to the enclosing Form.Item"
         }
       ],
       "valueMaps": {
         "size": { "small": "sm", "default": "md", "medium": "md", "large": "lg" }
       },
       "manual": [
-        "`label` is required and is a string; a node label needs a string for the accessible name.",
-        "invalid becomes status={{ type: \"error\" }}.",
-        "fullWidth, onBlur and aria-describedby (use `description`) have no direct counterpart.",
+        "Selector is ui-common's Form.Item wrapper: it takes no `label`. Inside a form the enclosing Form.Item's `label` names it; on its own, `aria-label` does.",
+        "invalid becomes status=\"error\" (the border; the message belongs to Form.Item's `help`).",
+        "fullWidth, onBlur and aria-describedby have no direct counterpart.",
         "Selector is not generic over the value type; onChange receives a string.",
         "The .select classes are gone."
       ]

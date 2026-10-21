@@ -15,7 +15,7 @@ Ran the codemods over 6 files under `src`; searched 6 files under the project ro
 |---|---:|
 | Files changed | 6 |
 | package.json changed | yes |
-| TODO markers left in code | 14 |
+| TODO markers left in code | 13 |
 | Manual-review findings | 1 |
 
 ## Steps
@@ -24,7 +24,7 @@ Ran the codemods over 6 files under `src`; searched 6 files under the project ro
 
 ## Changed files
 
-- `src/components/common/Select/index.tsx`: +8 −4, components
+- `src/components/common/Select/index.tsx`: +7 −4, components
 - `src/components/common/index.ts`: +6 −4, components
 - `src/components/common/status.ts`: +4 −2, components
 - `src/components/common/table.ts`: +3 −3, components
@@ -39,12 +39,11 @@ Ran the codemods over 6 files under `src`; searched 6 files under the project ro
 
 ## Manual review
 
-### TODO markers (14)
+### TODO markers (13)
 
 Each is a `TODO(ui-common-upgrade)` comment in the code, above the call it is about. Resolve it, then delete the comment.
 
 - `src/components/common/Select/index.tsx:7` props spread into <BaseSelect> are not migrated; check them against Astryx Selector's props.
-- `src/components/common/Select/index.tsx:8` `label` is required and is a string; a node label needs a string for the accessible name.
 - `src/components/common/index.ts:2` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
 - `src/components/common/index.ts:4` re-exported under the 0.1 name, but the component is Astryx's now. The upgrade migrated the elements of it in the modules it scanned that import it from here; any other importer still passes 0.1 props.
 - `src/components/common/index.ts:6` type StatusKind was removed with StatusTag in 0.2 and has no Astryx counterpart.
@@ -104,6 +103,6 @@ None.
 - BaseCard → Card (@lablup/ui-common/Card); or ClickableCard (@lablup/ui-common/ClickableCard) when the card has onClick or clickable; ClickableCard requires a `label` (take it from ariaLabel). variant (default | installed | available) maps to Card variant by intent: default -> "muted", installed -> "default", available -> "muted". state (loading | active | disabled | warning) has no Card counterpart; express it in the content, or use ClickableCard isDisabled for disabled. direction="row" has no Card counterpart; wrap the children in an HStack. hoverable, clickable, onKeyDown, role and tabIndex: ClickableCard owns hover, focus and keyboard activation. The .base-card classes and the --corner-accent-color property are gone.
 - Button → Button (@lablup/ui-common/Button); or IconButton (@lablup/ui-common/IconButton) when iconOnly is set; the accessible name moves from ariaLabel to label. `label` is required. A non-string child needs `label` for the accessible name and the node as children. variant="success" has no Button variant; use primary. iconPosition="right" becomes `endContent` (an Icon or Badge element only). shape="circle", inline and active have no counterpart. The .button / .button--* classes are gone; Astryx's stable class is .astryx-button.
 - ProgressBar → ProgressBar (@lablup/ui-common/ProgressBar). value={null} becomes isIndeterminate (and no value). `label` is required and is the accessible name; the old visible `label` text maps to it with isLabelHidden when it was not shown. size and animated have no counterpart. The .progress-bar classes are gone.
-- Select → Selector (@lablup/ui-common/Selector). `label` is required and is a string; a node label needs a string for the accessible name. invalid becomes status={{ type: "error" }}. fullWidth, onBlur and aria-describedby (use `description`) have no direct counterpart. Selector is not generic over the value type; onChange receives a string. The .select classes are gone.
+- Select → Selector (@lablup/ui-common/Selector). Selector is ui-common's Form.Item wrapper: it takes no `label`. Inside a form the enclosing Form.Item's `label` names it; on its own, `aria-label` does. invalid becomes status="error" (the border; the message belongs to Form.Item's `help`). fullWidth, onBlur and aria-describedby have no direct counterpart. Selector is not generic over the value type; onChange receives a string. The .select classes are gone.
 - StatusTag → StatusDot (@lablup/ui-common/StatusDot). StatusDot renders only the dot; `label` becomes its accessible name. Keep the visible text: <HStack gap={1}><StatusDot variant=... label={label} /><Text>{label}</Text></HStack>. size has no counterpart. The .status-tag classes and data-testid="status-tag-indicator" are gone.
 - Products' own `--token-*` reads were not rewritten: they belong to your token system. `legacy-tokens.css` keeps them resolving until 0.3.

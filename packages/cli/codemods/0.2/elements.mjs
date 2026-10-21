@@ -526,19 +526,16 @@ export function Select(h) {
   plainRenames(h);
   // Selector sizes the whole field with `width`.
   booleanToValue(h, "fullWidth", "width", () => j.stringLiteral("100%"));
-  booleanToValue(h, "invalid", "status", () =>
-    j.objectExpression([
-      j.objectProperty(j.identifier("type"), j.stringLiteral("error")),
-    ]),
-  );
-  if (!getAttr(el, "label")) {
-    const aria = getAttr(el, "aria-label");
-    if (aria) {
-      renameAttr(aria, "label");
-      setAttr(j, el, "isLabelHidden", true);
-    } else {
-      todoAbout(h, "label", "Selector needs a `label`.");
-    }
+  // Selector is the Form.Item wrapper (`disabled`, a border-only `status`, no
+  // `label`): a 0.1 label names it through `aria-label` until it moves to the item.
+  booleanToValue(h, "invalid", "status", () => j.stringLiteral("error"));
+  const label = getAttr(el, "label");
+  if (label) {
+    if (getAttr(el, "aria-label")) removeAttr(el, label);
+    else renameAttr(label, "aria-label");
+    h.todo(
+      "Selector takes no `label`: put the visible label on the enclosing Form.Item's `label` (it names the control), or keep `aria-label` on its own.",
+    );
   }
   for (const name of ["onBlur", "aria-describedby"]) unsupported(h, name);
 }

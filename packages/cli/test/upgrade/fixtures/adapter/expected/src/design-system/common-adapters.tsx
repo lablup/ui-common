@@ -35,17 +35,16 @@ export function Empty({ title, body, onRetry }: { title: string; body: string; o
 
 export function RegionSelect({ value, onChange, invalid }: { value: string; onChange: (v: string) => void; invalid: boolean }) {
   return (
+    // TODO(ui-common-upgrade): Selector takes no `label`: put the visible label on the enclosing Form.Item's `label` (it names the control), or keep `aria-label` on its own.
     <UiSelect
-      label="Region"
+      aria-label="Region"
       value={value}
       onChange={onChange}
       options={[]}
-      status={invalid ? {
-        type: "error"
-      } : undefined}
+      status={invalid ? "error" : undefined}
       emptyText="Nothing here"
       searchPlaceholder="Find"
-      isDisabled={false}
+      disabled={false}
     />
   );
 }
