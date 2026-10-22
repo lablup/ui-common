@@ -70,3 +70,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 --------------------------------------------------------------------------------
+
+The Board component's layout model and engine (src/components/Board/layout.ts
+and src/components/Board/engine.ts, shipped in dist/components/Board) are
+adapted from @cloudscape-design/board-components
+(https://github.com/cloudscape-design/board-components), with modifications
+by Lablup Inc. It is licensed under the Apache License, Version 2.0, the
+licence in this package's LICENSE file, and its NOTICE reads:
+
+--------------------------------------------------------------------------------
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+--------------------------------------------------------------------------------

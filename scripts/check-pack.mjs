@@ -291,6 +291,14 @@ const THIRD_PARTY_NOTICES = [
       "The above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.",
     ],
   },
+  {
+    what: "Cloudscape board-components code in the Board (src/components/Board/, dist/components/Board/)",
+    file: "NOTICE",
+    mustContain: [
+      "adapted from @cloudscape-design/board-components",
+      "Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.",
+    ],
+  },
 ];
 
 for (const { what, file, mustContain } of THIRD_PARTY_NOTICES) {

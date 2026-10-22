@@ -120,6 +120,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **NOTICE credits Cloudscape's board-components.** `@cloudscape-design/board-components` (Apache-2.0), whose
+  layout model and engine the Board's `layout.ts` and `engine.ts` adapt, and
+  carries its NOTICE; both files name it and its copyright in their headers.
+  `check:pack` asserts the packed NOTICE keeps it.
+
 - **`upgrade --from 0.1` writes `Selector` for the Form.Item wrapper.** The
   0.1 `Select` → `Selector` step still produced Astryx's own props, which the
   wrapper no longer takes: it set `isLabelHidden` and `label` from
