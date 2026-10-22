@@ -19,7 +19,7 @@ import {
   Text,
   VStack,
 } from "@lablup/ui-common";
-import { Drawer, DrawerHeader } from "@lablup/ui-common/lab";
+import { Drawer, DrawerHeader, type DrawerProps } from "@lablup/ui-common/lab";
 
 export interface DetailItem {
   id: string;
@@ -30,9 +30,16 @@ export interface DetailItem {
   description?: string;
 }
 
-export interface DetailDrawerProps {
+/**
+ * Drawer's props, less the ones the item owns: whether it is open and the
+ * body. `label` defaults to the item's name.
+ */
+export interface DetailDrawerProps extends Omit<
+  DrawerProps,
+  "isOpen" | "children" | "label"
+> {
   item: DetailItem | null;
-  onOpenChange: (isOpen: boolean) => void;
+  label?: string;
   onEdit: (item: DetailItem) => void;
   onDelete: (item: DetailItem) => void;
 }
@@ -42,14 +49,17 @@ export function DetailDrawer({
   onOpenChange,
   onEdit,
   onDelete,
+  label,
+  ...drawerProps
 }: DetailDrawerProps) {
   return (
     <Drawer
-      isOpen={item !== null}
-      onOpenChange={onOpenChange}
-      label={item ? `${item.name} details` : "Details"}
       side="end"
       width={480}
+      {...drawerProps}
+      isOpen={item !== null}
+      onOpenChange={onOpenChange}
+      label={label ?? (item ? `${item.name} details` : "Details")}
     >
       {item && (
         <VStack gap={0}>

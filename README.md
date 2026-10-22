@@ -391,11 +391,11 @@ not a component, so code written against antd's form moves over by changing
 the import. The item shell renders on Astryx tokens.
 
 ```tsx
-import { Form } from "@lablup/ui-common/Form";
+import { Form, type FormInstance } from "@lablup/ui-common/Form";
 
-const [form] = Form.useForm();
+const formRef = useRef<FormInstance>(null);
 
-<Form form={form} layout="vertical" onFinish={save}>
+<Form ref={formRef} layout="vertical" onFinish={save}>
   <Form.Item name="name" label="Name" rules={[{ required: true }]}>
     <TextInput />
   </Form.Item>
