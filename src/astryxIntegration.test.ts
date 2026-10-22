@@ -8,6 +8,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import manifest from "../astryx.integration.mjs";
+import { wrapperDocFiles } from "../scripts/gen-wrapper-docs.mjs";
 
 const ROOT = join(__dirname, "..");
 
@@ -33,7 +34,7 @@ describe("astryx.integration.mjs", () => {
     expect(docs.length).toBeGreaterThan(0);
     const customs = JSON.parse(
       readFileSync(join(ROOT, "exports.customs.json"), "utf8"),
-    ) as Array<{ name: string; legacy?: unknown; wraps?: string }>;
+    ) as Array<{ name: string; source: string; legacy?: unknown; wraps?: string }>;
     for (const file of docs) {
       const name = file.replace(/\.doc\.mjs$/, "");
       const doc = (
@@ -52,7 +53,7 @@ describe("astryx.integration.mjs", () => {
   it("documents every non-legacy PascalCase custom, bar the allow-listed", () => {
     const customs = JSON.parse(
       readFileSync(join(ROOT, "exports.customs.json"), "utf8"),
-    ) as Array<{ name: string; legacy?: unknown; wraps?: string }>;
+    ) as Array<{ name: string; source: string; legacy?: unknown; wraps?: string }>;
     const documented = new Set(
       readdirSync(join(ROOT, "astryx", "components"))
         .filter((f) => f.endsWith(".doc.mjs"))
@@ -61,13 +62,14 @@ describe("astryx.integration.mjs", () => {
     // ComplexSelector shares its name with an Astryx core component. A doc of
     // that name makes `astryx component ComplexSelector` fail as provided by
     // multiple packages (and warns in `doctor integration components`) unless
-    // the doc sets `replaces`, which needs an @astryxdesign/cli peer we decline.
-    // Astryx's own doc already describes the same API. The Form.Item wrappers
-    // ("wraps") share Astryx's names too, but not its API: until #75 gives
-    // them docs of their own, the CLI still shows Astryx's.
+    // the doc sets `replaces`. Astryx's own doc already describes the same API,
+    // as it does for a same-API wrapper (Popover). The Form.Item wrappers change
+    // the API, so their docs set `replaces` (scripts/gen-wrapper-docs.mjs).
     const undocumented = new Set(["ComplexSelector"]);
+    const sameApiWrapper = (c: { source: string; wraps?: string }) =>
+      c.wraps !== undefined && !c.source.startsWith("formControls/");
     const missing = customs
-      .filter((c) => !c.legacy && !c.wraps && /^[A-Z]/.test(c.name))
+      .filter((c) => !c.legacy && !sameApiWrapper(c) && /^[A-Z]/.test(c.name))
       .map((c) => c.name)
       .filter((name) => !documented.has(name) && !undocumented.has(name));
     expect(missing).toEqual([]);
@@ -75,6 +77,16 @@ describe("astryx.integration.mjs", () => {
       expect(documented.has(name), `${name} is allow-listed but documented`).toBe(
         false,
       );
+    }
+  });
+
+  it("has the Form.Item wrappers' docs that gen-wrapper-docs writes", async () => {
+    const files = await wrapperDocFiles();
+    for (const [path, text] of Object.entries(files)) {
+      expect(
+        readFileSync(join(ROOT, path), "utf8"),
+        `${path} is stale: run node scripts/gen-wrapper-docs.mjs`,
+      ).toBe(text);
     }
   });
 });

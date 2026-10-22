@@ -107,9 +107,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   instead. `ui-common astryx template …` still runs Astryx's command.
 - The ui-common agent block lists the templates.
 - `@lablup/ui-common` declares an optional `@astryxdesign/cli` peer
-  (`>=0.6.6`): an Astryx CLI before 0.6.6 does not know a template's
-  `keywords` and would drop the templates. A project without the CLI is not
+  (`>=0.6.7`): an Astryx CLI before 0.6.6 does not know a template's
+  `keywords` and would drop the templates, and one before 0.6.7 does not let
+  a component doc replace Astryx's. A project without the CLI is not
   affected.
+- **`ui-common component` describes the Form.Item wrappers (#75).**
+  `TextInput`, `Selector`, `Switch` and the other wrapped controls showed
+  Astryx's page, with `label`, `isDisabled` and `status: {type, message}`.
+  Their docs now replace Astryx's: no field chrome, `disabled`, `status`,
+  `defaultValue`, naming by `aria-label`, the wrappers' defaults, and
+  `Form.Item` examples. `TagsInput` has a page of its own.
 
 ### Fixed
 
