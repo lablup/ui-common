@@ -1,3 +1,5 @@
+// Portions adapted from @cloudscape-design/board-components (Apache-2.0),
+// Copyright Amazon.com, Inc. or its affiliates; modified by Lablup Inc. See NOTICE.
 /**
  * The board's layout model.
  *

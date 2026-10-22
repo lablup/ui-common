@@ -1,3 +1,5 @@
+// Portions adapted from @cloudscape-design/board-components (Apache-2.0),
+// Copyright Amazon.com, Inc. or its affiliates; modified by Lablup Inc. See NOTICE.
 /**
  * The board's layout engine: what the rest of the board does while one item
  * moves, resizes or leaves.
@@ -14,9 +16,8 @@
  * item in the direction of the move) is a conflict: nothing else moves, and
  * the step must not be committed.
  *
- * This follows the engine of `@cloudscape-design/board-components`
- * (Apache-2.0), reimplemented here, so a board that moved from it behaves
- * the same.
+ * This is adapted from the engine of `@cloudscape-design/board-components`,
+ * so a board that moved from it behaves the same.
  */
 import { compareLayoutItems, type GridLayout, type GridLayoutItem } from "./layout";
 
