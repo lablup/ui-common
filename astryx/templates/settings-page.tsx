@@ -8,7 +8,7 @@
  * Presentation only. `saved` and `save` stand in for the app's settings
  * query and mutation.
  */
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
   Button,
   Card,
@@ -21,6 +21,7 @@ import {
   Switch,
   Text,
   VStack,
+  type FormInstance,
 } from "@lablup/ui-common";
 
 interface SettingsValues {
@@ -65,7 +66,7 @@ function SettingsGroup({
 }
 
 export default function SettingsPage() {
-  const [form] = Form.useForm<SettingsValues>();
+  const formRef = useRef<FormInstance<SettingsValues>>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   return (
@@ -73,7 +74,7 @@ export default function SettingsPage() {
       <VStack gap={4}>
         <PageHeader title="Settings" description="Preferences for every user." />
         <Form<SettingsValues>
-          form={form}
+          ref={formRef}
           layout="vertical"
           initialValues={saved}
           onValuesChange={() => setIsDirty(true)}
@@ -132,7 +133,7 @@ export default function SettingsPage() {
                 variant="secondary"
                 isDisabled={!isDirty}
                 onClick={() => {
-                  form.resetFields();
+                  formRef.current?.resetFields();
                   setIsDirty(false);
                 }}
               />

@@ -6,7 +6,14 @@
  * actions, use the detail-drawer template instead.
  */
 import { useState } from "react";
-import { Button, MetadataList, MetadataListItem, Modal, Text } from "@lablup/ui-common";
+import {
+  Button,
+  MetadataList,
+  MetadataListItem,
+  Modal,
+  Text,
+  type ModalProps,
+} from "@lablup/ui-common";
 
 export interface InfoRecord {
   name: string;
@@ -16,20 +23,21 @@ export interface InfoRecord {
   description?: string;
 }
 
-export interface InfoModalProps {
+/** Modal's props, less the ones the record owns: whether it is open and the body. */
+export interface InfoModalProps extends Omit<ModalProps, "isOpen" | "children"> {
   record: InfoRecord | null;
-  onOpenChange: (isOpen: boolean) => void;
 }
 
-export function InfoModal({ record, onOpenChange }: InfoModalProps) {
+export function InfoModal({ record, onOpenChange, ...modalProps }: InfoModalProps) {
   return (
     <Modal
-      isOpen={record !== null}
-      onOpenChange={onOpenChange}
       title={record?.name ?? "Details"}
       footer={
         <Button label="Close" variant="secondary" onClick={() => onOpenChange(false)} />
       }
+      {...modalProps}
+      isOpen={record !== null}
+      onOpenChange={onOpenChange}
     >
       {record && (
         <MetadataList columns="single">

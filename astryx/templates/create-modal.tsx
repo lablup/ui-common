@@ -10,8 +10,17 @@
  *
  * The controls take no label: each Form.Item's label names its control.
  */
-import { useState } from "react";
-import { Button, Form, Modal, Selector, TextArea, TextInput } from "@lablup/ui-common";
+import { useRef, useState } from "react";
+import {
+  Button,
+  Form,
+  Modal,
+  Selector,
+  TextArea,
+  TextInput,
+  type FormInstance,
+  type ModalProps,
+} from "@lablup/ui-common";
 import { Plus } from "lucide-react";
 
 interface CreateValues {
@@ -30,30 +39,36 @@ async function create(values: CreateValues): Promise<void> {
   void values;
 }
 
-export interface CreateModalProps {
-  isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+/** Modal's props, less the ones the form owns: the body and the submit. */
+export interface CreateModalProps extends Omit<
+  ModalProps,
+  "children" | "onAction" | "footer"
+> {
   onCreated?: () => void;
 }
 
-export function CreateModal({ isOpen, onOpenChange, onCreated }: CreateModalProps) {
-  const [form] = Form.useForm<CreateValues>();
+export function CreateModal({
+  onOpenChange,
+  onCreated,
+  ...modalProps
+}: CreateModalProps) {
+  const formRef = useRef<FormInstance<CreateValues>>(null);
   return (
     <Modal
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
       title="Create item"
       actionLabel="Create"
       unmountOnClose
+      {...modalProps}
+      onOpenChange={onOpenChange}
       onAction={async () => {
-        const values = await form.validateFields().catch(() => null);
+        const values = await formRef.current?.validateFields().catch(() => null);
         if (!values) return;
         await create(values);
         onCreated?.();
         onOpenChange(false);
       }}
     >
-      <Form form={form} layout="vertical" initialValues={{ type: "standard" }}>
+      <Form ref={formRef} layout="vertical" initialValues={{ type: "standard" }}>
         <Form.Item
           name="name"
           label="Name"
