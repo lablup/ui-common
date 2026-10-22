@@ -116,7 +116,10 @@
     "subpath": "Selector",
     "wraps": "@astryxdesign/core/Selector"
   },
-  { "name": "Skeleton composites", "source": "components/Skeleton/index.ts" },
+  { "name": "SkeletonCard", "source": "components/Skeleton/SkeletonCard.tsx" },
+  { "name": "SkeletonChart", "source": "components/Skeleton/SkeletonChart.tsx" },
+  { "name": "SkeletonRow", "source": "components/Skeleton/SkeletonRow.tsx" },
+  { "name": "SkeletonText", "source": "components/Skeleton/SkeletonText.tsx" },
   {
     "name": "Slider",
     "source": "formControls/Slider/index.ts",

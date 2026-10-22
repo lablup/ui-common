@@ -10,6 +10,10 @@ export default {
   import: "@lablup/ui-common",
   category: "Input",
   keywords: [
+    "paged select",
+    "paged selector",
+    "select with pagination",
+    "paginated select",
     "select",
     "selector",
     "infinite scroll",
@@ -21,7 +25,7 @@ export default {
     "multi select",
   ],
   description:
-    "A searchable selector, single or multiple, over options loaded a page at a time: scrolling the panel near its end calls onEndReached, and search is reported per keystroke for a server-side query. Built on ComplexSelector; the panel is drawn like Selector's.",
+    "A paged select: a searchable selector, single or multiple, over options loaded a page at a time: scrolling the panel near its end calls onEndReached, and search is reported per keystroke for a server-side query. Built on ComplexSelector; the panel is drawn like Selector's.",
   props: [
     {
       name: "label",

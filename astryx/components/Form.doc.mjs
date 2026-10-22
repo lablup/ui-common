@@ -26,7 +26,8 @@ export default {
     {
       name: "form",
       type: "FormInstance",
-      description: "The instance from Form.useForm(); one is created when omitted.",
+      description:
+        "The instance from Form.useForm(); one is created when omitted. Prefer a ref: useRef<FormInstance>(null) on <Form ref>, which hands back the same instance.",
     },
     {
       name: "initialValues",
@@ -107,7 +108,7 @@ export default {
   examples: [
     {
       label: "A validated form",
-      code: 'import { Form } from "@lablup/ui-common/Form";\n\nconst [form] = Form.useForm();\n\n<Form form={form} layout="vertical" onFinish={save}>\n  <Form.Item name="name" label="Name" rules={[{ required: true }]}>\n    <TextInput />\n  </Form.Item>\n</Form>',
+      code: 'import { Form, type FormInstance } from "@lablup/ui-common/Form";\n\nconst formRef = useRef<FormInstance>(null);\n\n<Form ref={formRef} layout="vertical" onFinish={save}>\n  <Form.Item name="name" label="Name" rules={[{ required: true }]}>\n    <TextInput />\n  </Form.Item>\n</Form>',
     },
   ],
 };

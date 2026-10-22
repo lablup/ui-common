@@ -94,6 +94,20 @@ jobs:
           pnpm add "$LIB"
           pnpm add --save-dev "$CLI"
 
+      # A scaffolded template is consumer code: it has to compile against the
+      # packed package with only what `ui-common template` says to install.
+      # The next step type-checks src/templates with the rest of the fixture.
+      - name: Scaffold every ui-common template into the fixture
+        working-directory: fixture
+        run: |
+          UIC=node_modules/.bin/ui-common
+          for T in $($UIC template --list --json | jq -r '.data.templates[].name'); do
+            $UIC template "$T" "src/templates/$T" --json \
+              | jq -r '.data.missingDependencies[] | if .range then "\(.name)@\(.range)" else .name end'
+          done | sort -u > "$RUNNER_TEMP/template-deps"
+          echo "Installing what the templates need:" $(cat "$RUNNER_TEMP/template-deps")
+          if [ -s "$RUNNER_TEMP/template-deps" ]; then pnpm add $(cat "$RUNNER_TEMP/template-deps"); fi
+
       - name: Type-check and build the fixture against the packed artifact
         working-directory: fixture
         run: |

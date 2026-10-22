@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { astryxBin, binInvocation, findProjectDir } from "./paths.mjs";
 import { createShadow, needsShadow } from "./shadow.mjs";
 import { exclusionNotes, rewriteOutput } from "./rewrite.mjs";
+import { filterTemplates, positionalsOf, searchArgs } from "./templates.mjs";
 
 const UI_COMMON_MARKER = "<!-- UI-COMMON:START -->";
 const AGENT_DOC_FILES = ["AGENTS.md", "CLAUDE.md", ".claude/CLAUDE.md", ".cursorrules"];
@@ -125,11 +126,16 @@ export function rewriteRun({ stdout, stderr }, { args, cwd, invocation }) {
  */
 export async function passthrough(args, { raw = false } = {}) {
   const cwd = process.cwd();
+  const command = positionalsOf(args)[0];
+  // A search runs with a limit large enough that dropping Astryx's templates
+  // (templates.mjs) still leaves the page the user asked for.
+  const search = !raw && command === "search" ? searchArgs(args) : null;
+  const runArgs = search ? search.args : args;
   let result;
-  if (needsShadow(args, cwd)) {
+  if (needsShadow(runArgs, cwd)) {
     const shadow = createShadow(cwd);
     try {
-      result = await runAstryx(args, { cwd: shadow.dir });
+      result = await runAstryx(runArgs, { cwd: shadow.dir });
     } finally {
       shadow.cleanup();
     }
@@ -138,7 +144,7 @@ export async function passthrough(args, { raw = false } = {}) {
       result[key] = result[key].split(shadow.dir).join(shadow.projectDir);
     }
   } else {
-    result = await runAstryx(args, { cwd });
+    result = await runAstryx(runArgs, { cwd });
   }
   if (raw) {
     process.stdout.write(result.stdout);
@@ -146,6 +152,12 @@ export async function passthrough(args, { raw = false } = {}) {
     return result.code;
   }
   const invocation = binInvocation(findProjectDir(cwd) ?? cwd);
+  if (result.code === 0 && (command === "search" || command === "build")) {
+    result.stdout = await filterTemplates(command, args, result.stdout, {
+      invocation,
+      limit: search?.limit ?? 20,
+    });
+  }
   const { stdout, stderr } = rewriteRun(result, { args, cwd, invocation });
   process.stdout.write(stdout);
   process.stderr.write(stderr);

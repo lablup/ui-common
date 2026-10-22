@@ -391,11 +391,11 @@ not a component, so code written against antd's form moves over by changing
 the import. The item shell renders on Astryx tokens.
 
 ```tsx
-import { Form } from "@lablup/ui-common/Form";
+import { Form, type FormInstance } from "@lablup/ui-common/Form";
 
-const [form] = Form.useForm();
+const formRef = useRef<FormInstance>(null);
 
-<Form form={form} layout="vertical" onFinish={save}>
+<Form ref={formRef} layout="vertical" onFinish={save}>
   <Form.Item name="name" label="Name" rules={[{ required: true }]}>
     <TextInput />
   </Form.Item>
@@ -604,7 +604,9 @@ Then:
 
 ```
 pnpm exec ui-common component Button     # any Astryx command: component, search,
-pnpm exec ui-common search "date picker" # docs, build, template, theme, hook, ...
+pnpm exec ui-common search "date picker" # docs, build, theme, hook, ...
+pnpm exec ui-common build "list page with a create modal"
+pnpm exec ui-common template list-page src/pages/items
 pnpm exec ui-common agents --write AGENTS.md
 pnpm exec ui-common upgrade --from 0.1 --dry-run
 pnpm exec ui-common adopt --from astryx --dry-run   # an app on @astryxdesign/*
@@ -614,6 +616,7 @@ pnpm exec ui-common doctor
 | Command                                                                                                       | What it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ui-common <astryx command> …`                                                                                | Runs the pinned Astryx CLI and rewrites its output to ui-common: `@astryxdesign/core/<X>` is `@lablup/ui-common/<X>`, `@astryxdesign/lab` is `@lablup/ui-common/lab`, `@astryxdesign/theme-neutral` is `@lablup/ui-common/theme/neutral`, and commands read `ui-common …`. A name ui-common hides gets a note ("Use Modal, not Dialog"). `--json` output stays valid JSON; the note goes to stderr. The exit code is Astryx's.                                                                                                                                                                     |
+| `ui-common template [<name> [<path>]] [--list] [--type page\|block] [--overwrite] [--json]`                   | Lists, prints or writes one of ui-common's templates (below). A page is written as `<path>/page.tsx`, a block as `<path>/<name>.tsx`, and the command names any package the template needs that the project does not list (`lucide-react`, and `@astryxdesign/lab` for `detail-drawer`). Astryx's own templates are refused.                                                                                                                                                                                                                                                                       |
 | `ui-common astryx …`                                                                                          | The same, without rewriting.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `ui-common agents [--write <file>] [--check] [--skill [--dir <dir>]]`                                         | Prints the agent block: Astryx's `init --features agents` block, rewritten, plus ui-common's rules. It sits between `<!-- UI-COMMON:START -->` and `<!-- UI-COMMON:END -->`, which `astryx init` never touches. `--write` replaces the block in place and keeps the rest of the file; `--check` exits 1 when it is stale. `--skill` installs the `ui-common-adopt` agent skill (Claude Code format) into `.claude/skills/`, or `--dir` (e.g. `~/.claude/skills` for every project); the block then names it.                                                                                       |
 | `ui-common adopt --from astryx [--dry-run \| --check] [--diff] [--report <path>] [--ignore <path>]… [paths…]` | Moves an app that imports `@astryxdesign/*` onto ui-common: rewrites every core, lab and theme-neutral specifier (scripts and stylesheets), renames `Dialog` / `AlertDialog` to `Modal` / `AlertModal`, adds `ui-common` to the layer order, edits `package.json` (every member of a workspace), and writes `ui-common-adopt-report.md` in the `upgrade` report's format. `--check` writes nothing and exits 1 while anything is left, for CI. `upgrade --from astryx` is the same command. See [docs/adopting-from-astryx.md](docs/adopting-from-astryx.md).                                      |
@@ -634,12 +637,36 @@ ui-common is also an Astryx CLI integration: `ui-common docs ui-common` (or
 `astryx docs ui-common`) explains the layer, and `ui-common component Modal`
 documents ui-common's own components.
 
+### Templates
+
+ui-common ships its own page and block templates, written against
+`@lablup/ui-common`, React and lucide-react only. They hold presentation:
+data, state and callbacks are props or placeholders, and labels are English
+strings to replace.
+
+| Template          | Kind  | What it is                                                                              |
+| ----------------- | ----- | --------------------------------------------------------------------------------------- |
+| `list-page`       | page  | PageHeader with refresh and create, PowerSearch, a server-paged DataGrid with selection |
+| `tabbed-page`     | page  | A card of tabs with counts, one list or settings view per tab                           |
+| `settings-page`   | page  | Grouped settings in cards, saved together, with Reset                                   |
+| `dashboard-board` | page  | A Board of movable, resizable panels                                                    |
+| `list-toolbar`    | block | Scope segment and filter; selection count, bulk actions and refresh                     |
+| `create-modal`    | block | A Modal around a validated Form                                                         |
+| `detail-drawer`   | block | The lab Drawer with DrawerHeader, a MetadataList and footer actions                     |
+| `info-modal`      | block | A read-only Modal of one record's facts                                                 |
+
+Astryx's own templates import `@astryxdesign/*` and Heroicons directly, so
+the CLI does not offer them: `template` refuses them, `search` leaves them
+out, and `build` recommends ui-common's templates in their place.
+`ui-common astryx template …` still runs Astryx's command as is.
+
 ## Development
 
 ```
 pnpm install
 pnpm run verify      # typecheck, lint, format, boundary, theme, test, build, pack, integration
 pnpm run test:watch
+pnpm uic template --list         # this checkout's CLI, run against the repository
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/astryx.md](docs/astryx.md).

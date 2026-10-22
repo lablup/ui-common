@@ -307,6 +307,15 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     css: true,
+    // The page templates (astryx/templates) import the package by name, as a
+    // consumer's copy will; their tests resolve it to the source.
+    alias: [
+      {
+        find: /^@lablup\/ui-common\/lab$/,
+        replacement: resolve(root, "src/astryx/lab.ts"),
+      },
+      { find: /^@lablup\/ui-common$/, replacement: resolve(root, "src/index.ts") },
+    ],
     // The CLI package's tests (packages/cli/test) run here too, under the same
     // setup. Its upgrade and adopt fixtures are consumer source the codemods run on, not
     // tests; agent worktrees are other checkouts of this repository.

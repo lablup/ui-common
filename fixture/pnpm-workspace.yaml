@@ -5,6 +5,13 @@
 # packages have a postinstall that only prints an `astryx init` nudge, and
 # pnpm refuses to install (ERR_PNPM_IGNORED_BUILDS) until each one is either
 # allowed or declined. Nothing needs to run, so both are declined.
+# CI scaffolds every ui-common template here, and the detail-drawer template
+# needs the @astryxdesign/lab peer. It is a canary build, which never ages out
+# of pnpm's release-age quarantine; a consumer using lab carries the same
+# exclusion (backend.ai-webui does).
+minimumReleaseAgeExclude:
+  - "@astryxdesign/lab"
+
 allowBuilds:
   # A dependency of @lablup/ui-common.
   "@astryxdesign/core": false

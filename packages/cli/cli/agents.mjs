@@ -26,6 +26,7 @@ import {
   uiCommonRoot,
 } from "./paths.mjs";
 import { rewriteOutput } from "./rewrite.mjs";
+import { templateIds } from "./templates.mjs";
 
 export const MARKER_START = "<!-- UI-COMMON:START -->";
 export const MARKER_END = "<!-- UI-COMMON:END -->";
@@ -105,6 +106,12 @@ function uiCommonSection({ version, astryxVersion, invocation, skill }) {
   if (components.length > 0) {
     lines.push(
       `- ui-common's own components: ${components.join(", ")}. \`${invocation} docs ui-common\` explains them.`,
+    );
+  }
+  const templates = templateIds();
+  if (templates.length > 0) {
+    lines.push(
+      `- Templates are ui-common's own: ${templates.join(", ")}. They import only @lablup/ui-common, react and lucide-react. Astryx's templates are not offered (they import @astryxdesign/* directly).`,
     );
   }
   lines.push(

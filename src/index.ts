@@ -1714,19 +1714,21 @@ export type {
   SelectorStatusType,
 } from "./formControls/Selector";
 
-// Skeleton composites
-export {
-  SkeletonCard,
-  SkeletonChart,
-  SkeletonRow,
-  SkeletonText,
-} from "./components/Skeleton";
-export type {
-  SkeletonCardProps,
-  SkeletonChartProps,
-  SkeletonRowProps,
-  SkeletonTextProps,
-} from "./components/Skeleton";
+// SkeletonCard
+export { SkeletonCard } from "./components/Skeleton/SkeletonCard";
+export type { SkeletonCardProps } from "./components/Skeleton/SkeletonCard";
+
+// SkeletonChart
+export { SkeletonChart } from "./components/Skeleton/SkeletonChart";
+export type { SkeletonChartProps } from "./components/Skeleton/SkeletonChart";
+
+// SkeletonRow
+export { SkeletonRow } from "./components/Skeleton/SkeletonRow";
+export type { SkeletonRowProps } from "./components/Skeleton/SkeletonRow";
+
+// SkeletonText
+export { SkeletonText } from "./components/Skeleton/SkeletonText";
+export type { SkeletonTextProps } from "./components/Skeleton/SkeletonText";
 
 // Slider: ui-common's Form.Item wrapper, in place of Astryx's.
 export { Slider } from "./formControls/Slider";
