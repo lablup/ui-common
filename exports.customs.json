@@ -23,6 +23,12 @@
   },
   { "name": "ColorPicker", "source": "components/ColorPicker/index.ts" },
   {
+    "name": "CommandPalette",
+    "source": "components/CommandPalette/index.ts",
+    "subpath": "CommandPalette",
+    "wraps": "@astryxdesign/core/CommandPalette"
+  },
+  {
     "name": "ComplexSelector",
     "source": "forks/ComplexSelector/index.ts",
     "subpath": "ComplexSelector",
