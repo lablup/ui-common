@@ -3,7 +3,7 @@ import { Button } from "@lablup/ui-common/Button";
 import type { TableColumn } from "@lablup/ui-common/Table";
 import { EmptyState } from "@lablup/ui-common/EmptyState";
 import { TabList } from "@lablup/ui-common/TabList";
-import { Drawer } from "@lablup/ui-common/lab";
+import { Drawer } from "@lablup/ui-common/Drawer";
 import { Selector } from "@lablup/ui-common/Selector";
 
 export interface Row {
@@ -66,7 +66,7 @@ export function DataTableWrapper({
         }
         onRowClick={(row) => setOpen(Boolean(row))}
       />
-      {/* TODO(ui-common-upgrade): lab Drawer renders no header: render the title, subtitle and footer inside children. */}
+      {/* TODO(ui-common-upgrade): Drawer renders no header: compose DrawerHeader (title and close button) and the footer inside children. */}
       {/* TODO(ui-common-upgrade): preventDismiss and onDismissAttempt: decline the close in onOpenChange. */}
       <Drawer isOpen={open} onOpenChange={isOpen => {
         if (!isOpen) {

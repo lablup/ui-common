@@ -46,7 +46,7 @@ export const docs = {
         },
         {
           type: "prose",
-          text: "The exception is a fixed copy of an Astryx component, carrying an upstream fix Astryx has not shipped yet. It keeps Astryx's name, props and import path, and replaces Astryx's in ui-common's exports: `ComplexSelector` (`@lablup/ui-common/ComplexSelector`) adds `hasClear` and `onClear`; lab's `Drawer` routes Escape through core's layer-dismissal stack, so a popover, selector or modal inside it closes first, and passes `aria-modal` through; lab's `Tour` keeps a step's spotlight under its callout in StrictMode (both at `@lablup/ui-common/lab`).",
+          text: "The exception is a fixed copy of an Astryx component, carrying an upstream fix Astryx has not shipped yet. It keeps Astryx's name, props and import path, and replaces Astryx's in ui-common's exports: `ComplexSelector` (`@lablup/ui-common/ComplexSelector`) adds `hasClear` and `onClear`; `Drawer` (`@lablup/ui-common/Drawer`) stays below ui-common's `Modal` and notification stack, opens a `Modal` inside a scrimmed drawer above it, and passes `aria-modal` through; lab's `Tour` (`@lablup/ui-common/lab`) keeps a step's spotlight under its callout in StrictMode.",
         },
         {
           type: "prose",

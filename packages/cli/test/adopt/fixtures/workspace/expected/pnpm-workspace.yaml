@@ -9,6 +9,3 @@ allowBuilds:
   esbuild: true
   "@astryxdesign/core": false
   "@astryxdesign/cli": false
-
-overrides:
-  "@astryxdesign/lab>@astryxdesign/core": "0.7.0"

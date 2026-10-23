@@ -1,5 +1,6 @@
 import { Button } from '@lablup/ui-common/Button';
-import { Drawer, Tour } from '@lablup/ui-common/lab';
+import { Tour } from '@lablup/ui-common/lab';
+import { Drawer } from '@lablup/ui-common/Drawer';
 import { useState } from 'react';
 
 export function Filters() {

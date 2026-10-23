@@ -6,7 +6,7 @@ Ran the codemods over 3 files under `.`; searched 3 files under the project root
 
 ## Action required
 
-- **Astryx moves from 0.6.2 to 0.7.0.** @lablup/ui-common 0.2.0 is built on Astryx 0.7.0. adopt ran Astryx's codemods for that span (`migrate-native-picker-to-presentation`, `migrate-deprecated-theme-surface`, `validate-data-token-ownership`, `migrate-field-input-styling`, `preserve-bottom-sheet-content-padding`, `rename-empty-search-results-text`); review what they changed (the `astryx:` transforms under Changed files), and read Astryx's release notes for what no codemod covers.
+- **Astryx moves from 0.6.2 to 0.7.3.** @lablup/ui-common 0.2.0 is built on Astryx 0.7.3. adopt ran Astryx's codemods for that span (`migrate-native-picker-to-presentation`, `migrate-deprecated-theme-surface`, `validate-data-token-ownership`, `migrate-field-input-styling`, `preserve-bottom-sheet-content-padding`, `rename-empty-search-results-text`, `migrate-list-edge-compensation-to-edge`); review what they changed (the `astryx:` transforms under Changed files), and read Astryx's release notes for what no codemod covers.
 
 ## Summary
 
@@ -33,7 +33,7 @@ Ran the codemods over 3 files under `.`; searched 3 files under the project root
 ## Changed files
 
 - `package.json`: +11 −2, package-json
-- `src/Filters.jsx`: +2 −2, specifiers
+- `src/Filters.jsx`: +3 −2, specifiers, drawer-from-lab
 - `src/styles.css`: +4 −3, specifiers, layer-order
 
 ## package.json
@@ -42,8 +42,8 @@ Ran the codemods over 3 files under `.`; searched 3 files under the project root
 - added @stylexjs/stylex ^0.19.0 to dependencies: the StyleX runtime @lablup/ui-common and Astryx share.
 - added @lablup/ui-common-cli 0.2.0 to devDependencies: the `ui-common` bin (`ui-common doctor`, `ui-common agents`, the Astryx CLI in @lablup/ui-common terms), released at the same version as @lablup/ui-common.
 - removed @astryxdesign/theme-neutral from dependencies: @lablup/ui-common depends on it and mirrors it as @lablup/ui-common/theme/neutral.
-- dependencies["@astryxdesign/lab"]: "^0.6.2-canary.c9fb1ad" → "0.7.0-canary.97a0d31", the version @lablup/ui-common 0.2.0 pins.
-- added overrides["@astryxdesign/lab"]["@astryxdesign/core"] = "0.7.0": @astryxdesign/lab peers on a core canary, and without it the lab components run on a second copy of @astryxdesign/core.
+- dependencies["@astryxdesign/lab"]: "^0.6.2-canary.c9fb1ad" → "0.7.3-canary.cac3d8d", the version @lablup/ui-common 0.2.0 pins.
+- added overrides["@astryxdesign/lab"]["@astryxdesign/core"] = "0.7.3": @astryxdesign/lab peers on a core canary, and without it the lab components run on a second copy of @astryxdesign/core.
 
 ## Manual review
 

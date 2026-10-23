@@ -3,7 +3,7 @@ import { useState } from "react";
 import { fn } from "storybook/test";
 
 import { Button } from "../../astryx/Button";
-import { CheckboxInput } from "../../forks/CheckboxInput";
+import { CheckboxInput } from "@astryxdesign/core/CheckboxInput";
 import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { overlayDocs, useOpenState } from "../../stories/helpers";
 

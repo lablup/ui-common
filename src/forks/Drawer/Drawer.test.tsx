@@ -1,9 +1,9 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/lab 0.7.0-canary.97a0d31, src/Drawer/Drawer.test.tsx
+// Forked from @astryxdesign/core 0.7.3, src/Drawer/Drawer.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
-// in the *.fork.test.tsx beside it. `DrawerHeader` is lab's own (not forked).
+// in the *.fork.test.tsx beside it. `DrawerHeader` is Astryx's own (not forked).
 // Changed (marked `ui-common:`): the non-modal tests, since this copy opens a
 // scrimless drawer with `show()` and a z-index instead of `showPopover()`.
 // Provenance and the drift guard: src/forks/provenance.json.
@@ -12,16 +12,26 @@
  * @file Drawer.test.tsx
  * @input Uses vitest, @testing-library/react, Drawer component
  * @output Unit tests for Drawer component behavior
- * @position Lab testing; validates Drawer.tsx implementation
+ * @position Core testing; validates Drawer.tsx implementation
  *
  * SYNC: When Drawer.tsx changes, update tests to match new behavior
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import { useState } from "react";
+import { createContext, createRef, use, useState } from "react";
+import * as stylex from "@stylexjs/stylex";
 import { Drawer } from "./Drawer";
-import { DrawerHeader } from "@astryxdesign/lab";
+import { DrawerHeader } from "@astryxdesign/core/Drawer";
+import { Button } from "@astryxdesign/core/Button";
+import { ButtonGroup } from "@astryxdesign/core/ButtonGroup";
+import { layerTextReset } from "@astryxdesign/core/Layer/layerTextReset.stylex";
+import { compiledStyles } from "../compiled";
+import * as compiled from "./Drawer.styles";
+
+// ui-common: core does not export layerStructureReset; the fork reuses its
+// compiled object (Drawer.styles.ts).
+const layerStructureReset = compiledStyles(compiled.layerStructureReset);
 
 // Mock dialog methods since they're not fully implemented in jsdom
 beforeEach(() => {
@@ -311,6 +321,252 @@ describe("Drawer", () => {
       fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
       expect(handleOpenChange).not.toHaveBeenCalled();
     });
+
+    it("hands a consumer onKeyDown the Escape press ahead of the shared stack", () => {
+      // The consumer handler sits on the dialog; the stack's one listener sits
+      // on the document. The press must reach the consumer first so its
+      // preventDefault (above) can still stand the stack down.
+      const callOrder: string[] = [];
+      render(
+        <Drawer
+          isOpen
+          onOpenChange={() => callOrder.push("dismiss")}
+          label="Details"
+          onKeyDown={(event) => callOrder.push(`consumer:${event.key}`)}
+        >
+          Content
+        </Drawer>,
+      );
+      fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+      expect(callOrder).toEqual(["consumer:Escape", "dismiss"]);
+    });
+  });
+
+  describe("API surface", () => {
+    // FR11: the root filters `open`, merges `xstyle`/`className`/`style`,
+    // forwards remaining unclaimed props, reaches the <dialog> through both
+    // ref forms, and composes the consumer onClick with scrim dismissal.
+    it("does not forward a native open prop to the dialog element", () => {
+      render(
+        <Drawer
+          isOpen={false}
+          onOpenChange={() => {}}
+          label="Details"
+          {...({ open: true } as Record<string, unknown>)}
+        >
+          Content
+        </Drawer>,
+      );
+      // isOpen controls the native state; a caller-passed `open` must not put
+      // the closed dialog into the open state behind the presence hook's back.
+      const dialog = screen.getByRole("dialog", { hidden: true });
+      expect(dialog).not.toHaveAttribute("open");
+    });
+
+    it("merges a consumer className with the theme target and StyleX classes", () => {
+      render(
+        <Drawer
+          isOpen
+          onOpenChange={() => {}}
+          label="Details"
+          className="inspector-panel"
+        >
+          Content
+        </Drawer>,
+      );
+      const dialog = screen.getByRole("dialog");
+      const classes = dialog.className.split(" ");
+      expect(classes).toContain("astryx-drawer");
+      expect(classes).toContain("inspector-panel");
+      // ui-common: upstream also reads the computed `position` here, which
+      // needs Astryx's stylesheet; jsdom has none in this repository.
+    });
+
+    // ui-common: skipped. It compiles an override with `stylex.create` at run
+    // time and reads the computed style, which needs the StyleX compiler and
+    // Astryx's stylesheet; this repository has neither in tests.
+    it.skip("merges a consumer xstyle after Drawer styles so the override wins", () => {
+      const overrides = stylex.create({ narrow: { maxWidth: "240px" } });
+      render(
+        <Drawer
+          isOpen
+          onOpenChange={() => {}}
+          label="Details"
+          xstyle={overrides.narrow}
+        >
+          Content
+        </Drawer>,
+      );
+      const dialog = screen.getByRole("dialog");
+      expect(getComputedStyle(dialog).maxWidth).toBe("240px");
+      expect(getComputedStyle(dialog).position).toBe("fixed");
+      expect(dialog.className).toContain("astryx-drawer");
+    });
+
+    it("merges a consumer style with Drawer inline styles, consumer last", () => {
+      render(
+        <Drawer isOpen onOpenChange={() => {}} label="Details" style={{ zIndex: 30 }}>
+          Content
+        </Drawer>,
+      );
+      const dialog = screen.getByRole("dialog");
+      expect(dialog.style.zIndex).toBe("30");
+      // The width budget travels as a StyleX dynamic inline variable and must
+      // survive the merge rather than be replaced by the consumer style.
+      expect(dialog.getAttribute("style")).toContain("400px");
+    });
+
+    it("forwards a data attribute and an ARIA attribute to the root dialog", () => {
+      render(
+        <Drawer
+          isOpen
+          onOpenChange={() => {}}
+          label="Details"
+          data-tracking-id="inspector"
+          aria-describedby="drawer-hint"
+        >
+          Content
+        </Drawer>,
+      );
+      const dialog = screen.getByRole("dialog");
+      expect(dialog).toHaveAttribute("data-tracking-id", "inspector");
+      expect(dialog).toHaveAttribute("aria-describedby", "drawer-hint");
+    });
+
+    it("reaches the dialog element through an object ref", () => {
+      const ref = createRef<HTMLDialogElement>();
+      render(
+        <Drawer isOpen onOpenChange={() => {}} label="Details" ref={ref}>
+          Content
+        </Drawer>,
+      );
+      expect(ref.current).toBe(screen.getByRole("dialog"));
+    });
+
+    it("reaches the dialog element through a callback ref", () => {
+      let current: HTMLDialogElement | null = null;
+      render(
+        <Drawer
+          isOpen
+          onOpenChange={() => {}}
+          label="Details"
+          ref={(node) => {
+            current = node;
+          }}
+        >
+          Content
+        </Drawer>,
+      );
+      expect(current).toBe(screen.getByRole("dialog"));
+    });
+
+    it("runs a consumer onClick before scrim dismissal on a backdrop click", () => {
+      const callOrder: string[] = [];
+      const handleClick = vi.fn(() => callOrder.push("consumer"));
+      const handleOpenChange = vi.fn(() => callOrder.push("dismiss"));
+      render(
+        <Drawer
+          isOpen
+          onOpenChange={handleOpenChange}
+          label="Details"
+          onClick={handleClick}
+        >
+          Content
+        </Drawer>,
+      );
+      fireEvent.click(screen.getByRole("dialog"));
+      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(handleOpenChange).toHaveBeenCalledWith(false);
+      expect(callOrder).toEqual(["consumer", "dismiss"]);
+    });
+
+    it("lets a consumer onClick preventDefault cancel the scrim dismissal", () => {
+      const handleOpenChange = vi.fn();
+      render(
+        <Drawer
+          isOpen
+          onOpenChange={handleOpenChange}
+          label="Details"
+          onClick={(event) => event.preventDefault()}
+        >
+          Content
+        </Drawer>,
+      );
+      fireEvent.click(screen.getByRole("dialog"));
+      expect(handleOpenChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("layer content boundary", () => {
+    // Drawer's content root uses the private layer content boundary, like
+    // Dialog's: surface-scoped ancestor membership stops at the drawer while
+    // ordinary application contexts keep flowing (layerScopedContext.test.tsx
+    // proves the same for the other content roots).
+    // ui-common: skipped. The fork does not wrap its content in core's
+    // private LayerContentBoundary (Drawer.tsx header), so a surface-scoped
+    // context such as a disabled ButtonGroup's still reaches drawer content,
+    // as it did with lab's Drawer.
+    it.skip("ends ancestor group membership while explicit and inner-group state hold", () => {
+      const press = vi.fn();
+      render(
+        <ButtonGroup label="Outer" isDisabled>
+          <Button label="Outer member" />
+          <Drawer isOpen onOpenChange={() => {}} label="Details">
+            <Button label="Independent" onClick={press} />
+            <Button label="Explicit disabled" isDisabled />
+            <ButtonGroup label="Inner" isDisabled>
+              <Button label="Inner member" />
+            </ButtonGroup>
+          </Drawer>
+        </ButtonGroup>,
+      );
+      expect(screen.getByRole("button", { name: "Outer member" })).toBeDisabled();
+      const independent = screen.getByRole("button", { name: "Independent" });
+      expect(independent).toBeEnabled();
+      fireEvent.click(independent);
+      expect(press).toHaveBeenCalledOnce();
+      expect(screen.getByRole("button", { name: "Explicit disabled" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Inner member" })).toBeDisabled();
+    });
+
+    it("keeps unrelated application contexts flowing into drawer content", () => {
+      const ServiceContext = createContext("fallback");
+      ServiceContext.displayName = "ServiceContext";
+      function ReadService() {
+        return <output>{use(ServiceContext)}</output>;
+      }
+      render(
+        <ServiceContext value="live service">
+          <Drawer isOpen onOpenChange={() => {}} label="Details">
+            <ReadService />
+          </Drawer>
+        </ServiceContext>,
+      );
+      expect(screen.getByText("live service")).toBeInTheDocument();
+    });
+
+    it("applies the shared text baseline and structural reset on the root dialog", () => {
+      render(
+        <Drawer isOpen onOpenChange={() => {}} label="Details">
+          Content
+        </Drawer>,
+      );
+      const dialog = screen.getByRole("dialog");
+      const classes = dialog.className.split(" ");
+      // The shared resets, not a local copy, supply the layer baseline.
+      for (const cls of (stylex.props(layerTextReset.reset).className ?? "")
+        .split(" ")
+        .filter(Boolean)) {
+        expect(classes).toContain(cls);
+      }
+      for (const cls of (stylex.props(layerStructureReset.reset).className ?? "")
+        .split(" ")
+        .filter(Boolean)) {
+        expect(classes).toContain(cls);
+      }
+      // ui-common: upstream also reads the computed `text-align` here, which
+      // needs Astryx's stylesheet; the classes above are the contract.
+    });
   });
 
   describe("scrim click", () => {
@@ -564,15 +820,33 @@ describe("Drawer", () => {
       expect(style).toContain("min(400px, calc(100dvw - 56px))");
     });
 
-    it("covers the full viewport on mobile with isFullWidthOnMobile", () => {
+    it("covers the full viewport on mobile with experimental.isFullWidthOnMobile", () => {
       render(
-        <Drawer isOpen onOpenChange={() => {}} label="Details" isFullWidthOnMobile>
+        <Drawer
+          isOpen
+          onOpenChange={() => {}}
+          label="Details"
+          experimental={{ isFullWidthOnMobile: true }}
+        >
+          Content
+        </Drawer>,
+      );
+      const dialog = screen.getByRole("dialog");
+      const style = dialog.getAttribute("style") ?? "";
+      expect(style).toContain("100dvw");
+      expect(style).not.toContain("100dvw - 56px");
+      // The experimental object is a prop namespace, never a DOM attribute.
+      expect(dialog).not.toHaveAttribute("experimental");
+    });
+
+    it("keeps the 56px page reveal when experimental omits the option", () => {
+      render(
+        <Drawer isOpen onOpenChange={() => {}} label="Details" experimental={{}}>
           Content
         </Drawer>,
       );
       const style = screen.getByRole("dialog").getAttribute("style") ?? "";
-      expect(style).toContain("100dvw");
-      expect(style).not.toContain("100dvw - 56px");
+      expect(style).toContain("min(400px, calc(100dvw - 56px))");
     });
   });
 

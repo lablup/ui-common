@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.0, src/ComplexSelector/ComplexSelector.tsx
+// Forked from @astryxdesign/core 0.7.3, src/ComplexSelector/ComplexSelector.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -77,7 +77,7 @@ import * as compiled from "./ComplexSelector.styles";
 const styles = compiledStyles(compiled.styles);
 const interactionOverlayStyles = compiledStyles(compiled.interactionOverlayStyles);
 
-// @astryxdesign/core 0.7.0 src/hooks/useResolvedRequired.ts, which core does
+// @astryxdesign/core 0.7.3 src/hooks/useResolvedRequired.ts, which core does
 // not export: a field under `FormLayout defaultOptionality="required"` is
 // required unless it opts out.
 function useResolvedRequired({
@@ -100,7 +100,7 @@ const CONTAINER_WITHOUT_FIELD_MESSAGE =
   "`containerXstyle`/`containerClassName`/`containerStyle` have no effect here because no Field box renders " +
   "(inside InputGroup or a `horizontal-labels` FormLayout). Inside InputGroup, style the InputGroup.";
 
-// @astryxdesign/core 0.7.0 src/Field/fieldParts.ts `useFieldInputStyling`,
+// @astryxdesign/core 0.7.3 src/Field/fieldParts.ts `useFieldInputStyling`,
 // which core does not export.
 function useFieldInputStyling<R extends object>(
   component: string,
@@ -152,7 +152,7 @@ function useFieldInputStyling<R extends object>(
   };
 }
 
-export type ComplexSelectorVariant = "input" | "ghost";
+export type ComplexSelectorVariant = "input" | "secondary" | "ghost";
 
 export type ComplexSelectorSize = "sm" | "md" | "lg";
 
@@ -296,17 +296,20 @@ export interface ComplexSelectorProps<Value> extends Omit<
   status?: ComplexSelectorStatus;
   /**
    * How the status message is placed relative to the input.
-   * - 'attached': message overlaps directly below the input (bordered treatment; detached when variant is ghost)
+   * - 'attached': message overlaps directly below the input (bordered treatment; detached when variant is secondary or ghost)
    * - 'detached': message floats below as a separate element with spacing
    * - 'tooltip': no message box; the status icon becomes a focusable info-tip button that reveals the message on hover, keyboard focus, or tap
-   * @default 'attached'
+   * @default 'attached' for input selectors; 'detached' for secondary and ghost selectors
    */
   statusVariant?: FieldStatusVariant;
   /** Tooltip text displayed next to the label. */
   labelTooltip?: string;
   /** Trigger and field size. */
   size?: ComplexSelectorSize;
-  /** Visual trigger style. Ghost matches toolbar buttons. */
+  /**
+   * Visual trigger style. Secondary matches secondary buttons; ghost matches
+   * ghost buttons.
+   */
   variant?: ComplexSelectorVariant;
   /** Icon displayed at the start of the trigger. */
   startIcon?: ReactNode | IconType;
@@ -454,7 +457,7 @@ export function ComplexSelector<Value>({
   const isEffectivelyRequired = useResolvedRequired({ isRequired, isOptional });
   const placeholder = placeholderFromProps ?? t("@astryx.selector.placeholder");
   const effectiveStatusVariant =
-    variant === "ghost" && statusVariant === "attached" ? "detached" : statusVariant;
+    variant !== "input" && statusVariant === "attached" ? "detached" : statusVariant;
 
   const generatedTriggerId = useId();
   // A caller's `id` lands on the trigger, so the label wiring must use it.
@@ -534,10 +537,24 @@ export function ComplexSelector<Value>({
   // has already used to open the popup.
   const handleTriggerButtonKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
     handleTriggerKeyDown(event);
-    onKeyDownProp?.(event);
+    // A disabled trigger keeps its tab stop but invokes no callback
+    // (`spec:AST-085` FR2).
+    if (!isDisabled) {
+      onKeyDownProp?.(event);
+    }
+  };
+  // A press on a disabled control reaches no handler, the component's or an
+  // ancestor's, as with a natively disabled button (`spec:AST-085` FR2).
+  const swallowDisabledPress = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
   };
   const handleControlBoxClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
+      if (isDisabled) {
+        event.stopPropagation();
+        return;
+      }
       if (triggerRef.current?.contains(event.target as Node)) {
         return;
       }
@@ -545,7 +562,7 @@ export function ComplexSelector<Value>({
       // press on the trigger itself, caller `onClick` included.
       triggerRef.current?.click();
     },
-    [],
+    [isDisabled],
   );
 
   useImperativeHandle(
@@ -662,10 +679,11 @@ export function ComplexSelector<Value>({
             // matched a mouse click on the trigger and drew the outline for
             // pointer users too. `focusWithin` here is `:has(:focus-visible)`.
             focusOutlineStyles.focusWithin,
+            variant === "secondary" && styles.triggerSecondary,
             variant === "ghost" && styles.triggerGhost,
-            variant === "ghost" && interactionOverlayStyles.backgroundImage,
+            variant !== "input" && interactionOverlayStyles.backgroundImage,
             isDisabled && inputWrapperStyles.disabled,
-            variant === "ghost" && isDisabled && styles.triggerGhostDisabled,
+            variant !== "input" && isDisabled && styles.triggerGhostDisabled,
             isDisabled && styles.disabled,
             triggerLabel == null && styles.placeholder,
             controlXstyle,
@@ -692,8 +710,11 @@ export function ComplexSelector<Value>({
           aria-required={isEffectivelyRequired ? "true" : undefined}
           aria-invalid={status?.type === "error" ? "true" : undefined}
           aria-busy={isBusy || undefined}
-          disabled={isDisabled}
-          onClick={handleTriggerButtonClick}
+          // A disabled trigger keeps its tab stop and says so through
+          // aria-disabled (`spec:AST-085` FR1). Its press runs neither the
+          // caller's handler nor the toggle (FR2).
+          aria-disabled={isDisabled ? "true" : undefined}
+          onClick={isDisabled ? swallowDisabledPress : handleTriggerButtonClick}
           onKeyDown={handleTriggerButtonKeyDown}
           {...stylex.props(styles.trigger)}
         >

@@ -1,13 +1,14 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/lab 0.7.0-canary.97a0d31, src/Drawer/Drawer.tsx
+// Forked from @astryxdesign/core 0.7.3, src/Drawer/Drawer.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
 
 /**
- * Drawer, ui-common's copy of Astryx lab's, with three changes (not upstream):
+ * Drawer, ui-common's copy of Astryx's (core since 0.7.2, lab before), with
+ * three changes (not upstream):
  *
  * - **A scrimless drawer stays out of the top layer.** lab 0.6.5 opens it as
  *   a manual popover; this copy keeps the `show()` + z-index it had before
@@ -28,11 +29,14 @@
  * Escape routing is upstream's since lab 0.6.5: the drawer registers with
  * core's layer-dismissal stack, so a popover, selector or modal opened inside
  * it closes first and nested drawers close top-first. Everything else is
- * upstream's too. Its style namespaces are Astryx's compiled output
- * (src/forks/compiled.ts).
+ * upstream's too, with two differences in form only: its style namespaces,
+ * `layerStructureReset` included, are Astryx's compiled output
+ * (src/forks/compiled.ts), and the content is not wrapped in core's private
+ * `LayerContentBoundary`, which resets the contexts core registers in its
+ * own module (SizeContext, TabList's and others), as lab's Drawer never did.
  *
  * Delete this fork, and its exports.exclude.json entry, once ui-common's
- * `Modal` and notification stack are top layer themselves and lab passes
+ * `Modal` and notification stack are top layer themselves and Astryx passes
  * `aria-modal` through (CONTRIBUTING, "Forks of Astryx components").
  */
 
@@ -49,7 +53,8 @@
  *
  * Sizing is viewport-aware: `width` is the desktop budget, and below
  * the mobile breakpoint it preserves a 56px reveal of the page behind, capped
- * by the requested width (or fills the viewport with `isFullWidthOnMobile`).
+ * by the requested width (or fills the viewport with the experimental
+ * `experimental.isFullWidthOnMobile` option).
  *
  * Uses the native `<dialog>` element (same precedent as Dialog/MobileNav):
  * - `showModal()` when `hasScrim` (default) — top-layer rendering, focus
@@ -81,10 +86,11 @@
  * root dialog stays the overlay boundary (`overlayPaddingReset`).
  *
  * SYNC: When modified, update these files to stay in sync:
- * - /packages/lab/src/Drawer/Drawer.doc.mjs (props table, features, usage)
- * - /packages/lab/src/Drawer/Drawer.test.tsx (tests for new/changed behavior)
- * - /packages/lab/src/Drawer/Drawer.spec.md (component contract)
- * - /packages/lab/src/Drawer/index.ts (exports if types change)
+ * - /packages/core/src/Drawer/Drawer.doc.mjs (props table, features, usage)
+ * - /packages/core/src/Drawer/Drawer.test.tsx (tests for new/changed behavior)
+ * - /packages/core/src/Drawer/Drawer.spec.md (component contract)
+ * - /packages/core/src/Drawer/index.ts (exports if types change)
+ * - /packages/cli/assets/templates/blocks/components/Drawer/ (showcase blocks)
  * - /apps/storybook/stories/Drawer.stories.tsx (examples and visual coverage)
  */
 
@@ -97,6 +103,7 @@ import { useFocusTrap, useMergedRefs, useScrollLock } from "@astryxdesign/core/h
 import { LayerDepthProvider, useLayerDismissal } from "@astryxdesign/core/Layer";
 import { composeEventHandlers, mergeProps, themeProps } from "@astryxdesign/core/utils";
 import { container, overlayPaddingReset } from "@astryxdesign/core/Layout";
+import { layerTextReset } from "@astryxdesign/core/Layer/layerTextReset.stylex";
 import {
   containerPaddingBlockEndVarStyles,
   containerPaddingBlockStartVarStyles,
@@ -122,8 +129,10 @@ import { useDrawerDialogPresence } from "./useDrawerDialogPresence";
 const MOBILE_PAGE_REVEAL = 56;
 const MOBILE_WIDTH_FULL = "100dvw";
 
-// @astryxdesign/lab dist/Drawer/Drawer.js `styles` and `dynamicStyles`.
+// @astryxdesign/core dist/Drawer/Drawer.js `styles` and `dynamicStyles`, and
+// dist/Layer/layerStructureReset.stylex.js, which core does not export.
 const styles = compiledStyles(compiled.styles);
+const layerStructureReset = compiledStyles(compiled.layerStructureReset);
 const dynamicStyles = compiled.dynamicStyles as {
   inlineSize: (desktopWidth: string, mobileWidth: string) => StyleXStyles;
 };
@@ -182,19 +191,27 @@ export interface DrawerProps extends BaseProps<HTMLDialogElement> {
    * Desktop width budget. A number is pixels; a string is any CSS length
    * (`'50%'`, `'32rem'`). Below the mobile breakpoint (640px), this
    * remains the maximum while the drawer preserves a 56px reveal of the page
-   * behind — see `isFullWidthOnMobile`.
+   * behind — see `experimental.isFullWidthOnMobile`.
    * @default 400
    */
   width?: number | string;
 
   /**
-   * Whether the drawer covers the full viewport width on mobile
-   * (below 640px) instead of preserving the default 56px reveal of the page
-   * behind. The reveal makes the drawer read as an overlay rather than a
-   * navigation.
-   * @default false
+   * Experimental options, outside the stable compatibility promise: anything
+   * in this object may change or be removed in a patch release. Omit it for
+   * the stable behavior.
+   * @experimental
    */
-  isFullWidthOnMobile?: boolean;
+  experimental?: {
+    /**
+     * Cover the full viewport width on mobile (below 640px) instead of
+     * preserving the default 56px reveal of the page behind. The reveal makes
+     * the drawer read as an overlay rather than a navigation.
+     * @experimental
+     * @default false
+     */
+    isFullWidthOnMobile?: boolean;
+  };
 
   /**
    * Accessible label for the drawer (required — the drawer has no
@@ -259,7 +276,7 @@ export interface DrawerProps extends BaseProps<HTMLDialogElement> {
  * non-modal overlay with `hasScrim={false}` that leaves the page behind
  * interactive. `width` is the desktop budget; below 640px the panel preserves
  * a 56px page reveal without exceeding that budget (or fills the viewport
- * with `isFullWidthOnMobile`). Escape
+ * with the experimental `experimental.isFullWidthOnMobile`). Escape
  * closes the top-most open drawer; focus returns to the element that
  * opened it.
  *
@@ -292,7 +309,7 @@ export function Drawer({
   onOpenChange,
   side = "end",
   width = 400,
-  isFullWidthOnMobile = false,
+  experimental,
   label,
   hasScrim = true,
   purpose = "info",
@@ -404,6 +421,7 @@ export function Drawer({
   );
 
   const widthValue = typeof width === "number" ? `${width}px` : width;
+  const isFullWidthOnMobile = experimental?.isFullWidthOnMobile ?? false;
   const mobileWidth = isFullWidthOnMobile
     ? MOBILE_WIDTH_FULL
     : `min(${widthValue}, calc(100dvw - ${MOBILE_PAGE_REVEAL}px))`;
@@ -432,6 +450,8 @@ export function Drawer({
       {...mergeProps(
         themeProps("drawer", { side: anchoredSide }),
         stylex.props(
+          layerTextReset.reset,
+          layerStructureReset.reset,
           styles.dialog,
           overlayPaddingReset.reset,
           sideStyle,

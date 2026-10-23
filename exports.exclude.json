@@ -10,10 +10,9 @@
     "reason": "Adds hasClear and onClear, a clear button as Selector has (facebook/astryx#6362)."
   },
   {
-    "name": "lab",
-    "exports": ["Drawer", "DrawerProps"],
+    "name": "Drawer",
     "replacedBy": "Drawer",
-    "reason": "An Escape from a layer opened inside the drawer, or one that ends an IME composition, no longer closes it; aria-modal passes through."
+    "reason": "A scrimless drawer stays out of the top layer (show() and a z-index), so ui-common's Modal and notification stack paint above it; a Modal inside a scrimmed drawer opens above it; aria-modal passes through. DrawerHeader is Astryx's, re-exported unchanged."
   },
   {
     "name": "lab",

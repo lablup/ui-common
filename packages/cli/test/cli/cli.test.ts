@@ -92,6 +92,10 @@ describe("output rewriting", { timeout: 60_000 }, () => {
     expect(rewriteCommands("npx @astryxdesign/cli docs tokens", "npx ui-common")).toBe(
       "npx ui-common docs tokens",
     );
+    // Astryx 0.7.2+ pins the one-off runner to the release that answered.
+    expect(
+      rewriteCommands("`npx @astryxdesign/cli@0.7.3 search button`", "npx ui-common"),
+    ).toBe("`npx ui-common search button`");
     expect(rewriteCommands("command: astryx component Button")).toBe(
       "command: ui-common component Button",
     );
@@ -120,14 +124,14 @@ describe("output rewriting", { timeout: 60_000 }, () => {
     );
     expect(note).toContain("hasClear");
     expect(note).not.toMatch(/does not export|Use ComplexSelector/);
-    const lab = exclusionNotes(
-      "import { Drawer, TourStep } from '@lablup/ui-common/lab'",
+    const notes = exclusionNotes(
+      "import { Drawer, DrawerHeader } from '@lablup/ui-common/Drawer'; import { TourStep } from '@lablup/ui-common/lab'",
     );
-    expect(lab).toHaveLength(2);
-    expect(lab[0]).toMatch(
-      /^Note: Drawer \(@lablup\/ui-common\/lab\) comes from ui-common/,
+    expect(notes).toHaveLength(2);
+    expect(notes[0]).toMatch(
+      /^Note: Drawer \(@lablup\/ui-common\/Drawer\) comes from ui-common/,
     );
-    expect(lab[1]).toMatch(
+    expect(notes[1]).toMatch(
       /^Note: Tour \(@lablup\/ui-common\/lab\) comes from ui-common/,
     );
     expect(exclusionNotes("Selectors and Tourniquet")).toEqual([]);
@@ -252,7 +256,7 @@ describe("agents", { timeout: 60_000 }, () => {
     expect(block).toContain(
       "- ComplexSelector (@lablup/ui-common/ComplexSelector) comes from ui-common: its own copy of Astryx's, same API and import path.",
     );
-    expect(block).toContain("- Drawer (@lablup/ui-common/lab) comes from ui-common");
+    expect(block).toContain("- Drawer (@lablup/ui-common/Drawer) comes from ui-common");
     expect(block).toContain("- Tour (@lablup/ui-common/lab) comes from ui-common");
     expect(block).not.toMatch(/Use (ComplexSelector|Drawer|Tour) /);
     expect(block).not.toMatch(/ui-common's own components: [^\n]*\bComplexSelector\b/);
@@ -361,7 +365,8 @@ describe("upgrade registry", () => {
     // (sync-astryx) step recorded under a 0.2 prerelease since.
     const versions = (await stepsBetween("0.1.0", "0.2.0")).map((s) => s.version);
     expect(versions[0]).toBe("0.2.0-alpha.0");
-    expect(versions).toEqual(
+    // A version can hold two steps (0.2.0-alpha.20: ui-common's and Astryx's).
+    expect([...new Set(versions)]).toEqual(
       registeredVersions().filter(
         (v) => compare(v, "0.1.0") > 0 && compare(v, "0.2.0") <= 0,
       ),
@@ -377,7 +382,17 @@ describe("upgrade registry", () => {
   it("registers the Astryx 0.7.0 codemods under 0.2.0-alpha.19", async () => {
     expect(registeredVersions()).toContain("0.2.0-alpha.19");
     expect(await stepsBetween("0.2.0-alpha.18", "0.2.0-alpha.19")).toHaveLength(1);
-    expect(await stepsBetween("0.2.0-alpha.19", "0.2.0")).toHaveLength(0);
+  });
+
+  it("registers the Drawer move and the Astryx 0.7.3 codemods under 0.2.0-alpha.20", async () => {
+    expect(registeredVersions()).toContain("0.2.0-alpha.20");
+    const steps = await stepsBetween("0.2.0-alpha.19", "0.2.0-alpha.20");
+    // ui-common's own step first, then Astryx's.
+    expect(steps.map((s) => s.step.title)).toEqual([
+      "0.2.0-alpha.20: Drawer moves from /lab to /Drawer",
+      expect.stringContaining("Astryx"),
+    ]);
+    expect(await stepsBetween("0.2.0-alpha.20", "0.2.0")).toHaveLength(0);
   });
 
   it("maps every removed export onto something the installed Astryx exports", () => {

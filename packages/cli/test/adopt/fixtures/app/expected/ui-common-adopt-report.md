@@ -6,8 +6,8 @@ Ran the codemods over 13 files under `.`; searched 17 files under the project ro
 
 ## Action required
 
-- **Astryx moves from 0.6.2 to 0.7.0.** @lablup/ui-common 0.2.0 is built on Astryx 0.7.0. adopt ran Astryx's codemods for that span (`migrate-native-picker-to-presentation`, `migrate-deprecated-theme-surface`, `validate-data-token-ownership`, `migrate-field-input-styling`, `preserve-bottom-sheet-content-padding`, `rename-empty-search-results-text`); review what they changed (the `astryx:` transforms under Changed files), and read Astryx's release notes for what no codemod covers.
-- `pnpm-workspace.yaml:4` patches @astryxdesign/core@0.6.2, but @lablup/ui-common 0.2.0 pins 0.7.0: pnpm stops the install on a patch for a version that is not installed. Re-cut the patch at 0.7.0, or drop it, before you install.
+- **Astryx moves from 0.6.2 to 0.7.3.** @lablup/ui-common 0.2.0 is built on Astryx 0.7.3. adopt ran Astryx's codemods for that span (`migrate-native-picker-to-presentation`, `migrate-deprecated-theme-surface`, `validate-data-token-ownership`, `migrate-field-input-styling`, `preserve-bottom-sheet-content-padding`, `rename-empty-search-results-text`, `migrate-list-edge-compensation-to-edge`); review what they changed (the `astryx:` transforms under Changed files), and read Astryx's release notes for what no codemod covers.
+- `pnpm-workspace.yaml:4` patches @astryxdesign/core@0.6.2, but @lablup/ui-common 0.2.0 pins 0.7.3: pnpm stops the install on a patch for a version that is not installed. Re-cut the patch at 0.7.3, or drop it, before you install.
 
 ## Summary
 
@@ -43,7 +43,7 @@ Ran the codemods over 13 files under `.`; searched 17 files under the project ro
 - `package.json`: +4 −3, package-json
 - `pnpm-workspace.yaml`: +4 −0, package-json
 - `src/App.test.tsx`: +2 −2, specifiers
-- `src/App.tsx`: +6 −6, dialog-to-modal, specifiers
+- `src/App.tsx`: +6 −6, dialog-to-modal, specifiers, drawer-from-lab
 - `src/ConfirmDelete.tsx`: +3 −3, dialog-to-modal
 - `src/index.css`: +5 −5, specifiers, layer-order
 - `src/legacy.cjs`: +2 −2, specifiers
@@ -55,10 +55,10 @@ Ran the codemods over 13 files under `.`; searched 17 files under the project ro
 
 - added @lablup/ui-common 0.2.0 to dependencies: the one dependency that brings Astryx (core, theme-neutral) at the versions it pins.
 - added @lablup/ui-common-cli 0.2.0 to devDependencies: the `ui-common` bin (`ui-common doctor`, `ui-common agents`, the Astryx CLI in @lablup/ui-common terms), released at the same version as @lablup/ui-common.
-- dependencies["@astryxdesign/core"]: "^0.6.2" → "0.7.0", the version @lablup/ui-common 0.2.0 pins.
+- dependencies["@astryxdesign/core"]: "^0.6.2" → "0.7.3", the version @lablup/ui-common 0.2.0 pins.
 - removed @astryxdesign/theme-neutral from dependencies: @lablup/ui-common depends on it and mirrors it as @lablup/ui-common/theme/neutral.
-- dependencies["@astryxdesign/lab"]: "0.6.2-canary.c9fb1ad" → "0.7.0-canary.97a0d31", the version @lablup/ui-common 0.2.0 pins.
-- devDependencies["@astryxdesign/cli"] is "0.6.2"; @lablup/ui-common-cli wraps @astryxdesign/cli 0.7.0. Use `ui-common <command>` and drop it, or keep it at 0.7.0.
+- dependencies["@astryxdesign/lab"]: "0.6.2-canary.c9fb1ad" → "0.7.3-canary.cac3d8d", the version @lablup/ui-common 0.2.0 pins.
+- devDependencies["@astryxdesign/cli"] is "0.6.2"; @lablup/ui-common-cli wraps @astryxdesign/cli 0.7.3. Use `ui-common <command>` and drop it, or keep it at 0.7.3.
 - added allowBuilds declining @astryxdesign/core, @astryxdesign/cli to pnpm-workspace.yaml: their postinstall only prints an `astryx init` nudge, and pnpm 11 stops the install (ERR_PNPM_IGNORED_BUILDS) until each is allowed or declined.
 
 ## Manual review
@@ -90,7 +90,7 @@ A pnpm or patch-package patch on `@astryxdesign/*` applies only in this project,
 
 | Where | What | Detail |
 |---|---|---|
-| `pnpm-workspace.yaml:4` | `"@astryxdesign/core@0.6.2": patches/@astryxdesign__core@0.6.2.patch` | touches dist/ComplexSelector/ComplexSelector.js; ui-common ships its own ComplexSelector, so this patch does not reach it: drop it unless the rest still matters; keyed to 0.6.2, not the 0.7.0 ui-common pins |
+| `pnpm-workspace.yaml:4` | `"@astryxdesign/core@0.6.2": patches/@astryxdesign__core@0.6.2.patch` | touches dist/ComplexSelector/ComplexSelector.js; ui-common ships its own ComplexSelector, so this patch does not reach it: drop it unless the rest still matters; keyed to 0.6.2, not the 0.7.3 ui-common pins |
 
 ### Overlays rendered into document.body (1)
 
@@ -110,7 +110,7 @@ A document- or window-level shortcut still fires while a modal is open. Skip it 
 
 ### Escape handlers of your own (1)
 
-`Modal`, the lab `Drawer` and popovers close through one layer stack: one Escape closes the top layer only. A handler of yours that consumes Escape (inline edit, a search box) must call `event.preventDefault()`, or the stack closes the surrounding layer too.
+`Modal`, the `Drawer` and popovers close through one layer stack: one Escape closes the top layer only. A handler of yours that consumes Escape (inline edit, a search box) must call `event.preventDefault()`, or the stack closes the surrounding layer too.
 
 | Where | What | Detail |
 |---|---|---|
@@ -149,6 +149,6 @@ ui-common's built-in strings resolve through Astryx's `InternationalizationProvi
 
 ## Notes
 
-- pnpm-workspace.yaml sets `minimumReleaseAge`: a package younger than that will not install. @lablup/ui-common 0.2.0 brings `@lablup/ui-common@0.2.0`, `@lablup/ui-common-cli@0.2.0`, `@astryxdesign/core@0.7.0`, `@astryxdesign/theme-neutral@0.7.0`, `@astryxdesign/cli@0.7.0`, `@astryxdesign/lab@0.7.0-canary.97a0d31`; list each one younger than your window under `minimumReleaseAgeExclude` until it ages out (a lab canary never ages out).
+- pnpm-workspace.yaml sets `minimumReleaseAge`: a package younger than that will not install. @lablup/ui-common 0.2.0 brings `@lablup/ui-common@0.2.0`, `@lablup/ui-common-cli@0.2.0`, `@astryxdesign/core@0.7.3`, `@astryxdesign/theme-neutral@0.7.3`, `@astryxdesign/cli@0.7.3`, `@astryxdesign/lab@0.7.3-canary.cac3d8d`; list each one younger than your window under `minimumReleaseAgeExclude` until it ages out (a lab canary never ages out).
 - Astryx codemod "migrate-theme-catalog-to-descriptors" rewrites an Astryx integration package (Give each integration theme a typed descriptor instead of the manifest.json catalog); run `ui-common astryx upgrade` if this project is one.
 - Astryx codemod "migrate-copied-themes-to-descriptors" rewrites an Astryx integration package (Give copied app themes their local descriptors); run `ui-common astryx upgrade` if this project is one.

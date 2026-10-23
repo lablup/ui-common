@@ -5,8 +5,40 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.20]
+
+Astryx 0.7.0 → 0.7.3 (`@astryxdesign/lab` 0.7.3-canary.cac3d8d). Astryx's
+own release notes:
+https://github.com/facebook/astryx/releases/tag/v0.7.1,
+https://github.com/facebook/astryx/releases/tag/v0.7.2,
+https://github.com/facebook/astryx/releases/tag/v0.7.3
+(Drawer promoted to core, disabled controls stay focusable, `List` `edge`,
+global mode and the computer-level agent guide in the CLI).
+
 ### Added
 
+- New root names: `Drawer`, `DrawerHeader`, `DrawerProps`,
+  `DrawerHeaderProps` and `ListEdge`. New mirrored subpath: `Drawer`. New in
+  `@lablup/ui-common/lab`: `Comments`, `CommentThread`, `CommentComposer`,
+  `CommentPin`, `DiffViewer` (with `parseUnifiedDiff`, `createDiffFile`),
+  `EmojiPicker` and their types. No subpath was removed; `lab` lost `Drawer`
+  and `DrawerHeader` (below).
+- **`ui-common init --user`: the ui-common skill for every agent on the
+  computer**, ui-common's counterpart of the Astryx skill `astryx init
+--user` writes since Astryx 0.7.2. It installs
+  `~/.agents/skills/ui-common/SKILL.md` (shipped in `@lablup/ui-common-cli`
+  as `skill/ui-common/SKILL.md`) and links it into `~/.claude/skills/` and
+  the skill folders of the other agents Astryx reaches (Kiro, Windsurf,
+  Letta, Xcode, `~/.config/agents`; a managed copy for Continue) when they are
+  installed. The text is short and version-free like Astryx's: in a project
+  that depends on `@lablup/ui-common`, use `ui-common search`, `build`,
+  `template`, `component` and `docs`, import from `@lablup/ui-common`, and
+  never run `astryx` or import `@astryxdesign/*`. Before this,
+  `ui-common init --user` passed through to Astryx and left only Astryx's
+  skill, which steers agents to `@astryxdesign/core`. A file you edited, or
+  one ui-common did not write, is never changed; `--remove-agents` removes
+  what it wrote. When Astryx's skill is installed too, the command says how
+  to remove it (`ui-common astryx init --user --remove-agents`) and leaves it.
 - **`ui-common adopt --from astryx`**: moves an app that imports Astryx
   directly (`@astryxdesign/core`, `/lab`, `/theme-neutral`) onto ui-common in
   one pass. It rewrites every module specifier in scripts (imports,
@@ -63,11 +95,62 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   writes ui-common's templates and names the packages a written template
   needs (`lucide-react`, `@astryxdesign/lab`).
 - Component docs for `PageLayout`, `StatCard`, `ErrorState`, `DigitPopIn`,
-  `SmoothHeight`, the Skeleton composites and the lab `Drawer` and `Tour`, so
-  `search` and `build` find them. `search "data table"` now ranks `DataGrid`
+  `SmoothHeight`, the Skeleton composites and the lab `Tour`, so `search` and
+  `build` find them (the `Drawer` is described by Astryx's own core doc,
+  with ui-common's note). `search "data table"` now ranks `DataGrid`
   above `Table`, and `"delete confirm"` finds `DeleteConfirmModal`.
 
 ### Changed
+
+- **Breaking: `Drawer` and `DrawerHeader` moved from `@lablup/ui-common/lab`
+  to `@lablup/ui-common/Drawer`** (and the root), because Astryx 0.7.2
+  promoted them from lab to core. `@lablup/ui-common/lab` no longer exports
+  either. ui-common's `Drawer` fork is re-taken from core's and keeps its
+  changes (a scrimless drawer stays below `Modal` and the notification stack,
+  a `Modal` inside a scrimmed drawer opens above it, `aria-modal` passes
+  through); `DrawerHeader` is Astryx's, re-exported unchanged. A project that
+  used lab only for the Drawer no longer needs `@astryxdesign/lab`, its core
+  override or `lab.css`. `pnpm exec ui-common upgrade --from
+0.2.0-alpha.19` moves the imports and re-exports, and lists namespace
+  imports and module mocks of the lab mirror it cannot prove safe.
+- **Breaking: `Drawer`'s `isFullWidthOnMobile` is now
+  `experimental={{ isFullWidthOnMobile }}`**, following core's Drawer. A
+  top-level `isFullWidthOnMobile` no longer type-checks and is ignored at
+  runtime (the drawer keeps the 56px page reveal on mobile). The same
+  upgrade step rewrites the prop on `Drawer` elements and lists the uses it
+  cannot rewrite (a props object or spread, or an element that already has
+  `experimental`).
+- **Disabled form controls stay focusable (Astryx 0.7.3).** A disabled
+  `CheckboxInput`, `CheckboxList` item, `Switch`, `Slider`, `FileInput`,
+  `Selector`, `MultiSelector`, `ComplexSelector` (and `PagedSelector`), the
+  date and time inputs, `Link`, `ClickableCard` and a `Token`'s buttons now
+  expose `aria-disabled="true"` and keep their Tab stop instead of the native
+  `disabled` attribute; activation stays blocked and the value is still left
+  out of form submission. Tests that query them with `toBeDisabled()` or
+  `:disabled` check `aria-disabled="true"` instead (DataGrid's selection
+  checkboxes and the settings and export modals included).
+- `pnpm exec ui-common upgrade --from 0.2.0-alpha.19` also runs Astryx's
+  0.7.2 codemod (`migrate-list-edge-compensation-to-edge`: `List`
+  `edgeCompensation="inline"` → `edge="outset"`), moves the lab canary to
+  `0.7.3-canary.cac3d8d` and its core override to `0.7.3`, and bumps the
+  `@lablup/ui-common` / `@lablup/ui-common-cli` pins. `adopt --from astryx`
+  moves a direct-Astryx app's lab `Drawer` to `@lablup/ui-common/Drawer` too.
+- The `CheckboxInput` fork is gone: Astryx 0.7.2 passes a caller's `id` to
+  the native checkbox, so the `Form.Item` wrapper renders Astryx's own
+  `CheckboxInput`. The `Switch` fork keeps its `id` fix; its
+  `aria-describedby` fix is upstream's since 0.7.2. The `ComplexSelector`,
+  `Switch`, `FileInput`, `SegmentedControl` and `Tour` forks are re-taken
+  from 0.7.3.
+- The `detail-drawer` template imports `Drawer` from `@lablup/ui-common`
+  and needs no `@astryxdesign/lab`.
+- Clearable inputs' clear-button tooltip reads "Clear" (Astryx's
+  `@astryx.inputClearButton.tooltip`); the button's accessible name still
+  names the field.
+- The CLI rewrites the release-pinned runner Astryx 0.7.2 prints when no
+  project CLI answers (`npx @astryxdesign/cli@0.7.3 …`) to the ui-common
+  invocation, so the agent block keeps `CLI: run every command as
+\`npx ui-common <cmd>\``.
+- The Lablup theme was rebuilt with `astryx theme build` 0.7.3.
 
 - **Breaking: the form controls take no field chrome; `Form.Item` owns it, as
   in antd (#69).** `TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector`, `Typeahead`, `Tokenizer`, `DateInput`, `TimeInput`, `DateTimeInput`, `DateRangeInput`, `Switch`, `CheckboxInput`, `CheckboxList`, `RadioList`, `SegmentedControl`, `Slider` and `FileInput` are now ui-common's wrappers at Astryx's names

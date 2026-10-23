@@ -1,6 +1,6 @@
 /**
  * `@lablup/ui-common/CheckboxInput`: ui-common's `Form.Item` wrapper
- * (src/formControls) around its CheckboxInput fork (src/forks/CheckboxInput).
+ * (src/formControls) around Astryx's CheckboxInput.
  * Astryx's is excluded (exports.exclude.json).
  */
 export { CheckboxInput } from "./CheckboxInput";

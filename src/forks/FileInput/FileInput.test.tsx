@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.0, src/FileInput/FileInput.test.tsx
+// Forked from @astryxdesign/core 0.7.3, src/FileInput/FileInput.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own
 // tests are in the *.fork.test.tsx beside it.
 // Left out: "does not announce a selection when validation rejects all files",
@@ -220,10 +220,34 @@ describe("FileInput", () => {
     expect(trigger).not.toHaveAttribute("aria-required");
   });
 
-  it("sets disabled attribute when isDisabled is true", () => {
-    render(<FileInput label="Upload" isDisabled value={null} onChange={() => {}} />);
-    const input = document.querySelector('input[type="file"]')!;
-    expect(input).toBeDisabled();
+  it("keeps a disabled input focusable and out of form submission", async () => {
+    const user = userEvent.setup();
+    render(
+      <form>
+        <FileInput
+          label="Upload"
+          isRequired
+          isDisabled
+          value={null}
+          onChange={() => {}}
+        />
+      </form>,
+    );
+    const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
+    const trigger = screen.getByRole("button", { name: "Upload" });
+    expect(input).not.toHaveAttribute("disabled");
+    expect(trigger).not.toHaveAttribute("disabled");
+    expect(trigger).toHaveAttribute("aria-disabled", "true");
+    const openPicker = vi.spyOn(input, "click");
+    await user.tab();
+    expect(trigger).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(openPicker).not.toHaveBeenCalled();
+    expect(input.form).toBeNull();
+    expect(trigger.closest("form")!.checkValidity()).toBe(true);
+    // A label click activates the hidden input directly; it is canceled so
+    // the picker never opens (fireEvent returns false when prevented).
+    expect(fireEvent.click(input)).toBe(false);
   });
 
   it("sets aria-invalid when status type is error", () => {
@@ -947,11 +971,11 @@ describe("FileInput", () => {
       expect(clickSpy).not.toHaveBeenCalled();
     });
 
-    it("keeps the trigger non-focusable when disabled without a reason", () => {
+    it("keeps the trigger focusable when disabled without a reason", () => {
       render(<FileInput label="Resume" value={null} onChange={() => {}} isDisabled />);
       const trigger = screen.getByRole("button");
-      expect(trigger).toHaveAttribute("tabindex", "-1");
-      expect(trigger).not.toHaveAttribute("aria-disabled");
+      expect(trigger).toHaveAttribute("tabindex", "0");
+      expect(trigger).toHaveAttribute("aria-disabled", "true");
     });
   });
 });

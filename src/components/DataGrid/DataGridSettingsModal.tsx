@@ -46,7 +46,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@astryxdesign/core/Button";
-import { CheckboxInput } from "../../forks/CheckboxInput";
+import { CheckboxInput } from "@astryxdesign/core/CheckboxInput";
 import { DialogHeader } from "@astryxdesign/core/Dialog";
 import { Layout, LayoutContent, LayoutFooter } from "@astryxdesign/core/Layout";
 import { HStack, VStack } from "@astryxdesign/core/Stack";

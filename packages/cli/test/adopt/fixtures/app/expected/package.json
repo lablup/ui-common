@@ -10,8 +10,8 @@
     "agents": "astryx init --features agents"
   },
   "dependencies": {
-    "@astryxdesign/core": "0.7.0",
-    "@astryxdesign/lab": "0.7.0-canary.97a0d31",
+    "@astryxdesign/core": "0.7.3",
+    "@astryxdesign/lab": "0.7.3-canary.cac3d8d",
     "@lablup/ui-common": "0.2.0",
     "@stylexjs/stylex": "0.19.0",
     "react": "^19.2.0",

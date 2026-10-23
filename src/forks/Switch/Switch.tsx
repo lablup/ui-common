@@ -1,24 +1,21 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.0, src/Switch/Switch.tsx
+// Forked from @astryxdesign/core 0.7.3, src/Switch/Switch.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
 
 /**
- * Switch, ui-common's copy of Astryx's, with two upstream fixes applied:
- *
- * - A passed `id` lands on the native checkbox, as TextInput's does, instead
- *   of being replaced by `useId()` and spread onto the row. Without it a
- *   `<label htmlFor>` outside the component, such as `Form.Item`'s, points
- *   at nothing.
- * - A passed `aria-describedby` is merged into the checkbox's own, as
- *   CheckboxInput's is, instead of being spread onto the row. Without it
- *   `Form.Item`'s message and extra never describe the switch.
+ * Switch, ui-common's copy of Astryx's, with one upstream fix applied: a
+ * passed `id` lands on the native checkbox, as TextInput's and
+ * CheckboxInput's do, instead of being replaced by `useId()` and spread onto
+ * the row. Without it a `<label htmlFor>` outside the component, such as
+ * `Form.Item`'s, points at nothing. (Its second fix, a passed
+ * `aria-describedby` describing the checkbox, is upstream's since 0.7.2.)
  *
  * Everything else is upstream's, line for line. Two things differ in form
- * only: the style namespaces and the `switchScope` marker are Astryx's
+ * only: the style namespaces and the scope markers are Astryx's
  * compiled output (src/forks/compiled.ts), and `useResolvedRequired`, which
  * Astryx does not export, is inlined.
  *
@@ -32,6 +29,7 @@ import {
   useOptimistic,
   useTransition,
   useEffect,
+  useRef,
   type ChangeEvent,
   type FocusEvent,
   type ReactNode,
@@ -70,9 +68,10 @@ const dynamicWidthStyles = compiled.dynamicWidthStyles as unknown as {
   width: (width: SizeValue | null) => stylex.StyleXStyles;
 };
 const switchScope = compiled.switchScope as unknown as stylex.StyleXStyles;
+const switchFocusScope = compiled.switchFocusScope as unknown as stylex.StyleXStyles;
 const interactionOverlayStyles = compiledStyles(compiled.interactionOverlayStyles);
 
-// @astryxdesign/core 0.7.0 src/hooks/useResolvedRequired.ts, which core does
+// @astryxdesign/core 0.7.3 src/hooks/useResolvedRequired.ts, which core does
 // not export: a field under `FormLayout defaultOptionality="required"` is
 // required unless it opts out.
 function useResolvedRequired({
@@ -265,6 +264,7 @@ export function Switch({
   ref,
   "aria-describedby": ariaDescribedByProp,
   id: idProp,
+  "aria-labelledby": ariaLabelledByProp,
   ...rest
 }: SwitchProps) {
   const t = useTranslator();
@@ -286,10 +286,20 @@ export function Switch({
   const isBusy = isLoading || optimisticValue !== value;
 
   const announce = useAnnounce();
+  // One announcement per busy start (spec:AST-086 FR6). The ref outlives
+  // StrictMode's effect replay and rerenders, so only a new busy start (busy
+  // again after settling) speaks again.
+  const announcedBusyRef = useRef(false);
   useEffect(() => {
-    if (isBusy) {
-      announce(t("@astryx.switch.loading"));
+    if (!isBusy) {
+      announcedBusyRef.current = false;
+      return;
     }
+    if (announcedBusyRef.current) {
+      return;
+    }
+    announcedBusyRef.current = true;
+    announce(t("@astryx.switch.loading"));
   }, [announce, isBusy, t]);
 
   const isOn = optimisticValue === true;
@@ -311,9 +321,8 @@ export function Switch({
   // Only include descriptionID when the element actually renders.
   // FieldLabel renders the description (with descriptionID) even when the
   // label is visually hidden — it's sr-only, so keep it linked.
-  // ui-common fix: a passed `aria-describedby` (Form.Item's help and extra)
-  // describes the switch, as CheckboxInput's does, instead of landing on the
-  // row through `...rest`.
+  // A consumer's own `aria-describedby` describes the control, so it comes
+  // first here rather than landing on the field wrapper via `...rest`.
   const describedByParts: string[] = [];
   if (ariaDescribedByProp) {
     describedByParts.push(ariaDescribedByProp);
@@ -337,17 +346,13 @@ export function Switch({
         id={id}
         type="checkbox"
         role="switch"
-        // Withhold the name while disabled: with a disabledMessage the
-        // input stays focusable (not natively disabled), and a disabled
-        // control must not submit.
+        // Withhold the name while disabled: the input stays focusable (not
+        // natively disabled), and a disabled control must not submit.
         name={isDisabled ? undefined : htmlName}
         checked={isOn}
-        // With a disabledMessage the switch keeps focusability via aria-disabled
-        // so the reason is focus-discoverable; toggling is still blocked by the
-        // isDisabled guard in onChange below.
-        disabled={isDisabled && !showsDisabledMessage}
-        aria-disabled={showsDisabledMessage ? "true" : undefined}
-        form={showsDisabledMessage ? "" : undefined}
+        // Focusable but detached from the form while disabled (spec:AST-085).
+        aria-disabled={isDisabled ? "true" : undefined}
+        form={isDisabled ? "" : undefined}
         required={isRequired}
         aria-required={isEffectivelyRequired ? "true" : undefined}
         onChange={(e) => {
@@ -365,6 +370,10 @@ export function Switch({
         }}
         onFocus={onFocus}
         onBlur={onBlur}
+        // A caller's `aria-labelledby` names the control (a visible title
+        // elsewhere in the row, for example), so it reaches the input rather
+        // than the field wrapper via `...rest`.
+        aria-labelledby={ariaLabelledByProp}
         aria-describedby={ariaDescribedBy}
         aria-invalid={status?.type === "error" ? true : undefined}
         aria-busy={isBusy || undefined}
@@ -389,7 +398,7 @@ export function Switch({
             styles.track,
             trackSizeStyles[size],
             isOn ? styles.trackOn : styles.trackOff,
-            !isDisabled && styles.trackFocus,
+            styles.trackFocus,
             isDisabled && styles.trackDisabled,
             isDisabled && !isOn && styles.trackDisabledOff,
           ),
@@ -446,6 +455,8 @@ export function Switch({
         style,
       )}
       {...rest}
+      // Native `disabled` suppressed clicks on the switch (spec:AST-085 FR2).
+      onClick={isDisabled ? undefined : rest.onClick}
     >
       <div
         ref={(el) => {
@@ -463,6 +474,7 @@ export function Switch({
           isLabelHidden && styles.containerLabelHidden,
           labelSpacing === "spread" && styles.containerSpread,
           !isDisabled && switchScope,
+          switchFocusScope,
           // The touch press's strength and release live on the row the
           // controller writes to; the track and thumb inherit and paint it.
           !isDisabled && interactionOverlayStyles.pressedAlpha,

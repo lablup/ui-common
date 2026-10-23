@@ -26,8 +26,8 @@ const { base, layerOrder, imports: replacement, entryFile } = STYLESHEETS;
 const DROPPED = STYLESHEETS.dropped;
 
 /**
- * The stylesheets that replace base.css. lab.css joins them when a Drawer was
- * moved to the lab package.
+ * The stylesheets that replace base.css. lab.css joins them when a moved
+ * component needs the lab package.
  *
  * @param {{flags?: {packages: Map<string, string>}}} ctx
  * @returns {string[]}

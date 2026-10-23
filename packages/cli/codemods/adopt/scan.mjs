@@ -40,7 +40,7 @@ export const CATEGORIES = {
   },
   escape: {
     title: "Escape handlers of your own",
-    help: "`Modal`, the lab `Drawer` and popovers close through one layer stack: one Escape closes the top layer only. A handler of yours that consumes Escape (inline edit, a search box) must call `event.preventDefault()`, or the stack closes the surrounding layer too.",
+    help: "`Modal`, the `Drawer` and popovers close through one layer stack: one Escape closes the top layer only. A handler of yours that consumes Escape (inline edit, a search box) must call `event.preventDefault()`, or the stack closes the surrounding layer too.",
   },
   "agent-blocks": {
     title: "Astryx agent blocks, and tools anchored on them",

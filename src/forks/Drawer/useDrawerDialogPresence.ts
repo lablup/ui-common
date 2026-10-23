@@ -1,6 +1,6 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 //
-// Forked from @astryxdesign/lab 0.7.0-canary.97a0d31, src/Drawer/useDrawerDialogPresence.ts
+// Forked from @astryxdesign/core 0.7.3, src/Drawer/useDrawerDialogPresence.ts
 // (MIT; see NOTICE). Changed (marked `ui-common:`): a non-modal drawer opens
 // with `show()`, not `showPopover()`, so it stays out of the top layer (Drawer.tsx).
 // Provenance and the drift guard: src/forks/provenance.json.
@@ -26,7 +26,7 @@
  * the page for one frame.
  *
  * SYNC: When modified, update:
- * - /packages/lab/src/Drawer/Drawer.test.tsx
+ * - /packages/core/src/Drawer/Drawer.test.tsx
  * - /.github/scripts/modal-close-visibility.js
  */
 
@@ -127,6 +127,7 @@ export function useDrawerDialogPresence({
       // the commit after the next paint, and that one frame is exactly the
       // bug — the panel paints outside the top layer. Both happen in this
       // task, so the browser never gets to paint between them.
+      // Upstream: the panel must stop painting in the task the native host closes.
       flushSync(() => {
         setIsRendered(false);
       });

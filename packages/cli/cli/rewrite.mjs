@@ -69,10 +69,11 @@ export function rewriteCommands(text, invocation = "ui-common") {
   const commands = ASTRYX_COMMANDS.join("|");
   return (
     text
-      // A one-off `npx @astryxdesign/cli` invocation, or an installed-bin
-      // invocation through a package manager.
+      // A one-off `npx @astryxdesign/cli` invocation (since Astryx 0.7.2
+      // pinned to a release, `npx @astryxdesign/cli@0.7.3`, when no project
+      // CLI answers), or an installed-bin invocation through a package manager.
       .replace(
-        /\b(?:npx|pnpm dlx|yarn dlx|bunx) @astryxdesign\/cli(?=[\s`'"]|$)/g,
+        /\b(?:npx(?: -y)?|pnpm dlx|yarn dlx|bunx) @astryxdesign\/cli(?:@[\w.+-]+)?(?=[\s`'"]|$)/g,
         invocation,
       )
       .replace(

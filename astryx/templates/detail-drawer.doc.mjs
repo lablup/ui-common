@@ -4,7 +4,7 @@ export default {
   name: "detail-drawer",
   displayName: "Detail Drawer",
   description:
-    "A side drawer that shows one row of a list: DrawerHeader with the title, status and close button, a MetadataList of the item's facts, and Edit / Delete actions in a footer row. Uses the lab Drawer, so the project needs the @astryxdesign/lab peer.",
+    "A side drawer that shows one row of a list: DrawerHeader with the title, status and close button, a MetadataList of the item's facts, and Edit / Delete actions in a footer row.",
   keywords: [
     "detail",
     "details",

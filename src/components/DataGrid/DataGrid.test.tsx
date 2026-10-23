@@ -331,7 +331,10 @@ describe("DataGrid selection", () => {
         getIsItemEnabled: (row) => row.id !== "1",
       },
     });
-    expect(screen.getByRole("checkbox", { name: "Select row-1" })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: "Select row-1" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
     expect(screen.getByRole("checkbox", { name: "Select row-2" })).toBeEnabled();
   });
 

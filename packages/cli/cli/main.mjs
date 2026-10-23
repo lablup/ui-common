@@ -16,6 +16,7 @@ import { TEMPLATE_HELP, templateCommand } from "./templates.mjs";
 import { UPGRADE_HELP, upgradeCommand } from "./upgrade.mjs";
 import { ADOPT_HELP, adoptCommand } from "./adopt.mjs";
 import { DOCTOR_HELP, doctorCommand } from "./doctor.mjs";
+import { INIT_USER_HELP, initUserCommand } from "./user-skill.mjs";
 
 export const HELP = `Usage: ui-common <command> [options]
 
@@ -39,6 +40,10 @@ ui-common commands:
   agents [--write <file>] [--check] [--skill [--dir <dir>]]
         Print, write or check the ui-common agent block (UI-COMMON markers);
         install the ui-common-adopt agent skill.
+  init --user [--remove-agents]
+        Install the ui-common agent skill for every agent on this computer
+        (~/.agents/skills/ui-common, linked into ~/.claude/skills and the
+        like), in place of Astryx's. Any other \`init\` is Astryx's.
   template [<name> [<path>]] [--list] [--type page|block] [--overwrite]
         List, print or scaffold one of ui-common's page and block templates.
         Astryx's own templates are not offered; \`search\` and \`build\` leave
@@ -98,6 +103,10 @@ export async function main(argv) {
       return 0;
     case "agents":
       return agentsCommand(rest);
+    case "init":
+      // The computer-level skill is ui-common's own; a project init is Astryx's.
+      if (rest.includes("--user")) return initUserCommand(rest);
+      return passthrough(argv);
     case "template":
       return templateCommand(rest);
     case "upgrade":
@@ -117,4 +126,12 @@ export async function main(argv) {
   }
 }
 
-export { ADOPT_HELP, AGENTS_HELP, DOCTOR_HELP, SYNC_HELP, TEMPLATE_HELP, UPGRADE_HELP };
+export {
+  ADOPT_HELP,
+  AGENTS_HELP,
+  DOCTOR_HELP,
+  INIT_USER_HELP,
+  SYNC_HELP,
+  TEMPLATE_HELP,
+  UPGRADE_HELP,
+};

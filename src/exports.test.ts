@@ -219,14 +219,30 @@ describe("forks of Astryx components", () => {
     }
   });
 
-  it("exports lab's Drawer and Tour from ui-common's copies, not lab", () => {
+  it("exports lab's Tour from ui-common's copy, not lab", () => {
     const lab = result.files.get("src/astryx/lab.ts") ?? "";
-    const [fromLab, ...own] = lab.split(/\n\/\/ (?=Drawer|Tour)/);
-    for (const name of ["Drawer", "DrawerProps", "Tour", "TourStep", "useTour"]) {
+    const [fromLab, ...own] = lab.split(/\n\/\/ (?=Tour)/);
+    for (const name of ["Tour", "TourStep", "useTour"]) {
       expect(fromLab).not.toMatch(new RegExp(`^\\s+${name},$`, "m"));
       expect(result.report.replaced).toContain(name);
     }
-    expect(own.join("\n")).toContain('from "../forks/Drawer";');
     expect(own.join("\n")).toContain('from "../forks/Tour";');
+  });
+
+  it("takes the Drawer subpath with ui-common's copy and Astryx's DrawerHeader", () => {
+    expect(result.files.has("src/astryx/Drawer.ts")).toBe(false);
+    expect(result.exports["./Drawer"]).toEqual({
+      types: "./dist/forks/Drawer/index.d.ts",
+      import: "./dist/forks/Drawer/index.js",
+    });
+    const barrel = result.files.get("src/index.ts") ?? "";
+    expect(barrel).toMatch(/export \{[^}]*\bDrawer\b[^}]*\} from "\.\/forks\/Drawer"/);
+    expect(barrel).toMatch(
+      /export \{[^}]*\bDrawerHeader\b[^}]*\} from "\.\/forks\/Drawer"/,
+    );
+    for (const name of ["Drawer", "DrawerProps"]) {
+      expect(result.report.replaced).toContain(name);
+    }
+    expect(result.files.get("src/astryx/lab.ts") ?? "").not.toMatch(/\bDrawer\b/);
   });
 });

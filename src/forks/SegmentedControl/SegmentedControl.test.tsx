@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.0, src/SegmentedControl/SegmentedControl.test.tsx
+// Forked from @astryxdesign/core 0.7.3, src/SegmentedControl/SegmentedControl.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
 // in the *.fork.test.tsx beside it.
 // Left out: the layout tests (hug, fill, truncation) and the forced-colors and
