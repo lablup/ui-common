@@ -241,10 +241,6 @@
       "types": "./dist/astryx/Collapsible.d.ts",
       "import": "./dist/astryx/Collapsible.js"
     },
-    "./CommandPalette": {
-      "types": "./dist/astryx/CommandPalette.d.ts",
-      "import": "./dist/astryx/CommandPalette.js"
-    },
     "./ContextMenu": {
       "types": "./dist/astryx/ContextMenu.d.ts",
       "import": "./dist/astryx/ContextMenu.js"
@@ -575,6 +571,10 @@
     "./CheckboxList": {
       "types": "./dist/formControls/CheckboxList/index.d.ts",
       "import": "./dist/formControls/CheckboxList/index.js"
+    },
+    "./CommandPalette": {
+      "types": "./dist/components/CommandPalette/index.d.ts",
+      "import": "./dist/components/CommandPalette/index.js"
     },
     "./ComplexSelector": {
       "types": "./dist/forks/ComplexSelector/index.d.ts",

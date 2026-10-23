@@ -8,12 +8,17 @@
  * Left out because their subpath is excluded:
  * AlertDialog, AlertDialogProps, BaseTypeahead, BaseTypeaheadProps,
  * CheckboxInputSize, CheckboxListItem, CheckboxListItemProps,
- * CreateStaticSourceOptions, DateInputFormat, DateInputNativePicker,
- * DateInputPresentation, DateInputSize, DateInputStatus, DateInputStatusType,
- * DateRange, DateRangeInputSize, DateRangeInputStatus,
- * DateRangeInputStatusType, DateRangePreset, DateTimeInputHourFormat,
- * DateTimeInputNativePicker, DateTimeInputPresentation, DateTimeInputSize,
- * DateTimeInputStatus, DateTimeInputStatusType, DateTimeInputTimeIncrement,
+ * CommandPaletteContextValue, CommandPaletteEmpty, CommandPaletteEmptyProps,
+ * CommandPaletteFooter, CommandPaletteFooterProps, CommandPaletteGroup,
+ * CommandPaletteGroupProps, CommandPaletteInput, CommandPaletteInputProps,
+ * CommandPaletteItem, CommandPaletteItemProps, CommandPaletteList,
+ * CommandPaletteListProps, CommandPaletteProps, CreateStaticSourceOptions,
+ * DateInputFormat, DateInputNativePicker, DateInputPresentation, DateInputSize,
+ * DateInputStatus, DateInputStatusType, DateRange, DateRangeInputSize,
+ * DateRangeInputStatus, DateRangeInputStatusType, DateRangePreset,
+ * DateTimeInputHourFormat, DateTimeInputNativePicker,
+ * DateTimeInputPresentation, DateTimeInputSize, DateTimeInputStatus,
+ * DateTimeInputStatusType, DateTimeInputTimeIncrement,
  * DateTimeInputTimeOptionInterval, Dialog, DialogHeader, DialogHeaderProps,
  * DialogPosition, DialogProps, DialogPurpose, DialogVariant, DialogVariantMap,
  * DrawerHeader, DrawerHeaderProps, FileInputStatus, FileInputStatusType,
@@ -37,11 +42,18 @@
  * TokenizerOverflowBehavior, TokenizerSize, TokenizerStatus,
  * TokenizerStatusType, TypeaheadItem, TypeaheadItemProps, TypeaheadSize,
  * TypeaheadStatus, TypeaheadStatusType, UsePopoverOptions, UsePopoverReturn,
- * createStaticSource, useCombobox, useImperativeAlertDialog,
- * useImperativeDialog, useMultiCombobox, usePopover, useSelectedItemOffset.
+ * createStaticSource, useCombobox, useCommandPaletteContext,
+ * useImperativeAlertDialog, useImperativeDialog, useMultiCombobox, usePopover,
+ * useSelectedItemOffset.
  *
  * Excluded Astryx names re-exported unchanged by their replacement:
- * CheckboxInputSize, CheckboxListItem, CheckboxListItemProps, DateInputFormat,
+ * CheckboxInputSize, CheckboxListItem, CheckboxListItemProps,
+ * CommandPaletteEmpty, CommandPaletteFooter, CommandPaletteGroup,
+ * CommandPaletteInput, CommandPaletteItem, CommandPaletteList,
+ * useCommandPaletteContext, CommandPaletteContextValue,
+ * CommandPaletteEmptyProps, CommandPaletteFooterProps,
+ * CommandPaletteGroupProps, CommandPaletteInputProps, CommandPaletteItemProps,
+ * CommandPaletteListProps, CommandPaletteProps, DateInputFormat,
  * DateInputNativePicker, DateInputPresentation, DateInputSize, DateInputStatus,
  * DateInputStatusType, DateRange, DateRangeInputSize, DateRangeInputStatus,
  * DateRangeInputStatusType, DateRangePreset, DateTimeInputHourFormat,
@@ -74,7 +86,7 @@
  *
  * Astryx names exported from ui-common's own copy of the component:
  * CheckboxInput, CheckboxInputProps, CheckboxList, CheckboxListProps,
- * ComplexSelector, ComplexSelectorHandle, ComplexSelectorProps,
+ * CommandPalette, ComplexSelector, ComplexSelectorHandle, ComplexSelectorProps,
  * ComplexSelectorRenderState, ComplexSelectorRenderTriggerProps,
  * ComplexSelectorSize, ComplexSelectorStatus, ComplexSelectorVariant,
  * DateInput, DateInputProps, DateRangeInput, DateRangeInputProps,
@@ -139,13 +151,6 @@ export {
   CodeBlock,
   Collapsible,
   CollapsibleGroup,
-  CommandPalette,
-  CommandPaletteEmpty,
-  CommandPaletteFooter,
-  CommandPaletteGroup,
-  CommandPaletteInput,
-  CommandPaletteItem,
-  CommandPaletteList,
   ContextMenu,
   ContextMenuCheckboxItem,
   ContextMenuDivider,
@@ -488,7 +493,6 @@ export {
   useClipboard,
   useCollapsible,
   useCollator,
-  useCommandPaletteContext,
   useContainerReveal,
   useDevWarning,
   useDirection,
@@ -693,14 +697,6 @@ export type {
   ColorVarName,
   ColumnSettingsOption,
   ColumnWidth,
-  CommandPaletteContextValue,
-  CommandPaletteEmptyProps,
-  CommandPaletteFooterProps,
-  CommandPaletteGroupProps,
-  CommandPaletteInputProps,
-  CommandPaletteItemProps,
-  CommandPaletteListProps,
-  CommandPaletteProps,
   ComponentStyleMap,
   ContainerComponent,
   ContainerOptions,
@@ -1380,6 +1376,28 @@ export type {
 // ColorPicker
 export { ColorPicker, toHexColor } from "./components/ColorPicker";
 export type { ColorPickerProps } from "./components/ColorPicker";
+
+// CommandPalette: ui-common's wrapper, same API, in place of Astryx's.
+export {
+  CommandPalette,
+  CommandPaletteEmpty,
+  CommandPaletteFooter,
+  CommandPaletteGroup,
+  CommandPaletteInput,
+  CommandPaletteItem,
+  CommandPaletteList,
+  useCommandPaletteContext,
+} from "./components/CommandPalette";
+export type {
+  CommandPaletteContextValue,
+  CommandPaletteEmptyProps,
+  CommandPaletteFooterProps,
+  CommandPaletteGroupProps,
+  CommandPaletteInputProps,
+  CommandPaletteItemProps,
+  CommandPaletteListProps,
+  CommandPaletteProps,
+} from "./components/CommandPalette";
 
 // ComplexSelector: ui-common's own copy, in place of Astryx's.
 export { ComplexSelector } from "./forks/ComplexSelector";

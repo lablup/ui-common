@@ -91,7 +91,12 @@ exports. Two exceptions:
 A ui-common component never shares a name with an Astryx core or lab export.
 Pick a different name, or use the Astryx component.
 
-The exceptions are a fork and a form-control wrapper (both below).
+The exceptions are a fork and a form-control wrapper (both below), and a
+same-API wrapper: `Popover` (see "Boundaries" below) and `CommandPalette`
+(src/components/CommandPalette), which sits at a fixed offset from the top of
+the viewport, not centred, so its input stays put while the results change.
+Each has an `exports.exclude.json` entry and an `exports.customs.json` entry
+with `"wraps"`, and exports exactly Astryx's names.
 
 ## Forks of Astryx components
 

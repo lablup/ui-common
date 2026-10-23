@@ -1,0 +1,13 @@
+/*
+ * CommandPalette: Astryx's palette, pinned to the top of the viewport.
+ */
+@layer ui-common {
+  /* Dialog centres itself with `margin: auto`, so a result list that shrinks
+     while typing moves the input. A fixed top margin and an auto bottom one
+     keep the input in place; the surface grows and shrinks downward only.
+     The offset is a viewport fraction, which Astryx has no token for. */
+  .uic-command-palette {
+    --command-palette-top: 15dvh;
+    margin-block: var(--command-palette-top) auto;
+  }
+}
