@@ -5,6 +5,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Changed
+
+- **`CommandPalette` sits at a fixed offset from the top of the viewport**
+  (15dvh) instead of centred, so its input no longer moves while the result
+  list shrinks or grows as the user types; the surface grows and shrinks
+  downward only. Its `maxHeight` (Astryx's default 480px, or the one passed)
+  is capped by the viewport left below the offset. `@lablup/ui-common/CommandPalette`
+  and the root barrel now export ui-common's wrapper in place of Astryx's
+  `CommandPalette`, with the same API and names; the inline preview
+  (`isInline`) is unchanged. This changes where an open palette renders.
+
 ### Fixed
 
 - **Form controls take antd's width inside a `Form.Item`, and Astryx's

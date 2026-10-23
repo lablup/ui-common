@@ -10,6 +10,11 @@
     "reason": "Adds hasClear and onClear, a clear button as Selector has (facebook/astryx#6362)."
   },
   {
+    "name": "CommandPalette",
+    "replacedBy": "CommandPalette",
+    "reason": "The palette sits at a fixed offset from the top of the viewport instead of centred, so its input stays put while the result list shrinks or grows. The API is Astryx's."
+  },
+  {
     "name": "Drawer",
     "replacedBy": "Drawer",
     "reason": "A scrimless drawer stays out of the top layer (show() and a z-index), so ui-common's Modal and notification stack paint above it; a Modal inside a scrimmed drawer opens above it; aria-modal passes through. DrawerHeader is Astryx's, re-exported unchanged."

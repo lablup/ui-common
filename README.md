@@ -458,6 +458,10 @@ the reason and the replacement, in [`exports.exclude.json`](exports.exclude.json
 Today that is `Dialog` (use `Modal`), `AlertDialog` (use `AlertModal`) and two
 Astryx CLI data files. The form controls' subpaths are excluded too, and
 replaced under the same names by ui-common's `Form.Item` wrappers (see Form).
+`Popover` and `CommandPalette` are replaced by same-API wrappers: a popover's
+content leaves the `Form.Item` it opens from, and the palette sits at a fixed
+offset from the top of the viewport instead of centred, so its input stays put
+while the results change.
 
 ### Name rule
 
@@ -465,7 +469,8 @@ A ui-common component never shares a name with an Astryx core or lab export.
 If a name is `Button`, it is Astryx's `Button`. The same holds the other way:
 `DialogHeader` from `@lablup/ui-common/Modal` is Astryx's own `DialogHeader`.
 The exceptions keep Astryx's name on purpose: the forks (fixed copies, same
-API) and the form controls (wrapped for `Form.Item`).
+API), the form controls (wrapped for `Form.Item`), and `Popover` and
+`CommandPalette` (wrapped, same API).
 
 ## Strings
 
