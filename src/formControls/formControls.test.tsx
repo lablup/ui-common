@@ -549,17 +549,37 @@ function fieldWidths(root: ParentNode) {
     .filter(Boolean);
 }
 
-const SIZED_CONTROLS: Array<[string, ReactElement]> = [
-  ["TextInput", <TextInput aria-label="a" />],
-  ["TextArea", <TextArea aria-label="b" />],
-  ["NumberInput", <NumberInput aria-label="c" />],
-  ["Selector", <Selector aria-label="d" options={OPTIONS} />],
-  ["MultiSelector", <MultiSelector aria-label="e" options={OPTIONS} />],
-  ["Tokenizer", <Tokenizer aria-label="f" searchSource={source} />],
+/**
+ * Each wrapper's width inside a `Form.Item` when none is passed: what its antd
+ * counterpart renders there (`IN_ITEM_WIDTH` in ./formControl.tsx). `null`
+ * means no width is set.
+ */
+const NOT_FIT_CONTENT: Record<string, string | null> = {
+  TextInput: "100%",
+  TextArea: "100%",
+  NumberInput: "90px",
+  Selector: "100%",
+  MultiSelector: "100%",
+  Typeahead: "100%",
+  Tokenizer: "100%",
+  TagsInput: "100%",
+  Slider: null,
+  SegmentedControl: null,
+};
+
+type Sizable = ReactElement<{ width?: number; "aria-label"?: string }>;
+
+const ITEM_WIDTHS: Array<[string, Sizable, string | null]> = [
+  ...CASES.map(([name, control]): [string, Sizable, string | null] => [
+    name,
+    control as Sizable,
+    name in NOT_FIT_CONTENT ? (NOT_FIT_CONTENT[name] ?? null) : "fit-content",
+  ]),
+  ["FileInput (dropzone)", <FileInput mode="dropzone" />, "100%"],
 ];
 
-describe("fill the row only inside a Form.Item, as antd's controls do", () => {
-  it.each(SIZED_CONTROLS)("%s fills a Form.Item", (_, control) => {
+describe("size a control inside a Form.Item as antd does, and only there", () => {
+  it.each(ITEM_WIDTHS)("%s inside a Form.Item", (_, control, expected) => {
     const { container } = render(
       <Form>
         <Form.Item name="x" label="X">
@@ -567,13 +587,31 @@ describe("fill the row only inside a Form.Item, as antd's controls do", () => {
         </Form.Item>
       </Form>,
     );
-    expect(fieldWidths(container)).toEqual(["100%"]);
+    expect(fieldWidths(container)).toEqual(expected ? [expected] : []);
   });
 
-  it.each(SIZED_CONTROLS)("%s keeps Astryx's width outside one", (_, control) => {
-    const { container } = render(<Form>{control}</Form>);
+  it.each(ITEM_WIDTHS)("%s keeps Astryx's width outside one", (_, control) => {
+    const { container } = render(
+      <Form>{cloneElement(control, { "aria-label": "Standalone" })}</Form>,
+    );
     expect(fieldWidths(container)).toEqual([]);
   });
+
+  it.each(ITEM_WIDTHS.filter(([name]) => name !== "SegmentedControl"))(
+    "%s takes an explicit width, inside a Form.Item and outside",
+    (_, control) => {
+      const sized = cloneElement(control, { width: 123 });
+      const { container } = render(
+        <Form>
+          <Form.Item name="x" label="X">
+            {sized}
+          </Form.Item>
+          {cloneElement(sized, { "aria-label": "Standalone" })}
+        </Form>,
+      );
+      expect(fieldWidths(container)).toEqual(["123px", "123px"]);
+    },
+  );
 
   it("let an explicit width win, inside a Form.Item and outside", () => {
     const { container } = render(

@@ -36,11 +36,13 @@ export function DateTimeInput({
   disabled,
   ...rest
 }: DateTimeInputProps) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "DateTimeInput",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     value,
@@ -51,6 +53,7 @@ export function DateTimeInput({
   const props = {
     ...rest,
     ...field,
+    width,
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxDateTimeInputProps;

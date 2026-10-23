@@ -129,8 +129,10 @@ wrapped for `Form.Item`, as in antd: they take no `label`, `isLabelHidden`,
 `isDisabled` or `statusVariant`, and `status` paints the border only. Inside a
 form, the enclosing `Form.Item` takes them (`label`, `extra`, `tooltip`,
 `rules`, `help`); on its own, a control is named by `aria-label`, and
-`isDisabled` is `disabled`. Inside a `Form.Item` they also default to `width="100%"`, `Selector`
-opens below, and `NumberInput` clears to `null`. The report lists each call
+`isDisabled` is `disabled`. Inside a `Form.Item` they also take the width
+their antd counterpart renders there (`"100%"` for text and select
+controls, 90px for `NumberInput`, content width for date, time, file and
+choice controls), `Selector` opens below, and `NumberInput` clears to `null`. The report lists each call
 site that passes one of the dropped props; `tsc` catches the rest.
 
 **A `Modal` is not a `<dialog>`.** Its `ref` is the element with

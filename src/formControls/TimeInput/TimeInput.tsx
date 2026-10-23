@@ -36,11 +36,13 @@ export function TimeInput({
   disabled,
   ...rest
 }: TimeInputProps) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "TimeInput",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     value,
@@ -51,6 +53,7 @@ export function TimeInput({
   const props = {
     ...rest,
     ...field,
+    width,
     statusVariant: "detached",
     value: mergedValue,
     onChange: handleChange,

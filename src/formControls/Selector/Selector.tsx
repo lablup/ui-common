@@ -32,6 +32,7 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "Selector",
     width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(

@@ -37,12 +37,14 @@ export function CheckboxList({
   disabled,
   ...rest
 }: CheckboxListProps) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
     namesItself: true,
+    sizing: "CheckboxList",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     value,
@@ -53,6 +55,7 @@ export function CheckboxList({
   const props = {
     ...rest,
     ...field,
+    width,
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxCheckboxListProps;

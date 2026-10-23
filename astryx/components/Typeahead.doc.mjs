@@ -289,7 +289,8 @@ export default {
       name: "width",
       type: "SizeValue",
       description:
-        'Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.',
+        "Width of the field (number = pixels, string used as-is, e.g. \"100%\"). Sizes the whole field (label, control, and status) so they stay aligned. Inside a Form.Item it defaults to '100%', as antd's AutoComplete renders there; elsewhere Astryx's own default applies.",
+      default: "'100%' in a Form.Item",
     },
     {
       name: "startIcon",

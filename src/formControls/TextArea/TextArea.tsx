@@ -41,6 +41,7 @@ export function TextArea({
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "TextArea",
     width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(value, defaultValue, onChange, "");

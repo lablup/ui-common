@@ -40,6 +40,7 @@ export function MultiSelector<
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "MultiSelector",
     width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(

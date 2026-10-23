@@ -64,6 +64,7 @@ export function NumberInput({
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "NumberInput",
     width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue<NumberInputValue>(

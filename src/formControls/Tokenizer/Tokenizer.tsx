@@ -43,6 +43,7 @@ export function Tokenizer<T extends SearchableItem>({
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "Tokenizer",
     width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(

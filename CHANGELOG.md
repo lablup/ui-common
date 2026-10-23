@@ -7,15 +7,23 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
-- **`TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector` and
-  `Tokenizer` fill the row only inside a `Form.Item`**, as antd's controls
-  do. Since 0.2.0-alpha.20 they defaulted to `width="100%"` everywhere, so a
-  control outside a form (a header selector, a toolbar filter) stretched
-  across its container where Astryx's control had kept its own width. Outside
-  an item `width` is now left to Astryx's default; a `noStyle` item fills only
-  inside a styled one, and a `Modal`, `Drawer`, `Popover` or nested `Form`
-  resets it. An explicit `width` still wins. No codemod: pass `width="100%"`
-  to a standalone control that should fill its container.
+- **Form controls take antd's width inside a `Form.Item`, and Astryx's
+  outside one.** Since 0.2.0-alpha.20 `TextInput`, `TextArea`,
+  `NumberInput`, `Selector`, `MultiSelector` and `Tokenizer` defaulted to
+  `width="100%"` everywhere, so a control outside a form (a header selector,
+  a toolbar filter) stretched across its container where Astryx's control had
+  kept its own width. Outside an item `width` is now left to Astryx's
+  default. Inside one each wrapper defaults to what its antd 5 counterpart
+  renders there: `"100%"` for `TextInput`, `TextArea`, `Selector`,
+  `MultiSelector`, `Tokenizer` (and `TagsInput`), `Typeahead` and a
+  `FileInput` dropzone; `90` for `NumberInput` (antd's InputNumber
+  `controlWidth`); `"fit-content"` for `DateInput`, `TimeInput`,
+  `DateTimeInput`, `DateRangeInput`, `FileInput`, `Switch`,
+  `CheckboxInput`, `CheckboxList` and `RadioList`, which used to fill the
+  item; `Slider` and `SegmentedControl` are unchanged. A `noStyle` item
+  sizes like a styled one only inside one, and a `Modal`, `Drawer`,
+  `Popover` or nested `Form` resets it. An explicit `width` still wins. No
+  codemod: pass `width` where a control should keep the old size.
 
 ## [0.2.0-alpha.20]
 

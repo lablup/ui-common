@@ -46,6 +46,7 @@ export function TextInput({
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "TextInput",
     width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(value, defaultValue, onChange, "");
