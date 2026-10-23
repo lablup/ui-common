@@ -42,6 +42,8 @@ export function TextInput({
   ...rest
 }: TextInputProps) {
   const { required, field, width } = useFormControl({
+    component: "TextInput",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

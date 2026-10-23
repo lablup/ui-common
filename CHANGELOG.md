@@ -35,6 +35,32 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   sizes like a styled one only inside one, and a `Modal`, `Drawer`,
   `Popover` or nested `Form` resets it. An explicit `width` still wins. No
   codemod: pass `width` where a control should keep the old size.
+- **`ui-common upgrade --from 0.2.0-alpha.19` now handles the form controls'
+  field chrome** (#91), the 0.2.0-alpha.20 break it used to say nothing about
+  (#72). On elements of a control imported from ui-common it rewrites what
+  keeps its meaning: `label={x} isLabelHidden` → `aria-label={x}`,
+  `isDisabled` → `disabled`, `status={{ type: "error" | "warning" }}` →
+  `status="error" | "warning"`, and a `CheckboxInput` / `Switch` `label` →
+  children. The rest (an element with a spread, a visible label on any other
+  control, a status object with a message or from an expression,
+  `description`, `labelTooltip`, `labelIcon`, `isRequired`, `isOptional`,
+  `statusVariant`) is left as written and listed in the report under "Form
+  controls: the field chrome moved to Form.Item", with where each one goes on
+  `Form.Item`. `adopt` and the upgrade share the form-control scan
+  (`codemods/lib/form-controls.mjs`).
+- **A form control no longer drops a caller's field chrome silently.** In
+  development each wrapper warns once when its props carry `label`,
+  `isLabelHidden`, `description`, `labelTooltip`, `labelIcon`, `isRequired`,
+  `isOptional`, `statusVariant`, `isDisabled` or an Astryx status object
+  (through a spread or plain JavaScript, past the types). `isDisabled` still
+  disables the control when `disabled` is not set, and a status object's
+  `type` still paints the border, so a disabled field never turns editable.
+- **`@lablup/ui-common/Slider` exports the wrapper's props types.**
+  `SliderSingleProps`, `SliderRangeProps` and `SliderBaseProps` were
+  Astryx's, with `label` and the object `status`, next to a `Slider` that
+  rejects both; they are now the wrapper's (no field chrome, `status` the
+  border only, `value` optional beside `defaultValue`), as `SliderProps`
+  already was.
 
 ## [0.2.0-alpha.20]
 

@@ -13,6 +13,7 @@
  * Astryx control inside `FormControlScope`.
  */
 import { FormLayoutContext } from "@astryxdesign/core/FormLayout";
+import { warnOnce } from "@astryxdesign/core/utils";
 import { use, useState, type ReactNode } from "react";
 
 import { FormItemInputContext } from "../components/Form/context";
@@ -46,6 +47,23 @@ export type FormControlChromeProps =
   | "status"
   | "statusVariant"
   | "isDisabled";
+
+/**
+ * The chrome a caller can still pass where the types do not stop it (a
+ * spread, plain JavaScript): each is dropped, so development warns about it.
+ * `status` is checked apart, since a string is the wrapper's own.
+ */
+const DROPPED_CHROME = [
+  "label",
+  "isLabelHidden",
+  "description",
+  "labelTooltip",
+  "labelIcon",
+  "isRequired",
+  "isOptional",
+  "statusVariant",
+  "isDisabled",
+] as const satisfies readonly FormControlChromeProps[];
 
 /** `Omit` that keeps a union of props a union (Selector, Slider, NumberInput). */
 export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
@@ -127,6 +145,13 @@ export const IN_ITEM_WIDTH = {
 export type ItemSizedControl = keyof typeof IN_ITEM_WIDTH;
 
 interface UseFormControlOptions {
+  /** The wrapper's name, for the development warning. */
+  component: string;
+  /**
+   * The rest of the caller's props, which the wrapper spreads under what this
+   * returns: any Astryx field chrome in them is overridden.
+   */
+  caller: object;
   status?: FormControlStatus;
   disabled?: boolean;
   /** `Form.Item` injects `aria-required="true"` from its rules. */
@@ -151,7 +176,9 @@ interface UseFormControlOptions {
 type BorderStatus = { type: "error" | "warning" } | undefined;
 
 export function useFormControl({
-  status,
+  component,
+  caller,
+  status: callerStatus,
   disabled,
   ariaRequired,
   ariaLabel,
@@ -159,6 +186,34 @@ export function useFormControl({
   sizing,
   width,
 }: UseFormControlOptions) {
+  const chrome = caller as Partial<Record<FormControlChromeProps, unknown>>;
+  // Astryx's `{ type, message }` object: the border keeps its type.
+  const objectStatus =
+    typeof callerStatus === "object" && callerStatus !== null
+      ? (callerStatus as { type?: unknown }).type
+      : undefined;
+  const status =
+    objectStatus === "error" || objectStatus === "warning"
+      ? objectStatus
+      : typeof callerStatus === "string"
+        ? callerStatus
+        : undefined;
+  if (process.env.NODE_ENV !== "production") {
+    const passed: string[] = DROPPED_CHROME.filter((key) => chrome[key] !== undefined);
+    if (objectStatus !== undefined || (callerStatus != null && status === undefined))
+      passed.push("status (an object)");
+    if (passed.length > 0) {
+      warnOnce(
+        `ui-common:form-control-chrome:${component}`,
+        component,
+        `ui-common's ${component} does not take ${passed.join(", ")}. The enclosing Form.Item ` +
+          "owns the label (`label`), description (`extra`), tooltip, required mark (`required` / `rules`) " +
+          "and status message (`help`); name a control on its own with `aria-label`, and pass `disabled` " +
+          'for `isDisabled` and `status="error" | "warning"` for a status object. ' +
+          "`ui-common upgrade --from 0.2.0-alpha.19` rewrites the safe cases.",
+      );
+    }
+  }
   const item = use(FormItemInputContext);
   const itemStatus =
     item.status === "error" || item.status === "warning" ? item.status : "";
@@ -177,7 +232,8 @@ export function useFormControl({
       label: name,
       isLabelHidden: true,
       "aria-label": namesItself || !name ? undefined : name,
-      isDisabled: disabled,
+      // A caller's `isDisabled` still disables: a field must not turn editable silently.
+      isDisabled: disabled ?? (chrome.isDisabled as boolean | undefined),
       status: (merged ? { type: merged } : undefined) as BorderStatus,
     },
   };

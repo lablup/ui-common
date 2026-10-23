@@ -41,6 +41,8 @@ export function RadioList({
   ...rest
 }: RadioListProps) {
   const { required, field, width } = useFormControl({
+    component: "RadioList",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],
