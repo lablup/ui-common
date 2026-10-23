@@ -177,6 +177,13 @@ apart from the library, the CLI toolchain stays out of production installs, as
   [adopting-from-astryx.md](adopting-from-astryx.md). The `ui-common-adopt`
   agent skill (`packages/cli/skill/`) ships with them; `agents --skill`
   installs it.
+- **`init --user`.** The computer-level skill, in place of the one
+  `astryx init --user` writes: `packages/cli/skill/ui-common/SKILL.md`,
+  installed at `~/.agents/skills/ui-common/` and linked into the skill folders
+  Astryx links its own into (Astryx's `SKILL_LINKS` table). It tells every
+  agent to run `ui-common` and import `@lablup/ui-common` in a project that
+  depends on it; Astryx's says `astryx` and `@astryxdesign/core`. Any other
+  `init` passes through.
 - **`upgrade`.** Codemod steps keyed by ui-common version, on jscodeshift and
   postcss (the engines the Astryx CLI uses). See
   [CONTRIBUTING.md](../CONTRIBUTING.md#the-upgrade-tool).

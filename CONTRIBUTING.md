@@ -525,6 +525,12 @@ way (`UPDATE_FIXTURES=1 pnpm vitest run packages/cli/test/adopt`).
 headed by its id, which is the anchor the check prints. The agent skill
 (`packages/cli/skill/ui-common-adopt/SKILL.md`) names the commands' judgement
 calls only; keep it under ~150 lines and in step with both.
+`ui-common init --user` (`packages/cli/cli/user-skill.mjs`) installs the other
+skill, `packages/cli/skill/ui-common/SKILL.md`, for every agent on the
+computer, as `astryx init --user` installs Astryx's. Keep it short and
+version-free, as Astryx's is: `packages/cli/test/cli/user-skill.test.ts`
+holds it to the commands it may name and to Astryx's workflow and self-check
+lines, so an Astryx bump that rewords them fails until the skill follows.
 
 ## Versioning
 

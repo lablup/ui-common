@@ -23,6 +23,22 @@ global mode and the computer-level agent guide in the CLI).
   `CommentPin`, `DiffViewer` (with `parseUnifiedDiff`, `createDiffFile`),
   `EmojiPicker` and their types. No subpath was removed; `lab` lost `Drawer`
   and `DrawerHeader` (below).
+- **`ui-common init --user`: the ui-common skill for every agent on the
+  computer**, ui-common's counterpart of the Astryx skill `astryx init
+--user` writes since Astryx 0.7.2. It installs
+  `~/.agents/skills/ui-common/SKILL.md` (shipped in `@lablup/ui-common-cli`
+  as `skill/ui-common/SKILL.md`) and links it into `~/.claude/skills/` and
+  the skill folders of the other agents Astryx reaches (Kiro, Windsurf,
+  Letta, Xcode, `~/.config/agents`; a managed copy for Continue) when they are
+  installed. The text is short and version-free like Astryx's: in a project
+  that depends on `@lablup/ui-common`, use `ui-common search`, `build`,
+  `template`, `component` and `docs`, import from `@lablup/ui-common`, and
+  never run `astryx` or import `@astryxdesign/*`. Before this,
+  `ui-common init --user` passed through to Astryx and left only Astryx's
+  skill, which steers agents to `@astryxdesign/core`. A file you edited, or
+  one ui-common did not write, is never changed; `--remove-agents` removes
+  what it wrote. When Astryx's skill is installed too, the command says how
+  to remove it (`ui-common astryx init --user --remove-agents`) and leaves it.
 - **`ui-common adopt --from astryx`**: moves an app that imports Astryx
   directly (`@astryxdesign/core`, `/lab`, `/theme-neutral`) onto ui-common in
   one pass. It rewrites every module specifier in scripts (imports,

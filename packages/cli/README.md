@@ -3,8 +3,8 @@
 The `ui-common` command line for [`@lablup/ui-common`](https://www.npmjs.com/package/@lablup/ui-common):
 the Astryx CLI that ui-common pins, with its output in `@lablup/ui-common`
 terms, the agent block, the upgrade codemods, `adopt --from astryx` for an
-app that uses Astryx directly, `doctor`, and the `ui-common-adopt` agent
-skill.
+app that uses Astryx directly, `doctor`, the `ui-common-adopt` agent skill,
+and the computer-level `ui-common` skill (`ui-common init --user`).
 
 It is a separate package so the CLI's toolchain (the Astryx CLI, jscodeshift,
 postcss) stays out of a consumer's production install. It is released at the
