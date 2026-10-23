@@ -76,4 +76,45 @@ describe("UncontrolledInput", () => {
     );
     expect(screen.getByRole("textbox", { name: "선택" })).toBeInTheDocument();
   });
+  it.each(["text", "number"] as const)(
+    "puts className and style on the %s field box, not the input",
+    (type) => {
+      render(
+        <UncontrolledInput
+          label="Size"
+          type={type}
+          className="narrow"
+          style={{ maxWidth: 150, alignSelf: "stretch" }}
+        />,
+      );
+      const input = screen.getByLabelText("Size");
+      const box = input.closest<HTMLElement>(".narrow");
+      expect(box).not.toBeNull();
+      expect(box).toHaveStyle({ maxWidth: "150px", alignSelf: "stretch" });
+      // The field box holds the label too, so the whole field is sized.
+      expect(box).toContainElement(screen.getByText("Size"));
+      expect(input).not.toHaveClass("narrow");
+      expect(input.getAttribute("style") ?? "").not.toContain("max-width");
+    },
+  );
+
+  it("passes width to the field and control styling to the control box", () => {
+    render(
+      <UncontrolledInput
+        label="Size"
+        width={200}
+        className="field"
+        controlClassName="control"
+        controlStyle={{ minWidth: 80 }}
+      />,
+    );
+    const input = screen.getByLabelText("Size");
+    const field = input.closest<HTMLElement>(".field");
+    const control = input.closest<HTMLElement>(".control");
+    expect(field?.style.getPropertyValue("--x-width")).toBe("200px");
+    expect(control).not.toBeNull();
+    expect(control).not.toBe(input);
+    expect(field).toContainElement(control);
+    expect(control).toHaveStyle({ minWidth: "80px" });
+  });
 });

@@ -18,6 +18,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`UncontrolledInput` applies `className` and `style`** (#92). It passed
+  them to Astryx's `TextInput` / `NumberInput`, which are Field-composed
+  since Astryx 0.7.0 and ignore root styling, so
+  `<UncontrolledInput style={{ maxWidth: 150 }} />` rendered at full width
+  with no type error. They now style the field box (label, control and
+  status), as Astryx's `containerClassName` / `containerStyle`. New props:
+  `width`, and `controlClassName` / `controlStyle` for the bordered control
+  box. A field that passed `style` or `className` now takes it, which is a
+  visible change where a caller's styles had been inert.
 - **Form controls take antd's width inside a `Form.Item`, and Astryx's
   outside one.** Since 0.2.0-alpha.20 `TextInput`, `TextArea`,
   `NumberInput`, `Selector`, `MultiSelector` and `Tokenizer` defaulted to

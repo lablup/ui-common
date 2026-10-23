@@ -64,3 +64,26 @@ export const WithError: Story = {
 export const Disabled: Story = {
   args: { isDisabled: true },
 };
+
+/** `style` and `className` size the field: `maxWidth: 150` next to the default, which fills. */
+export const Sized: Story = {
+  render: (args) => (
+    <VStack gap={4} align="stretch">
+      <UncontrolledInput {...args} label="Default" data-testid="default-field" />
+      <UncontrolledInput
+        {...args}
+        label="maxWidth 150"
+        style={{ maxWidth: 150 }}
+        data-testid="max-width-field"
+      />
+      <UncontrolledInput
+        {...args}
+        label="Page size"
+        type="number"
+        defaultValue="20"
+        style={{ maxWidth: 150 }}
+        data-testid="max-width-number"
+      />
+    </VStack>
+  ),
+};
