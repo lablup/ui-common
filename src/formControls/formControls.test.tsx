@@ -542,25 +542,132 @@ describe("form-control types", () => {
   });
 });
 
-describe("what a host app's adapter used to add", () => {
-  it("fill the field's width, as antd's inputs do", () => {
+/** The `--x-width` each Astryx field under `root` was given, in order. */
+function fieldWidths(root: ParentNode) {
+  return [...root.querySelectorAll<HTMLElement>("[style]")]
+    .map((el) => el.style.getPropertyValue("--x-width"))
+    .filter(Boolean);
+}
+
+/**
+ * Each wrapper's width inside a `Form.Item` when none is passed: what its antd
+ * counterpart renders there (`IN_ITEM_WIDTH` in ./formControl.tsx). `null`
+ * means no width is set.
+ */
+const NOT_FIT_CONTENT: Record<string, string | null> = {
+  TextInput: "100%",
+  TextArea: "100%",
+  NumberInput: "90px",
+  Selector: "100%",
+  MultiSelector: "100%",
+  Typeahead: "100%",
+  Tokenizer: "100%",
+  TagsInput: "100%",
+  Slider: null,
+  SegmentedControl: null,
+};
+
+type Sizable = ReactElement<{ width?: number; "aria-label"?: string }>;
+
+const ITEM_WIDTHS: Array<[string, Sizable, string | null]> = [
+  ...CASES.map(([name, control]): [string, Sizable, string | null] => [
+    name,
+    control as Sizable,
+    name in NOT_FIT_CONTENT ? (NOT_FIT_CONTENT[name] ?? null) : "fit-content",
+  ]),
+  ["FileInput (dropzone)", <FileInput mode="dropzone" />, "100%"],
+];
+
+describe("size a control inside a Form.Item as antd does, and only there", () => {
+  it.each(ITEM_WIDTHS)("%s inside a Form.Item", (_, control, expected) => {
     const { container } = render(
-      <>
-        <TextInput aria-label="a" />
-        <TextArea aria-label="b" />
-        <NumberInput aria-label="c" />
-        <Selector aria-label="d" options={OPTIONS} />
-        <MultiSelector aria-label="e" options={OPTIONS} />
-        <Tokenizer aria-label="f" searchSource={source} />
-        <TextInput aria-label="g" width={120} />
-      </>,
+      <Form>
+        <Form.Item name="x" label="X">
+          {control}
+        </Form.Item>
+      </Form>,
     );
-    const widths = [...container.querySelectorAll<HTMLElement>("[style]")]
-      .map((el) => el.style.getPropertyValue("--x-width"))
-      .filter(Boolean);
-    expect(widths).toEqual(["100%", "100%", "100%", "100%", "100%", "100%", "120px"]);
+    expect(fieldWidths(container)).toEqual(expected ? [expected] : []);
   });
 
+  it.each(ITEM_WIDTHS)("%s keeps Astryx's width outside one", (_, control) => {
+    const { container } = render(
+      <Form>{cloneElement(control, { "aria-label": "Standalone" })}</Form>,
+    );
+    expect(fieldWidths(container)).toEqual([]);
+  });
+
+  it.each(ITEM_WIDTHS.filter(([name]) => name !== "SegmentedControl"))(
+    "%s takes an explicit width, inside a Form.Item and outside",
+    (_, control) => {
+      const sized = cloneElement(control, { width: 123 });
+      const { container } = render(
+        <Form>
+          <Form.Item name="x" label="X">
+            {sized}
+          </Form.Item>
+          {cloneElement(sized, { "aria-label": "Standalone" })}
+        </Form>,
+      );
+      expect(fieldWidths(container)).toEqual(["123px", "123px"]);
+    },
+  );
+
+  it("let an explicit width win, inside a Form.Item and outside", () => {
+    const { container } = render(
+      <Form>
+        <Form.Item name="x" label="X">
+          <Selector width={120} options={OPTIONS} />
+        </Form.Item>
+        <Form.Item name="y" label="Y">
+          <TextInput width="50%" />
+        </Form.Item>
+        <Selector aria-label="s" width={160} options={OPTIONS} />
+        <TextInput aria-label="t" width={200} />
+      </Form>,
+    );
+    expect(fieldWidths(container)).toEqual(["120px", "50%", "160px", "200px"]);
+  });
+
+  it("fill a noStyle item inside a styled one, not a noStyle item alone", () => {
+    const { container } = render(
+      <Form>
+        <Form.Item label="Range">
+          <Form.Item name="from" noStyle>
+            <Selector aria-label="From" options={OPTIONS} />
+          </Form.Item>
+        </Form.Item>
+        <Form.Item name="query" noStyle>
+          <TextInput aria-label="Query" />
+        </Form.Item>
+      </Form>,
+    );
+    expect(fieldWidths(container)).toEqual(["100%"]);
+  });
+
+  it("keep a Modal's controls from filling the item it opens from", () => {
+    const modal = (
+      <Modal isOpen onOpenChange={() => {}} title="Pick">
+        <TextInput aria-label="Search users" />
+      </Modal>
+    );
+    // The widths the Modal gives its own parts, with no item around it.
+    const alone = render(<Form>{modal}</Form>);
+    const expected = fieldWidths(screen.getByRole("dialog", { hidden: true }));
+    alone.unmount();
+    render(
+      <Form>
+        <Form.Item label="Owner" name="owner">
+          {modal}
+        </Form.Item>
+      </Form>,
+    );
+    const dialog = screen.getByRole("dialog", { hidden: true });
+    expect(fieldWidths(dialog)).toEqual(expected);
+  });
+});
+
+describe("what a host app's adapter used to add", () => {
   it("show MultiSelector's selection, not a count", () => {
     render(<MultiSelector aria-label="Tags" options={OPTIONS} value={["a", "b"]} />);
     expect(screen.getByRole("combobox")).toHaveTextContent("Alpha, Beta");

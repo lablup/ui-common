@@ -302,6 +302,9 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
       // A `noStyle` item has no label of its own; its control is still named
       // by the item it sits in.
       label: noStyle ? parentItem.label : nodeText(label),
+      // antd fills the row through `.ant-form-item` descendant CSS, so a
+      // `noStyle` item fills only inside a styled one.
+      inItemRow: noStyle ? !!parentItem.inItemRow : true,
     };
 
     // A `noStyle` item contributes state only. Its errors were already sent

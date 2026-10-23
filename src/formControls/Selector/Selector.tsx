@@ -27,11 +27,13 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   disabled,
   ...rest
 }: SelectorProps<T>) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "Selector",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     value,
@@ -43,7 +45,7 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     ...rest,
     ...field,
     statusVariant: "detached",
-    width: rest.width ?? "100%",
+    width,
     // Without a placement Astryx lays the panel over the trigger, the selected
     // option on top of it, which hides the item's label above.
     placement: rest.placement ?? "below",

@@ -76,6 +76,56 @@ export type FormControlValueProps<P> = P extends { value?: infer V }
  */
 export const EMPTY_ARRAY: never[] = [];
 
+/**
+ * A control's width inside a `Form.Item` when the caller passes none: what its
+ * antd 5 counterpart renders there (paths are under antd's `es/`). Outside an
+ * item no width is set, so Astryx's own default applies. Astryx's field is
+ * block-level, so it fills the item's content box when unset; a control antd
+ * leaves at its content width gets `"fit-content"` here, not nothing.
+ */
+export const IN_ITEM_WIDTH = {
+  // select/style/index.js:202 `.ant-select-in-form-item { width: 100% }`
+  Selector: "100%",
+  // select/style/index.js:202, `mode="multiple"`
+  MultiSelector: "100%",
+  // select/style/index.js:202, `mode="tags"` (TagsInput renders this wrapper)
+  Tokenizer: "100%",
+  // AutoComplete renders Select (auto-complete/AutoComplete.js:10): select/style/index.js:202
+  Typeahead: "100%",
+  // input/style/index.js:49 genBasicInputStyle `width: 100%`
+  TextInput: "100%",
+  // input/style/index.js:49, TextArea shares Input's style
+  TextArea: "100%",
+  // input-number/style/token.js:8 `controlWidth: 90`, applied at input-number/style/index.js:64
+  NumberInput: 90,
+  // date-picker/style/index.js:83 `inline-flex` and no width: content-sized
+  DateInput: "fit-content",
+  // date-picker/style/index.js:83, TimePicker shares DatePicker's style
+  TimeInput: "fit-content",
+  // date-picker/style/index.js:83, DatePicker `showTime`
+  DateTimeInput: "fit-content",
+  // date-picker/style/index.js:83, RangePicker shares DatePicker's style
+  DateRangeInput: "fit-content",
+  // upload/style/index.js:22 `.ant-upload-select { display: inline-block }`
+  FileInput: "fit-content",
+  // upload/style/dragger.js:11 `.ant-upload-drag { width: 100% }`
+  FileInputDropzone: "100%",
+  // switch/style/index.js:231 `display: inline-block`
+  Switch: "fit-content",
+  // checkbox/style/index.js:25 `.ant-checkbox-wrapper { display: inline-flex }`
+  CheckboxInput: "fit-content",
+  // checkbox/style/index.js:15 `.ant-checkbox-group { display: inline-flex }`
+  CheckboxList: "fit-content",
+  // radio/style/index.js:14 `.ant-radio-group { display: inline-block }`
+  RadioList: "fit-content",
+  // slider/style/index.js:26 a block `div` with no width: fills, as Astryx's field does unset
+  Slider: undefined,
+  // segmented/style/index.js:32 `inline-block`; Astryx's is `inline-flex` and takes no width
+  SegmentedControl: undefined,
+} as const satisfies Record<string, number | string | undefined>;
+
+export type ItemSizedControl = keyof typeof IN_ITEM_WIDTH;
+
 interface UseFormControlOptions {
   status?: FormControlStatus;
   disabled?: boolean;
@@ -91,6 +141,10 @@ interface UseFormControlOptions {
    * both labels and keeps the name from being read twice.
    */
   namesItself?: boolean;
+  /** Which row of `IN_ITEM_WIDTH` sizes the control inside a `Form.Item`. */
+  sizing?: ItemSizedControl;
+  /** The caller's `width`. Set, it always wins. */
+  width?: number | string;
 }
 
 /** Astryx's `status` for a border with no message. */
@@ -102,6 +156,8 @@ export function useFormControl({
   ariaRequired,
   ariaLabel,
   namesItself = false,
+  sizing,
+  width,
 }: UseFormControlOptions) {
   const item = use(FormItemInputContext);
   const itemStatus =
@@ -115,6 +171,8 @@ export function useFormControl({
     typeof ariaLabel === "string" && ariaLabel ? ariaLabel : (item.label ?? "");
   return {
     required: ariaRequired === true || ariaRequired === "true",
+    width: (width ?? (item.inItemRow && sizing ? IN_ITEM_WIDTH[sizing] : undefined)) as
+      number | string | undefined,
     field: {
       label: name,
       isLabelHidden: true,

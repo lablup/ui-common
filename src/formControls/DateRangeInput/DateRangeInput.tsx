@@ -36,12 +36,14 @@ export function DateRangeInput({
   disabled,
   ...rest
 }: DateRangeInputProps) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
     namesItself: true,
+    sizing: "DateRangeInput",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     value,
@@ -52,6 +54,7 @@ export function DateRangeInput({
   const props = {
     ...rest,
     ...field,
+    width,
     statusVariant: "detached",
     value: mergedValue,
     onChange: handleChange,

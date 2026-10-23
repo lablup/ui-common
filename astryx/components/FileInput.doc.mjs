@@ -192,7 +192,8 @@ export default {
       name: "width",
       type: "SizeValue",
       description:
-        'Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned.',
+        "Width of the field (number = pixels, string used as-is, e.g. \"100%\"). Sizes the whole field (label, control, and status) so they stay aligned. Inside a Form.Item it defaults to 'fit-content', as antd's Upload button renders there, and to '100%' with mode=\"dropzone\", as antd's Upload.Dragger does; elsewhere Astryx's own default applies.",
+      default: "'fit-content' in a Form.Item ('100%' with mode=\"dropzone\")",
     },
     {
       name: "containerXstyle",

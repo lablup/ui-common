@@ -46,11 +46,13 @@ export function CheckboxInput({
   children,
   ...rest
 }: CheckboxInputProps) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "CheckboxInput",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     checked ?? value,
@@ -61,6 +63,7 @@ export function CheckboxInput({
   const props = {
     ...rest,
     ...field,
+    width,
     // The inline text, or standalone a caller's `aria-label`. In an item the
     // item's `<label htmlFor>` names it as well, so it takes no `aria-label`,
     // which would drop the inline text from the name.

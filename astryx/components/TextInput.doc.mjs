@@ -199,8 +199,8 @@ export default {
       name: "width",
       type: "SizeValue",
       description:
-        'Width of the field (number = pixels, string used as-is, e.g. "100%"). Sizes the whole field (label, control, and status) so they stay aligned. Without a width the field can shrink with its row, so a filter bar never overflows; use `<HStack wrap="wrap">` when the controls should move to a second line instead. Defaults to \'100%\', as an antd input fills its item.',
-      default: "'100%'",
+        "Width of the field (number = pixels, string used as-is, e.g. \"100%\"). Sizes the whole field (label, control, and status) so they stay aligned. Without a width the field can shrink with its row, so a filter bar never overflows; use `<HStack wrap=\"wrap\">` when the controls should move to a second line instead. Inside a Form.Item it defaults to '100%', as antd's Input renders there; elsewhere Astryx's own default applies.",
+      default: "'100%' in a Form.Item",
     },
     {
       name: "autoComplete",

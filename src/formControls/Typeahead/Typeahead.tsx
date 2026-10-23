@@ -37,11 +37,13 @@ export function Typeahead<T extends SearchableItem>({
   disabled,
   ...rest
 }: TypeaheadProps<T>) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "Typeahead",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     value,
@@ -52,6 +54,7 @@ export function Typeahead<T extends SearchableItem>({
   const props = {
     ...rest,
     ...field,
+    width,
     statusVariant: "detached",
     value: mergedValue,
     onChange: handleChange,

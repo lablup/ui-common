@@ -38,11 +38,13 @@ export function Tokenizer<T extends SearchableItem>({
   disabled,
   ...rest
 }: TokenizerProps<T>) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "Tokenizer",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     value,
@@ -54,7 +56,7 @@ export function Tokenizer<T extends SearchableItem>({
     ...rest,
     ...field,
     statusVariant: "detached",
-    width: rest.width ?? "100%",
+    width,
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxTokenizerProps<T>;

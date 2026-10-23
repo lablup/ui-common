@@ -418,9 +418,14 @@ const formRef = useRef<FormInstance>(null);
   `children`. A `Modal`, a `Drawer`, a `Popover` or a nested `Form` opened inside an item
   is not part of it: its controls take none of the item's status or label.
 - They behave as antd's do where Astryx's differ, so a host app needs no
-  adapter: `TextInput`, `TextArea`, `NumberInput`, `Selector`,
-  `MultiSelector` and `Tokenizer` fill the field's width unless given a
-  `width`; `Selector` opens below its trigger (`placement="below"`) so the
+  adapter: inside a `Form.Item` each control takes the width its antd
+  counterpart renders there unless given a `width` (`TextInput`,
+  `TextArea`, `Selector`, `MultiSelector`, `Tokenizer`, `TagsInput` and
+  `Typeahead` fill the item, `NumberInput` is 90px, the date and time
+  inputs, `FileInput`, `Switch`, `CheckboxInput`, `CheckboxList` and
+  `RadioList` keep their content width, a `FileInput` dropzone fills;
+  `IN_ITEM_WIDTH` in `src/formControls/formControl.tsx`), and elsewhere
+  Astryx's own width; `Selector` opens below its trigger (`placement="below"`) so the
   item's label stays visible; `MultiSelector` shows the selected labels
   (`triggerDisplay="labels"`); `NumberInput` reports `null` when emptied
   (`hasClear` is on unless `false`), reads a numeric string, and rounds a

@@ -36,18 +36,20 @@ export function TextArea({
   disabled,
   ...rest
 }: TextAreaProps) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    sizing: "TextArea",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(value, defaultValue, onChange, "");
   const props = {
     ...rest,
     ...field,
     statusVariant: "detached",
-    width: rest.width ?? "100%",
+    width,
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxTextAreaProps;

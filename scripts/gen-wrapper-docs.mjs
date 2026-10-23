@@ -64,7 +64,15 @@ const KEEP_ADVICE = [
 /** Sentences of Astryx's description that describe the chrome. */
 const CHROME_SENTENCE = /supports labels|validation status|required\/optional/i;
 
-const FULL_WIDTH = "Defaults to '100%', as an antd input fills its item.";
+/**
+ * `width` as the wrapper defaults it: inside a Form.Item, what the antd
+ * counterpart renders there (`IN_ITEM_WIDTH` in src/formControls/formControl.tsx);
+ * elsewhere Astryx's own default.
+ */
+const itemWidth = (value, antd) => ({
+  default: `${value} in a Form.Item`,
+  note: `Inside a Form.Item it defaults to ${value}, as antd's ${antd} renders there; elsewhere Astryx's own default applies.`,
+});
 
 /**
  * What each wrapper changes beyond the chrome, and an example of it.
@@ -73,7 +81,7 @@ const FULL_WIDTH = "Defaults to '100%', as an antd input fills its item.";
  */
 const WRAPPERS = {
   TextInput: {
-    props: { width: { default: "'100%'", note: FULL_WIDTH } },
+    props: { width: itemWidth("'100%'", "Input") },
     add: [
       {
         name: "maxLength",
@@ -86,14 +94,14 @@ const WRAPPERS = {
     standalone: '<TextInput aria-label="Search" defaultValue="" hasClear />',
   },
   TextArea: {
-    props: { width: { default: "'100%'", note: FULL_WIDTH } },
+    props: { width: itemWidth("'100%'", "TextArea") },
     example:
       '<Form.Item name="description" label="Description" extra="Shown on the detail page.">\n  <TextArea rows={4} />\n</Form.Item>',
     standalone: '<TextArea aria-label="Notes" defaultValue="" />',
   },
   NumberInput: {
     props: {
-      width: { default: "'100%'", note: FULL_WIDTH },
+      width: itemWidth("90", "InputNumber"),
       value: {
         type: "number | string | null",
         description: "The number. A numeric string is read as one.",
@@ -117,7 +125,7 @@ const WRAPPERS = {
   },
   Selector: {
     props: {
-      width: { default: "'100%'", note: FULL_WIDTH },
+      width: itemWidth("'100%'", "Select"),
       placement: {
         default: "'below'",
         note: "Defaults to 'below', so the panel does not cover the item's label.",
@@ -130,7 +138,7 @@ const WRAPPERS = {
   },
   MultiSelector: {
     props: {
-      width: { default: "'100%'", note: FULL_WIDTH },
+      width: itemWidth("'100%'", "Select"),
       triggerDisplay: {
         default: "'labels'",
         note: "Defaults to 'labels'.",
@@ -142,37 +150,43 @@ const WRAPPERS = {
       '<MultiSelector\n  aria-label="Status"\n  defaultValue={[]}\n  options={[\n    { value: "running", label: "Running" },\n    { value: "stopped", label: "Stopped" },\n  ]}\n/>',
   },
   Typeahead: {
+    props: { width: itemWidth("'100%'", "AutoComplete") },
     example:
       '<Form.Item name="owner" label="Owner">\n  <Typeahead searchSource={userSource} />\n</Form.Item>',
     standalone: '<Typeahead aria-label="Find a user" searchSource={userSource} />',
   },
   Tokenizer: {
-    props: { width: { default: "'100%'", note: FULL_WIDTH } },
+    props: { width: itemWidth("'100%'", "Select") },
     example:
       '<Form.Item name="members" label="Members">\n  <Tokenizer searchSource={userSource} />\n</Form.Item>',
     standalone: '<Tokenizer aria-label="Members" searchSource={userSource} />',
   },
   DateInput: {
+    props: { width: itemWidth("'fit-content'", "DatePicker") },
     example:
       '<Form.Item name="expiresAt" label="Expires on">\n  <DateInput hasClear />\n</Form.Item>',
     standalone: '<DateInput aria-label="From" defaultValue="2026-01-01" />',
   },
   TimeInput: {
+    props: { width: itemWidth("'fit-content'", "TimePicker") },
     example:
       '<Form.Item name="startsAt" label="Starts at">\n  <TimeInput />\n</Form.Item>',
     standalone: '<TimeInput aria-label="Start time" defaultValue="09:00" />',
   },
   DateTimeInput: {
+    props: { width: itemWidth("'fit-content'", "DatePicker") },
     example:
       '<Form.Item name="scheduledAt" label="Scheduled at">\n  <DateTimeInput />\n</Form.Item>',
     standalone: '<DateTimeInput aria-label="Run at" />',
   },
   DateRangeInput: {
+    props: { width: itemWidth("'fit-content'", "RangePicker") },
     example:
       '<Form.Item name="period" label="Period">\n  <DateRangeInput />\n</Form.Item>',
     standalone: '<DateRangeInput aria-label="Period" />',
   },
   Switch: {
+    props: { width: itemWidth("'fit-content'", "Switch") },
     add: [
       {
         name: "checked",
@@ -195,6 +209,7 @@ const WRAPPERS = {
     standalone: '<Switch aria-label="Auto refresh" defaultChecked />',
   },
   CheckboxInput: {
+    props: { width: itemWidth("'fit-content'", "Checkbox") },
     add: [
       {
         name: "checked",
@@ -217,12 +232,14 @@ const WRAPPERS = {
     standalone: "<CheckboxInput defaultChecked>Remember me</CheckboxInput>",
   },
   CheckboxList: {
+    props: { width: itemWidth("'fit-content'", "Checkbox.Group") },
     example:
       '<Form.Item name="formats" label="Export formats">\n  <CheckboxList>\n    <CheckboxListItem value="csv" label="CSV" />\n    <CheckboxListItem value="json" label="JSON" />\n  </CheckboxList>\n</Form.Item>',
     standalone:
       '<CheckboxList aria-label="Columns" defaultValue={["name"]}>\n  <CheckboxListItem value="name" label="Name" />\n  <CheckboxListItem value="status" label="Status" />\n</CheckboxList>',
   },
   RadioList: {
+    props: { width: itemWidth("'fit-content'", "Radio.Group") },
     example:
       '<Form.Item name="plan" label="Plan" initialValue="basic">\n  <RadioList>\n    <RadioListItem value="basic" label="Basic" />\n    <RadioListItem value="pro" label="Pro" />\n  </RadioList>\n</Form.Item>',
     standalone:
@@ -240,6 +257,12 @@ const WRAPPERS = {
     standalone: '<Slider aria-label="Volume" defaultValue={50} />',
   },
   FileInput: {
+    props: {
+      width: {
+        default: "'fit-content' in a Form.Item ('100%' with mode=\"dropzone\")",
+        note: "Inside a Form.Item it defaults to 'fit-content', as antd's Upload button renders there, and to '100%' with mode=\"dropzone\", as antd's Upload.Dragger does; elsewhere Astryx's own default applies.",
+      },
+    },
     example:
       '<Form.Item name="files" label="Files" rules={[{ required: true }]}>\n  <FileInput accept=".csv" />\n</Form.Item>',
     standalone: '<FileInput aria-label="Upload" />',

@@ -40,17 +40,20 @@ export function RadioList({
   disabled,
   ...rest
 }: RadioListProps) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
     namesItself: true,
+    sizing: "RadioList",
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(value, defaultValue, onChange, "");
   const props = {
     ...rest,
     ...field,
+    width,
     value: mergedValue,
     onChange: handleChange,
   } as unknown as AstryxRadioListProps;
