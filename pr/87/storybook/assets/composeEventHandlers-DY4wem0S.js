@@ -1,1 +1,0 @@
-import{n as e}from"./rolldown-runtime-DkW27tQK.js";function t(...e){return t=>{for(let n of e)if(n?.(t),t.defaultPrevented)return}}function n(){return(n=e((()=>{})))()}export{n,t};
