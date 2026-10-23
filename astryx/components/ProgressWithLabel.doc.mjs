@@ -8,7 +8,7 @@ export default {
   name: "ProgressWithLabel",
   displayName: "ProgressWithLabel",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Feedback & Status",
   keywords: ["progress", "usage bar", "resource", "labelled progress", "meter"],
   description:
     "A bar that carries its labels: label at the start and valueLabel at the end, over a fill of value percent, for compact resource readouts in cells and cards. A missing or NaN value draws no fill and greys the value label. The fill is color (default --color-success); the frame's corner is --progress-with-label-radius (default --radius-inner).",

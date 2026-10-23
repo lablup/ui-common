@@ -8,7 +8,7 @@ export default {
   name: "Form",
   displayName: "Form",
   import: "@lablup/ui-common/Form",
-  category: "Inputs",
+  category: "Form Controls",
   keywords: [
     "form",
     "form item",

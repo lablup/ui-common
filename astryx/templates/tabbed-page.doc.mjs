@@ -1,4 +1,4 @@
-/** @type {import("@astryxdesign/cli/authoring").TemplateDoc} */
+/** @type {import("@astryxdesign/cli/authoring").IntegrationTemplateDoc} */
 export default {
   type: "page",
   name: "tabbed-page",
@@ -15,15 +15,6 @@ export default {
     "admin page",
     "management page",
     "card tabs",
-  ],
-  componentsUsed: [
-    "PageLayout",
-    "PageHeader",
-    "Card",
-    "TabList",
-    "Tab",
-    "CountBadge",
-    "Button",
   ],
   category: "Dashboard - Tabbed",
   isReady: true,

@@ -8,7 +8,7 @@ export default {
   name: "ImageWithFallback",
   displayName: "ImageWithFallback",
   import: "@lablup/ui-common",
-  category: "Media",
+  category: "Content",
   keywords: ["image", "img", "fallback", "broken image", "logo"],
   description:
     "An img that renders a fallback node, typically an icon, once the image fails to load. The failure is remembered per src. Astryx Avatar and Thumbnail fall back to another image; this falls back to any node.",

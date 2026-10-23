@@ -8,7 +8,7 @@ export default {
   name: "NotificationStack",
   displayName: "NotificationStack",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Overlay",
   keywords: [
     "notification",
     "notices",

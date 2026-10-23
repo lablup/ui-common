@@ -8,7 +8,7 @@ export default {
   name: "StepNumberInput",
   displayName: "StepNumberInput",
   import: "@lablup/ui-common",
-  category: "Inputs",
+  category: "Form Controls",
   keywords: [
     "number",
     "stepper",

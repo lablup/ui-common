@@ -8,7 +8,7 @@ export default {
   name: "BooleanToken",
   displayName: "BooleanToken",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Content",
   keywords: ["boolean", "true false", "on off", "enabled", "token", "yes no"],
   description:
     "An on/off value as an Astryx Token: green for true, the default outline for false, and a fallback when the value is not a boolean.",

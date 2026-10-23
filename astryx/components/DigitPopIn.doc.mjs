@@ -8,7 +8,7 @@ export default {
   name: "DigitPopIn",
   displayName: "DigitPopIn",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Content",
   keywords: [
     "digit pop in",
     "number animation",
