@@ -3,7 +3,7 @@
  * Astryx counterparts, and their props are reshaped.
  *
  * - Imports from the root barrel and from `@lablup/ui-common/components/<Name>`
- *   move to `@lablup/ui-common/<Astryx subpath>` (Drawer to `/lab`). Kept
+ *   move to `@lablup/ui-common/<Astryx subpath>`. Kept
  *   components (PageHeader, StatCard, the Skeleton composites, …) keep the
  *   import they had. `usePrefersReducedMotion` moves from `/hooks` to the root.
  * - Re-exports (`export { Select } from …`) keep their public name.

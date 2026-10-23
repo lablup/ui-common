@@ -49,7 +49,7 @@ describe("DataGridSettingsModal", () => {
     renderSettings();
     const name = screen.getByRole("checkbox", { name: "Name" });
     expect(name).toBeChecked();
-    expect(name).toBeDisabled();
+    expect(name).toHaveAttribute("aria-disabled", "true");
   });
 
   it("applies the checked keys, always-visible included, and the order", async () => {
@@ -255,9 +255,15 @@ describe("DataGridExportModal", () => {
   it("checks every exportable column and disables the rest", () => {
     renderExport();
     expect(screen.getByRole("checkbox", { name: "Name" })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "Secret" })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: "Secret" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
     expect(screen.getByRole("checkbox", { name: "Secret" })).not.toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "Actions" })).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: "Actions" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it("toggles columns that export the same keys together", async () => {

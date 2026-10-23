@@ -689,18 +689,18 @@ export function Drawer(h) {
     const value = attrValue(title);
     replaceAttr(el, title, makeAttr(j, "label", attrExpression(j, title)));
     if (value.kind === "expression" && !isStringish(value.expression)) {
-      h.todo("lab Drawer `label` must be a string; it was the title.");
+      h.todo("Drawer `label` must be a string; it was the title.");
     }
   }
   if (title || getAttr(el, "subtitle") || getAttr(el, "footer")) {
     todoAbout(
       h,
       "header",
-      "lab Drawer renders no header: render the title, subtitle and footer inside children.",
+      "Drawer renders no header: compose DrawerHeader (title and close button) and the footer inside children.",
     );
   }
 
-  // 0.1's default width was "medium"; the lab Drawer's default is narrower.
+  // 0.1's default width was "medium"; Astryx's Drawer default is narrower.
   const widths = /** @type {Record<string, number>} */ (
     h.removed.spec.valueMaps.width ?? {}
   );

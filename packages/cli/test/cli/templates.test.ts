@@ -73,7 +73,7 @@ describe("missingDependencies", () => {
     ).toEqual([{ name: "lucide-react", range: pkg.dependencies["lucide-react"] }]);
     expect(
       missingDependencies(
-        'import { Drawer } from "@lablup/ui-common/lab";',
+        'import { Tour } from "@lablup/ui-common/lab";',
         project,
         root,
       ),
@@ -290,7 +290,8 @@ describe("the template command", { timeout: 60_000 }, () => {
     const block = run(["template", "detail-drawer", "src/items"], project);
     expect(block.code).toBe(0);
     expect(existsSync(join(project, "src/items/detail-drawer.tsx"))).toBe(true);
-    expect(block.stdout).toContain("@astryxdesign/lab@");
+    // The Drawer is core's since Astryx 0.7.2: the block needs no lab peer.
+    expect(block.stdout).not.toContain("@astryxdesign/lab@");
 
     const again = run(["template", "list-page", "src/items"], project);
     expect(again.code).toBe(1);

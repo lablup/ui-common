@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
 import { Button } from "../../astryx/Button";
-import { DrawerHeader } from "../../astryx/lab";
+import { DrawerHeader } from "@astryxdesign/core/Drawer";
 import { Text } from "../../astryx/Text";
 import { Modal } from "../../components/Modal";
 import { Drawer, type DrawerProps } from "./Drawer";

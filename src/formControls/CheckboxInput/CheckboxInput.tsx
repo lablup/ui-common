@@ -1,14 +1,14 @@
 /**
- * `CheckboxInput` for `Form.Item`: ui-common's CheckboxInput fork (src/forks/CheckboxInput, which honours
- * the item's `id`) without the field chrome the item owns (see
+ * `CheckboxInput` for `Form.Item`: Astryx's CheckboxInput, which honours the
+ * item's `id`, without the field chrome the item owns (see
  * ../formControl.tsx). The text beside the control is `children`, as in
  * antd; the item's `<label htmlFor>` names it as well. `checked` is
  * accepted beside `value`, so `valuePropName="checked"` works.
  */
 import {
-  CheckboxInput as ForkCheckboxInput,
-  type CheckboxInputProps as ForkCheckboxInputProps,
-} from "../../forks/CheckboxInput/CheckboxInput";
+  CheckboxInput as AstryxCheckboxInput,
+  type CheckboxInputProps as AstryxCheckboxInputProps,
+} from "@astryxdesign/core/CheckboxInput";
 
 import {
   FormControlScope,
@@ -19,7 +19,7 @@ import {
 } from "../formControl";
 
 export type CheckboxInputProps = Omit<
-  ForkCheckboxInputProps,
+  AstryxCheckboxInputProps,
   FormControlChromeProps | "value" | "onChange" | "children"
 > &
   FormControlProps & {
@@ -30,7 +30,7 @@ export type CheckboxInputProps = Omit<
     defaultChecked?: boolean | "indeterminate";
     /** antd's name for the value, for `valuePropName="checked"`. */
     checked?: boolean | "indeterminate";
-    onChange?: ForkCheckboxInputProps["onChange"];
+    onChange?: AstryxCheckboxInputProps["onChange"];
     /** The text beside the control. */
     children?: string;
   };
@@ -70,10 +70,10 @@ export function CheckboxInput({
     "aria-label": undefined,
     value: mergedValue,
     onChange: handleChange,
-  } as ForkCheckboxInputProps;
+  } as AstryxCheckboxInputProps;
   return (
     <FormControlScope required={required}>
-      <ForkCheckboxInput {...props} />
+      <AstryxCheckboxInput {...props} />
     </FormControlScope>
   );
 }

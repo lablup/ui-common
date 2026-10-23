@@ -5,7 +5,8 @@
  * prerelease keys work: 0.1.0-alpha.19 < 0.2.0-alpha.0 < 0.2.0).
  *
  * Two kinds of step:
- * - hand-written ones, listed in STATIC_STEPS (0.1 -> 0.2);
+ * - hand-written ones, listed in STATIC_STEPS (0.1 -> 0.2; the Drawer's move
+ *   off the lab mirror in 0.2.0-alpha.20);
  * - `codemods/<version>/upstream.json`, written by `ui-common sync-astryx`
  *   when ui-common moves to a new Astryx: the Astryx codemods a consumer needs
  *   for that bump, run through ./upstream.mjs.
@@ -43,6 +44,10 @@ const STATIC_STEPS = [
   {
     version: "0.2.0-alpha.0",
     load: async () => (await import("./0.2/index.mjs")).default,
+  },
+  {
+    version: "0.2.0-alpha.20",
+    load: async () => (await import("./0.2.0-alpha.20/index.mjs")).default,
   },
 ];
 

@@ -58,7 +58,8 @@
   {
     "name": "Drawer",
     "source": "forks/Drawer/index.ts",
-    "fork": "@astryxdesign/lab"
+    "subpath": "Drawer",
+    "fork": "@astryxdesign/core/Drawer"
   },
   { "name": "ErrorState", "source": "components/ErrorState/index.ts" },
   {

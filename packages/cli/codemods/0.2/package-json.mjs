@@ -7,9 +7,10 @@
  * - in a library, drop React 18 from the react / react-dom peer ranges;
  * - in a pnpm project, decline the Astryx postinstalls in `allowBuilds`;
  * - add @astryxdesign/lab, pinned to the canary ui-common is built against,
- *   when a Drawer import was moved to `@lablup/ui-common/lab`, and point its
- *   core peer at ui-common's core with the project's package manager's
- *   override (../../cli/lab-peer.mjs).
+ *   when a moved component needs it (`requiresPackages` in the migration map;
+ *   none since the Drawer moved to core in Astryx 0.7.2), and point its core
+ *   peer at ui-common's core with the project's package manager's override
+ *   (../../cli/lab-peer.mjs).
  */
 import { applyLabOverride, CORE, detectPackageManager } from "../../cli/lab-peer.mjs";
 import { targetUiCommonRoot, uiCommonPackageJson } from "../../cli/paths.mjs";
@@ -316,7 +317,8 @@ export function transformPackageJson(text, ctx) {
     }
   }
 
-  // Packages the map says a moved component needs (the lab Drawer).
+  // Packages the map says a moved component needs (none since the Drawer
+  // moved to core in Astryx 0.7.2).
   for (const [lab, range] of ctx.flags.packages) {
     const added = ensure(lab, range);
     if (added.length === 0) continue;

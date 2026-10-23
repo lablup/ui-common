@@ -1,8 +1,9 @@
 /**
- * ui-common's tests for its Switch fork: the fixes it carries (a passed `id`
+ * ui-common's tests for its Switch fork: the fix it carries (a passed `id`
  * reaches the native checkbox, so an outside `<label htmlFor>` names and
- * toggles it; a passed `aria-describedby` describes it), and that everything
- * else renders exactly as Astryx's does.
+ * toggles it), that a passed `aria-describedby` describes it (upstream's
+ * since Astryx 0.7.2, which Form.Item relies on), and that everything else
+ * renders exactly as Astryx's does.
  */
 import { describe, expect, it, vi } from "vitest";
 import { act, render, screen, waitFor } from "@testing-library/react";
@@ -67,7 +68,7 @@ describe("Switch fork: a passed id", () => {
   });
 });
 
-describe("Switch fork: a passed aria-describedby", () => {
+describe("Switch: a passed aria-describedby", () => {
   it("describes the native checkbox, ahead of the switch's own ids", () => {
     render(
       <>
@@ -149,17 +150,5 @@ describe("Switch fork: parity with Astryx", () => {
       />,
     );
     expect(screen.getByRole("switch")).not.toHaveAttribute("id", "field");
-  });
-
-  it("still differs from Astryx's, which puts aria-describedby on the row", () => {
-    render(
-      <UpstreamSwitch
-        label="Notifications"
-        value={false}
-        onChange={() => {}}
-        aria-describedby="hint"
-      />,
-    );
-    expect(screen.getByRole("switch")).not.toHaveAttribute("aria-describedby", "hint");
   });
 });

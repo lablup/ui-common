@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.0, src/FileInput/FileInput.tsx
+// Forked from @astryxdesign/core 0.7.3, src/FileInput/FileInput.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -169,7 +169,7 @@ const folded = {
   },
 };
 
-// @astryxdesign/core 0.7.0 src/Field/fieldParts.ts, which core does not
+// @astryxdesign/core 0.7.3 src/Field/fieldParts.ts, which core does not
 // export: drops root styling a Field-composed input does not accept, and
 // styles the Field box only where one renders.
 const ROOT_STYLING_MESSAGE =
@@ -819,14 +819,9 @@ export function FileInput({
           <button
             {...triggerProps}
             type="button"
-            // With a disabledMessage the trigger keeps focusability via
-            // aria-disabled so the reason is focus-discoverable; opening the
-            // picker is still blocked by the isDisabled guards in the handlers.
-            // Otherwise the native disabled attribute removes it from the tab
-            // order.
-            disabled={isDisabled && !showsDisabledMessage}
-            tabIndex={isDisabled && !showsDisabledMessage ? -1 : 0}
-            aria-disabled={showsDisabledMessage ? "true" : undefined}
+            // A disabled trigger keeps its Tab stop (spec:AST-085 FR1).
+            tabIndex={0}
+            aria-disabled={isDisabled ? "true" : undefined}
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             // aria-label suppresses child content from the accessible name, so
@@ -856,7 +851,16 @@ export function FileInput({
           type="file"
           accept={accept}
           multiple={isMultiple}
-          disabled={isDisabled}
+          // Detached from its form while disabled, so selected files are not
+          // submitted and `required` does not block submission (FR3).
+          form={isDisabled ? "" : undefined}
+          // A label or description click activates this input directly; cancel
+          // it so a disabled input never opens the picker (FR2).
+          onClick={
+            isDisabled
+              ? (event) => event.preventDefault()
+              : (rest.onClick as React.MouseEventHandler<HTMLInputElement> | undefined)
+          }
           onChange={handleInputChange}
           // The visually-hidden native input is never focused (tabIndex={-1});
           // its describedby/required/invalid live on the trigger button.

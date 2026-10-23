@@ -1,6 +1,6 @@
 import { Button, Modal, Text, type ModalProps } from "@lablup/ui-common";
 import { ToastViewport } from "@lablup/ui-common/Toast";
-import { Drawer } from "@lablup/ui-common/lab";
+import { Drawer } from "@lablup/ui-common/Drawer";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 

@@ -12,7 +12,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Popover } from "@astryxdesign/core/Popover";
 import { Selector } from "@astryxdesign/core/Selector";
-import { Drawer as UpstreamDrawer } from "@astryxdesign/lab";
+import { Drawer as UpstreamDrawer } from "@astryxdesign/core/Drawer";
 
 import { Modal } from "../../components/Modal";
 import { configureModalZIndex } from "../../components/Modal/modalStack";

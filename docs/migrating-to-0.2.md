@@ -32,7 +32,7 @@ else, with their own theme and layer contexts.
 **Local patches on Astryx do not travel.** pnpm `patchedDependencies` apply
 only in the project that declares them. A patch shipped inside a library
 reaches nobody. If you carry a patch on Astryx, either drop it (ui-common
-0.2 ships fixed copies of `ComplexSelector`, lab `Drawer` and lab `Tour`) or
+0.2 ships fixed copies of `ComplexSelector`, `Drawer` and lab `Tour`) or
 keep it in your own workspace and know that ui-common's copies do not see it.
 
 **Trying an unpublished ui-common.** A `workspace:` or `link:` dependency
@@ -177,7 +177,7 @@ while a modal is already open, call `refreshModalBackground()` after mounting.
 ui-common's `NotificationStack` does this itself; Astryx's toast viewport does
 not. Check this in a real browser: jsdom ignores `inert`.
 
-**Escape goes through one stack.** `Modal`, the lab `Drawer` and Astryx's
+**Escape goes through one stack.** `Modal`, the `Drawer` and Astryx's
 popovers close through Astryx's layer-dismissal stack: one Escape closes the
 top-most layer only. Two consequences:
 

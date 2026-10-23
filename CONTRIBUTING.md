@@ -46,8 +46,8 @@ subpath.
 ```json
 {
   "name": "lab",
-  "exports": ["Drawer", "DrawerProps"],
-  "replacedBy": "Drawer",
+  "exports": ["Tour", "TourProps"],
+  "replacedBy": "Tour",
   "reason": "..."
 }
 ```
@@ -103,17 +103,17 @@ consumers, and ui-common's consumers import Astryx through ui-common.
 | Fork               | Where                                      | Fix                                                                                                                                         | Upstream                                                             |
 | ------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | `ComplexSelector`  | `@lablup/ui-common/ComplexSelector`        | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
-| `Switch`           | inside `src/formControls/Switch`           | a passed `id` reaches the native checkbox; a passed `aria-describedby` describes it                                                         | not filed                                                            |
+| `Switch`           | inside `src/formControls/Switch`           | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
 | `FileInput`        | inside `src/formControls/FileInput`        | `aria-*`, `onFocus` and `onBlur` reach the trigger button, not the hidden native input                                                      | not filed                                                            |
-| `CheckboxInput`    | inside `src/formControls/CheckboxInput`    | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
 | `SegmentedControl` | inside `src/formControls/SegmentedControl` | a passed `aria-describedby` is merged into the radiogroup's own, not overwritten (`SegmentedControlItem` is copied for the context)         | not filed                                                            |
-| `Drawer`           | `@lablup/ui-common/lab`                    | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
+| `Drawer`           | `@lablup/ui-common/Drawer`                 | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
 | `Tour`             | `@lablup/ui-common/lab`                    | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
 
-`Drawer`'s other changes are ui-common's own, not upstream fixes. lab 0.6.5
-opens a scrimless drawer as a manual popover, in the top layer; ui-common's
-`Modal` and notification stack are z-index surfaces, so such a drawer painted
-over a confirm or a notification opened while it was up. The fork keeps the
+`Drawer`'s other changes are ui-common's own, not upstream fixes. Astryx (lab
+from 0.6.5, core since 0.7.2) opens a scrimless drawer as a manual popover,
+in the top layer; ui-common's `Modal` and notification stack are z-index
+surfaces, so such a drawer painted over a confirm or a notification opened
+while it was up. The fork keeps the
 `show()` + z-index it had before (base 1000, later drawers above). A scrimmed
 drawer is a modal `<dialog>`, top layer and inerting everything outside it,
 so the fork provides that dialog through `ModalPortalContext` while open, and
@@ -199,9 +199,9 @@ the same name and import path (#69): `TextInput`, `TextArea`, `NumberInput`, `Se
   wrapper, and an `exports.customs.json` entry with `"wraps"` naming the
   Astryx module and `"subpath"` the Astryx subpath. It must export exactly
   Astryx's names, as a fork does.
-- **A wrapper over a fork**: when Astryx itself has to change (Switch and
-  CheckboxInput dropped the item's `id`; Switch and FileInput put its
-  `aria-describedby` on an element that is not the control), the wrapper renders a fork, and
+- **A wrapper over a fork**: when Astryx itself has to change (Switch drops
+  the item's `id`; FileInput puts its `aria-describedby` on an element that
+  is not the control), the wrapper renders a fork, and
   the fork's `provenance.json` entry names it in `wrappedBy`. The fork is not
   exported itself.
 - **Tests**: `src/formControls/formControls.test.tsx` runs every wrapper

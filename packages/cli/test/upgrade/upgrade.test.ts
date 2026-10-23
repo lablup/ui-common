@@ -171,74 +171,25 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
     expect(after.devDependencies?.["@lablup/ui-common-cli"]).toBeUndefined();
   });
 
-  describe("points lab's core peer at ui-common's core when it adds lab", () => {
-    // The repository root: the @lablup/ui-common the CLI ships with.
-    const own = JSON.parse(
-      readFileSync(join(here, "../../../../package.json"), "utf8"),
-    ) as {
-      dependencies: Record<string, string>;
-    };
-    const pin = own.dependencies["@astryxdesign/core"];
-
-    it("npm: an overrides entry in package.json", async () => {
+  // The 0.1 Drawer moved to lab's Drawer until Astryx 0.7.2 put the Drawer in
+  // core; it now moves to @lablup/ui-common/Drawer, so no 0.1 component
+  // needs @astryxdesign/lab, its core override or lab.css any more.
+  it("adds no @astryxdesign/lab for a Drawer, whichever package manager", async () => {
+    for (const lockfile of ["package-lock.json", "pnpm-lock.yaml"]) {
       const dir = copyFixture("adapter");
-      writeFileSync(join(dir, "package-lock.json"), "{}\n");
+      writeFileSync(
+        join(dir, lockfile),
+        lockfile.endsWith(".json") ? "{}\n" : "lockfileVersion: '9.0'\n",
+      );
       const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
       expect(result.code, JSON.stringify(result.errors)).toBe(0);
       const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
-      expect(pkg.dependencies["@astryxdesign/lab"]).toBeTruthy();
-      expect(pkg.overrides).toEqual({
-        "@astryxdesign/lab": { "@astryxdesign/core": pin },
-      });
-    });
-
-    it("pnpm: an overrides entry in pnpm-workspace.yaml, created when missing", async () => {
-      const dir = copyFixture("adapter");
-      writeFileSync(join(dir, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
-      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
-      expect(result.code, JSON.stringify(result.errors)).toBe(0);
-      expect(readFileSync(join(dir, "pnpm-workspace.yaml"), "utf8")).toBe(
-        `${ALLOW_BUILDS}\n\noverrides:\n  "@astryxdesign/lab>@astryxdesign/core": "${pin}"\n`,
-      );
-      expect(
-        JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).overrides,
-      ).toBeUndefined();
-    });
-
-    it("pnpm: the workspace root's pnpm-workspace.yaml, above the project", async () => {
-      const workspace = mkdtempSync(join(tmpdir(), "uic-upgrade-ws-"));
-      temps.push(workspace);
-      writeFileSync(join(workspace, "pnpm-workspace.yaml"), "packages:\n  - app\n");
-      cpSync(join(FIXTURES, "adapter", "input"), join(workspace, "app"), {
-        recursive: true,
-      });
-      const dir = join(workspace, "app");
-      const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
-      expect(result.code, JSON.stringify(result.errors)).toBe(0);
-      expect(readFileSync(join(workspace, "pnpm-workspace.yaml"), "utf8")).toBe(
-        `packages:\n  - app\n\n${ALLOW_BUILDS}\n\noverrides:\n  "@astryxdesign/lab>@astryxdesign/core": "${pin}"\n`,
-      );
-      expect(existsSync(join(dir, "pnpm-workspace.yaml"))).toBe(false);
-    });
-
-    it("a dry run shows the edit and writes nothing", async () => {
-      const dir = copyFixture("adapter");
-      writeFileSync(join(dir, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
-      const lines: string[] = [];
-      await runUpgrade({
-        cwd: dir,
-        paths: ["src"],
-        to: TO,
-        dryRun: true,
-        diff: true,
-        log: (l: string) => lines.push(l),
-        warn: () => {},
-      });
-      expect(existsSync(join(dir, "pnpm-workspace.yaml"))).toBe(false);
-      expect(lines.join("\n")).toContain(
-        `+  "@astryxdesign/lab>@astryxdesign/core": "${pin}"`,
-      );
-    });
+      expect(pkg.dependencies["@astryxdesign/lab"]).toBeUndefined();
+      expect(pkg.overrides).toBeUndefined();
+      const workspace = join(dir, "pnpm-workspace.yaml");
+      if (existsSync(workspace))
+        expect(readFileSync(workspace, "utf8")).not.toContain("@astryxdesign/lab");
+    }
   });
 
   describe("pnpm allowBuilds", () => {

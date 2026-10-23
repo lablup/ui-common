@@ -208,11 +208,10 @@
         }
       ],
       "replacement": {
-        "specifier": "@lablup/ui-common/lab",
+        "specifier": "@lablup/ui-common/Drawer",
         "names": { "Drawer": "Drawer", "DrawerProps": "DrawerProps" }
       },
       "alternatives": [],
-      "requiresPackages": { "@astryxdesign/lab": "0.7.0-canary.97a0d31" },
       "propRenames": [
         {
           "from": "onClose",
@@ -224,7 +223,7 @@
       ],
       "valueMaps": { "width": { "narrow": 400, "medium": 520, "wide": 900 } },
       "manual": [
-        "lab Drawer renders no header: render the title, subtitle and footer inside children.",
+        "Drawer renders no header: compose DrawerHeader (title and close button) and the footer inside children.",
         "closeLabel, ariaLabelledBy and ariaDescribedBy have no counterpart.",
         "preventDismiss and onDismissAttempt: decline the close in onOpenChange.",
         "The .drawer classes are gone."

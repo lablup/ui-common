@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.0, src/SegmentedControl/SegmentedControlContext.ts
+// Forked from @astryxdesign/core 0.7.3, src/SegmentedControl/SegmentedControlContext.ts
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";

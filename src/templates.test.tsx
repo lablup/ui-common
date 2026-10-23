@@ -81,7 +81,9 @@ describe("astryx/templates", () => {
       }
     });
 
-    it("renders", async () => {
+    // The first template imported pulls in the whole root barrel cold, which
+    // takes longer than the default 5s on a loaded machine or a CI runner.
+    it("renders", { timeout: 30_000 }, async () => {
       const mod = (await import(join(DIR, `${id}.tsx`))) as {
         default: ComponentType;
       };

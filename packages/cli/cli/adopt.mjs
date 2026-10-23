@@ -28,6 +28,10 @@ import {
 } from "../codemods/0.2/package-json.mjs";
 import { DIALOG_NAMES, transformDialogs } from "../codemods/adopt/dialog.mjs";
 import {
+  LAB as LAB_MIRROR,
+  moveDrawerImports,
+} from "../codemods/0.2.0-alpha.20/drawer.mjs";
+import {
   addUiCommonLayer,
   ensureHtmlLayerStatement,
   ensureLayerStatement,
@@ -286,6 +290,24 @@ export async function runAdopt(options) {
       },
     );
     touch(file, rewritten.text, "specifiers");
+    // lab's Drawer is core's since Astryx 0.7.2, so ui-common's lives at
+    // /Drawer, not in the lab mirror the specifier rewrite points at.
+    if (script && entry.current.includes(LAB_MIRROR)) {
+      const j = jscodeshift.withParser(/\.[cm]?tsx?$/.test(ext) ? "tsx" : "babel");
+      try {
+        const out = moveDrawerImports(
+          { source: entry.current, path: file },
+          { jscodeshift: j },
+        );
+        if (out != null) touch(file, out, "drawer-from-lab");
+      } catch (err) {
+        errors.push({
+          file: rel(file),
+          transform: "drawer-from-lab",
+          error: `could not be parsed, so Drawer imports were left in ${LAB_MIRROR}: ${/** @type {Error} */ (err).message}`,
+        });
+      }
+    }
     for (const [row, n] of Object.entries(rewritten.rows))
       rows[row] = (rows[row] ?? 0) + n;
     for (const l of rewritten.left) {

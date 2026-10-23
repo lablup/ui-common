@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { Button as UiButton } from "@lablup/ui-common/Button";
 import { EmptyState as UiEmptyState } from "@lablup/ui-common/EmptyState";
 import { Selector as UiSelect } from "@lablup/ui-common/Selector";
-import { Drawer as UiDrawer } from "@lablup/ui-common/lab";
+import { Drawer as UiDrawer } from "@lablup/ui-common/Drawer";
 import { ProgressBar } from "@lablup/ui-common/ProgressBar";
 import { Tooltip } from "@lablup/ui-common/Tooltip";
 import { Skeleton } from "@lablup/ui-common/Skeleton";
@@ -51,8 +51,8 @@ export function RegionSelect({ value, onChange, invalid }: { value: string; onCh
 
 export function Panel({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
   return (
-    // TODO(ui-common-upgrade): lab Drawer `label` must be a string; it was the title.
-    // TODO(ui-common-upgrade): lab Drawer renders no header: render the title, subtitle and footer inside children.
+    // TODO(ui-common-upgrade): Drawer `label` must be a string; it was the title.
+    // TODO(ui-common-upgrade): Drawer renders no header: compose DrawerHeader (title and close button) and the footer inside children.
     <UiDrawer
       isOpen={open}
       onOpenChange={isOpen => {

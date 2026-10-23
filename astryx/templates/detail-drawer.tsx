@@ -4,22 +4,23 @@
  * DrawerHeader carries the title, status and close button; the body is a
  * MetadataList of the item's facts; actions sit in a footer row.
  *
- * Uses the Drawer from `@lablup/ui-common/lab`, so the project needs the
- * `@astryxdesign/lab` peer installed. Presentation only: pass the selected
- * item in and handle the actions in the parent.
+ * Presentation only: pass the selected item in and handle the actions in
+ * the parent.
  */
 import { useState } from "react";
 import {
   Badge,
   Button,
   Divider,
+  Drawer,
+  DrawerHeader,
   HStack,
   MetadataList,
   MetadataListItem,
   Text,
   VStack,
+  type DrawerProps,
 } from "@lablup/ui-common";
-import { Drawer, DrawerHeader, type DrawerProps } from "@lablup/ui-common/lab";
 
 export interface DetailItem {
   id: string;

@@ -38,7 +38,7 @@ function notes(ctx) {
   }
   if (ctx.flags.packages.has(LAB_PACKAGE)) {
     out.push(
-      `A Drawer moved to ${UIC}/lab: ${LAB_PACKAGE} is an optional peer of ui-common, pinned to the canary it is built against. The codemod added it to package.json and ${LAB_CSS} to the stylesheet entry it rewrote; import lab.css yourself if your entry is elsewhere.`,
+      `A component moved to ${UIC}/lab: ${LAB_PACKAGE} is an optional peer of ui-common, pinned to the canary it is built against. The codemod added it to package.json and ${LAB_CSS} to the stylesheet entry it rewrote; import lab.css yourself if your entry is elsewhere.`,
     );
   }
   out.push(
