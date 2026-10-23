@@ -70,4 +70,37 @@ describe("0.2.0-alpha.20: Drawer off the lab mirror", () => {
     expect(scanDrawer("src/A.tsx", source).map((f) => f.line)).toEqual([1, 2]);
     expect(upgrade(source)).toBeUndefined();
   });
+
+  it("moves isFullWidthOnMobile into experimental on Drawer elements", () => {
+    const out = upgrade(
+      [
+        'import { Drawer as Panel } from "@lablup/ui-common/lab";',
+        'const a = <Panel isFullWidthOnMobile label="a" />;',
+        "const b = <Panel isFullWidthOnMobile={wide} />;",
+        "const c = <Panel isFullWidthOnMobile experimental={{}} />;",
+        "const d = <Other isFullWidthOnMobile />;",
+        "",
+      ].join("\n"),
+    );
+    expect(out).toContain(
+      '<Panel experimental={{\n  isFullWidthOnMobile: true\n}} label="a" />',
+    );
+    expect(out).toContain("<Panel experimental={{\n  isFullWidthOnMobile: wide\n}} />");
+    expect(out).toContain("<Panel isFullWidthOnMobile experimental={{}} />");
+    expect(out).toContain("<Other isFullWidthOnMobile />");
+  });
+
+  it("reports an isFullWidthOnMobile left outside experimental", () => {
+    const findings = scanDrawer(
+      "src/A.tsx",
+      [
+        'import { Drawer } from "@lablup/ui-common/Drawer";',
+        "const p = { isFullWidthOnMobile: true };",
+        "const q = <Drawer experimental={{ isFullWidthOnMobile: true }} />;",
+      ].join("\n"),
+    );
+    expect(findings).toEqual([
+      expect.objectContaining({ category: "drawer-full-width", line: 2 }),
+    ]);
+  });
 });

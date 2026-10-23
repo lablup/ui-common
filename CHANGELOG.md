@@ -113,6 +113,13 @@ global mode and the computer-level agent guide in the CLI).
   override or `lab.css`. `pnpm exec ui-common upgrade --from
 0.2.0-alpha.19` moves the imports and re-exports, and lists namespace
   imports and module mocks of the lab mirror it cannot prove safe.
+- **Breaking: `Drawer`'s `isFullWidthOnMobile` is now
+  `experimental={{ isFullWidthOnMobile }}`**, following core's Drawer. A
+  top-level `isFullWidthOnMobile` no longer type-checks and is ignored at
+  runtime (the drawer keeps the 56px page reveal on mobile). The same
+  upgrade step rewrites the prop on `Drawer` elements and lists the uses it
+  cannot rewrite (a props object or spread, or an element that already has
+  `experimental`).
 - **Disabled form controls stay focusable (Astryx 0.7.3).** A disabled
   `CheckboxInput`, `CheckboxList` item, `Switch`, `Slider`, `FileInput`,
   `Selector`, `MultiSelector`, `ComplexSelector` (and `PagedSelector`), the

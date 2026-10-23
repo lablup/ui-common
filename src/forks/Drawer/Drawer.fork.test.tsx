@@ -436,7 +436,7 @@ describe("Drawer fork: parity with lab", () => {
     ["a required purpose", { purpose: "required" }],
     [
       "a string width, full width on mobile",
-      { width: "32rem", isFullWidthOnMobile: true },
+      { width: "32rem", experimental: { isFullWidthOnMobile: true } },
     ],
   ];
 
