@@ -64,7 +64,9 @@ const KEEP_ADVICE = [
 /** Sentences of Astryx's description that describe the chrome. */
 const CHROME_SENTENCE = /supports labels|validation status|required\/optional/i;
 
-const FULL_WIDTH = "Defaults to '100%', as an antd input fills its item.";
+const FULL_WIDTH =
+  "Defaults to '100%' inside a Form.Item, as an antd input fills its item; elsewhere Astryx's own default applies.";
+const FULL_WIDTH_DEFAULT = "'100%' in a Form.Item";
 
 /**
  * What each wrapper changes beyond the chrome, and an example of it.
@@ -73,7 +75,7 @@ const FULL_WIDTH = "Defaults to '100%', as an antd input fills its item.";
  */
 const WRAPPERS = {
   TextInput: {
-    props: { width: { default: "'100%'", note: FULL_WIDTH } },
+    props: { width: { default: FULL_WIDTH_DEFAULT, note: FULL_WIDTH } },
     add: [
       {
         name: "maxLength",
@@ -86,14 +88,14 @@ const WRAPPERS = {
     standalone: '<TextInput aria-label="Search" defaultValue="" hasClear />',
   },
   TextArea: {
-    props: { width: { default: "'100%'", note: FULL_WIDTH } },
+    props: { width: { default: FULL_WIDTH_DEFAULT, note: FULL_WIDTH } },
     example:
       '<Form.Item name="description" label="Description" extra="Shown on the detail page.">\n  <TextArea rows={4} />\n</Form.Item>',
     standalone: '<TextArea aria-label="Notes" defaultValue="" />',
   },
   NumberInput: {
     props: {
-      width: { default: "'100%'", note: FULL_WIDTH },
+      width: { default: FULL_WIDTH_DEFAULT, note: FULL_WIDTH },
       value: {
         type: "number | string | null",
         description: "The number. A numeric string is read as one.",
@@ -117,7 +119,7 @@ const WRAPPERS = {
   },
   Selector: {
     props: {
-      width: { default: "'100%'", note: FULL_WIDTH },
+      width: { default: FULL_WIDTH_DEFAULT, note: FULL_WIDTH },
       placement: {
         default: "'below'",
         note: "Defaults to 'below', so the panel does not cover the item's label.",
@@ -130,7 +132,7 @@ const WRAPPERS = {
   },
   MultiSelector: {
     props: {
-      width: { default: "'100%'", note: FULL_WIDTH },
+      width: { default: FULL_WIDTH_DEFAULT, note: FULL_WIDTH },
       triggerDisplay: {
         default: "'labels'",
         note: "Defaults to 'labels'.",
@@ -147,7 +149,7 @@ const WRAPPERS = {
     standalone: '<Typeahead aria-label="Find a user" searchSource={userSource} />',
   },
   Tokenizer: {
-    props: { width: { default: "'100%'", note: FULL_WIDTH } },
+    props: { width: { default: FULL_WIDTH_DEFAULT, note: FULL_WIDTH } },
     example:
       '<Form.Item name="members" label="Members">\n  <Tokenizer searchSource={userSource} />\n</Form.Item>',
     standalone: '<Tokenizer aria-label="Members" searchSource={userSource} />',

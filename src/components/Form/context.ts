@@ -157,6 +157,12 @@ export interface FormItemStatusContextValue {
    * group, a slider, a file picker's button).
    */
   label?: string;
+  /**
+   * A `Form.Item` that renders its shell encloses the control: the item
+   * itself, or a `noStyle` item inside one. As in antd, only there does a
+   * form control fill the row (src/formControls/formControl.tsx).
+   */
+  inItemRow?: boolean;
 }
 
 const NO_ITEM: FormItemStatusContextValue = {};

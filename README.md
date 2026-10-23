@@ -419,8 +419,9 @@ const formRef = useRef<FormInstance>(null);
   is not part of it: its controls take none of the item's status or label.
 - They behave as antd's do where Astryx's differ, so a host app needs no
   adapter: `TextInput`, `TextArea`, `NumberInput`, `Selector`,
-  `MultiSelector` and `Tokenizer` fill the field's width unless given a
-  `width`; `Selector` opens below its trigger (`placement="below"`) so the
+  `MultiSelector` and `Tokenizer` fill the item's width inside a
+  `Form.Item` unless given a `width` (elsewhere they keep Astryx's own
+  width); `Selector` opens below its trigger (`placement="below"`) so the
   item's label stays visible; `MultiSelector` shows the selected labels
   (`triggerDisplay="labels"`); `NumberInput` reports `null` when emptied
   (`hasClear` is on unless `false`), reads a numeric string, and rounds a

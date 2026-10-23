@@ -5,6 +5,18 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`TextInput`, `TextArea`, `NumberInput`, `Selector`, `MultiSelector` and
+  `Tokenizer` fill the row only inside a `Form.Item`**, as antd's controls
+  do. Since 0.2.0-alpha.20 they defaulted to `width="100%"` everywhere, so a
+  control outside a form (a header selector, a toolbar filter) stretched
+  across its container where Astryx's control had kept its own width. Outside
+  an item `width` is now left to Astryx's default; a `noStyle` item fills only
+  inside a styled one, and a `Modal`, `Drawer`, `Popover` or nested `Form`
+  resets it. An explicit `width` still wins. No codemod: pass `width="100%"`
+  to a standalone control that should fill its container.
+
 ## [0.2.0-alpha.20]
 
 Astryx 0.7.0 → 0.7.3 (`@astryxdesign/lab` 0.7.3-canary.cac3d8d). Astryx's

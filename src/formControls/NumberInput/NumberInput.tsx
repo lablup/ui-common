@@ -59,11 +59,12 @@ export function NumberInput({
   disabled,
   ...rest
 }: NumberInputProps) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue<NumberInputValue>(
     value,
@@ -88,7 +89,7 @@ export function NumberInput({
     ...rest,
     ...field,
     statusVariant: "detached",
-    width: rest.width ?? "100%",
+    width,
     hasClear,
     value: numericValue,
     onChange: handleChange,

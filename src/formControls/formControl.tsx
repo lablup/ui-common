@@ -91,6 +91,12 @@ interface UseFormControlOptions {
    * both labels and keeps the name from being read twice.
    */
   namesItself?: boolean;
+  /**
+   * The caller's `width`, for a control Astryx sizes. Unset, it is `"100%"`
+   * inside a `Form.Item` row, as antd's controls fill the item, and left to
+   * Astryx's own default everywhere else (a toolbar, a header).
+   */
+  width?: unknown;
 }
 
 /** Astryx's `status` for a border with no message. */
@@ -102,6 +108,7 @@ export function useFormControl({
   ariaRequired,
   ariaLabel,
   namesItself = false,
+  width,
 }: UseFormControlOptions) {
   const item = use(FormItemInputContext);
   const itemStatus =
@@ -115,6 +122,7 @@ export function useFormControl({
     typeof ariaLabel === "string" && ariaLabel ? ariaLabel : (item.label ?? "");
   return {
     required: ariaRequired === true || ariaRequired === "true",
+    width: width ?? (item.inItemRow ? "100%" : undefined),
     field: {
       label: name,
       isLabelHidden: true,

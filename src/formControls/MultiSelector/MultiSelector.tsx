@@ -35,11 +35,12 @@ export type MultiSelectorProps<
 export function MultiSelector<
   T extends MultiSelectorOptionType = MultiSelectorOptionType,
 >({ value, defaultValue, onChange, status, disabled, ...rest }: MultiSelectorProps<T>) {
-  const { required, field } = useFormControl({
+  const { required, field, width } = useFormControl({
     status,
     disabled,
     ariaRequired: rest["aria-required"],
     ariaLabel: rest["aria-label"],
+    width: rest.width,
   });
   const [mergedValue, handleChange] = useMergedValue(
     value,
@@ -51,7 +52,7 @@ export function MultiSelector<
     ...rest,
     ...field,
     statusVariant: "detached",
-    width: rest.width ?? "100%",
+    width,
     // The selection itself, as antd's multiple Select shows it, not a count.
     triggerDisplay: rest.triggerDisplay ?? "labels",
     value: mergedValue,
