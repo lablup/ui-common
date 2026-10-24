@@ -37,6 +37,8 @@ export function TimeInput({
   ...rest
 }: TimeInputProps) {
   const { required, field, width } = useFormControl({
+    component: "TimeInput",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

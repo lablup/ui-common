@@ -28,6 +28,8 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   ...rest
 }: SelectorProps<T>) {
   const { required, field, width } = useFormControl({
+    component: "Selector",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

@@ -36,6 +36,8 @@ export function MultiSelector<
   T extends MultiSelectorOptionType = MultiSelectorOptionType,
 >({ value, defaultValue, onChange, status, disabled, ...rest }: MultiSelectorProps<T>) {
   const { required, field, width } = useFormControl({
+    component: "MultiSelector",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

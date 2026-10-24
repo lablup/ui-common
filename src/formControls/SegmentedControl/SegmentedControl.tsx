@@ -39,6 +39,8 @@ export function SegmentedControl({
   ...rest
 }: SegmentedControlProps) {
   const { required, field } = useFormControl({
+    component: "SegmentedControl",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

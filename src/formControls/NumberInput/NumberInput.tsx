@@ -60,6 +60,8 @@ export function NumberInput({
   ...rest
 }: NumberInputProps) {
   const { required, field, width } = useFormControl({
+    component: "NumberInput",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

@@ -37,6 +37,8 @@ export function TextArea({
   ...rest
 }: TextAreaProps) {
   const { required, field, width } = useFormControl({
+    component: "TextArea",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

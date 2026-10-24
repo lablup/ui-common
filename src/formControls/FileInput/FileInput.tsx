@@ -38,6 +38,8 @@ export function FileInput({
   ...rest
 }: FileInputProps) {
   const { required, field, width } = useFormControl({
+    component: "FileInput",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

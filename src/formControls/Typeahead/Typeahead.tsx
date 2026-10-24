@@ -38,6 +38,8 @@ export function Typeahead<T extends SearchableItem>({
   ...rest
 }: TypeaheadProps<T>) {
   const { required, field, width } = useFormControl({
+    component: "Typeahead",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

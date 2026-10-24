@@ -73,10 +73,21 @@ const cases = readdirSync(FIXTURES).filter((name) =>
   existsSync(join(FIXTURES, name, "input")),
 );
 
-describe("ui-common upgrade 0.1 -> 0.2", () => {
+/** A fixture's `range.json` runs a later step (`{from, to}`); the rest run 0.1 -> 0.2. */
+function range(name: string): { from?: string; to: string } {
+  const file = join(FIXTURES, name, "range.json");
+  return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : { to: TO };
+}
+
+describe("ui-common upgrade fixtures", () => {
   it.each(cases)("%s", async (name) => {
     const dir = copyFixture(name);
-    const result = await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+    const result = await runUpgrade({
+      cwd: dir,
+      paths: ["src"],
+      ...range(name),
+      ...quiet,
+    });
     expect(result.code, JSON.stringify(result.errors)).toBe(0);
 
     const expectedDir = join(FIXTURES, name, "expected");
@@ -100,15 +111,16 @@ describe("ui-common upgrade 0.1 -> 0.2", () => {
 
   it.each(cases)("%s: a second run changes nothing", async (name) => {
     const dir = copyFixture(name);
-    await runUpgrade({ cwd: dir, paths: ["src"], to: TO, ...quiet });
+    const { from = "0.1.0", to } = range(name);
+    await runUpgrade({ cwd: dir, paths: ["src"], from, to, ...quiet });
     const before = new Map(
       tree(dir).map((f) => [f, readFileSync(join(dir, f), "utf8")]),
     );
     const again = await runUpgrade({
       cwd: dir,
       paths: ["src"],
-      from: "0.1.0",
-      to: TO,
+      from,
+      to,
       ...quiet,
     });
     expect(again.code).toBe(0);
