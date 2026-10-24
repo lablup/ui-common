@@ -77,16 +77,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   as a bare character outside the slot.
 - **`UnitGrid` floors a fixed `columns` at 1**: `0` placed cells off the
   grid.
-- **`ui-common upgrade` applies Astryx's stylesheet codemods** (#67). An
-  Astryx codemod that lists `.css` (0.7.0's
-  `migrate-deprecated-theme-surface`, run by the 0.2.0-alpha.19 step)
-  rewrites a stylesheet through postcss, and the driver then re-parsed that
-  output as a script and dropped it: every stylesheet failed with "produced
-  unparseable output" (`@layer` read as a decorator). The output is now
-  checked by the file's type: a script as a script, a `.css` file with
-  postcss, Sass and Less as written. A stylesheet's module specifiers are
-  also swapped for the codemod as a whole by extension, not after a parse
-  attempt that a stylesheet such as `body { margin: 0 }` passes.
+- **`ui-common upgrade` and `ui-common adopt` apply Astryx's stylesheet
+  codemods** (#67). An Astryx codemod that lists `.css` (0.7.0's
+  `migrate-deprecated-theme-surface`, run by the 0.2.0-alpha.19 step and by
+  adopt's version span) rewrites a stylesheet through postcss, and both
+  commands then re-parsed that output as a script and dropped it: every
+  stylesheet failed with "produced unparseable output" (`@layer` read as a
+  decorator). The output is now checked by the file's type: a script as a
+  script, a `.css` file with postcss, Sass and Less as written. A
+  stylesheet's module specifiers are also swapped for the codemod as a whole
+  by extension, not after a parse attempt that a stylesheet such as
+  `body { margin: 0 }` passes.
 
 - **Form controls take antd's width inside a `Form.Item`, and Astryx's
   outside one.** Since 0.2.0-alpha.20 `TextInput`, `TextArea`,
