@@ -13,6 +13,7 @@
  */
 import {
   createContext,
+  useContext,
   useEffectEvent,
   useLayoutEffect,
   useState,
@@ -73,6 +74,16 @@ export function modalZIndexBase(): number {
 const LEVEL_CSS_VAR = "--modal-level";
 const Z_INDEX_CSS_VAR = "--modal-z";
 
+/**
+ * The identity of a modal surface in the React tree, for nesting: a surface
+ * rendered inside another one's content reads its parent's token here and
+ * claims its level above it. `Modal` provides its own token to its content.
+ * Internal: not exported from the package.
+ */
+export type ModalStackNode = { readonly __modalStackNode?: never };
+
+export const ModalStackNodeContext = createContext<ModalStackNode | null>(null);
+
 /** A claim on the stack. Released by reference, never by level. */
 export interface ModalLevelEntry {
   level: number;
@@ -80,19 +91,36 @@ export interface ModalLevelEntry {
   isTopmost: boolean;
   root: HTMLElement | null;
   setIsTopmost: (isTopmost: boolean) => void;
+  /** The surface's token, and its parent surface's; see ModalStackNodeContext. */
+  node: ModalStackNode;
+  parent: ModalStackNode | null;
+  requestedZIndex?: number;
 }
 
 const openModals: ModalLevelEntry[] = [];
 
+const entryOf = (node: ModalStackNode | null) =>
+  node === null ? undefined : openModals.find((entry) => entry.node === node);
+
+/** Whether `entry` renders inside the surface `node`, through open surfaces. */
+function descendsFrom(entry: ModalLevelEntry, node: ModalStackNode): boolean {
+  const seen = new Set<ModalLevelEntry>([entry]);
+  for (let parent = entry.parent; parent !== null;) {
+    if (parent === node) return true;
+    const open = entryOf(parent);
+    if (!open || seen.has(open)) return false;
+    seen.add(open);
+    parent = open.parent;
+  }
+  return false;
+}
+
 /**
- * One step above the topmost surface (or the band's base), raised by an
+ * One step above the surface below (or the band's base), raised by an
  * accepted override. Stacking and inertness therefore run on one order: a
  * surface opened later paints above an earlier one, whatever that one asked.
  */
-function resolveZIndex(
-  topmost: ModalLevelEntry | undefined,
-  requested?: number,
-): number {
+function resolveZIndex(below: ModalLevelEntry | undefined, requested?: number): number {
   let override = requested;
   if (override != null && (override < band.base || override > band.max)) {
     devWarn(
@@ -102,7 +130,7 @@ function resolveZIndex(
     );
     override = undefined;
   }
-  const floor = topmost?.zIndex ?? band.base - band.step;
+  const floor = below?.zIndex ?? band.base - band.step;
   return Math.min(Math.max(floor + band.step, override ?? 0), band.max);
 }
 
@@ -203,21 +231,57 @@ function syncCovered(): void {
   });
 }
 
+/** Writes an entry's level and z-index onto its root, for the stylesheet. */
+function writeLevel(entry: ModalLevelEntry): void {
+  entry.root?.style.setProperty(LEVEL_CSS_VAR, String(entry.level));
+  entry.root?.style.setProperty(Z_INDEX_CSS_VAR, String(entry.zIndex));
+}
+
+/** Re-derives level and z-index from `index` up, after an insertion. */
+function relayer(index: number): void {
+  for (let i = index; i < openModals.length; i++) {
+    const entry = openModals[i]!;
+    const level = Math.min(i, MAX_MODAL_LEVEL);
+    const zIndex = resolveZIndex(openModals[i - 1], entry.requestedZIndex);
+    if (entry.level === level && entry.zIndex === zIndex) continue;
+    entry.level = level;
+    entry.zIndex = zIndex;
+    writeLevel(entry);
+  }
+}
+
+/**
+ * Claims the next level: above every open surface, as the claim order is
+ * the opening order. The one exception is a surface whose content already
+ * holds an open surface of its own (`node` is an open entry's parent):
+ * React runs a child's layout effect before its parent's, so when both open
+ * in one commit, or an outer surface reopens over an inner one it kept
+ * mounted, the inner one claims first. The outer one then goes in below its
+ * descendants, and what sits above moves up a level.
+ */
 export function claimModalLevel(
   root: HTMLElement | null,
   setIsTopmost: (isTopmost: boolean) => void,
   requestedZIndex?: number,
+  node: ModalStackNode = {},
+  parent: ModalStackNode | null = null,
 ): ModalLevelEntry {
   registerInstance();
-  const topmost = openModals.at(-1);
   const entry: ModalLevelEntry = {
-    level: Math.min((topmost?.level ?? -1) + 1, MAX_MODAL_LEVEL),
-    zIndex: resolveZIndex(topmost, requestedZIndex),
+    // Not yet laid out; relayer writes the real values.
+    level: -1,
+    zIndex: -1,
     isTopmost: true,
     root,
     setIsTopmost,
+    node,
+    parent,
+    requestedZIndex,
   };
-  openModals.push(entry);
+  const firstDescendant = openModals.findIndex((open) => descendsFrom(open, node));
+  const index = firstDescendant === -1 ? openModals.length : firstDescendant;
+  openModals.splice(index, 0, entry);
+  relayer(index);
   syncCovered();
   return entry;
 }
@@ -239,8 +303,11 @@ export function useModalLevel(
   rootRef: RefObject<HTMLElement | null>,
   isOpen: boolean,
   zIndex?: number,
+  node?: ModalStackNode,
 ): boolean {
   const [isTopmost, setIsTopmost] = useState(true);
+  const [ownNode] = useState<ModalStackNode>(() => ({}));
+  const parent = useContext(ModalStackNodeContext);
   // Read at claim time only: re-claiming would move an open surface to the
   // top of the stack and inert whatever legitimately covered it.
   const readZIndex = useEffectEvent(() => zIndex);
@@ -248,9 +315,13 @@ export function useModalLevel(
   useLayoutEffect(() => {
     if (!isOpen) return;
     const root = rootRef.current;
-    const entry = claimModalLevel(root, setIsTopmost, readZIndex());
-    root?.style.setProperty(LEVEL_CSS_VAR, String(entry.level));
-    root?.style.setProperty(Z_INDEX_CSS_VAR, String(entry.zIndex));
+    const entry = claimModalLevel(
+      root,
+      setIsTopmost,
+      readZIndex(),
+      node ?? ownNode,
+      parent,
+    );
     return () => {
       releaseModalLevel(entry);
       root?.style.removeProperty(LEVEL_CSS_VAR);
@@ -258,7 +329,17 @@ export function useModalLevel(
     };
     // An effect event is not a dependency; this plugin version predates it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, rootRef]);
+  }, [isOpen, rootRef, node, ownNode, parent]);
 
   return isTopmost;
+}
+
+/**
+ * The token a surface hands `useModalLevel` and provides to its content
+ * through `ModalStackNodeContext`, so a surface opened inside it stacks
+ * above it however the two claim.
+ */
+export function useModalStackNode(): ModalStackNode {
+  const [node] = useState<ModalStackNode>(() => ({}));
+  return node;
 }

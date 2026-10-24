@@ -79,6 +79,42 @@ describe("modalStack", () => {
     ]);
   });
 
+  it("puts a parent claimed after its child below it, and the rest above", () => {
+    const parentNode = {};
+    const childNode = {};
+    const child = claim();
+    // Re-claim the child under the parent's token, as a nested surface does.
+    releaseModalLevel(child.entry);
+    const nested = claimModalLevel(
+      child.root,
+      child.setIsTopmost,
+      undefined,
+      childNode,
+      parentNode,
+    );
+    claimed.push(nested);
+    const parent = claimModalLevel(
+      document.createElement("div"),
+      vi.fn(),
+      undefined,
+      parentNode,
+      null,
+    );
+    claimed.push(parent);
+    const later = claim();
+    expect(parent.level).toBe(0);
+    expect(nested.level).toBe(1);
+    expect(later.entry.level).toBe(2);
+    expect(nested.zIndex).toBeGreaterThan(parent.zIndex);
+    expect(later.entry.zIndex).toBeGreaterThan(nested.zIndex);
+    // The moved entry's root carries its new level and z-index.
+    expect(child.root.style.getPropertyValue("--modal-level")).toBe("1");
+    expect(child.root.style.getPropertyValue("--modal-z")).toBe(String(nested.zIndex));
+    expect(parent.root).toHaveAttribute("inert");
+    expect(child.root).toHaveAttribute("inert");
+    expect(later.root).not.toHaveAttribute("inert");
+  });
+
   it("clamps the level and releases by identity when two share it", () => {
     const entries = Array.from({ length: MAX_MODAL_LEVEL + 2 }, () => claim());
     const [secondLast, last] = entries.slice(-2);

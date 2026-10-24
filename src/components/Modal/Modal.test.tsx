@@ -425,6 +425,89 @@ describe("Modal nesting", () => {
     renderModal();
     expect(zOf(rootOf())).toBe(500);
   });
+
+  it("stacks an inner modal above the outer one when both open in one commit", async () => {
+    const user = userEvent.setup();
+    const outerChange = vi.fn();
+    const innerChange = vi.fn();
+    render(
+      <Modal isOpen onOpenChange={outerChange} aria-label="outer">
+        <button type="button">outer-a</button>
+        <Modal isOpen onOpenChange={innerChange} aria-label="inner">
+          <button type="button">inner-a</button>
+        </Modal>
+      </Modal>,
+    );
+    const outer = rootOf("outer");
+    const inner = rootOf("inner");
+    // The inner one claims first (a child's layout effect runs before its
+    // parent's) and still ends up on top.
+    expect([levelOf(outer), levelOf(inner)]).toEqual([0, 1]);
+    expect(zOf(inner)).toBeGreaterThan(zOf(outer));
+    expect(outer).toHaveAttribute("inert");
+    expect(inner).not.toHaveAttribute("inert");
+    expect(screen.getByRole("dialog", { name: "inner" })).toHaveAttribute(
+      "aria-modal",
+      "true",
+    );
+    expect(screen.getByRole("dialog", { name: "outer" })).not.toHaveAttribute(
+      "aria-modal",
+    );
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "inner-a" }),
+    );
+
+    await user.keyboard("{Escape}");
+    expect(innerChange).toHaveBeenCalledExactlyOnceWith(false);
+    expect(outerChange).not.toHaveBeenCalled();
+  });
+
+  it("keeps an outer modal below the inner one it reopens over", () => {
+    function Reopening({ isOuterOpen }: { isOuterOpen: boolean }) {
+      return (
+        <Modal isOpen={isOuterOpen} onOpenChange={vi.fn()} aria-label="outer">
+          <Modal isOpen onOpenChange={vi.fn()} aria-label="inner">
+            <button type="button">inner-a</button>
+          </Modal>
+        </Modal>
+      );
+    }
+    const { rerender } = render(<Reopening isOuterOpen />);
+    rerender(<Reopening isOuterOpen={false} />);
+    rerender(<Reopening isOuterOpen />);
+    const outer = rootOf("outer");
+    const inner = rootOf("inner");
+    expect([levelOf(outer), levelOf(inner)]).toEqual([0, 1]);
+    expect(zOf(inner)).toBeGreaterThan(zOf(outer));
+    expect(outer).toHaveAttribute("inert");
+    expect(inner).not.toHaveAttribute("inert");
+  });
+
+  it("stacks a modal opened later above one opened earlier, nested or not", () => {
+    function Siblings({ isSecondOpen }: { isSecondOpen: boolean }) {
+      return (
+        <>
+          <Modal isOpen onOpenChange={vi.fn()} aria-label="first">
+            <Modal isOpen onOpenChange={vi.fn()} aria-label="inner">
+              <button type="button">inner-a</button>
+            </Modal>
+          </Modal>
+          <Modal isOpen={isSecondOpen} onOpenChange={vi.fn()} aria-label="second">
+            <button type="button">second-a</button>
+          </Modal>
+        </>
+      );
+    }
+    const { rerender } = render(<Siblings isSecondOpen={false} />);
+    rerender(<Siblings isSecondOpen />);
+    expect([
+      levelOf(rootOf("first")),
+      levelOf(rootOf("inner")),
+      levelOf(rootOf("second")),
+    ]).toEqual([0, 1, 2]);
+    expect(rootOf("second")).not.toHaveAttribute("inert");
+    expect(rootOf("inner")).toHaveAttribute("inert");
+  });
 });
 
 describe("Modal content lifecycle", () => {

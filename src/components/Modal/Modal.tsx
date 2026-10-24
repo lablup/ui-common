@@ -74,7 +74,13 @@ import { devWarn, isFocusDetached, mergeRefs } from "@astryxdesign/core/utils";
 import { useUicTranslator } from "../../i18n/useUicTranslator";
 import { NoFormItemContext } from "../Form/context";
 import { SkeletonText } from "../Skeleton/SkeletonText";
-import { MODAL_OPEN_ATTRIBUTE, ModalPortalContext, useModalLevel } from "./modalStack";
+import {
+  MODAL_OPEN_ATTRIBUTE,
+  ModalPortalContext,
+  ModalStackNodeContext,
+  useModalLevel,
+  useModalStackNode,
+} from "./modalStack";
 import "./Modal.css";
 
 const HEADING_SELECTOR = '[role="heading"], h1, h2, h3, h4, h5, h6';
@@ -298,7 +304,8 @@ function ModalSurface({
   }, [isOpen, isInline]);
 
   const isActive = isOpen && !isInline;
-  const isTopmost = useModalLevel(rootRef, isActive, zIndex);
+  const stackNode = useModalStackNode();
+  const isTopmost = useModalLevel(rootRef, isActive, zIndex, stackNode);
 
   // Inside a modal <dialog>, the top layer is the only way above it.
   useLayoutEffect(() => {
@@ -545,7 +552,7 @@ function ModalSurface({
           className={className}
           style={style}
         >
-          {content}
+          <ModalStackNodeContext value={stackNode}>{content}</ModalStackNodeContext>
         </Dialog>
       </div>
     </div>,
