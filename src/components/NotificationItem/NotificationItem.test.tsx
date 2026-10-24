@@ -49,6 +49,24 @@ describe("NotificationItem", () => {
     expect(screen.getByTestId("node").closest(".astryx-text")).toBeNull();
   });
 
+  it("renders a 0 as body Text in its slot, not as a bare character", () => {
+    const { container } = render(
+      <NotificationItem title={0} description={0} footer={0} />,
+    );
+    const stack = container.querySelector(".uic-notification-item__stack")!;
+    expect(stack.childElementCount).toBe(3);
+    expect(container.querySelector(".uic-notification-item__title")).toHaveTextContent(
+      "0",
+    );
+    expect(container.querySelector(".uic-notification-item__footer")).toHaveTextContent(
+      "0",
+    );
+    // Nothing lands outside a slot.
+    expect(
+      Array.from(stack.childNodes).filter((node) => node.nodeType === Node.TEXT_NODE),
+    ).toEqual([]);
+  });
+
   it("adds a class name to the root", () => {
     const { container } = render(<NotificationItem title="A" className="extra" />);
     expect(container.firstElementChild).toHaveClass("uic-notification-item", "extra");

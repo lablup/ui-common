@@ -30,6 +30,10 @@ export interface NotificationItemProps {
   className?: string;
 }
 
+/** A slot renders unless it is empty; a `0` is content, as any number is. */
+const isFilled = (content: ReactNode) =>
+  content != null && content !== false && content !== "";
+
 const asText = (content: ReactNode) =>
   typeof content === "string" ||
   typeof content === "number" ||
@@ -49,9 +53,11 @@ export function NotificationItem({
   return (
     <div className={["uic-notification-item", className].filter(Boolean).join(" ")}>
       <VStack gap={1} align="stretch" className="uic-notification-item__stack">
-        {title && <div className="uic-notification-item__title">{asText(title)}</div>}
-        {description && <div>{asText(description)}</div>}
-        {action && (
+        {isFilled(title) && (
+          <div className="uic-notification-item__title">{asText(title)}</div>
+        )}
+        {isFilled(description) && <div>{asText(description)}</div>}
+        {isFilled(action) && (
           <HStack
             gap={1}
             align="end"
@@ -61,7 +67,7 @@ export function NotificationItem({
             {action}
           </HStack>
         )}
-        {footer && (
+        {isFilled(footer) && (
           <div className="uic-notification-item__footer">{asText(footer)}</div>
         )}
       </VStack>
