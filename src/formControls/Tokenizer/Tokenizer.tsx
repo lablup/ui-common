@@ -39,6 +39,8 @@ export function Tokenizer<T extends SearchableItem>({
   ...rest
 }: TokenizerProps<T>) {
   const { required, field, width } = useFormControl({
+    component: "Tokenizer",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

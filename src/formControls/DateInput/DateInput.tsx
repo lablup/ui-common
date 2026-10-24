@@ -37,6 +37,8 @@ export function DateInput({
   ...rest
 }: DateInputProps) {
   const { required, field, width } = useFormControl({
+    component: "DateInput",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

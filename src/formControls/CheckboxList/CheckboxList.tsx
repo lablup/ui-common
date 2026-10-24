@@ -38,6 +38,8 @@ export function CheckboxList({
   ...rest
 }: CheckboxListProps) {
   const { required, field, width } = useFormControl({
+    component: "CheckboxList",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

@@ -384,12 +384,12 @@ describe("upgrade registry", () => {
     expect(await stepsBetween("0.2.0-alpha.18", "0.2.0-alpha.19")).toHaveLength(1);
   });
 
-  it("registers the Drawer move and the Astryx 0.7.3 codemods under 0.2.0-alpha.20", async () => {
+  it("registers the Drawer move, the field chrome and the Astryx 0.7.3 codemods under 0.2.0-alpha.20", async () => {
     expect(registeredVersions()).toContain("0.2.0-alpha.20");
     const steps = await stepsBetween("0.2.0-alpha.19", "0.2.0-alpha.20");
     // ui-common's own step first, then Astryx's.
     expect(steps.map((s) => s.step.title)).toEqual([
-      "0.2.0-alpha.20: Drawer moves from /lab to /Drawer",
+      "0.2.0-alpha.20: Drawer moves from /lab to /Drawer; form controls leave their field chrome to Form.Item",
       expect.stringContaining("Astryx"),
     ]);
     expect(await stepsBetween("0.2.0-alpha.20", "0.2.0")).toHaveLength(0);

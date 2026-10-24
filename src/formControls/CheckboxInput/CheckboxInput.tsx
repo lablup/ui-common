@@ -47,6 +47,8 @@ export function CheckboxInput({
   ...rest
 }: CheckboxInputProps) {
   const { required, field, width } = useFormControl({
+    component: "CheckboxInput",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

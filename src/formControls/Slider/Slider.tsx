@@ -9,25 +9,35 @@
 import type { ReactElement } from "react";
 import {
   Slider as AstryxSlider,
+  type SliderBaseProps as AstryxSliderBaseProps,
   type SliderProps as AstryxSliderProps,
-  type SliderRangeProps,
-  type SliderSingleProps,
+  type SliderRangeProps as AstryxSliderRangeProps,
+  type SliderSingleProps as AstryxSliderSingleProps,
 } from "@astryxdesign/core/Slider";
 
 import {
   FormControlScope,
   useFormControl,
   useMergedValue,
+  type FormControlChromeProps,
+  type FormControlProps,
   type FormControlValueProps,
 } from "../formControl";
 
-export type SliderProps = FormControlValueProps<AstryxSliderProps>;
+/** What both branches take: Astryx's base without the field chrome. */
+export type SliderBaseProps = Omit<AstryxSliderBaseProps, FormControlChromeProps> &
+  FormControlProps;
+/** A single-thumb slider: `value` is a number. */
+export type SliderSingleProps = FormControlValueProps<AstryxSliderSingleProps>;
+/** A range slider: `value` is `[from, to]`. */
+export type SliderRangeProps = FormControlValueProps<AstryxSliderRangeProps>;
+export type SliderProps = SliderSingleProps | SliderRangeProps;
 
 // Overloads, not one union: without a `value` nothing tells the two apart, so
 // an inline `onChange={(v) => …}` is typed by the first that fits, a single
 // value, as the slider then renders.
-export function Slider(props: FormControlValueProps<SliderSingleProps>): ReactElement;
-export function Slider(props: FormControlValueProps<SliderRangeProps>): ReactElement;
+export function Slider(props: SliderSingleProps): ReactElement;
+export function Slider(props: SliderRangeProps): ReactElement;
 export function Slider({
   value,
   defaultValue,
@@ -37,6 +47,8 @@ export function Slider({
   ...rest
 }: SliderProps) {
   const { required, field } = useFormControl({
+    component: "Slider",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

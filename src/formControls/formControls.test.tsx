@@ -30,7 +30,12 @@ import { NumberInput } from "./NumberInput";
 import { RadioList, RadioListItem } from "./RadioList";
 import { SegmentedControl, SegmentedControlItem } from "./SegmentedControl";
 import { Selector } from "./Selector";
-import { Slider } from "./Slider";
+import {
+  Slider,
+  type SliderBaseProps,
+  type SliderRangeProps,
+  type SliderSingleProps,
+} from "./Slider";
 import { Switch } from "./Switch";
 import { TagsInput } from "./TagsInput";
 import { TextArea } from "./TextArea";
@@ -38,6 +43,7 @@ import { TextInput } from "./TextInput";
 import { TimeInput } from "./TimeInput";
 import { Tokenizer } from "./Tokenizer";
 import { createStaticSource, Typeahead } from "./Typeahead";
+import type { FormControlStatus } from "./formControl";
 
 beforeEach(() => {
   // jsdom has no Popover API; the selectors' surfaces call it on mount.
@@ -770,5 +776,83 @@ describe("TagsInput", () => {
     expect(
       await screen.findByRole("option", { name: 'Create "new"', hidden: true }),
     ).toBeInTheDocument();
+  });
+});
+
+describe("field chrome a caller still passes (#91)", () => {
+  // A spread or plain JavaScript gets these past the types.
+  const chrome = (props: Record<string, unknown>) => props as object;
+  const dropped = (warn: { mock: { calls: unknown[][] } }) =>
+    warn.mock.calls
+      .map(([message]) => String(message))
+      .filter((message) => message.includes("does not take"));
+
+  it("warns once per control in development, naming what it drops", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(
+      <TextArea aria-label="A" {...chrome({ label: "Notes", isRequired: true })} />,
+    );
+    render(<TextArea aria-label="B" {...chrome({ description: "Twice" })} />);
+    render(
+      <TimeInput
+        aria-label="C"
+        {...chrome({ status: { type: "error", message: "Bad" } })}
+      />,
+    );
+    const messages = dropped(warn);
+    warn.mockRestore();
+    expect(messages).toHaveLength(2);
+    expect(messages[0]).toMatch(
+      /^TextArea: ui-common's TextArea does not take label, isRequired\. The enclosing Form.Item/,
+    );
+    expect(messages[1]).toMatch(
+      /^TimeInput: ui-common's TimeInput does not take status \(an object\)\./,
+    );
+  });
+
+  it("warns about nothing for the wrapper's own props", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(
+      <Typeahead aria-label="Own" searchSource={source} status="error" disabled />,
+    );
+    const messages = dropped(warn);
+    warn.mockRestore();
+    expect(messages).toEqual([]);
+  });
+
+  it("keeps a caller's isDisabled disabling the control", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const { container } = render(
+      <NumberInput aria-label="Locked" {...chrome({ isDisabled: true })} />,
+    );
+    warn.mockRestore();
+    expect(
+      container.querySelector('[disabled], [aria-disabled="true"], [data-disabled]'),
+    ).not.toBeNull();
+  });
+
+  it("paints a status object's type as the border", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    render(<TextInput aria-label="Typed" {...chrome({ status: { type: "error" } })} />);
+    warn.mockRestore();
+    expect(screen.getByRole("textbox", { name: "Typed" })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+});
+
+describe("Slider props types (#91)", () => {
+  // Checked by `tsc`: the exported props are the wrapper's, not Astryx's.
+  it("carry no field chrome and the border-only status", () => {
+    expectTypeOf<SliderSingleProps>().not.toHaveProperty("label");
+    expectTypeOf<SliderRangeProps>().not.toHaveProperty("isDisabled");
+    expectTypeOf<SliderBaseProps>().not.toHaveProperty("description");
+    expectTypeOf<SliderSingleProps["status"]>().toEqualTypeOf<
+      FormControlStatus | undefined
+    >();
+    expectTypeOf<SliderRangeProps["value"]>().toEqualTypeOf<
+      [number, number] | undefined
+    >();
   });
 });

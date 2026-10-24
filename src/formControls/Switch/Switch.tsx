@@ -47,6 +47,8 @@ export function Switch({
   ...rest
 }: SwitchProps) {
   const { required, field, width } = useFormControl({
+    component: "Switch",
+    caller: rest,
     status,
     disabled,
     ariaRequired: rest["aria-required"],

@@ -33,10 +33,9 @@
  * RadioListItem, RadioListItemProps, RadioListSize, SearchSource,
  * SearchableItem, SelectorDivider, SelectorOption, SelectorOptionData,
  * SelectorOptionType, SelectorPresentation, SelectorSection, SelectorSize,
- * SelectorStatus, SelectorStatusType, SliderBaseProps, SliderRangeProps,
- * SliderSingleProps, SwitchLabelPosition, SwitchLabelSpacing, TextAreaSize,
- * TextAreaStatus, TextAreaStatusType, TextInputSize, TextInputStatus,
- * TextInputStatusType, TextInputType, TimeInputHourFormat,
+ * SelectorStatus, SelectorStatusType, SwitchLabelPosition, SwitchLabelSpacing,
+ * TextAreaSize, TextAreaStatus, TextAreaStatusType, TextInputSize,
+ * TextInputStatus, TextInputStatusType, TextInputType, TimeInputHourFormat,
  * TimeInputNativePicker, TimeInputPresentation, TimeInputSize, TimeInputStatus,
  * TimeInputStatusType, TokenizerChange, TokenizerHandle,
  * TokenizerOverflowBehavior, TokenizerSize, TokenizerStatus,
@@ -73,16 +72,15 @@
  * RadioListSize, SelectorOption, useCombobox, useSelectedItemOffset,
  * SelectorDivider, SelectorOptionData, SelectorOptionType,
  * SelectorPresentation, SelectorSection, SelectorSize, SelectorStatus,
- * SelectorStatusType, SliderBaseProps, SliderRangeProps, SliderSingleProps,
- * SwitchLabelPosition, SwitchLabelSpacing, TextAreaSize, TextAreaStatus,
- * TextAreaStatusType, TextInputSize, TextInputStatus, TextInputStatusType,
- * TextInputType, ISOTimeString, TimeInputHourFormat, TimeInputNativePicker,
- * TimeInputPresentation, TimeInputSize, TimeInputStatus, TimeInputStatusType,
- * TokenizerChange, TokenizerHandle, TokenizerOverflowBehavior, TokenizerSize,
- * TokenizerStatus, TokenizerStatusType, BaseTypeahead, TypeaheadItem,
- * createStaticSource, BaseTypeaheadProps, CreateStaticSourceOptions,
- * SearchSource, SearchableItem, TypeaheadItemProps, TypeaheadSize,
- * TypeaheadStatus, TypeaheadStatusType.
+ * SelectorStatusType, SwitchLabelPosition, SwitchLabelSpacing, TextAreaSize,
+ * TextAreaStatus, TextAreaStatusType, TextInputSize, TextInputStatus,
+ * TextInputStatusType, TextInputType, ISOTimeString, TimeInputHourFormat,
+ * TimeInputNativePicker, TimeInputPresentation, TimeInputSize, TimeInputStatus,
+ * TimeInputStatusType, TokenizerChange, TokenizerHandle,
+ * TokenizerOverflowBehavior, TokenizerSize, TokenizerStatus,
+ * TokenizerStatusType, BaseTypeahead, TypeaheadItem, createStaticSource,
+ * BaseTypeaheadProps, CreateStaticSourceOptions, SearchSource, SearchableItem,
+ * TypeaheadItemProps, TypeaheadSize, TypeaheadStatus, TypeaheadStatusType.
  *
  * Astryx names exported from ui-common's own copy of the component:
  * CheckboxInput, CheckboxInputProps, CheckboxList, CheckboxListProps,
@@ -95,9 +93,9 @@
  * NumberInputProps, Popover, RadioList, RadioListProps, SegmentedControl,
  * SegmentedControlItem, SegmentedControlItemProps, SegmentedControlLayout,
  * SegmentedControlProps, SegmentedControlSize, Selector, SelectorProps, Slider,
- * SliderProps, Switch, SwitchProps, TextArea, TextAreaProps, TextInput,
- * TextInputProps, TimeInput, TimeInputProps, Tokenizer, TokenizerProps,
- * Typeahead, TypeaheadProps.
+ * SliderBaseProps, SliderProps, SliderRangeProps, SliderSingleProps, Switch,
+ * SwitchProps, TextArea, TextAreaProps, TextInput, TextInputProps, TimeInput,
+ * TimeInputProps, Tokenizer, TokenizerProps, Typeahead, TypeaheadProps.
  */
 
 export {
