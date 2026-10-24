@@ -56,6 +56,7 @@ import {
   wholeModuleAt,
 } from "../codemods/adopt/specifiers.mjs";
 import { astryxTransformsBetween } from "../codemods/upstream.mjs";
+import { checkOutput } from "./check-output.mjs";
 import { detectPackageManager } from "./lab-peer.mjs";
 import { diffStat, unifiedDiff } from "./diff.mjs";
 import {
@@ -550,17 +551,10 @@ export async function runAdopt(options) {
           continue;
         }
         if (out == null || out === entry.current) continue;
-        if (transform.parse) {
-          try {
-            j(out);
-          } catch (err) {
-            errors.push({
-              file: rel(file),
-              transform: transform.id,
-              error: `produced unparseable output, not applied: ${/** @type {Error} */ (err).message}`,
-            });
-            continue;
-          }
+        const rejected = transform.parse ? checkOutput(file, out, j) : null;
+        if (rejected) {
+          errors.push({ file: rel(file), transform: transform.id, error: rejected });
+          continue;
         }
         touch(file, out, transform.id);
       }

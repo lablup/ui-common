@@ -205,6 +205,25 @@ describe("ui-common adopt --from astryx", () => {
     expect(again.code).toBe(0);
   });
 
+  it("applies an Astryx codemod's postcss output to a stylesheet", async () => {
+    const dir = copyFixture("npm-lab");
+    const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+    pkg.dependencies["@astryxdesign/core"] = "^0.6.5";
+    writeFileSync(join(dir, "package.json"), JSON.stringify(pkg, null, 2));
+    // 0.7.0's migrate-deprecated-theme-surface lists `.css` and rewrites it
+    // through postcss; its output is not a script (#67).
+    writeFileSync(
+      join(dir, "src", "theme.css"),
+      "@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;\n.astryx-button.primary.sm:hover { color: red; }\n",
+    );
+    const result = await runAdopt({ cwd: dir, version: VERSION, ...quiet });
+    expect(result.errors).toEqual([]);
+    const css = readFileSync(join(dir, "src", "theme.css"), "utf8");
+    expect(css).toContain(
+      '.astryx-button:is([data-variant="primary"]):is([data-size="sm"]):hover { color: red; }',
+    );
+  });
+
   it("leaves a whole-root import or re-export that reaches the Dialog family", async () => {
     const dir = copyFixture("npm-lab");
     writeFileSync(

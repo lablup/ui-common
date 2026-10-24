@@ -11,7 +11,8 @@ import jscodeshift from "jscodeshift";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { swapModuleSpecifiers, toAstryxSpecifiers } from "../../codemods/upstream.mjs";
-import { checkOutput, runUpgrade } from "../../cli/upgrade.mjs";
+import { checkOutput } from "../../cli/check-output.mjs";
+import { runUpgrade } from "../../cli/upgrade.mjs";
 
 const temps: string[] = [];
 afterEach(() => {

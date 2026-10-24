@@ -20,14 +20,12 @@ import {
 import { spawnSync } from "node:child_process";
 import { dirname, extname, join, relative, resolve, sep } from "node:path";
 
-import postcss from "postcss";
-
 import { registeredVersions, stepsBetween } from "../codemods/registry.mjs";
 import { TODO_TAG } from "../codemods/lib/jsx.mjs";
 import { diffStat, unifiedDiff } from "./diff.mjs";
 import { cliPackageJson, findProjectDir } from "./paths.mjs";
 import { createResolver } from "./resolve.mjs";
-import { SCRIPT_EXTENSIONS } from "./project.mjs";
+import { checkOutput } from "./check-output.mjs";
 import { renderReport, REPORT_HEADING } from "./report.mjs";
 import { coerce, compare, parse } from "./semver.mjs";
 
@@ -218,28 +216,6 @@ function findPackageJsons(dir) {
 /**
  * @param {UpgradeOptions} options
  */
-/**
- * Why a transform's output is not applied, or `null` when it is accepted. A
- * script is re-parsed with the parser that produced it; a `.css` file with
- * postcss, since an Astryx codemod that lists `.css` runs its postcss path on
- * it and the output is not a script (#67). Sass and Less have no parser here
- * and are accepted as written.
- *
- * @param {string} file
- * @param {string} out
- * @param {any} j jscodeshift with the parser chosen for `file`
- */
-export function checkOutput(file, out, j) {
-  const ext = extname(file);
-  try {
-    if (SCRIPT_EXTENSIONS.has(ext)) j(out);
-    else if (ext === ".css") postcss.parse(out, { from: file });
-  } catch (err) {
-    return `produced unparseable output, not applied: ${/** @type {Error} */ (err).message}`;
-  }
-  return null;
-}
-
 export async function runUpgrade(options) {
   const log = options.log ?? ((line) => process.stdout.write(`${line}\n`));
   const warn = options.warn ?? ((line) => process.stderr.write(`${line}\n`));
