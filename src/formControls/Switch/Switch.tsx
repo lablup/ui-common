@@ -5,9 +5,6 @@
  * antd; the item's `<label htmlFor>` names it as well. `checked` is
  * accepted beside `value`, so `valuePropName="checked"` works.
  */
-import { use } from "react";
-
-import { FormItemInputContext } from "../../components/Form/context";
 import {
   Switch as ForkSwitch,
   type SwitchProps as ForkSwitchProps,
@@ -68,20 +65,18 @@ export function Switch({
     false,
   );
   // With inline text the item's `<label htmlFor>` and the text both name
-  // the control. Without it, in an item the item's label is the one name:
-  // Astryx's own hidden label would be read as well, and `aria-label` lands
-  // on the fork's root, not on the checkbox. Standalone, the caller's
-  // `aria-label` is that hidden label.
+  // the control, so it takes no `aria-label`, which would drop the text.
+  // Without it the name is the item's label or the caller's `aria-label`,
+  // passed as `aria-label` (the fork puts it on the checkbox) so the two
+  // `<label>`s are not read twice.
   const inline = children !== undefined;
-  const inItem = use(FormItemInputContext).isFormItemInput === true;
-  const ariaLabel = typeof rest["aria-label"] === "string" ? rest["aria-label"] : "";
   const props = {
     ...rest,
     ...field,
     width,
-    label: inline ? children : inItem ? "" : ariaLabel,
+    label: inline ? children : field.label,
     isLabelHidden: !inline,
-    "aria-label": undefined,
+    "aria-label": inline ? undefined : field["aria-label"],
     value: mergedValue,
     onChange: handleChange,
   } as ForkSwitchProps;

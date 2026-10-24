@@ -51,7 +51,9 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 - **`Switch` and `CheckboxInput` are named once inside a `Form.Item`** when
   the caller also passes `aria-label` (what a host's adapter does): the
   wrapper turned it into Astryx's hidden label beside the item's, so the name
-  was read twice. **The item's `aria-required` stays off the Switch fork's
+  was read twice. The Switch fork now puts a passed `aria-label` on the
+  native checkbox, as it does `id`, instead of on the row. **The item's
+  `aria-required` stays off the Switch fork's
   root, a `CheckboxList`'s group and a `DateRangeInput`'s button**, whose
   roles do not allow it; required is still announced there.
 - **`NumberInput` reads a typed decimal by the active locale.** Under a locale

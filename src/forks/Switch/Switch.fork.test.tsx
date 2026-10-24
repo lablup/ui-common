@@ -68,6 +68,22 @@ describe("Switch fork: a passed id", () => {
   });
 });
 
+describe("Switch fork: a passed aria-label", () => {
+  it("names the native checkbox, over its own label", () => {
+    render(
+      <Switch
+        label="Notifications"
+        value={false}
+        onChange={() => {}}
+        aria-label="Alerts"
+      />,
+    );
+    const control = screen.getByRole("switch");
+    expect(control).toHaveAttribute("aria-label", "Alerts");
+    expect(control).toHaveAccessibleName("Alerts");
+  });
+});
+
 describe("Switch: a passed aria-describedby", () => {
   it("describes the native checkbox, ahead of the switch's own ids", () => {
     render(

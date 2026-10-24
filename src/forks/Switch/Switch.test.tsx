@@ -735,8 +735,9 @@ describe("Switch", () => {
   });
 
   describe("rest forwarding", () => {
-    // ui-common fork: `id` names the native checkbox, not the root (the fix).
-    it("forwards data-testid and aria-* to the root element, and id to the input", () => {
+    // ui-common fork: `id` and `aria-label` go to the native checkbox, not
+    // the root (the fixes); the rest of aria-* still lands on the root.
+    it("forwards data-testid and aria-* to the root element, and id and aria-label to the input", () => {
       const { container } = render(
         <Switch
           label="Notifications"
@@ -751,7 +752,8 @@ describe("Switch", () => {
       expect(root).not.toBeNull();
       expect(root).not.toHaveAttribute("id");
       expect(screen.getByRole("switch")).toHaveAttribute("id", "switch-1");
-      expect(root).toHaveAttribute("aria-label", "Toggle notifications");
+      expect(root).not.toHaveAttribute("aria-label");
+      expect(screen.getByRole("switch")).toHaveAccessibleName("Toggle notifications");
     });
 
     it("composes a caller aria-describedby onto the switch control", () => {

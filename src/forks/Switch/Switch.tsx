@@ -7,12 +7,13 @@
 "use client";
 
 /**
- * Switch, ui-common's copy of Astryx's, with one upstream fix applied: a
+ * Switch, ui-common's copy of Astryx's, with two upstream fixes applied: a
  * passed `id` lands on the native checkbox, as TextInput's and
  * CheckboxInput's do, instead of being replaced by `useId()` and spread onto
- * the row. Without it a `<label htmlFor>` outside the component, such as
- * `Form.Item`'s, points at nothing. (Its second fix, a passed
- * `aria-describedby` describing the checkbox, is upstream's since 0.7.2.)
+ * the row, so a `<label htmlFor>` outside the component, such as
+ * `Form.Item`'s, points at it; and a passed `aria-label` names the checkbox,
+ * as `aria-labelledby` does, instead of landing on the row. (A passed
+ * `aria-describedby` describing the checkbox is upstream's since 0.7.2.)
  *
  * Everything else is upstream's, line for line. Two things differ in form
  * only: the style namespaces and the scope markers are Astryx's
@@ -265,6 +266,8 @@ export function Switch({
   "aria-describedby": ariaDescribedByProp,
   id: idProp,
   "aria-labelledby": ariaLabelledByProp,
+  // ui-common fix: a passed `aria-label` names the checkbox too.
+  "aria-label": ariaLabelProp,
   ...rest
 }: SwitchProps) {
   const t = useTranslator();
@@ -374,6 +377,7 @@ export function Switch({
         // elsewhere in the row, for example), so it reaches the input rather
         // than the field wrapper via `...rest`.
         aria-labelledby={ariaLabelledByProp}
+        aria-label={ariaLabelProp}
         aria-describedby={ariaDescribedBy}
         aria-invalid={status?.type === "error" ? true : undefined}
         aria-busy={isBusy || undefined}
