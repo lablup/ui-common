@@ -11,13 +11,21 @@
  * - Astryx fields need an accessible name. Without `label`, a generic one
  *   from the catalog is used and hidden; pass a real `label` wherever the
  *   field has one.
+ * - `className` / `style` go on the field box (Astryx's `container*`), since
+ *   Astryx's Field-composed inputs ignore root styling; `control*` reach the
+ *   bordered control box. Outside an `InputGroup` the field fills its
+ *   container unless `width` or `style` says otherwise.
  *
  * @example
  * <UncontrolledInput label="Page size" type="number" defaultValue="20" onCommit={setPageSize} />
  */
 import { useRef, useState, type CSSProperties } from "react";
 import { NumberInput } from "@astryxdesign/core/NumberInput";
-import { TextInput, type TextInputStatus } from "@astryxdesign/core/TextInput";
+import {
+  TextInput,
+  type TextInputProps,
+  type TextInputStatus,
+} from "@astryxdesign/core/TextInput";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
 
@@ -39,8 +47,22 @@ export interface UncontrolledInputProps {
   label?: string;
   /** @default true when `label` is not given, else false */
   isLabelHidden?: boolean;
+  /**
+   * Width of the whole field (label, control and status). Numbers are pixels.
+   * @default Astryx's: fills the container
+   */
+  width?: TextInputProps["width"];
+  /** Class name for the field box (label, control and status together). */
   className?: string;
+  /**
+   * Inline styles for the field box (label, control and status together), as
+   * `style={{ maxWidth: 150 }}`.
+   */
   style?: CSSProperties;
+  /** Class name for the bordered control box, never the native input. */
+  controlClassName?: string;
+  /** Inline styles for the bordered control box, never the native input. */
+  controlStyle?: CSSProperties;
   /** `data-testid` and other data attributes go on the field. */
   [dataAttribute: `data-${string}`]: string | undefined;
 }
@@ -54,8 +76,11 @@ export function UncontrolledInput({
   status,
   label,
   isLabelHidden,
+  width,
   className,
   style,
+  controlClassName,
+  controlStyle,
   ...dataAttributes
 }: UncontrolledInputProps) {
   const t = useUicTranslator();
@@ -78,8 +103,11 @@ export function UncontrolledInput({
     placeholder,
     isDisabled,
     status,
-    className,
-    style,
+    width,
+    containerClassName: className,
+    containerStyle: style,
+    controlClassName,
+    controlStyle,
   };
   const commit = () => {
     const value = justChanged.current ?? draft;
