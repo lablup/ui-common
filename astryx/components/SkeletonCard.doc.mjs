@@ -8,7 +8,7 @@ export default {
   name: "SkeletonCard",
   displayName: "SkeletonCard",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Feedback & Status",
   keywords: [
     "skeleton card",
     "loading card",

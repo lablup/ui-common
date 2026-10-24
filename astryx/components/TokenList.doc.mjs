@@ -8,7 +8,7 @@ export default {
   name: "TokenList",
   displayName: "TokenList",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Content",
   keywords: ["tokens", "tags", "overflow", "more", "list", "emails"],
   description:
     "A bounded list of settled values: the first maxInline items inline, then +N that shows the rest on hover and focus in a HoverCard (a Popover with trigger=click). variant=token draws Tokens and a +N link; variant=text draws plain text and a +N badge for dense table cells.",

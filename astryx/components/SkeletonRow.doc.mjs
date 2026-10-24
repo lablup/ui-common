@@ -8,7 +8,7 @@ export default {
   name: "SkeletonRow",
   displayName: "SkeletonRow",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Feedback & Status",
   keywords: [
     "skeleton row",
     "loading list",

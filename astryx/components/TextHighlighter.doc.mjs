@@ -8,7 +8,7 @@ export default {
   name: "TextHighlighter",
   displayName: "TextHighlighter",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Content",
   keywords: ["highlight", "search", "mark", "keyword", "match"],
   description:
     "Marks every case-insensitive occurrence of keyword in a string, for search results. The keyword matches literally. Without a keyword the text renders plain; without text nothing renders. The mark is the theme's --color-warning-border-hover when it declares one, else --color-warning-muted.",

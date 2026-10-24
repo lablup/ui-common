@@ -69,7 +69,39 @@ export function templateIds(root = uiCommonRoot()) {
 }
 
 /**
- * The templates @lablup/ui-common ships, sorted by id.
+ * The ui-common components a template renders: the names it imports from
+ * `@lablup/ui-common` that appear as a JSX tag, in import order.
+ *
+ * @param {string} source
+ * @returns {string[]}
+ */
+export function componentsIn(source) {
+  const imported = [
+    ...source.matchAll(
+      /import\s*(?:type\s*)?\{([^}]*)\}\s*from\s*["']@lablup\/ui-common(?:\/[^"']*)?["']/g,
+    ),
+  ].flatMap((m) =>
+    (m[1] ?? "")
+      .split(",")
+      .map(
+        (s) =>
+          s
+            .trim()
+            .replace(/^type\s+/, "")
+            .split(/\s+as\s+/)
+            .pop() ?? "",
+      )
+      .filter((name) => /^[A-Z]/.test(name)),
+  );
+  return [...new Set(imported)].filter((name) =>
+    new RegExp(`(?<![\\w$])<${name}[\\s/>.]`).test(source),
+  );
+}
+
+/**
+ * The templates @lablup/ui-common ships, sorted by id. Astryx allows
+ * `componentsUsed` on block templates only, so a page's list is read from
+ * its source.
  *
  * @param {string} [root] the installed @lablup/ui-common
  * @returns {Promise<Template[]>}
@@ -80,14 +112,17 @@ export async function loadTemplates(root = uiCommonRoot()) {
     templateIds(root).map(async (id) => {
       const doc = (await import(pathToFileURL(join(dir, `${id}.doc.mjs`)).href))
         .default;
+      const file = join(dir, `${id}.tsx`);
       return {
         id,
         type: doc.type,
         displayName: doc.displayName ?? id,
         description: doc.description ?? "",
         keywords: doc.keywords ?? [],
-        componentsUsed: doc.componentsUsed ?? [],
-        file: join(dir, `${id}.tsx`),
+        componentsUsed:
+          doc.componentsUsed ??
+          (existsSync(file) ? componentsIn(readFileSync(file, "utf8")) : []),
+        file,
       };
     }),
   );

@@ -8,7 +8,7 @@ export default {
   name: "ErrorState",
   displayName: "ErrorState",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Feedback & Status",
   keywords: [
     "error state",
     "error page",

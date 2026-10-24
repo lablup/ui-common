@@ -8,7 +8,7 @@ export default {
   name: "ColorPicker",
   displayName: "ColorPicker",
   import: "@lablup/ui-common",
-  category: "Inputs",
+  category: "Form Controls",
   keywords: ["color", "colour", "picker", "hex", "swatch", "theme", "accent"],
   description:
     "A hex colour field: a swatch trigger with Astryx field chrome opens a Popover holding the platform's <input type=color> and a hex TextInput, and optionally a clear button. The value is #rrggbb on both edges (toHexColor also accepts #rgb, #rrggbbaa, rgb() and rgba()). onChange fires on the settled colour, not while dragging. No alpha, no presets.",

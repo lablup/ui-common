@@ -8,7 +8,7 @@ export default {
   name: "SkeletonText",
   displayName: "SkeletonText",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Feedback & Status",
   keywords: [
     "skeleton text",
     "loading text",

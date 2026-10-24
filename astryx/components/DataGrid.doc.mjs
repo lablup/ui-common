@@ -8,7 +8,7 @@ export default {
   name: "DataGrid",
   displayName: "DataGrid",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Table & List",
   keywords: [
     "data table",
     "data grid",

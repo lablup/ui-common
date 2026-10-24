@@ -8,7 +8,7 @@ export default {
   name: "TokenRow",
   displayName: "TokenRow",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Content",
   keywords: ["tokens", "tags", "row", "and more", "overflow", "count"],
   description:
     'A row of read-only tokens that stops at maxCount and ends with "and N more". With totalCount, the count reports the whole collection when items is only a fetched page.',

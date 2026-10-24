@@ -1,4 +1,4 @@
-/** @type {import("@astryxdesign/cli/authoring").TemplateDoc} */
+/** @type {import("@astryxdesign/cli/authoring").IntegrationTemplateDoc} */
 export default {
   type: "block",
   name: "detail-drawer",
@@ -27,4 +27,5 @@ export default {
     "Divider",
   ],
   category: "Form - Side Sheet",
+  aspectRatio: 16 / 9,
 };

@@ -15,9 +15,29 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   and the root barrel now export ui-common's wrapper in place of Astryx's
   `CommandPalette`, with the same API and names; the inline preview
   (`isInline`) is unchanged. This changes where an open palette renders.
+- **The component and template docs pass Astryx's integration doc checks**
+  (#90). Astryx 0.7.2+ warned on 39 of them and turns the warnings into
+  failures in its next minor. Each component doc's `category` is now one of
+  Astryx's (`Form Controls`, `Content`, `Feedback & Status`, `Table & List`,
+  `Container`, `Data Visualization`, `Overlay`, …) instead of ui-common's own
+  `Inputs`, `Input`, `Data Display`, `Feedback` and `Media`, so
+  `ui-common component <Name> --json` reports the new value. Page templates
+  drop `componentsUsed`, a block-only field: `ui-common build` and `search`
+  read a page's components from its source instead (same ranking). Block
+  templates set `aspectRatio`. `pnpm run check:integration` (and `verify`)
+  now fails on any Astryx doc warning, not only on errors.
 
 ### Fixed
 
+- **`UncontrolledInput` applies `className` and `style`** (#92). It passed
+  them to Astryx's `TextInput` / `NumberInput`, which are Field-composed
+  since Astryx 0.7.0 and ignore root styling, so
+  `<UncontrolledInput style={{ maxWidth: 150 }} />` rendered at full width
+  with no type error. They now style the field box (label, control and
+  status), as Astryx's `containerClassName` / `containerStyle`. New props:
+  `width`, and `controlClassName` / `controlStyle` for the bordered control
+  box. A field that passed `style` or `className` now takes it, which is a
+  visible change where a caller's styles had been inert.
 - **Form controls take antd's width inside a `Form.Item`, and Astryx's
   outside one.** Since 0.2.0-alpha.20 `TextInput`, `TextArea`,
   `NumberInput`, `Selector`, `MultiSelector` and `Tokenizer` defaulted to

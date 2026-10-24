@@ -1,4 +1,4 @@
-/** @type {import("@astryxdesign/cli/authoring").TemplateDoc} */
+/** @type {import("@astryxdesign/cli/authoring").IntegrationTemplateDoc} */
 export default {
   type: "page",
   name: "settings-page",
@@ -16,17 +16,6 @@ export default {
     "switches",
     "save",
     "reset",
-  ],
-  componentsUsed: [
-    "PageLayout",
-    "PageHeader",
-    "Card",
-    "Form",
-    "Switch",
-    "Selector",
-    "Heading",
-    "Text",
-    "Button",
   ],
   category: "Settings - Panels",
   isReady: true,

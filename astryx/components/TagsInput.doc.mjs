@@ -8,7 +8,7 @@ export default {
   name: "TagsInput",
   displayName: "TagsInput",
   import: "@lablup/ui-common",
-  category: "Inputs",
+  category: "Form Controls",
   keywords: [
     "tags input",
     "tags",

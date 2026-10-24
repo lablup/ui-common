@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  componentsIn,
   filterBuildOutput,
   filterSearchOutput,
   loadTemplates,
@@ -61,6 +62,27 @@ describe("matchTemplates", () => {
   it("does not match on a generic word alone", () => {
     expect(ids("login page")).toEqual([]);
     expect(ids("page")).toEqual([]);
+  });
+});
+
+describe("componentsIn", () => {
+  it("lists the ui-common components a source renders, not its types or hooks", () => {
+    const source = [
+      'import { useState } from "react";',
+      'import { Button, type DataGridSort, PageLayout as Layout, useTheme } from "@lablup/ui-common";',
+      'import { Tour } from "@lablup/ui-common/lab";',
+      'import { Plus } from "lucide-react";',
+      "const [sort] = useState<DataGridSort>();",
+      "export default () => <Layout><Button icon={<Plus />} /><Tour.Step /></Layout>;",
+    ].join("\n");
+    expect(componentsIn(source)).toEqual(["Button", "Layout", "Tour"]);
+  });
+
+  it("gives a page template, which has no componentsUsed, the components it renders", () => {
+    const listPage = templates.find((t) => t.id === "list-page");
+    expect(listPage?.componentsUsed).toEqual(
+      expect.arrayContaining(["PageLayout", "PageHeader", "DataGrid", "PowerSearch"]),
+    );
   });
 });
 

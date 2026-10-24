@@ -8,7 +8,7 @@ export default {
   name: "Statistic",
   displayName: "Statistic",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Content",
   keywords: ["metric", "statistic", "usage", "quota", "progress", "steps"],
   description:
     "A dashboard metric: a caption, a large value with its unit, and an optional segmented usage bar of value against total. The bar is a strip of notches with role=progressbar and a value / total tooltip. A value that is not finite shows the Unlimited label.",

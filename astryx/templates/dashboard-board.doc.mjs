@@ -1,4 +1,4 @@
-/** @type {import("@astryxdesign/cli/authoring").TemplateDoc} */
+/** @type {import("@astryxdesign/cli/authoring").IntegrationTemplateDoc} */
 export default {
   type: "page",
   name: "dashboard-board",
@@ -17,14 +17,6 @@ export default {
     "usage",
     "movable",
     "resizable",
-  ],
-  componentsUsed: [
-    "PageLayout",
-    "PageHeader",
-    "Board",
-    "BoardItemTitle",
-    "Statistic",
-    "IconButton",
   ],
   category: "Dashboard - Widget Grid",
   isReady: true,

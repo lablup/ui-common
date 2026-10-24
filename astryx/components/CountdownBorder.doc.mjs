@@ -8,7 +8,7 @@ export default {
   name: "CountdownBorder",
   displayName: "CountdownBorder",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Feedback & Status",
   keywords: ["countdown", "auto refresh", "border", "timer", "progress border"],
   description:
     "Wraps its children in a rounded-rect border that fills clockwise over durationMs and starts again: a countdown to the next automatic refresh. It measures its own box, so the outline fits the content; the stroke is centred on the content's edge. No animation under prefers-reduced-motion. style.stroke (default var(--color-accent)), style.strokeWidth (1.5) and style.borderRadius (the theme's --radius-inner) style the border; the rest of style reaches the wrapper.",

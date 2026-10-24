@@ -8,7 +8,7 @@ export default {
   name: "BulkEditFormItem",
   displayName: "BulkEditFormItem",
   import: "@lablup/ui-common",
-  category: "Inputs",
+  category: "Form Controls",
   keywords: ["bulk edit", "batch edit", "keep as is", "multiple records", "form item"],
   description:
     'A Form.Item for editing one field across many records. It starts as a read-only "Keep as is" placeholder (the value stays undefined, so a submit leaves every record alone); clicking or focusing it swaps in the wrapped control; hasClear adds "Clear", which sets the value to null; "Undo changes" returns to keep mode. Takes every Form.Item prop but required, and rules without required.',

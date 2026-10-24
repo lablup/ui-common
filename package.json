@@ -683,7 +683,7 @@
     "theme:check": "astryx theme build -c src/theme/lablup/lablupTheme.ts -o src/theme/lablup/built/theme.css --icons-specifier @astryxdesign/theme-neutral",
     "check:pack": "node scripts/check-pack.mjs",
     "check:boundary": "node scripts/check-boundary.mjs",
-    "check:integration": "astryx doctor integration validate && astryx integration verify",
+    "check:integration": "node scripts/check-integration.mjs && astryx integration verify",
     "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run theme:check && pnpm run test && pnpm run build && pnpm run check:pack && pnpm run check:integration"
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-/** @type {import("@astryxdesign/cli/authoring").TemplateDoc} */
+/** @type {import("@astryxdesign/cli/authoring").IntegrationTemplateDoc} */
 export default {
   type: "block",
   name: "info-modal",
@@ -17,4 +17,5 @@ export default {
   ],
   componentsUsed: ["Modal", "MetadataList", "MetadataListItem", "Button"],
   category: "Form - Modal Overlay",
+  aspectRatio: 4 / 3,
 };

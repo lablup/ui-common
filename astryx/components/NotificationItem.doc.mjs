@@ -8,7 +8,7 @@ export default {
   name: "NotificationItem",
   displayName: "NotificationItem",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Overlay",
   keywords: ["notification", "notice", "toast body", "footer", "timestamp"],
   description:
     "The body of one notice: a title, a description, actions and a footer, stacked, with the actions and the footer at the end. A string or number in a slot renders as body Text; a node renders as is. The title leaves room for the notice's close button.",
