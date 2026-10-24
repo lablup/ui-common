@@ -493,7 +493,9 @@ class Field
       const newValue = getValueFromEvent
         ? getValueFromEvent(...args)
         : defaultGetValueFromEvent(valuePropName, ...args);
-      if (newValue !== value) {
+      // Against the store now, not the render: a control that reports twice
+      // in one tick (a raw then a normalised value) keeps the second.
+      if (newValue !== this.getValue()) {
         dispatch?.({ type: "updateValue", namePath, value: newValue });
       }
       originTriggerFunc?.(...args);

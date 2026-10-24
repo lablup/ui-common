@@ -111,6 +111,9 @@ const InternalForm = <Values,>(
   const nativeElementRef = React.useRef<HTMLElement | null>(null);
   const formProviderContext = React.useContext(FormProviderContext);
   const formConfig = React.useContext(FormConfigContext);
+  // antd: a nested form is disabled by the form around it unless it says.
+  const parentLayout = React.useContext(FormItemLayoutContext);
+  const mergedDisabled = disabled ?? parentLayout.disabled;
   const localizedMessages = useFormValidateMessages();
 
   const [formInstance] = useForm(form as InternalFormInstance | undefined);
@@ -154,9 +157,9 @@ const InternalForm = <Values,>(
   setCallbacks({
     onValuesChange,
     onFieldsChange: (changedFields: FieldData[], ...rest) => {
-      // Fires for PROGRAMMATIC changes too, unlike `onValuesChange` — which
-      // is exactly why `Form.Provider onFormChange` can observe
-      // `setFieldValue`.
+      // Fires on a user edit and after `validateFields`, as upstream's does;
+      // `setFieldValue` / `setFieldsValue` / `setFields` notify the fields
+      // and watchers only, so `Form.Provider onFormChange` does not see them.
       formProviderContext.triggerFormChange(name, changedFields);
       onFieldsChange?.(changedFields, ...(rest as [FieldData[]]));
     },
@@ -207,7 +210,7 @@ const InternalForm = <Values,>(
       form: formInstance as FormInstance,
       layout,
       requiredMark: requiredMark ?? formConfig.requiredMark,
-      disabled,
+      disabled: mergedDisabled,
       name,
       size,
       colon,
@@ -221,7 +224,7 @@ const InternalForm = <Values,>(
       layout,
       requiredMark,
       formConfig.requiredMark,
-      disabled,
+      mergedDisabled,
       name,
       size,
       colon,
@@ -300,8 +303,9 @@ export interface FormProviderProps {
 
 /**
  * Cross-form listener. `onFormChange` is wired to `onFieldsChange`, NOT to
- * `onValuesChange`, so it observes programmatic mutations (`setFieldValue`,
- * `setFieldsValue`, `setFields`) as well as user edits.
+ * `onValuesChange`: it fires on user edits and after `validateFields`, with
+ * the fields' meta, and not on `setFieldValue` / `setFieldsValue` /
+ * `setFields`, as in rc-field-form.
  */
 export const FormProvider: React.FC<FormProviderProps> = ({
   validateMessages,

@@ -422,6 +422,14 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
           childNode = (children as (form: InternalFormInstance) => React.ReactNode)(
             context,
           );
+        } else if (dependencies && !isRenderProps && !hasName) {
+          // antd renders nothing here: an element child has no field to bind
+          // to, and bound to the empty path it would replace the whole store.
+          if (process.env.NODE_ENV !== "production") {
+            console.warn(
+              "[Form.Item] Must set `name` or use a render function when `dependencies` is set.",
+            );
+          }
         } else if (React.isValidElement(children)) {
           const element = children as React.ReactElement<Record<string, any>>;
           const childProps: Record<string, any> = {
