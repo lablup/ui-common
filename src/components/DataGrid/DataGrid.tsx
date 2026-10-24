@@ -516,10 +516,13 @@ export function DataGrid<T extends object = AnyRow>({
       setLocalWidths((prev) => ({ ...prev, ...updates }));
       return;
     }
+    // Astryx reports a width for every column but the last, and a written
+    // entry replaces the column's `defaultOverrides` entry whole, so each one
+    // is based on the merged record: a default `hidden` or `order` stays.
     const next: DataGridColumnOverrides = { ...ownOverrides };
     for (const [key, width] of Object.entries(updates)) {
       if (key === EXPAND_COLUMN_KEY) continue;
-      next[key] = { ...next[key], width };
+      next[key] = { ...overrides[key], width };
     }
     setOverrides(next);
   };

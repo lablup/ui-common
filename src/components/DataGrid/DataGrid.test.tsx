@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { useState, type ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
 
@@ -655,6 +655,61 @@ describe("DataGrid column settings", () => {
     });
     expect(headers()).toEqual(["Name", "Extra"]);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+});
+
+describe("DataGrid column resize over defaultOverrides", () => {
+  const WIDE: DataGridColumn<Row>[] = [
+    { key: "name", header: "Name", renderCell: (row) => row.name },
+    { key: "env", header: "Env", renderCell: () => "e", isHiddenByDefault: true },
+    {
+      key: "created",
+      header: "Created",
+      renderCell: () => "c",
+      isHiddenByDefault: true,
+    },
+    { key: "size", header: "Size", renderCell: (row) => row.size },
+  ];
+  const headers = () =>
+    screen.getAllByRole("columnheader").map((th) => th.textContent?.trim());
+
+  it("keeps what the defaults show and order when a column is resized", () => {
+    const onOverridesChange = vi.fn();
+    function Page() {
+      const [overrides, setOverrides] = useState({});
+      return (
+        <DataGrid<Row>
+          idKey="id"
+          data={makeRows(1)}
+          columns={WIDE}
+          columnSettings={{
+            overrides,
+            defaultOverrides: {
+              env: { hidden: false },
+              created: { hidden: false, order: 0 },
+            },
+            onOverridesChange: (next) => {
+              onOverridesChange(next);
+              setOverrides(next);
+            },
+          }}
+        />
+      );
+    }
+    render(<Page />);
+    expect(headers()).toEqual(["Created", "Name", "Env", "Size"]);
+
+    fireEvent.keyDown(screen.getByRole("separator", { name: "Resize column name" }), {
+      key: "ArrowRight",
+    });
+
+    expect(headers()).toEqual(["Created", "Name", "Env", "Size"]);
+    const written = onOverridesChange.mock.calls.at(-1)?.[0];
+    expect(written.env).toMatchObject({ hidden: false });
+    expect(written.created).toMatchObject({ hidden: false, order: 0 });
+    // The resize wrote widths only on top of what was in effect.
+    for (const entry of Object.values(written) as Array<Record<string, unknown>>)
+      expect(typeof entry.width).toBe("number");
   });
 });
 
