@@ -1,4 +1,4 @@
-import { defineMessages } from "../../i18n/catalog";
+import { defineMessages } from "../../i18n/defineMessages";
 
 /**
  * The form engine's built-in strings: the validation message templates and

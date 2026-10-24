@@ -369,6 +369,9 @@ through Astryx's translator:
 
 ```tsx
 // src/components/Modal/Modal.messages.ts
+// Not from "../../i18n/catalog": the catalog imports this module back.
+import { defineMessages } from "../../i18n/defineMessages";
+
 export const modalMessages = defineMessages({
   "uic.Modal.cancel": { defaultMessage: "Cancel", description: "Cancel button label" },
 });

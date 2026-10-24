@@ -1,4 +1,4 @@
-import { defineMessages } from "./catalog";
+import { defineMessages } from "./defineMessages";
 
 /**
  * Words whose translation does not depend on the component that shows them:

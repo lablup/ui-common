@@ -29,6 +29,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`uic.Form.*` strings no longer render as raw keys in English** (#99).
+  Every messages module imported `defineMessages` from the catalog, which
+  spreads those same modules, so when the Form engine was reached first the
+  catalog was built without the Form strings: an optional field's suffix
+  read `uic.Form.optional` and rules without a `message` showed their key.
+  `defineMessages` now lives in its own module (`src/i18n/defineMessages.ts`,
+  still re-exported from the catalog), and a test loads each messages module
+  before the catalog.
+
 - **`UncontrolledInput` applies `className` and `style`** (#92). It passed
   them to Astryx's `TextInput` / `NumberInput`, which are Field-composed
   since Astryx 0.7.0 and ignore root styling, so
