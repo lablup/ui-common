@@ -22,7 +22,7 @@ import { compare, parse } from "../cli/semver.mjs";
  * @property {string} id
  * @property {string} title
  * @property {string[]} extensions
- * @property {boolean} [parse] re-parse the output as a script before accepting it
+ * @property {boolean} [parse] re-parse the output before accepting it: a script as a script, a `.css` file with postcss (cli/upgrade.mjs `checkOutput`)
  * @property {(file: {path: string, source: string}, api: {jscodeshift: any}, ctx: any) => string | null | undefined} run
  *
  * @typedef {object} Step

@@ -12,7 +12,10 @@
  * `codemods/<ui-common version>/upstream.json` (written by
  * `ui-common sync-astryx`) names the Astryx version range and codemod ids.
  */
+import { extname } from "node:path";
+
 import { importAstryxInternal } from "../cli/paths.mjs";
+import { SCRIPT_EXTENSIONS } from "../cli/project.mjs";
 import { rewriteSpecifiers } from "../cli/rewrite.mjs";
 import { LAB_PACKAGE, UIC } from "./0.2/map.mjs";
 import { addLabOverride, bumpSpec, CLI_PACKAGE, FIELDS } from "./0.2/package-json.mjs";
@@ -37,14 +40,19 @@ export function toAstryxSpecifiers(text) {
 
 /**
  * Apply `swap` to the module specifier strings of a script and nothing else.
- * A source jscodeshift cannot parse (a stylesheet an Astryx codemod targets)
- * is swapped as a whole.
+ * A file that is not a script (a stylesheet an Astryx codemod targets, which
+ * its postcss path reads) is swapped as a whole, as is a source jscodeshift
+ * cannot parse. The extension decides, not a parse attempt: a stylesheet such
+ * as `body { margin: 0 }` happens to parse as a script and would then have
+ * no specifier swapped.
  *
  * @param {any} j
  * @param {string} source
  * @param {(text: string) => string} swap
+ * @param {string} [path] the file's path; without it, the parse attempt decides
  */
-export function swapModuleSpecifiers(j, source, swap) {
+export function swapModuleSpecifiers(j, source, swap, path) {
+  if (path !== undefined && !SCRIPT_EXTENSIONS.has(extname(path))) return swap(source);
   let root;
   try {
     root = j(source);
@@ -101,10 +109,16 @@ export function wrapAstryxTransform(entry, version) {
     id: `astryx:${entry.name}`,
     title: `Astryx ${version}: ${entry.meta.title}`,
     extensions,
-    parse: extensions.some((e) => DEFAULT_EXTENSIONS.includes(e)),
+    // The driver re-parses each output by its file's type (checkOutput).
+    parse: true,
     run(file, api) {
       const j = api.jscodeshift;
-      const swapped = swapModuleSpecifiers(j, file.source, toAstryxSpecifiers);
+      const swapped = swapModuleSpecifiers(
+        j,
+        file.source,
+        toAstryxSpecifiers,
+        file.path,
+      );
       const out = entry.transform(
         { path: file.path, source: swapped },
         { jscodeshift: j, stats: () => {}, report: () => {} },
@@ -115,7 +129,7 @@ export function wrapAstryxTransform(entry, version) {
         );
       }
       if (out == null || out === swapped) return undefined;
-      return swapModuleSpecifiers(j, out, rewriteSpecifiers);
+      return swapModuleSpecifiers(j, out, rewriteSpecifiers, file.path);
     },
   };
 }
