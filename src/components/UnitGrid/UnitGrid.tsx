@@ -466,7 +466,11 @@ export function UnitGrid({
       ? inkForLuminance(emptyFillLuminance)
       : inkFor(unit.color);
 
-  const latticeCols = columns ?? latticeColsForWidth(wrapperWidth, metrics);
+  // A lattice has at least one column; a 0 placed cells off the grid.
+  const latticeCols =
+    columns === undefined
+      ? latticeColsForWidth(wrapperWidth, metrics)
+      : Math.max(1, Math.floor(columns));
   const packed = packGroups(visibleGroups, maxUnitsPerGroup);
   const placed = placeCells(packed, layout, latticeCols, metrics);
   const { width: svgWidth, height: svgHeight } = gridSize(placed, latticeCols, metrics);

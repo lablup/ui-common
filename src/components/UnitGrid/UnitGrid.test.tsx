@@ -19,6 +19,23 @@ const cellsOf = (container: HTMLElement, key?: string) =>
   );
 
 describe("UnitGrid", () => {
+  it("keeps every cell on the grid when columns is 0 or fractional", () => {
+    for (const columns of [0, 0.5]) {
+      const { container, unmount } = render(
+        <UnitGrid groups={GROUPS} columns={columns} />,
+      );
+      const xs = Array.from(container.querySelectorAll("rect[data-group-key]")).map(
+        (rect) => Number(rect.getAttribute("x")),
+      );
+      expect(xs.length).toBeGreaterThan(0);
+      expect(
+        xs.every((x) => x >= 0),
+        `columns=${columns}: ${xs.join(",")}`,
+      ).toBe(true);
+      unmount();
+    }
+  });
+
   it("renders one cell per unit, attributed to its group by key", () => {
     const { container } = render(
       <UnitGrid groups={GROUPS} columns={8} aria-label="Unit grid" />,
