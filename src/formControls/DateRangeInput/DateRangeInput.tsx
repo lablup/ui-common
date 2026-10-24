@@ -34,12 +34,15 @@ export function DateRangeInput({
   onChange,
   status,
   disabled,
+  // Not allowed on the control's role; required is announced through the
+  // required scope instead.
+  "aria-required": ariaRequired,
   ...rest
 }: DateRangeInputProps) {
   const { required, field, width } = useFormControl({
     status,
     disabled,
-    ariaRequired: rest["aria-required"],
+    ariaRequired,
     ariaLabel: rest["aria-label"],
     namesItself: true,
     sizing: "DateRangeInput",

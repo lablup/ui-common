@@ -18,6 +18,7 @@
  * On its own it keeps Astryx's commit-on-blur.
  */
 import { use, type FocusEvent, type FormEvent } from "react";
+import { useLocale } from "@astryxdesign/core/i18n";
 import {
   NumberInput as AstryxNumberInput,
   type NumberInputProps as AstryxNumberInputProps,
@@ -63,29 +64,66 @@ function toNumber(value: NumberInputValue | undefined): number | null {
 /** What a keyboard writes: digits, one decimal point, a sign, an exponent. */
 const PLAIN_NUMBER = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?$/i;
 
+/** The marks the locale writes numbers with, as Astryx reads them. */
+function numberMarks(locale: string): { decimal: string; group: string } {
+  let parts: Intl.NumberFormatPart[];
+  try {
+    parts = new Intl.NumberFormat(locale).formatToParts(1234567.8);
+  } catch {
+    parts = new Intl.NumberFormat("en").formatToParts(1234567.8);
+  }
+  return {
+    decimal: parts.find((part) => part.type === "decimal")?.value ?? ".",
+    group: parts.find((part) => part.type === "group")?.value ?? ",",
+  };
+}
+
+/**
+ * The text as `Number()` reads it: the locale's decimal mark becomes a
+ * point. Group marks are dropped when `lenient` (a whole draft read back on
+ * blur); otherwise text with any mark but the decimal is `null`, as is a
+ * point where the locale's point is a group mark.
+ */
+function toPlainNumber(text: string, locale: string, lenient: boolean): string | null {
+  const { decimal, group } = numberMarks(locale);
+  let out = text.trim();
+  if (lenient) {
+    out = out
+      .split(group)
+      .join("")
+      .replace(/[\s\u00a0\u202f]/g, "");
+  } else if (out.includes(group) || (decimal !== "." && out.includes("."))) {
+    return null;
+  }
+  if (decimal !== ".") out = out.split(decimal).join(".");
+  return PLAIN_NUMBER.test(out) ? out : null;
+}
+
 /**
  * The value a draft reports while it is typed, or `undefined` when it has to
- * wait for Astryx's commit: not a plain number, not an integer where one is
- * required, or outside `min`..`max` (which the commit clamps).
+ * wait for Astryx's commit: not a plain number in the locale, not an integer
+ * where one is required, or outside `min`..`max` (which the commit clamps).
  */
 function draftValue(
   text: string,
   {
+    locale,
     min,
     max,
     isIntegerOnly,
     hasClear,
   }: {
+    locale: string;
     min?: number | null;
     max?: number | null;
     isIntegerOnly?: boolean;
     hasClear: boolean;
   },
 ): number | null | undefined {
-  const trimmed = text.trim();
-  if (trimmed === "") return hasClear ? null : undefined;
-  if (!PLAIN_NUMBER.test(trimmed)) return undefined;
-  const value = Number(trimmed);
+  if (text.trim() === "") return hasClear ? null : undefined;
+  const plain = toPlainNumber(text, locale, false);
+  if (plain === null) return undefined;
+  const value = Number(plain);
   if (!Number.isFinite(value)) return undefined;
   if (isIntegerOnly && !Number.isInteger(value)) return undefined;
   if (min != null && value < min) return undefined;
@@ -118,12 +156,14 @@ export function NumberInput({
   );
   const numericValue = toNumber(mergedValue);
   const inItem = use(FormItemInputContext).isFormItemInput === true;
+  const locale = useLocale();
   // Astryx keeps the typed text as a draft (shown while focused) and reads
   // `value` only at rest, so reporting the draft early changes nothing on
   // screen; its own commit on blur or Enter then finds the value already set.
   const handleInput = (event: FormEvent<HTMLInputElement>) => {
     if (!inItem) return;
     const next = draftValue(event.currentTarget.value, {
+      locale,
       min: rest.min,
       max: rest.max,
       isIntegerOnly: rest.isIntegerOnly,
@@ -132,9 +172,11 @@ export function NumberInput({
     if (next !== undefined && next !== numericValue) handleChange(next);
   };
   // Astryx reverts a decimal typed into an integer field; antd rounds it.
-  // The text is still in the input when the blur reaches us.
+  // The text is still in the input when the blur reaches us, written the
+  // way the locale writes a decimal ("2,6" under de-DE).
   const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
-    const typed = event.target.value.trim() === "" ? NaN : Number(event.target.value);
+    const plain = toPlainNumber(event.target.value, locale, true);
+    const typed = plain === null ? NaN : Number(plain);
     if (rest.isIntegerOnly && Number.isFinite(typed) && !Number.isInteger(typed)) {
       let rounded = Math.round(typed);
       if (rest.min != null && rounded < rest.min) rounded = Math.ceil(rest.min);

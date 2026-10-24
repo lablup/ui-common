@@ -60,17 +60,18 @@ export function CheckboxInput({
     onChange,
     false,
   );
+  // With inline text the item's `<label htmlFor>` and the text both name
+  // the control, so it takes no `aria-label`, which would drop the text.
+  // Without it the name is the item's label or the caller's `aria-label`,
+  // passed as `aria-label` so the two `<label>`s are not read twice.
+  const inline = children !== undefined;
   const props = {
     ...rest,
     ...field,
     width,
-    // The inline text, or standalone a caller's `aria-label`. In an item the
-    // item's `<label htmlFor>` names it as well, so it takes no `aria-label`,
-    // which would drop the inline text from the name.
-    label:
-      children ?? (typeof rest["aria-label"] === "string" ? rest["aria-label"] : ""),
-    isLabelHidden: children === undefined,
-    "aria-label": undefined,
+    label: inline ? children : field.label,
+    isLabelHidden: !inline,
+    "aria-label": inline ? undefined : field["aria-label"],
     value: mergedValue,
     onChange: handleChange,
   } as AstryxCheckboxInputProps;

@@ -13,8 +13,16 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { cloneElement, useState, type ComponentProps, type ReactElement } from "react";
+import {
+  cloneElement,
+  useState,
+  type ComponentProps,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { beforeEach, describe, expect, expectTypeOf, it, vi } from "vitest";
+
+import { InternationalizationProvider } from "@astryxdesign/core/i18n";
 
 import { Form, type FormInstance } from "../components/Form";
 import { Modal } from "../components/Modal";
@@ -371,6 +379,101 @@ describe("form-control parts", () => {
     render(<TextInput aria-label="Search" hasClear defaultValue="x" />);
     expect(screen.getByRole("textbox")).toHaveAccessibleName("Search");
     expect(screen.getByRole("button", { name: "Clear Search" })).toBeInTheDocument();
+  });
+});
+
+describe("the item's name and ARIA on each control", () => {
+  it.each([
+    ["Switch", <Switch aria-label="Field label" />],
+    ["CheckboxInput", <CheckboxInput aria-label="Field label" />],
+  ])(
+    "name a %s once when the caller also passes aria-label in an item",
+    (_, control) => {
+      // The item's <label htmlFor> and Astryx's own label would both name it.
+      const { container } = renderItem(control);
+      expect(container.querySelector("#field")).toHaveAccessibleName("Field label");
+    },
+  );
+
+  it.each([
+    ["Switch", <Switch>Enable it</Switch>],
+    ["CheckboxInput", <CheckboxInput>Enable it</CheckboxInput>],
+  ])("keep a %s's inline text in its name", (_, control) => {
+    const { container } = renderItem(control);
+    expect(container.querySelector("#field")).toHaveAccessibleName(/Enable it/);
+  });
+
+  it("keep aria-required off the roles that do not allow it", () => {
+    for (const [control, forbidden] of [
+      [<Switch />, "div[aria-required]"],
+      [
+        <CheckboxList>
+          <CheckboxListItem value="a" label="Alpha" />
+        </CheckboxList>,
+        '[role="group"][aria-required]',
+      ],
+      [<DateRangeInput />, "button[aria-required]"],
+    ] as const) {
+      const { container, unmount } = renderItem(control, { required: true });
+      expect(container.querySelector(forbidden)).toBeNull();
+      unmount();
+    }
+  });
+
+  it("marks a Switch invalid on its checkbox, not on its root", async () => {
+    const form: { current?: FormInstance } = {};
+    const { container } = renderItem(<Switch />, { required: true, form });
+    await act(async () => {
+      await form.current!.validateFields().catch(() => {});
+    });
+    expect(container.querySelector('input[aria-invalid="true"]')).not.toBeNull();
+    expect(container.querySelector("div[aria-invalid]")).toBeNull();
+  });
+});
+
+describe("NumberInput under a locale that writes a comma decimal", () => {
+  const de = ({ children }: { children: ReactNode }) => (
+    <InternationalizationProvider locale="de-DE">
+      {children}
+    </InternationalizationProvider>
+  );
+
+  it("rounds a typed decimal into an integer field", async () => {
+    const onChange = vi.fn();
+    render(
+      <NumberInput aria-label="Replicas" isIntegerOnly max={10} onChange={onChange} />,
+      {
+        wrapper: de,
+      },
+    );
+    await userEvent.type(screen.getByRole("spinbutton", { name: "Replicas" }), "2,6");
+    await userEvent.tab();
+    expect(onChange).toHaveBeenLastCalledWith(3);
+  });
+
+  it("reports the draft as typed inside a Form.Item, by the locale's marks", async () => {
+    const form: { current?: FormInstance } = {};
+    function Harness() {
+      const [instance] = Form.useForm();
+      form.current = instance;
+      return (
+        <Form form={instance}>
+          <Form.Item label="Count" name="count">
+            <NumberInput />
+          </Form.Item>
+        </Form>
+      );
+    }
+    render(<Harness />, { wrapper: de });
+    const input = screen.getByRole("spinbutton", { name: "Count" });
+    await userEvent.type(input, "1,5");
+    expect(form.current!.getFieldValue("count")).toBe(1.5);
+    // A point is a group mark here, not a decimal: "1.5" waits for the
+    // commit, and the store keeps the 1 typed before it.
+    await userEvent.clear(input);
+    await userEvent.type(input, "1.5");
+    expect(form.current!.getFieldValue("count")).toBe(1);
+    expect(input).toHaveValue("1.5");
   });
 });
 

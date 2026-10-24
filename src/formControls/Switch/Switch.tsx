@@ -5,11 +5,13 @@
  * antd; the item's `<label htmlFor>` names it as well. `checked` is
  * accepted beside `value`, so `valuePropName="checked"` works.
  */
+import { use } from "react";
+
+import { FormItemInputContext } from "../../components/Form/context";
 import {
   Switch as ForkSwitch,
   type SwitchProps as ForkSwitchProps,
 } from "../../forks/Switch/Switch";
-
 import {
   FormControlScope,
   useFormControl,
@@ -44,12 +46,17 @@ export function Switch({
   status,
   disabled,
   children,
+  // The fork spreads the rest onto its root, a plain div: the item's
+  // `aria-required` and `aria-invalid` belong on the checkbox, which Astryx
+  // sets from the required scope and the status.
+  "aria-required": ariaRequired,
+  "aria-invalid": _ariaInvalid,
   ...rest
 }: SwitchProps) {
   const { required, field, width } = useFormControl({
     status,
     disabled,
-    ariaRequired: rest["aria-required"],
+    ariaRequired,
     ariaLabel: rest["aria-label"],
     sizing: "Switch",
     width: rest.width,
@@ -60,16 +67,20 @@ export function Switch({
     onChange,
     false,
   );
+  // With inline text the item's `<label htmlFor>` and the text both name
+  // the control. Without it, in an item the item's label is the one name:
+  // Astryx's own hidden label would be read as well, and `aria-label` lands
+  // on the fork's root, not on the checkbox. Standalone, the caller's
+  // `aria-label` is that hidden label.
+  const inline = children !== undefined;
+  const inItem = use(FormItemInputContext).isFormItemInput === true;
+  const ariaLabel = typeof rest["aria-label"] === "string" ? rest["aria-label"] : "";
   const props = {
     ...rest,
     ...field,
     width,
-    // The inline text, or standalone a caller's `aria-label`. In an item the
-    // item's `<label htmlFor>` names it as well, so it takes no `aria-label`,
-    // which would drop the inline text from the name.
-    label:
-      children ?? (typeof rest["aria-label"] === "string" ? rest["aria-label"] : ""),
-    isLabelHidden: children === undefined,
+    label: inline ? children : inItem ? "" : ariaLabel,
+    isLabelHidden: !inline,
     "aria-label": undefined,
     value: mergedValue,
     onChange: handleChange,
