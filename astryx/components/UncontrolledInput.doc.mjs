@@ -48,6 +48,35 @@ export default {
       description: "Hide the label.",
       default: "true without label, else false",
     },
+    {
+      name: "width",
+      type: "number | string",
+      description:
+        "Width of the whole field (label, control and status). Numbers are pixels.",
+      default: "Astryx's: fills the container",
+    },
+    {
+      name: "className",
+      type: "string",
+      description: "Class name for the field box (label, control and status).",
+    },
+    {
+      name: "style",
+      type: "CSSProperties",
+      description:
+        "Inline styles for the field box (label, control and status), as { maxWidth: 150 }.",
+    },
+    {
+      name: "controlClassName",
+      type: "string",
+      description: "Class name for the bordered control box, never the native input.",
+    },
+    {
+      name: "controlStyle",
+      type: "CSSProperties",
+      description:
+        "Inline styles for the bordered control box, never the native input.",
+    },
   ],
   usage: {
     description:
