@@ -75,8 +75,10 @@ export function useUicTranslator(catalog: Catalog = uiCommonCatalog): UicTransla
       const fallback = catalog[key]?.defaultMessage;
       if (fallback === undefined) return key;
       if (values === undefined) return fallback;
+      // The fallback is English, so its plural rules are English's: under
+      // the provider's locale, uk-UA or ru puts 21 in the `one` branch.
       return String(
-        new IntlMessageFormat(fallback, ctx.locale).format(
+        new IntlMessageFormat(fallback, "en").format(
           values as Record<string, string | number | boolean | null | undefined | Date>,
         ),
       );

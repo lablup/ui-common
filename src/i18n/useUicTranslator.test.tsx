@@ -83,6 +83,16 @@ describe("useUicTranslator", () => {
     ).toBe("Close");
   });
 
+  it("pluralises the English fallback by English's rules, whatever the locale", () => {
+    // uk-UA has Astryx's catalog but no ui-common file; its `one` takes 21.
+    expect(
+      translate("uic.Test.count", { count: 21 }, { locale: "uk-UA", messages: {} }),
+    ).toBe("21 items");
+    expect(
+      translate("uic.Test.count", { count: 1 }, { locale: "uk-UA", messages: {} }),
+    ).toBe("1 item");
+  });
+
   it("returns the key when no catalog knows it", () => {
     expect(translate("uic.Test.unknown")).toBe("uic.Test.unknown");
   });
