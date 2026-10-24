@@ -120,7 +120,8 @@ export default {
     {
       name: "onChange",
       type: "(value: number | null) => void",
-      description: "Called with the new number, or null when the field is emptied.",
+      description:
+        "Called with the new number, or null when the field is emptied. Inside a Form.Item it is also called as the user types, with a plain number within min and max (an integer under isIntegerOnly); any other draft waits for the commit on blur or Enter, as it does on its own.",
     },
     {
       name: "size",

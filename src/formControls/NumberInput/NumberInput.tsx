@@ -7,13 +7,23 @@
  * (`hasClear` is on unless set to `false`), a numeric string is read as its
  * number, and with `isIntegerOnly` a typed decimal is rounded on blur instead
  * of being dropped.
+ *
+ * Inside a `Form.Item` it also reports the draft as it is typed, as antd's
+ * InputNumber does (#74): Astryx commits the whole text on blur or Enter
+ * only, so the item's rules and `Form.useWatch` saw nothing until focus left.
+ * A plain number within `min` and `max` (an integer under `isIntegerOnly`) is
+ * reported on each input; an emptied field reports `null` under `hasClear`.
+ * Any other draft (a sign alone, a locale-formatted paste, an out-of-range
+ * number) waits for Astryx's commit, which clamps or reverts it as before.
+ * On its own it keeps Astryx's commit-on-blur.
  */
-import type { FocusEvent } from "react";
+import { use, type FocusEvent, type FormEvent } from "react";
 import {
   NumberInput as AstryxNumberInput,
   type NumberInputProps as AstryxNumberInputProps,
 } from "@astryxdesign/core/NumberInput";
 
+import { FormItemInputContext } from "../../components/Form/context";
 import {
   FormControlScope,
   useFormControl,
@@ -50,6 +60,39 @@ function toNumber(value: NumberInputValue | undefined): number | null {
   return Number.isNaN(number) ? null : number;
 }
 
+/** What a keyboard writes: digits, one decimal point, a sign, an exponent. */
+const PLAIN_NUMBER = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?$/i;
+
+/**
+ * The value a draft reports while it is typed, or `undefined` when it has to
+ * wait for Astryx's commit: not a plain number, not an integer where one is
+ * required, or outside `min`..`max` (which the commit clamps).
+ */
+function draftValue(
+  text: string,
+  {
+    min,
+    max,
+    isIntegerOnly,
+    hasClear,
+  }: {
+    min?: number | null;
+    max?: number | null;
+    isIntegerOnly?: boolean;
+    hasClear: boolean;
+  },
+): number | null | undefined {
+  const trimmed = text.trim();
+  if (trimmed === "") return hasClear ? null : undefined;
+  if (!PLAIN_NUMBER.test(trimmed)) return undefined;
+  const value = Number(trimmed);
+  if (!Number.isFinite(value)) return undefined;
+  if (isIntegerOnly && !Number.isInteger(value)) return undefined;
+  if (min != null && value < min) return undefined;
+  if (max != null && value > max) return undefined;
+  return value;
+}
+
 export function NumberInput({
   value,
   defaultValue,
@@ -74,6 +117,20 @@ export function NumberInput({
     undefined,
   );
   const numericValue = toNumber(mergedValue);
+  const inItem = use(FormItemInputContext).isFormItemInput === true;
+  // Astryx keeps the typed text as a draft (shown while focused) and reads
+  // `value` only at rest, so reporting the draft early changes nothing on
+  // screen; its own commit on blur or Enter then finds the value already set.
+  const handleInput = (event: FormEvent<HTMLInputElement>) => {
+    if (!inItem) return;
+    const next = draftValue(event.currentTarget.value, {
+      min: rest.min,
+      max: rest.max,
+      isIntegerOnly: rest.isIntegerOnly,
+      hasClear,
+    });
+    if (next !== undefined && next !== numericValue) handleChange(next);
+  };
   // Astryx reverts a decimal typed into an integer field; antd rounds it.
   // The text is still in the input when the blur reaches us.
   const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
@@ -94,6 +151,8 @@ export function NumberInput({
     hasClear,
     value: numericValue,
     onChange: handleChange,
+    // Reaches the <input> through Astryx's rest props; `onChange` is Astryx's own.
+    onInput: handleInput,
     onBlur: handleBlur,
   } as unknown as AstryxNumberInputProps;
   return (

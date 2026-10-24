@@ -7,6 +7,19 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Changed
 
+- **`NumberInput` inside a `Form.Item` reports the draft as it is typed**
+  (#74), as antd's InputNumber does. Astryx's NumberInput commits the whole
+  text on blur or Enter only, so a `Form.Item` rule on it (`required`, `max`,
+  a validator) ran only once focus left, and `Form.useWatch` or a dependent
+  field saw nothing while the user typed; every other control reported on
+  each keystroke. Now a plain number within `min` and `max` (an integer under
+  `isIntegerOnly`) is reported on each input, and an emptied field reports
+  `null` under `hasClear`, so the item's rules run and the watched value
+  moves while typing. The text on screen is unchanged: Astryx shows the draft
+  while the field is focused. Any other draft (a sign alone, a
+  locale-formatted paste, a number past `min` or `max`) still waits for
+  Astryx's commit, which clamps or reverts it as before. On its own, outside
+  a `Form.Item`, NumberInput keeps committing on blur or Enter.
 - **`CommandPalette` sits at a fixed offset from the top of the viewport**
   (15dvh) instead of centred, so its input no longer moves while the result
   list shrinks or grows as the user types; the surface grows and shrinks

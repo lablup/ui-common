@@ -703,6 +703,113 @@ describe("what a host app's adapter used to add", () => {
   });
 });
 
+describe("NumberInput inside a Form.Item reports the draft as it is typed (#74)", () => {
+  function renderNumber(
+    control: ReactElement,
+    {
+      rules = [],
+      initialValue,
+    }: {
+      rules?: ComponentProps<typeof Form.Item>["rules"];
+      initialValue?: number;
+    } = {},
+  ) {
+    const form: { current?: FormInstance } = {};
+    function Harness() {
+      const [instance] = Form.useForm();
+      form.current = instance;
+      const watched = Form.useWatch("count", instance);
+      return (
+        <Form form={instance} initialValues={{ count: initialValue }}>
+          <Form.Item label="Count" name="count" rules={rules}>
+            {control}
+          </Form.Item>
+          <output data-testid="watched">{String(watched)}</output>
+          <button type="button">Elsewhere</button>
+        </Form>
+      );
+    }
+    render(<Harness />);
+    return { form, input: screen.getByRole("spinbutton", { name: "Count" }) };
+  }
+
+  it("sets the field's value on each keystroke and keeps the typed text", async () => {
+    const { form, input } = renderNumber(<NumberInput />);
+    await userEvent.type(input, "4");
+    expect(form.current!.getFieldValue("count")).toBe(4);
+    await userEvent.type(input, "2");
+    expect(form.current!.getFieldValue("count")).toBe(42);
+    expect(screen.getByTestId("watched")).toHaveTextContent("42");
+    expect(input).toHaveValue("42");
+    expect(input).toHaveFocus();
+  });
+
+  it("runs the item's rules while typing, as the other controls do", async () => {
+    const { input } = renderNumber(<NumberInput />, {
+      rules: [{ type: "number", max: 100, message: "At most 100." }],
+    });
+    await userEvent.type(input, "150");
+    expect(await screen.findByText("At most 100.")).toBeInTheDocument();
+    expect(input).toHaveFocus();
+  });
+
+  it("reports null when the field is emptied, so a required rule shows at once", async () => {
+    const { form, input } = renderNumber(<NumberInput />, {
+      rules: [{ required: true, message: "Fill this in." }],
+      initialValue: 5,
+    });
+    await userEvent.clear(input);
+    expect(form.current!.getFieldValue("count")).toBeNull();
+    expect(await screen.findByText("Fill this in.")).toBeInTheDocument();
+    expect(input).toHaveFocus();
+  });
+
+  it("keeps the last number when emptied without hasClear", async () => {
+    const { form, input } = renderNumber(<NumberInput hasClear={false} />, {
+      initialValue: 5,
+    });
+    await userEvent.clear(input);
+    expect(form.current!.getFieldValue("count")).toBe(5);
+  });
+
+  it("leaves a draft it cannot read yet to Astryx's commit on blur", async () => {
+    const { form, input } = renderNumber(<NumberInput max={100} />);
+    // "1." reads as 1 and stays on screen as typed.
+    await userEvent.type(input, "1.");
+    expect(form.current!.getFieldValue("count")).toBe(1);
+    expect(input).toHaveValue("1.");
+    // A sign alone is nothing yet.
+    await userEvent.clear(input);
+    await userEvent.type(input, "-");
+    expect(form.current!.getFieldValue("count")).toBeNull();
+    expect(input).toHaveValue("-");
+    // Past max it waits; Astryx then commits it clamped, as it did before.
+    await userEvent.clear(input);
+    await userEvent.type(input, "150");
+    expect(form.current!.getFieldValue("count")).toBe(15);
+    await userEvent.tab();
+    expect(form.current!.getFieldValue("count")).toBe(100);
+  });
+
+  it("keeps an integer field whole while a decimal is typed, then rounds it on blur", async () => {
+    const { form, input } = renderNumber(<NumberInput isIntegerOnly />);
+    await userEvent.type(input, "2.6");
+    expect(form.current!.getFieldValue("count")).toBe(2);
+    await userEvent.tab();
+    expect(form.current!.getFieldValue("count")).toBe(3);
+  });
+
+  it("on its own still commits on blur or Enter, as Astryx's does", async () => {
+    const onChange = vi.fn();
+    render(<NumberInput aria-label="Count" onChange={onChange} />);
+    const input = screen.getByRole("spinbutton", { name: "Count" });
+    await userEvent.type(input, "42");
+    expect(onChange).not.toHaveBeenCalled();
+    await userEvent.tab();
+    expect(onChange).toHaveBeenLastCalledWith(42);
+  });
+});
+
 describe("TagsInput", () => {
   function renderTags(props: Partial<ComponentProps<typeof TagsInput>> = {}) {
     const form: { current?: FormInstance } = {};
