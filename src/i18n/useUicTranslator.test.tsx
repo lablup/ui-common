@@ -104,8 +104,9 @@ describe("useUicTranslator", () => {
 
 /**
  * Locales ui-common ships a translation for although Astryx core has no
- * catalog of that name: the names backend.ai-ui hands Astryx's provider for
- * Indonesian, Mongolian, Malay and Thai.
+ * catalog of that name: Indonesian, Mongolian, Malay and Thai, named with
+ * their region like the rest (backend.ai-ui hands each to Astryx's provider
+ * under its own language code, `th`, as overrides).
  */
 const EXTRA_LOCALES = ["id-ID", "mn-MN", "ms-MY", "th-TH"];
 

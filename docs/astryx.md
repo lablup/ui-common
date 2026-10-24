@@ -80,10 +80,13 @@ Product palettes stay in the products, as their own `defineTheme` over
 
 - **Custom components**, listed in `exports.customs.json`. They are built on
   Astryx primitives and tokens and never share a name with Astryx. Each is in
-  the root barrel and at `@lablup/ui-common/components/<Name>`; `Modal` also
-  has a top-level subpath, `@lablup/ui-common/Modal`, because it stands where
-  the hidden `@lablup/ui-common/Dialog` would, and so has `AlertModal` in
-  place of the hidden `AlertDialog`. The excluded subpath's own
+  the root barrel and at `@lablup/ui-common/components/<Name>`, except the
+  forks, the form-control wrappers and `TagsInput`, which take the Astryx
+  subpath of the control they stand for (`@lablup/ui-common/Switch`), and
+  the hooks, at `@lablup/ui-common/hooks`; `Modal` also has a top-level
+  subpath, `@lablup/ui-common/Modal`, because it stands where the hidden
+  `@lablup/ui-common/Dialog` would, and so has `AlertModal` in place of the
+  hidden `AlertDialog`. The excluded subpath's own
   names that `Modal` re-exports unchanged (`DialogHeader` and the Dialog
   types) are the one sanctioned overlap with Astryx: they are Astryx's.
 - **`ui-common.css`**, the global sheet. It holds rules with no component to

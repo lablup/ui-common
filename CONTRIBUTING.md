@@ -388,8 +388,10 @@ const label = cancelLabel ?? t("uic.Modal.cancel");
   catalog.
 - Translations go in `src/i18n/locales/<locale>.json`, named like Astryx's own
   locale files (`ko-KR.json`, `ja-JP.json`). Four locales Astryx has no file
-  for are named the way products hand them to Astryx's provider: `id-ID`,
-  `mn-MN`, `ms-MY`, `th-TH`. Tests reject unknown keys and other locale names.
+  for are named the same way, language and region: `id-ID`, `mn-MN`, `ms-MY`,
+  `th-TH`. A product hands a file's messages to Astryx's provider under the
+  locale it uses (backend.ai-ui passes `th` and merges `th-TH`'s catalog in
+  as its overrides). Tests reject unknown keys and other locale names.
 - Every key is translated in every locale file. A key a locale cannot
   translate yet goes on the allowlist in `src/i18n/useUicTranslator.test.tsx`,
   which fails once the translation lands. A component moved from a product

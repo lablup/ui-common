@@ -61,7 +61,8 @@
  *   trapping, `::backdrop`, no z-index management.
  * - `showPopover()` when `hasScrim={false}` — non-modal top-layer overlay;
  *   the page behind stays interactive (e.g. master-detail inspectors).
- *   (ui-common: `show()` and a z-index instead; see the header above.)
+ *   (ui-common: `show()` and a z-index below the modal band instead; see
+ *   the header above.)
  *
  * Entry animation uses `@starting-style`; exit slides out before the active
  * modal-dialog or manual-popover host releases the top layer and focus returns
@@ -223,8 +224,10 @@ export interface DrawerProps extends BaseProps<HTMLDialogElement> {
    * Whether to render a modal scrim behind the drawer.
    * - `true` (default) — `showModal()`: top layer, focus trap, body scroll
    *   lock, click-outside-to-close.
-   * - `false` — `showPopover()`: non-modal top-layer overlay; the page behind
-   *   stays interactive. Escape still closes through the shared layer stack.
+   * - `false` — ui-common: `show()` and a z-index below the modal band (not
+   *   upstream's `showPopover()` top layer): a non-modal overlay; the page
+   *   behind stays interactive. Escape still closes through the shared layer
+   *   stack.
    * @default true
    */
   hasScrim?: boolean;
