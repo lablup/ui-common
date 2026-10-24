@@ -281,7 +281,15 @@ export { PageHeader } from "@lablup/ui-common";
 ```
 
 `src/astryxIntegration.test.ts` checks the pairing. Add a doc when you add or
-change a component's props; `pnpm run check:integration` validates it.
+change a component's props; `pnpm run check:integration` validates it, and
+fails on Astryx's warnings as well as its errors (`scripts/check-integration.mjs`).
+A doc's `category` is one of Astryx's (`Form Controls`, `Content`,
+`Feedback & Status`, `Table & List`, `Container`, `Layout`, `Overlay`, …;
+the `category` union in `@astryxdesign/cli/authoring`): put a component where
+Astryx puts the core component it is built on. Templates are typed
+`IntegrationTemplateDoc`: a block sets `aspectRatio` and may list
+`componentsUsed`; a page lists neither, and the CLI reads its components from
+its source.
 
 ## Component admission
 

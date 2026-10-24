@@ -8,7 +8,7 @@ export default {
   name: "PagedSelector",
   displayName: "PagedSelector",
   import: "@lablup/ui-common",
-  category: "Input",
+  category: "Form Controls",
   keywords: [
     "paged select",
     "paged selector",

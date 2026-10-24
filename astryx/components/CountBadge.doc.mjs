@@ -8,7 +8,7 @@ export default {
   name: "CountBadge",
   displayName: "CountBadge",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Feedback & Status",
   keywords: ["count", "badge", "overlay", "notification dot", "unread", "99+"],
   description:
     "A count or a dot overlaid on the top-end corner of its child, such as unread notices on a bell. Astryx Badge is an inline pill with no anchored form; CountBadge positions one. The overlay is a named role=status live region.",

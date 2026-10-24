@@ -1,4 +1,4 @@
-/** @type {import("@astryxdesign/cli/authoring").TemplateDoc} */
+/** @type {import("@astryxdesign/cli/authoring").IntegrationTemplateDoc} */
 export default {
   type: "page",
   name: "list-page",
@@ -23,17 +23,6 @@ export default {
     "create button",
     "index page",
     "admin page",
-  ],
-  componentsUsed: [
-    "PageLayout",
-    "PageHeader",
-    "PowerSearch",
-    "DataGrid",
-    "SelectionLabel",
-    "CountdownBorder",
-    "IconButton",
-    "Button",
-    "Badge",
   ],
   category: "Table - Bulk Actions",
   isReady: true,

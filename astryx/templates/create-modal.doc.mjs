@@ -1,4 +1,4 @@
-/** @type {import("@astryxdesign/cli/authoring").TemplateDoc} */
+/** @type {import("@astryxdesign/cli/authoring").IntegrationTemplateDoc} */
 export default {
   type: "block",
   name: "create-modal",
@@ -19,4 +19,5 @@ export default {
   ],
   componentsUsed: ["Modal", "Form", "TextInput", "TextArea", "Selector", "Button"],
   category: "Form - Modal Overlay",
+  aspectRatio: 3 / 4,
 };

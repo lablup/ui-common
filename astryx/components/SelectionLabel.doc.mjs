@@ -8,7 +8,7 @@ export default {
   name: "SelectionLabel",
   displayName: "SelectionLabel",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Table & List",
   keywords: ["selected", "selection", "bulk action", "deselect", "count"],
   description:
     '"3 selected" beside a bulk-action toolbar, with an optional button that clears the selection. Renders nothing while the count is 0.',

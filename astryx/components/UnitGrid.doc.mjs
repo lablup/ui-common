@@ -8,7 +8,7 @@ export default {
   name: "UnitGrid",
   displayName: "UnitGrid",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Data Visualization",
   keywords: [
     "unit grid",
     "waffle chart",

@@ -8,7 +8,7 @@ export default {
   name: "SkeletonChart",
   displayName: "SkeletonChart",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Feedback & Status",
   keywords: [
     "skeleton chart",
     "loading chart",

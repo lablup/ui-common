@@ -33,7 +33,8 @@ interface TemplateDoc {
   name: string;
   description: string;
   keywords: string[];
-  componentsUsed: string[];
+  componentsUsed?: string[];
+  aspectRatio?: number;
   isReady?: boolean;
 }
 
@@ -74,7 +75,15 @@ describe("astryx/templates", () => {
       expect(doc.keywords.length).toBeGreaterThan(0);
       // `build` only starts a kit from a page marked ready.
       if (doc.type === "page") expect(doc.isReady).toBe(true);
-      for (const name of doc.componentsUsed) {
+      // Astryx's IntegrationTemplateDoc: componentsUsed and aspectRatio are
+      // block fields, and a block needs aspectRatio.
+      if (doc.type === "page") {
+        expect(doc).not.toHaveProperty("componentsUsed");
+        expect(doc).not.toHaveProperty("aspectRatio");
+      } else {
+        expect(doc.aspectRatio).toBeGreaterThan(0);
+      }
+      for (const name of doc.componentsUsed ?? []) {
         expect(source, `${id} lists ${name} but does not use it`).toMatch(
           new RegExp(`<${name}\\b`),
         );

@@ -8,7 +8,7 @@ export default {
   name: "StatCard",
   displayName: "StatCard",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Container",
   keywords: [
     "stat card",
     "metric card",

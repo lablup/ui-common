@@ -8,7 +8,7 @@ export default {
   name: "UncontrolledInput",
   displayName: "UncontrolledInput",
   import: "@lablup/ui-common",
-  category: "Inputs",
+  category: "Form Controls",
   keywords: ["input", "commit", "on blur", "enter", "uncontrolled", "setting"],
   description:
     "A text or number field that reports its value only when the user commits it, by pressing Enter or leaving the field. On Astryx TextInput and NumberInput.",

@@ -1,4 +1,4 @@
-/** @type {import("@astryxdesign/cli/authoring").TemplateDoc} */
+/** @type {import("@astryxdesign/cli/authoring").IntegrationTemplateDoc} */
 export default {
   type: "block",
   name: "list-toolbar",
@@ -28,4 +28,5 @@ export default {
     "CountdownBorder",
   ],
   category: "Table - Bulk Actions",
+  aspectRatio: 16 / 7,
 };

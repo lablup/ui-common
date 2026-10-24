@@ -8,7 +8,7 @@ export default {
   name: "ListBanner",
   displayName: "ListBanner",
   import: "@lablup/ui-common",
-  category: "Feedback",
+  category: "Feedback & Status",
   keywords: ["banner", "list", "affected items", "warning list", "alert"],
   description:
     "An Astryx Banner whose description is a list of items, for notices such as the items a dialog will change. The list scrolls past maxHeight and is reachable by keyboard. Without a title the list takes the title slot; without items there is no list. The other Banner props pass through.",

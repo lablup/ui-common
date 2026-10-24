@@ -8,7 +8,7 @@ export default {
   name: "DoubleBadge",
   displayName: "DoubleBadge",
   import: "@lablup/ui-common",
-  category: "Data Display",
+  category: "Feedback & Status",
   keywords: ["badge", "pair", "welded", "status and detail", "badge group"],
   description:
     "A run of Astryx Badges welded into one chip, for a live pair such as a status and its detail. Neighbours overlap by one border width and square their inner corners.",
