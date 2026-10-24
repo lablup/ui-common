@@ -1,4 +1,4 @@
-import { defineMessages } from "../../i18n/catalog";
+import { defineMessages } from "../../i18n/defineMessages";
 
 export const bulkErrorModalMessages = defineMessages({
   "uic.BulkErrorModal.title": {

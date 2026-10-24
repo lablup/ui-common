@@ -20,10 +20,11 @@
  * `./common.messages.ts`; use those instead of a key of your own. Keep message
  * files free of React and CSS imports: the build reads this catalog.
  */
-import type { Catalog, MessageEntry } from "@astryxdesign/core/i18n";
+import type { Catalog } from "@astryxdesign/core/i18n";
 
-// These modules import `defineMessages` back from here. The cycle is safe:
-// it is a function declaration, so it is bound before either module runs.
+// Message modules take `defineMessages` from `./defineMessages`, never from
+// here: in a cycle a bundler may run a messages module after this one, and
+// the spread below then reads it as `undefined` (Form's keys leaked so).
 import { boardMessages } from "../components/Board/Board.messages";
 import { booleanTokenMessages } from "../components/BooleanToken/BooleanToken.messages";
 import { bulkEditFormItemMessages } from "../components/BulkEditFormItem/BulkEditFormItem.messages";
@@ -45,21 +46,7 @@ import { unitGridMessages } from "../components/UnitGrid/UnitGrid.messages";
 import { tagsInputMessages } from "../formControls/TagsInput/TagsInput.messages";
 import { commonMessages } from "./common.messages";
 
-/**
- * A catalog key: `uic.<Component>.<key>`, or `uic.common.<key>` for a word
- * every component shares (`./common.messages.ts`).
- */
-export type UicMessageKey = `uic.${string}.${string}`;
-
-/**
- * Type-checks a component's messages. Keys must be `uic.<Component>.<key>` or
- * `uic.common.<key>`.
- */
-export function defineMessages<const T extends Record<UicMessageKey, MessageEntry>>(
-  messages: T,
-): T {
-  return messages;
-}
+export { defineMessages, type UicMessageKey } from "./defineMessages";
 
 export const uiCommonCatalog: Catalog = {
   ...commonMessages,
