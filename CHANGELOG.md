@@ -16,10 +16,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `isIntegerOnly`) is reported on each input, and an emptied field reports
   `null` under `hasClear`, so the item's rules run and the watched value
   moves while typing. The text on screen is unchanged: Astryx shows the draft
-  while the field is focused. Any other draft (a sign alone, a
-  locale-formatted paste, a number past `min` or `max`) still waits for
-  Astryx's commit, which clamps or reverts it as before. On its own, outside
-  a `Form.Item`, NumberInput keeps committing on blur or Enter.
+  while the field is focused. The draft is read with the active locale's
+  decimal mark ("1,5" under de-DE). Any other draft (a sign alone, a
+  group-separated or pasted number, a number past `min` or `max`) still
+  waits for Astryx's commit, which clamps or reverts it as before. On its
+  own, outside a `Form.Item`, NumberInput keeps committing on blur or Enter.
 - **`CommandPalette` sits at a fixed offset from the top of the viewport**
   (15dvh) instead of centred, so its input no longer moves while the result
   list shrinks or grows as the user types; the surface grows and shrinks
@@ -31,6 +32,49 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **A nested `Modal` stacks above its parent however the two claim.**
+  Levels followed claim order, and a child's layout effect runs before its
+  parent's, so an outer and an inner Modal that opened in one commit (content
+  mounted with a child already open), or an outer one reopened over an inner
+  one it kept mounted, stacked upside down: the outer modal painted on top
+  and stayed interactive, the inner one went inert without `aria-modal`, and
+  Escape closed the hidden inner one. A surface whose content already holds
+  an open surface now goes in below it; a later sibling still lands on top.
+  `useModalLevel` keeps its signature.
+- **Resizing a `DataGrid` column no longer drops `defaultOverrides`.** With
+  controlled `overrides`, a resize wrote `{ width }` entries over the
+  consumer's own overrides only, and a written entry replaces the default's
+  whole, so every default `hidden: false` or `order` was lost at once: on a
+  grid that shows hidden-by-default columns through `defaultOverrides`,
+  resizing any column hid them all. Each entry is now based on the merged
+  record, as the settings dialog's result already was.
+- **`Switch` and `CheckboxInput` are named once inside a `Form.Item`** when
+  the caller also passes `aria-label` (what a host's adapter does): the
+  wrapper turned it into Astryx's hidden label beside the item's, so the name
+  was read twice. **The item's `aria-required` stays off the Switch fork's
+  root, a `CheckboxList`'s group and a `DateRangeInput`'s button**, whose
+  roles do not allow it; required is still announced there.
+- **`NumberInput` reads a typed decimal by the active locale.** Under a locale
+  with a comma decimal, "2,6" in an `isIntegerOnly` field was neither rounded
+  by the wrapper (`Number("2,6")`) nor committed by Astryx, and the entry was
+  lost; it now rounds to 3, as it does under `en`.
+- **`ConfirmPopover`'s content is not part of the `Form.Item` it opens from**:
+  it renders ui-common's Popover now, so a control in its `description` no
+  longer takes the item's status and width.
+- **`Form` follows rc-field-form in three places**: a nested `<Form>` is
+  disabled by `<Form disabled>` around it unless it says its own; a control
+  that reports two changes in one tick keeps the second (the handler compared
+  with the value captured at render); and a `Form.Item` with `dependencies`,
+  an element child and no `name` renders nothing with a warning, as antd
+  does, instead of binding the child to the empty path and replacing the
+  whole store with what was typed.
+- **The English fallback string is pluralised by English's rules**, not the
+  provider locale's: under uk-UA, ru or lt-LT a count of 21 picked the `one`
+  branch ("Delete 21 item").
+- **`NotificationItem` renders a numeric `0` in a slot as body `Text`**, not
+  as a bare character outside the slot.
+- **`UnitGrid` floors a fixed `columns` at 1**: `0` placed cells off the
+  grid.
 - **`ui-common upgrade` applies Astryx's stylesheet codemods** (#67). An
   Astryx codemod that lists `.css` (0.7.0's
   `migrate-deprecated-theme-surface`, run by the 0.2.0-alpha.19 step)
