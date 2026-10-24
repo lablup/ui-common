@@ -6,6 +6,8 @@ import { ButtonGroup } from "@astryxdesign/core/ButtonGroup";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
 
 import { uiCommonMessages } from "../../i18n/messages";
+import { TextInput } from "../../formControls/TextInput";
+import { Form, type FormInstance } from "../Form";
 import { ConfirmPopover } from "./ConfirmPopover";
 
 const openWith = async (name: string) => {
@@ -137,6 +139,37 @@ describe("ConfirmPopover", () => {
     const group = apply.closest(".astryx-button-group");
     expect(group).not.toBeNull();
     expect(apply.parentElement).toBe(group);
+  });
+
+  it("keeps its content out of the Form.Item it opens from", async () => {
+    const form: { current?: FormInstance } = {};
+    function Harness() {
+      const [instance] = Form.useForm();
+      form.current = instance;
+      return (
+        <Form form={instance}>
+          <Form.Item
+            label="Key"
+            name="key"
+            rules={[{ required: true, message: "Need one." }]}
+          >
+            <ConfirmPopover
+              title="Deactivate this key?"
+              description={<TextInput aria-label="Reason" />}
+            >
+              <Button label="Deactivate" />
+            </ConfirmPopover>
+          </Form.Item>
+        </Form>
+      );
+    }
+    render(<Harness />);
+    await form.current!.validateFields().catch(() => {});
+    await screen.findByText("Need one.");
+    await openWith("Deactivate");
+    const reason = screen.getByRole("textbox", { name: "Reason" });
+    expect(reason).not.toHaveAttribute("aria-invalid");
+    expect(reason).not.toHaveAttribute("aria-describedby");
   });
 
   it("takes its default labels from the shipped translations", async () => {

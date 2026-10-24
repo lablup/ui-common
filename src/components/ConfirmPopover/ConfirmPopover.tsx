@@ -27,11 +27,13 @@
  */
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Button, type ButtonVariant } from "@astryxdesign/core/Button";
-import { Popover, type PopoverProps } from "@astryxdesign/core/Popover";
+import type { PopoverProps } from "@astryxdesign/core/Popover";
 import { HStack, VStack } from "@astryxdesign/core/Stack";
 import { Text } from "@astryxdesign/core/Text";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
+// ui-common's: the content is not part of the Form.Item it opens from.
+import { Popover } from "../Popover";
 
 export interface ConfirmPopoverProps extends Omit<PopoverProps, "content" | "label"> {
   /** The question. A string renders as the heading line. */
