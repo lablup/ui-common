@@ -2,22 +2,52 @@
  * `Selector` for `Form.Item`: Astryx's Selector without the field chrome the item
  * owns (label, description, required marker, status message; see
  * ../formControl.tsx). The item's `<label htmlFor>` names it.
+ *
+ * An option's `disabled` also takes `{ reason }`: the option is disabled and a
+ * glyph at the end of its row says why (../optionDisabledReason.tsx).
  */
 import {
   Selector as AstryxSelector,
+  SelectorOption,
+  type SelectorDivider,
+  type SelectorOptionData as AstryxSelectorOptionData,
+  type SelectorOptionType as AstryxSelectorOptionType,
   type SelectorProps as AstryxSelectorProps,
-  type SelectorOptionType,
+  type SelectorSection as AstryxSelectorSection,
 } from "@astryxdesign/core/Selector";
 
 import {
   FormControlScope,
   useFormControl,
   useMergedValue,
+  type DistributiveOmit,
   type FormControlValueProps,
 } from "../formControl";
+import {
+  splitOptionDisabledReasons,
+  withOptionDisabledReason,
+  type OptionDisabled,
+} from "../optionDisabledReason";
 
+/** Astryx's option, with `disabled` also taking `{ reason }`. */
+export type SelectorOptionData = Omit<AstryxSelectorOptionData, "disabled"> & {
+  /** `{ reason }` disables the option and shows why at the end of its row. */
+  disabled?: OptionDisabled;
+};
+export type SelectorSection = Omit<AstryxSelectorSection, "options"> & {
+  options: SelectorOptionData[];
+};
+export type SelectorOptionType =
+  string | SelectorOptionData | SelectorDivider | SelectorSection;
+
+/** `renderOption` and `renderValue` get the option with a boolean `disabled`. */
 export type SelectorProps<T extends SelectorOptionType = SelectorOptionType> =
-  FormControlValueProps<AstryxSelectorProps<T>>;
+  DistributiveOmit<
+    FormControlValueProps<AstryxSelectorProps<AstryxSelectorOptionType>>,
+    "options"
+  > & {
+    options: T[];
+  };
 
 export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   value,
@@ -25,6 +55,7 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   onChange,
   status,
   disabled,
+  options,
   ...rest
 }: SelectorProps<T>) {
   const { required, field, width } = useFormControl({
@@ -43,9 +74,13 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     onChange,
     undefined,
   );
+  const split = splitOptionDisabledReasons(options);
+  const reasons = split.reasons;
+  const renderOption = rest.renderOption;
   const props = {
     ...rest,
     ...field,
+    options: split.options,
     statusVariant: "detached",
     width,
     // Without a placement Astryx lays the panel over the trigger, the selected
@@ -53,10 +88,25 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     placement: rest.placement ?? "below",
     value: mergedValue,
     onChange: handleChange,
-  } as unknown as AstryxSelectorProps<T>;
+    renderOption: reasons
+      ? (option: AstryxSelectorOptionData) =>
+          withOptionDisabledReason(
+            renderOption ? (
+              renderOption(option)
+            ) : (
+              <SelectorOption
+                icon={option.icon}
+                label={option.label ?? option.value}
+                description={option.description}
+              />
+            ),
+            reasons.get(option.value),
+          )
+      : renderOption,
+  } as unknown as AstryxSelectorProps<AstryxSelectorOptionType>;
   return (
     <FormControlScope required={required}>
-      <AstryxSelector<T> {...props} />
+      <AstryxSelector {...props} />
     </FormControlScope>
   );
 }

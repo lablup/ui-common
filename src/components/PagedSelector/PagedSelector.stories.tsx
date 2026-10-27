@@ -16,7 +16,11 @@ const ALL_ITEMS: PagedSelectorOption[] = Array.from({ length: 120 }, (_, i) => {
     value: `item-${n}`,
     label: `Item ${n}`,
     description: `Created ${(i % 28) + 1} days ago`,
-    isDisabled: i % 17 === 16,
+    // Every 17th is disabled; every other one of those says why.
+    isDisabled:
+      i % 17 === 16 && Math.floor(i / 17) % 2 === 0
+        ? { reason: "Archived items cannot be picked." }
+        : i % 17 === 16,
   };
 });
 

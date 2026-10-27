@@ -54,6 +54,11 @@ import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden";
 import { themeProps } from "@astryxdesign/core/utils";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
+import {
+  OptionDisabledReason,
+  optionDisabledReason,
+  type OptionDisabled,
+} from "../../formControls/optionDisabledReason";
 import { PanelSearchInput } from "./PanelSearchInput";
 import "./PagedSelector.css";
 
@@ -69,7 +74,8 @@ export interface PagedSelectorOption {
   description?: ReactNode;
   /** Trailing content (tokens, meta). */
   endContent?: ReactNode;
-  isDisabled?: boolean;
+  /** `{ reason }` disables the option and shows why at the end of its row. */
+  isDisabled?: OptionDisabled;
 }
 
 /** A chosen value with its label, as `onChange` reports it. */
@@ -467,7 +473,8 @@ export function PagedSelector(props: PagedSelectorProps) {
             ) : (
               options.map((option, index) => {
                 const selected = isSelected(option.value);
-                const isDisabled = option.isDisabled ?? false;
+                const isDisabled = !!option.isDisabled;
+                const disabledReason = optionDisabledReason(option.isDisabled);
                 return (
                   <div
                     key={option.value}
@@ -503,7 +510,16 @@ export function PagedSelector(props: PagedSelectorProps) {
                         icon={option.icon}
                         label={option.labelContent ?? option.label}
                         description={option.description}
-                        endContent={option.endContent}
+                        endContent={
+                          disabledReason ? (
+                            <>
+                              <OptionDisabledReason reason={disabledReason} />
+                              {option.endContent}
+                            </>
+                          ) : (
+                            option.endContent
+                          )
+                        }
                       />
                     </span>
                     {/* Rendered with the state passed down: a theme that swaps
