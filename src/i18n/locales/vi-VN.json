@@ -63,10 +63,6 @@
     "defaultMessage": "Đã hủy đổi cỡ.",
     "description": "Screen reader announcement when resizing a board item is cancelled"
   },
-  "uic.Board.itemRemoved": {
-    "defaultMessage": "Đã xóa mục.",
-    "description": "Screen reader announcement when a board item is removed"
-  },
   "uic.ColorPicker.label": {
     "defaultMessage": "Chọn màu",
     "description": "Accessible name of a color picker whose caller gave it no label"

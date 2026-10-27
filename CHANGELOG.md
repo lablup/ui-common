@@ -5,8 +5,23 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`Board` draws an item's title row and description.** `BoardItem` takes `title`
+  and `description`, each a string or a node: a string title renders as a
+  level-5 heading, a string description as text, a node (a `BoardItemTitle`
+  with a tooltip and actions, say) as is. The drag handle sits in the inline
+  padding on the title row's first line, where it stays when the title wraps
+  or grows; without a title there is no header row and the description takes
+  the whole item. `itemPadding` sets every item's padding, a number (px) or
+  a CSS length for every side or one per side (default `--spacing-5` top
+  and bottom, `--spacing-8` left and right); the CSS knobs behind it are
+  `--board-item-padding-top` / `-right` / `-bottom` / `-left`.
+
 ### Changed
 
+- **`BoardItemTitle` is a `Board` item's `title` node**, no longer a
+  self-padded, sticky row: the board pads and places it.
 - **`CommandPalette` sits at a fixed offset from the top of the viewport**
   (15dvh) instead of centred, so its input no longer moves while the result
   list shrinks or grows as the user types; the surface grows and shrinks
@@ -26,6 +41,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   read a page's components from its source instead (same ranking). Block
   templates set `aspectRatio`. `pnpm run check:integration` (and `verify`)
   now fails on any Astryx doc warning, not only on errors.
+
+### Removed
+
+- **`Board`'s `renderItem`**, with `BoardItemActions`, `removeItem`,
+  `removedItem`, `liveAnnouncementItemRemoved` and the `uic.Board.itemRemoved`
+  catalog key. An item is its `title` and `description`; removing one is the
+  consumer's, by passing `items` without it. The `dashboard-board` template
+  passes each panel's `BoardItemTitle` as its `title` and its content as its
+  `description`.
 
 ### Fixed
 

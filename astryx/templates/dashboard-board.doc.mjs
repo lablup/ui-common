@@ -4,7 +4,7 @@ export default {
   name: "dashboard-board",
   displayName: "Dashboard Board",
   description:
-    "A dashboard of panels the user can move and resize on a Board. Each panel is a BoardItemTitle with a help tooltip and a refresh button over its content, here Statistics with quota progress.",
+    "A dashboard of panels the user can move and resize on a Board. Each panel's title is a BoardItemTitle with a help tooltip and a refresh button, its description Statistics with quota progress.",
   keywords: [
     "dashboard",
     "board",

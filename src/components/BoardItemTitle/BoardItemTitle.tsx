@@ -1,17 +1,23 @@
 /**
  * BoardItemTitle
  *
- * The title row of a dashboard panel: a heading with an optional help
- * tooltip, and actions at the end. It sticks to the top of the panel's
- * scroll area on the surface colour, so a long panel keeps its title in view.
- * The two groups wrap onto separate lines when the panel is narrow.
+ * A Board item's `title` node: a heading with an optional help tooltip, and
+ * actions at the end. The board pads and places the row; the two groups wrap
+ * onto separate lines when the item is narrow.
  *
  * @example
- * <BoardItemTitle
- *   title="Active sessions"
- *   tooltip="Counts only running sessions."
- *   endContent={<Button label="Refresh" />}
- * />
+ * items={[{
+ *   id: "sessions",
+ *   title: (
+ *     <BoardItemTitle
+ *       title="Active sessions"
+ *       tooltip="Counts only running sessions."
+ *       endContent={<Button label="Refresh" />}
+ *     />
+ *   ),
+ *   description: <SessionCount />,
+ *   data: {},
+ * }]}
  */
 import type { HTMLAttributes, ReactNode } from "react";
 import { Heading } from "@astryxdesign/core/Heading";

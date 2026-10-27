@@ -6,8 +6,14 @@
  *   --board-gap                 between cells (default --spacing-5)
  *   --board-item-radius         an item's corners (default --radius-container)
  *   --board-transition-duration how long items take to slide (default 200ms)
- *   --board-handle-z            the handles' z-index inside an item (default 51;
- *                               BoardItemTitle's sticky row sits at 50)
+ *   --board-handle-z            the handles' z-index inside an item (default 51)
+ *   --board-item-padding-top / -right / -bottom / -left
+ *                               the title row's and the description's padding
+ *                               (default --spacing-5 top and bottom, --spacing-8
+ *                               left and right; the drag handle sits in the left
+ *                               padding, and its top offset is the top padding,
+ *                               so it sits on the title row's first line). The
+ *                               `itemPadding` prop sets them per board.
  */
 @layer ui-common {
   .uic-board {
@@ -34,9 +40,14 @@
   }
 
   .uic-board-item {
+    --_board-item-padding-top: var(--board-item-padding-top, var(--spacing-5));
+    --_board-item-padding-right: var(--board-item-padding-right, var(--spacing-8));
+    --_board-item-padding-bottom: var(--board-item-padding-bottom, var(--spacing-5));
+    --_board-item-padding-left: var(--board-item-padding-left, var(--spacing-8));
+
     position: relative;
-    /* Its own stacking context: the handles' z-index and a sticky title's
-       stay inside the item, and an active item lifts whole. */
+    /* Its own stacking context: the handles' z-index stays inside the item,
+       and an active item lifts whole. */
     isolation: isolate;
     display: flex;
     flex-direction: column;
@@ -76,11 +87,52 @@
     align-self: start;
   }
 
+  /* The header row: the item's padding (the top value above and below the
+     title), and a title slot as tall as the sm drag handle, which sits in the
+     left padding on the row's first line. Outside the scrolling content, so
+     it needs no sticky. */
+  .uic-board-item__header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    min-width: 0;
+    padding: var(--_board-item-padding-top) var(--_board-item-padding-right)
+      var(--_board-item-padding-top) var(--_board-item-padding-left);
+  }
+
+  .uic-board-item__title {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    min-width: 0;
+    min-block-size: var(--size-element-sm);
+  }
+
+  .uic-board-item__title > * {
+    flex: 1;
+    min-width: 0;
+    min-block-size: var(--size-element-sm);
+  }
+
+  /* A string title: its first line is centered on the handle, the rest wrap below. */
+  .uic-board-item__title > .uic-board-item__heading {
+    min-block-size: 0;
+    padding-block: calc((var(--size-element-sm) - 1lh) / 2);
+  }
+
+  /* The description: the item's padding; after a header row, none on top.
+     Without a title it is the whole item. */
   .uic-board-item__content {
     flex: 1;
     min-height: 0;
     overflow: auto;
+    padding: var(--_board-item-padding-top) var(--_board-item-padding-right)
+      var(--_board-item-padding-bottom) var(--_board-item-padding-left);
     border-radius: inherit;
+  }
+
+  .uic-board-item__header + .uic-board-item__content {
+    padding-block-start: 0;
   }
 
   .uic-board-item__handle {
@@ -90,7 +142,7 @@
   }
 
   .uic-board-item__handle--drag {
-    inset-block-start: var(--spacing-2);
+    inset-block-start: var(--_board-item-padding-top);
     inset-inline-start: var(--spacing-1);
   }
 
