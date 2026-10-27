@@ -24,11 +24,7 @@ import {
   type FormControlChromeProps,
   type FormControlProps,
 } from "../formControl";
-import {
-  splitOptionDisabledReasons,
-  withOptionDisabledReason,
-  type OptionDisabled,
-} from "../optionDisabledReason";
+import { withOptionDisabledReason, type OptionDisabled } from "../optionDisabledReason";
 
 /** Astryx's option, with `disabled` also taking `{ reason }`. */
 export type MultiSelectorOptionData = Omit<
@@ -88,32 +84,26 @@ export function MultiSelector<
     onChange,
     EMPTY_ARRAY,
   );
-  const split = splitOptionDisabledReasons(options);
-  const reasons = split.reasons;
-  const renderOption = rest.renderOption;
+  const reasoned = withOptionDisabledReason<T, AstryxMultiSelectorOptionData>({
+    options,
+    renderOption: rest.renderOption,
+    renderDefault: (option) => (
+      <span className="uic-option-disabled-reason__label">
+        {option.label ?? option.value}
+      </span>
+    ),
+  });
   const props = {
     ...rest,
     ...field,
-    options: split.options,
+    options: reasoned.options,
     statusVariant: "detached",
     width,
     // The selection itself, as antd's multiple Select shows it, not a count.
     triggerDisplay: rest.triggerDisplay ?? "labels",
     value: mergedValue,
     onChange: handleChange,
-    renderOption: reasons
-      ? (option: AstryxMultiSelectorOptionData) =>
-          withOptionDisabledReason(
-            renderOption ? (
-              renderOption(option)
-            ) : (
-              <span className="uic-option-disabled-reason__label">
-                {option.label ?? option.value}
-              </span>
-            ),
-            reasons.get(option.value),
-          )
-      : renderOption,
+    renderOption: reasoned.renderOption,
   } as unknown as AstryxProps;
   return (
     <FormControlScope required={required}>

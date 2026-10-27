@@ -33,38 +33,30 @@ export function OptionDisabledReason({ reason }: { reason: string }) {
   );
 }
 
-/** `content` with the reason glyph at its end, or `content` itself without a reason. */
-export function withOptionDisabledReason(
-  content: ReactNode,
-  reason: string | undefined,
-): ReactNode {
-  if (!reason) return content;
-  return (
-    <span className="uic-option-disabled-reason__row">
-      <span className="uic-option-disabled-reason__content">{content}</span>
-      <OptionDisabledReason reason={reason} />
-    </span>
-  );
-}
-
 type OptionLike = { value: string; disabled?: OptionDisabled };
 type SectionLike<O> = { type: "section"; options: O[] };
+type AstryxOption = { value: string; disabled?: boolean };
 
 /**
- * Astryx's options with every `disabled: { reason }` turned back into `true`,
- * and the reasons by option value. `undefined` reasons when no option has one,
- * so a caller can leave `renderOption` alone.
+ * Astryx's `options` and `renderOption` for options whose `disabled` may be
+ * `{ reason }`: every reason becomes a boolean `disabled`, and when any option
+ * had one, `renderOption` draws the caller's row (or `renderDefault`, Astryx's
+ * own row) with the reason glyph at its end. Without a reason both are handed
+ * back as given.
  */
-export function splitOptionDisabledReasons<O>(options: readonly O[]): {
-  options: O[];
-  reasons: Map<string, string> | undefined;
-} {
+export function withOptionDisabledReason<O, D extends AstryxOption>({
+  options,
+  renderOption,
+  renderDefault,
+}: {
+  options: readonly O[];
+  renderOption?: (option: D) => ReactNode;
+  renderDefault: (option: D) => ReactNode;
+}): { options: O[]; renderOption?: (option: D) => ReactNode } {
   const reasons = new Map<string, string>();
   const strip = (option: OptionLike): OptionLike => {
+    if (typeof option.disabled !== "object") return option;
     const reason = optionDisabledReason(option.disabled);
-    if (reason === undefined && typeof option.disabled !== "object") {
-      return option;
-    }
     if (reason !== undefined) reasons.set(option.value, reason);
     return { ...option, disabled: !!option.disabled };
   };
@@ -78,5 +70,20 @@ export function splitOptionDisabledReasons<O>(options: readonly O[]): {
     }
     return strip(option as unknown as OptionLike) as unknown as O;
   });
-  return { options: stripped, reasons: reasons.size ? reasons : undefined };
+  if (reasons.size === 0) return { options: stripped, renderOption };
+  return {
+    options: stripped,
+    renderOption: (option) => {
+      const content = renderOption ? renderOption(option) : renderDefault(option);
+      const reason = reasons.get(option.value);
+      return reason ? (
+        <span className="uic-option-disabled-reason__row">
+          <span className="uic-option-disabled-reason__content">{content}</span>
+          <OptionDisabledReason reason={reason} />
+        </span>
+      ) : (
+        content
+      );
+    },
+  };
 }

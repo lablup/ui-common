@@ -9,10 +9,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MultiSelector } from "./MultiSelector";
-import {
-  optionDisabledReason,
-  splitOptionDisabledReasons,
-} from "./optionDisabledReason";
+import { optionDisabledReason, withOptionDisabledReason } from "./optionDisabledReason";
 import { Selector } from "./Selector";
 
 const originalMatches = HTMLElement.prototype.matches;
@@ -49,30 +46,45 @@ const OPTIONS = [
 const glyph = (row: HTMLElement) =>
   row.querySelector(".uic-option-disabled-reason [aria-label]");
 
-describe("splitOptionDisabledReasons", () => {
-  it("turns `{ reason }` into `true` and keeps the reason by value, in sections too", () => {
-    const { options, reasons } = splitOptionDisabledReasons([
-      "plain",
-      { type: "divider" as const },
-      {
-        type: "section" as const,
-        options: [{ value: "x", label: "x", disabled: { reason: "Why" } }],
-      },
-      { value: "y", label: "y", disabled: true },
-    ]);
+describe("withOptionDisabledReason", () => {
+  const renderDefault = (option: { value: string }) => `default ${option.value}`;
+
+  it("turns `{ reason }` into `true`, in sections too, and wraps the reasoned rows", () => {
+    const { options, renderOption } = withOptionDisabledReason({
+      options: [
+        "plain",
+        { type: "divider" as const },
+        {
+          type: "section" as const,
+          options: [{ value: "x", label: "x", disabled: { reason: "Why" } }],
+        },
+        { value: "y", label: "y", disabled: true },
+      ],
+      renderDefault,
+    });
     expect(options[2]).toEqual({
       type: "section",
       options: [{ value: "x", label: "x", disabled: true }],
     });
     expect(options[3]).toEqual({ value: "y", label: "y", disabled: true });
-    expect(reasons).toEqual(new Map([["x", "Why"]]));
+
+    const { container: withReason } = render(<>{renderOption!({ value: "x" })}</>);
+    expect(withReason).toHaveTextContent("default x");
+    expect(withReason.querySelector('[aria-label="Why"]')).not.toBeNull();
+    const { container: silent } = render(<>{renderOption!({ value: "y" })}</>);
+    expect(silent.querySelector(".uic-option-disabled-reason")).toBeNull();
   });
 
-  it("leaves the options alone and reports no reasons when none has one", () => {
+  it("hands options and renderOption back as given when no option has a reason", () => {
     const input = [{ value: "a", disabled: true }];
-    const { options, reasons } = splitOptionDisabledReasons(input);
+    const own = () => "own";
+    const { options, renderOption } = withOptionDisabledReason({
+      options: input,
+      renderOption: own,
+      renderDefault,
+    });
     expect(options[0]).toBe(input[0]);
-    expect(reasons).toBeUndefined();
+    expect(renderOption).toBe(own);
     expect(optionDisabledReason({ reason: "" })).toBeUndefined();
   });
 });

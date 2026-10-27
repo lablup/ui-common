@@ -23,11 +23,7 @@ import {
   type DistributiveOmit,
   type FormControlValueProps,
 } from "../formControl";
-import {
-  splitOptionDisabledReasons,
-  withOptionDisabledReason,
-  type OptionDisabled,
-} from "../optionDisabledReason";
+import { withOptionDisabledReason, type OptionDisabled } from "../optionDisabledReason";
 
 /** Astryx's option, with `disabled` also taking `{ reason }`. */
 export type SelectorOptionData = Omit<AstryxSelectorOptionData, "disabled"> & {
@@ -74,13 +70,21 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     onChange,
     undefined,
   );
-  const split = splitOptionDisabledReasons(options);
-  const reasons = split.reasons;
-  const renderOption = rest.renderOption;
+  const reasoned = withOptionDisabledReason<T, AstryxSelectorOptionData>({
+    options,
+    renderOption: rest.renderOption,
+    renderDefault: (option) => (
+      <SelectorOption
+        icon={option.icon}
+        label={option.label ?? option.value}
+        description={option.description}
+      />
+    ),
+  });
   const props = {
     ...rest,
     ...field,
-    options: split.options,
+    options: reasoned.options,
     statusVariant: "detached",
     width,
     // Without a placement Astryx lays the panel over the trigger, the selected
@@ -88,21 +92,7 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     placement: rest.placement ?? "below",
     value: mergedValue,
     onChange: handleChange,
-    renderOption: reasons
-      ? (option: AstryxSelectorOptionData) =>
-          withOptionDisabledReason(
-            renderOption ? (
-              renderOption(option)
-            ) : (
-              <SelectorOption
-                icon={option.icon}
-                label={option.label ?? option.value}
-                description={option.description}
-              />
-            ),
-            reasons.get(option.value),
-          )
-      : renderOption,
+    renderOption: reasoned.renderOption,
   } as unknown as AstryxSelectorProps<AstryxSelectorOptionType>;
   return (
     <FormControlScope required={required}>
