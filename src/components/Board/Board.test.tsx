@@ -458,6 +458,27 @@ describe("Board", () => {
       expect(onItemsChange).toHaveBeenCalledTimes(1);
     });
 
+    it("a press that leaves focus on the handle still commits the activation", () => {
+      const { onItemsChange } = renderBoard({ isResizable: true });
+      const handle = resizeHandleOf("Alpha");
+      press(handle, 1, 50, 350);
+      fireEvent.pointerUp(handle, { pointerId: 1 });
+      fireEvent.keyDown(handle, { key: "ArrowDown" });
+      expect(handle).toHaveFocus();
+
+      // A press on plain content: no blur, so only the press ends it.
+      fireEvent.pointerDown(screen.getByRole("heading", { name: "Gamma" }), {
+        pointerId: 2,
+        button: 0,
+      });
+      expect(liveText()).toBe("Resize committed.");
+      expect(onItemsChange.mock.calls[0]?.[0]?.resizedItem?.id).toBe("a");
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--active");
+      expect(directionButtons("Alpha")).toEqual([]);
+      fireEvent.keyDown(handle, { key: "ArrowDown" });
+      expect(onItemsChange).toHaveBeenCalledTimes(1);
+    });
+
     it("a press on another handle ends the activation and activates that one", () => {
       renderBoard({ isMovable: true });
       press(dragHandleOf("Alpha"), 1, 50, 350);
