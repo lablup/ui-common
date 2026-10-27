@@ -432,7 +432,15 @@ describe("Board", () => {
     });
 
     it("a press outside the activated handle commits the activation", () => {
-      const { onItemsChange } = renderBoard({ isMovable: true, isResizable: true });
+      const { onItemsChange } = renderBoard({
+        isMovable: true,
+        isResizable: true,
+        items: THREE.map((it) =>
+          it.id === "c"
+            ? { ...it, description: <button type="button">Refresh Gamma</button> }
+            : it,
+        ),
+      });
       const handle = resizeHandleOf("Alpha");
       press(handle, 1, 50, 350);
       fireEvent.pointerUp(handle, { pointerId: 1 });
@@ -445,7 +453,7 @@ describe("Board", () => {
 
       // A press on another item's content, inside the board, ends it. jsdom
       // moves no focus on a press: the button takes it as a browser would.
-      const other = screen.getByRole("button", { name: "Remove Gamma" });
+      const other = screen.getByRole("button", { name: "Refresh Gamma" });
       other.addEventListener("pointerdown", () => other.focus());
       fireEvent.pointerDown(other, { pointerId: 3, button: 0 });
       expect(liveText()).toBe("Resize committed.");
