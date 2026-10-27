@@ -71,22 +71,25 @@ type Story = StoryObj<typeof meta>;
 /** Each item renders its `title` as a header row and its `description` under it. */
 export const Default: Story = {};
 
+/** `Board` is controlled: a story that moves or resizes keeps the items it reports. */
+const renderEditable: Story["render"] = function Render(args) {
+  const [items, setItems] = useArgState(args.items);
+  return (
+    <Board<Widget>
+      {...args}
+      items={items}
+      onItemsChange={(detail) => {
+        args.onItemsChange(detail);
+        setItems(detail.items);
+      }}
+    />
+  );
+};
+
 /** The drag handle sits on the header row's first line, in the inline padding. */
 export const Editable: Story = {
   args: { isMovable: true, isResizable: true },
-  render: function Render(args) {
-    const [items, setItems] = useArgState(args.items);
-    return (
-      <Board<Widget>
-        {...args}
-        items={items}
-        onItemsChange={(detail) => {
-          args.onItemsChange(detail);
-          setItems(detail.items);
-        }}
-      />
-    );
-  },
+  render: renderEditable,
 };
 
 /** A `BoardItemTitle` node as the title: a help tooltip and end-of-row actions. Removing is the consumer's: filter the items. */
@@ -125,7 +128,12 @@ export const TitleWithActions: Story = {
         }))}
         onItemsChange={(detail) => {
           args.onItemsChange(detail);
-          setItems(detail.items);
+          // The board hands back the items it was given, wrapped titles and
+          // all: keep each item's own title so the next render wraps it once.
+          const titles = new Map(items.map((item) => [item.id, item.title]));
+          setItems(
+            detail.items.map((item) => ({ ...item, title: titles.get(item.id) })),
+          );
         }}
       />
     );
@@ -174,6 +182,7 @@ export const LongTitle: Story = {
       WIDGETS[3]!,
     ],
   },
+  render: renderEditable,
 };
 
 /** Without a title the description takes the whole item; the drag handle still sits in the inline padding. */
@@ -182,11 +191,13 @@ export const NoTitle: Story = {
     isMovable: true,
     items: WIDGETS.map(({ title: _title, ...item }) => item),
   },
+  render: renderEditable,
 };
 
 /** `itemPadding` sets every item's padding: a number (px) or a CSS length for all sides, or one per side. */
 export const Padding: Story = {
   args: { isMovable: true, itemPadding: { top: 12, right: 16, bottom: 12, left: 16 } },
+  render: renderEditable,
 };
 
 export const Empty: Story = {

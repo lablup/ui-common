@@ -62,6 +62,18 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   handle, so the item stayed active and kept moving or resizing on the arrow
   keys until Enter or Escape.
 
+- **`Board`'s Title With Actions story no longer nests its title row on every
+  move or resize** (#104). The story wrapped each title in a
+  `BoardItemTitle` at render and stored the items `onItemsChange` returned,
+  wrapped titles included, so each move or resize added another tooltip and
+  Remove button until they overflowed the item. It now keeps each item's own
+  title and wraps it only at render. `Board` itself is unchanged: it returns
+  the items it was given, so a consumer stores plain data or builds its title
+  nodes once, as the `dashboard-board` template does. The Long Title, No
+  Title and Padding stories now keep the items `onItemsChange` reports, as
+  the Editable story does; before, `Board` being controlled, every move
+  there snapped back to where it started.
+
 - **`uic.Form.*` strings no longer render as raw keys in English** (#99).
   Every messages module imported `defineMessages` from the catalog, which
   spreads those same modules, so when the Form engine was reached first the
