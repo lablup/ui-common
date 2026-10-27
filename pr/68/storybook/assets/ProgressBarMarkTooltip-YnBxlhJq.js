@@ -1,1 +1,0 @@
-import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./jsx-runtime-DeHZSEgm.js";import{r as n,t as r}from"./Tooltip-DcJWbZoH.js";function i({content:e,children:t}){return(0,a.jsx)(r,{content:e,placement:`above`,focusTrigger:`always`,children:t})}var a;function o(){return(o=e((()=>{n(),a=t()})))()}o();export{i as default};
