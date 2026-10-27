@@ -125,7 +125,12 @@ export const TitleWithActions: Story = {
         }))}
         onItemsChange={(detail) => {
           args.onItemsChange(detail);
-          setItems(detail.items);
+          // The board hands back the items it was given, wrapped titles and
+          // all: keep each item's own title so the next render wraps it once.
+          const titles = new Map(items.map((item) => [item.id, item.title]));
+          setItems(
+            detail.items.map((item) => ({ ...item, title: titles.get(item.id) })),
+          );
         }}
       />
     );
