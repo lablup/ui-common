@@ -53,6 +53,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`Board`: a click on a move or resize handle no longer leaves the item in
+  keyboard mode** (#102). A click without a drag activates the handle for
+  arrow keys and direction buttons; that activation now ends, committed as on
+  Enter or blur, when the next press lands anywhere but that handle and its
+  direction buttons, inside the board or not. Focus stays where the press put
+  it. Before, a press elsewhere in the board did not always move focus off the
+  handle, so the item stayed active and kept moving or resizing on the arrow
+  keys until Enter or Escape.
+
 - **`uic.Form.*` strings no longer render as raw keys in English** (#99).
   Every messages module imported `defineMessages` from the catalog, which
   spreads those same modules, so when the Form engine was reached first the

@@ -431,6 +431,47 @@ describe("Board", () => {
       expect(directionButtons("Alpha")).toEqual([]);
     });
 
+    it("a press outside the activated handle commits the activation", () => {
+      const { onItemsChange } = renderBoard({ isMovable: true, isResizable: true });
+      const handle = resizeHandleOf("Alpha");
+      press(handle, 1, 50, 350);
+      fireEvent.pointerUp(handle, { pointerId: 1 });
+      expect(shell("Alpha")).toHaveClass("uic-board-item--active");
+      fireEvent.keyDown(handle, { key: "ArrowDown" });
+      // A press on the handle's own direction buttons keeps it on.
+      const down = within(shell("Alpha")).getByRole("button", { name: "Down" });
+      fireEvent.pointerDown(down, { pointerId: 2, button: 0 });
+      expect(shell("Alpha")).toHaveClass("uic-board-item--active");
+
+      // A press on another item's content, inside the board, ends it. jsdom
+      // moves no focus on a press: the button takes it as a browser would.
+      const other = screen.getByRole("button", { name: "Remove Gamma" });
+      other.addEventListener("pointerdown", () => other.focus());
+      fireEvent.pointerDown(other, { pointerId: 3, button: 0 });
+      expect(liveText()).toBe("Resize committed.");
+      expect(onItemsChange.mock.calls[0]?.[0]?.resizedItem?.id).toBe("a");
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--active");
+      expect(directionButtons("Alpha")).toEqual([]);
+      // Focus stays where the press put it, not back on the handle.
+      expect(other).toHaveFocus();
+      fireEvent.keyDown(handle, { key: "ArrowDown" });
+      expect(onItemsChange).toHaveBeenCalledTimes(1);
+    });
+
+    it("a press on another handle ends the activation and activates that one", () => {
+      renderBoard({ isMovable: true });
+      press(dragHandleOf("Alpha"), 1, 50, 350);
+      fireEvent.pointerUp(dragHandleOf("Alpha"), { pointerId: 1 });
+      const beta = dragHandleOf("Beta");
+      press(beta, 2, 50, 350);
+      expect(liveText()).toBe("Move committed.");
+      fireEvent.pointerUp(beta, { pointerId: 2 });
+      expect(liveText()).toBe("Dragging.");
+      expect(directionButtons("Alpha")).toEqual([]);
+      expect(directionButtons("Beta")).toEqual(["up", "down", "left", "right"]);
+      expect(beta).toHaveFocus();
+    });
+
     it("drags past the click threshold, snaps to whole cells and commits on release", () => {
       const { onItemsChange } = renderBoard({ isMovable: true });
       const handle = dragHandleOf("Alpha");

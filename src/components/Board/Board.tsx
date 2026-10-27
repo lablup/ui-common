@@ -667,6 +667,37 @@ export function Board<D = unknown>({
   };
   const discardRef = useRef(discard);
   discardRef.current = discard;
+  const commitRef = useRef(commit);
+  commitRef.current = commit;
+
+  // A press anywhere but the activated handle and its direction buttons
+  // commits a keyboard activation, as its blur does: a press elsewhere does
+  // not always move focus off the handle. Focus then follows the press, not
+  // back to the handle.
+  const keyboardActivation =
+    transition?.interaction === "keyboard"
+      ? `${transition.operation}:${transition.itemId}`
+      : null;
+  useEffect(() => {
+    if (!keyboardActivation) return;
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      const tr = transitionRef.current;
+      if (tr?.interaction !== "keyboard") return;
+      const handle = shellRefs.current
+        .get(tr.itemId)
+        ?.querySelector(
+          tr.operation === "resize"
+            ? ".uic-board-item__handle--resize"
+            : ".uic-board-item__handle--drag",
+        );
+      if (handle && event.target instanceof Node && handle.contains(event.target))
+        return;
+      commitRef.current();
+      refocusRef.current = null;
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    return () => document.removeEventListener("pointerdown", onPointerDown, true);
+  }, [keyboardActivation]);
 
   // Escape discards a pointer drag too, where no handle holds the keyboard.
   const isPointerDrag = transition?.pointer !== undefined;
