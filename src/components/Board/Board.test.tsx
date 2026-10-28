@@ -965,6 +965,31 @@ describe("Board item context", () => {
     expect(screen.queryByRole("heading")).toBeNull();
   });
 
+  it("keeps a nested board's item title in its own item", () => {
+    render(
+      <Board<Data>
+        items={[
+          item({
+            id: "outer",
+            description: (
+              <Board<Data>
+                items={[item({ id: "inner", title: <BoardItemTitle title="Inner" /> })]}
+                onItemsChange={vi.fn()}
+              />
+            ),
+          }),
+        ]}
+        onItemsChange={vi.fn()}
+      />,
+    );
+    const inner = document.querySelector('[data-board-item-id="inner"]') as HTMLElement;
+    expect(headers()).toHaveLength(1);
+    expect(inner.contains(headers()[0]!)).toBe(true);
+    expect(
+      within(headers()[0] as HTMLElement).getByRole("heading", { name: "Inner" }),
+    ).toBeTruthy();
+  });
+
   it("keeps one title row, mounted once, when the items move", () => {
     let mounts = 0;
     function Counted() {

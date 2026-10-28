@@ -1219,13 +1219,16 @@ function BoardItemBody({
             ref={hasTitle ? undefined : setHeaderSlot}
             className="uic-board-item__title"
           >
-            {!hasTitle ? null : typeof title === "string" ? (
-              <Heading level={5} className="uic-board-item__heading">
-                {title}
-              </Heading>
-            ) : (
-              title
-            )}
+            {/* A board nested in another item's description: its title is not in that item. */}
+            <BoardItemContext.Provider value={null}>
+              {!hasTitle ? null : typeof title === "string" ? (
+                <Heading level={5} className="uic-board-item__heading">
+                  {title}
+                </Heading>
+              ) : (
+                title
+              )}
+            </BoardItemContext.Provider>
           </div>
         </div>
       ) : null}
