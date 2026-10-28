@@ -34,6 +34,19 @@
     "reason": "A step's highlight is promoted into the top layer once, so under StrictMode the spotlight dim no longer covers the callout."
   },
   {
+    "name": "lab",
+    "exports": [
+      "Stat",
+      "StatProps",
+      "StatDelta",
+      "StatDeltaDirection",
+      "StatDeltaSentiment",
+      "StatSize"
+    ],
+    "replacedBy": "Stat",
+    "reason": "Adds deltaTooltip, a tooltip that explains the delta, anchored to it and reachable by keyboard, with media outside it."
+  },
+  {
     "name": "Dialog",
     "replacedBy": "Modal",
     "reason": "ui-common ships Modal as the one dialog surface. Hiding Dialog keeps consumers from building a second, differently behaved dialog."

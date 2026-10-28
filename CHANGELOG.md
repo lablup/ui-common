@@ -17,6 +17,13 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   a CSS length for every side or one per side (default `--spacing-5` top
   and bottom, `--spacing-8` left and right); the CSS knobs behind it are
   `--board-item-padding-top` / `-right` / `-bottom` / `-left`.
+- **Lab `Stat` explains its delta** (#110). `deltaTooltip` takes a node,
+  shown in a tooltip anchored to the delta on hover, keyboard focus and tap;
+  the delta becomes focusable and is described by it, and `media` stays
+  outside it, so a sparkline keeps its own tooltip. A consumer no longer
+  wraps the whole `Stat` in a `Tooltip`. `@lablup/ui-common/lab` now exports
+  ui-common's copy of `Stat` (a fork, `src/forks/Stat`) in place of lab's,
+  with the same names; without `deltaTooltip` it renders lab's markup.
 
 ### Changed
 
