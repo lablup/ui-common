@@ -17,6 +17,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   a CSS length for every side or one per side (default `--spacing-5` top
   and bottom, `--spacing-8` left and right); the CSS knobs behind it are
   `--board-item-padding-top` / `-right` / `-bottom` / `-left`.
+- **A `BoardItemTitle` inside an untitled `Board` item's description renders
+  in the item's header row** (#108), with the same layout and drag-handle
+  alignment as a `title` node, so content that draws its own title row needs
+  no `title` and no placeholder. Only the first one moves; `inline` keeps a
+  `BoardItemTitle` in the body (a second section title, say). An item with
+  neither a `title` nor such a title still has no header row. The row stays
+  in its item when the item moves or resizes, and the board does not put it
+  in the items it reports.
+- **`useIsInBoardItem()`**, true inside a `Board` item's description, so
+  content can drop its own inset when the board pads it.
 
 ### Changed
 

@@ -26,7 +26,7 @@ export default {
       name: "items",
       type: "ReadonlyArray<BoardItem<D>>",
       description:
-        "The items: id, data, optional title and description (each a string or a node), rowSpan (from 2) and columnSpan (from 1), definition (minRowSpan, minColumnSpan, defaultRowSpan, defaultColumnSpan) and columnOffset, a column per column count ({ 4: 2, 6: 3 }) the board writes back. A string title renders as a level-5 heading in a header row, with the drag handle on its first line; a node title (a BoardItemTitle, say) renders there as is, so a help tooltip or end-of-row actions are the node's to include. Without a title there is no header row and the description takes the whole item. A string description renders as text; a node as is, and scrolls.",
+        "The items: id, data, optional title and description (each a string or a node), rowSpan (from 2) and columnSpan (from 1), definition (minRowSpan, minColumnSpan, defaultRowSpan, defaultColumnSpan) and columnOffset, a column per column count ({ 4: 2, 6: 3 }) the board writes back. A string title renders as a level-5 heading in a header row, with the drag handle on its first line; a node title (a BoardItemTitle, say) renders there as is, so a help tooltip or end-of-row actions are the node's to include. Without a title, the first BoardItemTitle inside the description renders in the header row instead (unless it is inline); with neither there is no header row and the description takes the whole item. A string description renders as text; a node as is, and scrolls. Inside the description, useIsInBoardItem() returns true.",
       required: true,
     },
     {

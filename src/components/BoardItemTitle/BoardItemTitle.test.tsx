@@ -47,6 +47,14 @@ describe("BoardItemTitle", () => {
     expect(end).toContainElement(screen.getByRole("button", { name: "Refresh" }));
   });
 
+  it("renders in place outside a Board item, inline or not", () => {
+    const { container, rerender } = render(<BoardItemTitle title="Usage" />);
+    expect(container.firstElementChild).toHaveClass("uic-board-item-title");
+    rerender(<BoardItemTitle title="Usage" inline />);
+    expect(container.firstElementChild).toHaveClass("uic-board-item-title");
+    expect(screen.getByRole("heading", { name: "Usage" })).toBeInTheDocument();
+  });
+
   it("passes class names, inline styles and attributes to the row", () => {
     const { container } = render(
       <BoardItemTitle
