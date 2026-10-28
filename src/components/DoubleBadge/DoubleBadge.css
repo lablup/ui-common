@@ -21,10 +21,43 @@
     inset-block: 0;
     inset-inline-start: 0;
     width: var(--border-width);
-    /* The badge's own text colour, faded: light on every fill, and it follows
-       the fill's contrast in both colour schemes. */
-    background-color: color-mix(in srgb, currentColor 30%, transparent);
+    background-color: var(--color-border);
     pointer-events: none;
+  }
+
+  /* A coloured badge takes the border of its own hue; a neutral one, and a
+     variant with no hue of its own, keeps --color-border above. The status
+     variants take the palette hue of their status. */
+  .uic-double-badge__item[data-variant="info"]::before,
+  .uic-double-badge__item[data-variant="blue"]::before {
+    background-color: var(--color-border-blue);
+  }
+  .uic-double-badge__item[data-variant="success"]::before,
+  .uic-double-badge__item[data-variant="green"]::before {
+    background-color: var(--color-border-green);
+  }
+  .uic-double-badge__item[data-variant="warning"]::before,
+  .uic-double-badge__item[data-variant="yellow"]::before {
+    background-color: var(--color-border-yellow);
+  }
+  .uic-double-badge__item[data-variant="error"]::before,
+  .uic-double-badge__item[data-variant="red"]::before {
+    background-color: var(--color-border-red);
+  }
+  .uic-double-badge__item[data-variant="cyan"]::before {
+    background-color: var(--color-border-cyan);
+  }
+  .uic-double-badge__item[data-variant="orange"]::before {
+    background-color: var(--color-border-orange);
+  }
+  .uic-double-badge__item[data-variant="pink"]::before {
+    background-color: var(--color-border-pink);
+  }
+  .uic-double-badge__item[data-variant="purple"]::before {
+    background-color: var(--color-border-purple);
+  }
+  .uic-double-badge__item[data-variant="teal"]::before {
+    background-color: var(--color-border-teal);
   }
 
   .uic-double-badge__item:not(:last-child) {

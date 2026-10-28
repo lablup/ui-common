@@ -53,10 +53,15 @@ describe("DoubleBadge", () => {
       "",
     );
 
-    /** Declarations of the rule whose selector is exactly `selector`. */
+    /** Declarations of every rule whose selector list includes `selector`. */
     function declarationsFor(selector: string): string[] {
       return [...CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
-        .filter((m) => (m[1] ?? "").trim() === selector)
+        .filter((m) =>
+          (m[1] ?? "")
+            .split(",")
+            .map((s) => s.trim())
+            .includes(selector),
+        )
         .flatMap((m) =>
           (m[2] ?? "")
             .split(";")
@@ -74,12 +79,38 @@ describe("DoubleBadge", () => {
           "position: absolute",
           "inset-inline-start: 0",
           "width: var(--border-width)",
-          "background-color: color-mix(in srgb, currentColor 30%, transparent)",
+          "background-color: var(--color-border)",
         ]),
       );
       expect(declarationsFor(".uic-double-badge__item:not(:first-child)")).toContain(
         "position: relative",
       );
+    });
+
+    it.each([
+      ["info", "blue"],
+      ["success", "green"],
+      ["warning", "yellow"],
+      ["error", "red"],
+      ["blue", "blue"],
+      ["cyan", "cyan"],
+      ["green", "green"],
+      ["orange", "orange"],
+      ["pink", "pink"],
+      ["purple", "purple"],
+      ["red", "red"],
+      ["teal", "teal"],
+      ["yellow", "yellow"],
+    ])("draws a %s badge's divider in the %s border", (variant, hue) => {
+      expect(
+        declarationsFor(`.uic-double-badge__item[data-variant="${variant}"]::before`),
+      ).toEqual([`background-color: var(--color-border-${hue})`]);
+    });
+
+    it("keeps a neutral badge's divider in the default border", () => {
+      expect(
+        declarationsFor('.uic-double-badge__item[data-variant="neutral"]::before'),
+      ).toEqual([]);
     });
 
     it("lays the divider on the overlapped column, so an outlined theme gets one line", () => {
