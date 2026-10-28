@@ -25,39 +25,53 @@
     pointer-events: none;
   }
 
-  /* A coloured badge takes the border of its own hue; a neutral one, and a
-     variant with no hue of its own, keeps --color-border-emphasized above:
-     --color-border is a faint line that a gray fill can match. The status
-     variants take the palette hue of their status. */
+  /* A divider next to a coloured badge takes the border of that badge's hue,
+     the preceding badge's first (the sibling selector outranks the badge's
+     own); between two neutral badges it keeps --color-border-emphasized
+     above, since --color-border is a faint line a gray fill can match. The
+     status variants take the palette hue of their status. */
   .uic-double-badge__item[data-variant="info"]::before,
-  .uic-double-badge__item[data-variant="blue"]::before {
+  .uic-double-badge__item[data-variant="blue"]::before,
+  .uic-double-badge__item[data-variant="info"] + .uic-double-badge__item::before,
+  .uic-double-badge__item[data-variant="blue"] + .uic-double-badge__item::before {
     background-color: var(--color-border-blue);
   }
   .uic-double-badge__item[data-variant="success"]::before,
-  .uic-double-badge__item[data-variant="green"]::before {
+  .uic-double-badge__item[data-variant="green"]::before,
+  .uic-double-badge__item[data-variant="success"] + .uic-double-badge__item::before,
+  .uic-double-badge__item[data-variant="green"] + .uic-double-badge__item::before {
     background-color: var(--color-border-green);
   }
   .uic-double-badge__item[data-variant="warning"]::before,
-  .uic-double-badge__item[data-variant="yellow"]::before {
+  .uic-double-badge__item[data-variant="yellow"]::before,
+  .uic-double-badge__item[data-variant="warning"] + .uic-double-badge__item::before,
+  .uic-double-badge__item[data-variant="yellow"] + .uic-double-badge__item::before {
     background-color: var(--color-border-yellow);
   }
   .uic-double-badge__item[data-variant="error"]::before,
-  .uic-double-badge__item[data-variant="red"]::before {
+  .uic-double-badge__item[data-variant="red"]::before,
+  .uic-double-badge__item[data-variant="error"] + .uic-double-badge__item::before,
+  .uic-double-badge__item[data-variant="red"] + .uic-double-badge__item::before {
     background-color: var(--color-border-red);
   }
-  .uic-double-badge__item[data-variant="cyan"]::before {
+  .uic-double-badge__item[data-variant="cyan"]::before,
+  .uic-double-badge__item[data-variant="cyan"] + .uic-double-badge__item::before {
     background-color: var(--color-border-cyan);
   }
-  .uic-double-badge__item[data-variant="orange"]::before {
+  .uic-double-badge__item[data-variant="orange"]::before,
+  .uic-double-badge__item[data-variant="orange"] + .uic-double-badge__item::before {
     background-color: var(--color-border-orange);
   }
-  .uic-double-badge__item[data-variant="pink"]::before {
+  .uic-double-badge__item[data-variant="pink"]::before,
+  .uic-double-badge__item[data-variant="pink"] + .uic-double-badge__item::before {
     background-color: var(--color-border-pink);
   }
-  .uic-double-badge__item[data-variant="purple"]::before {
+  .uic-double-badge__item[data-variant="purple"]::before,
+  .uic-double-badge__item[data-variant="purple"] + .uic-double-badge__item::before {
     background-color: var(--color-border-purple);
   }
-  .uic-double-badge__item[data-variant="teal"]::before {
+  .uic-double-badge__item[data-variant="teal"]::before,
+  .uic-double-badge__item[data-variant="teal"] + .uic-double-badge__item::before {
     background-color: var(--color-border-teal);
   }
 

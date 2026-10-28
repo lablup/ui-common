@@ -67,8 +67,9 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   each Badge's outline, and Astryx's Badge has a fill and no border, so two
   badges of one variant read as one pill under the default theme, and a
   theme outline close to the fill lost the seam too. Every badge but the
-  first now draws a `--border-width` divider, `--color-border-emphasized` on a neutral
-  badge and the border of the badge's own hue on a coloured one
+  first now draws a `--border-width` divider, `--color-border-emphasized` between two
+  neutral badges and, next to a coloured badge, the border of that badge's hue
+  (the preceding badge's first)
   (`--color-border-green` for `success`, `-blue` for `info`, `-yellow` for
   `warning`, `-red` for `error`), on the column it overlaps its neighbour by, so a theme that outlines
   badges still gets one line, not two. A theme override added only to show

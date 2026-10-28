@@ -107,6 +107,23 @@ describe("DoubleBadge", () => {
       ).toEqual([`background-color: var(--color-border-${hue})`]);
     });
 
+    it.each([
+      ["info", "blue"],
+      ["success", "green"],
+      ["warning", "yellow"],
+      ["error", "red"],
+      ["teal", "teal"],
+    ])(
+      "draws the divider after a %s badge in the %s border, ahead of the next badge's own",
+      (variant, hue) => {
+        expect(
+          declarationsFor(
+            `.uic-double-badge__item[data-variant="${variant}"] + .uic-double-badge__item::before`,
+          ),
+        ).toEqual([`background-color: var(--color-border-${hue})`]);
+      },
+    );
+
     it("keeps a neutral badge's divider in the emphasized border", () => {
       expect(
         declarationsFor('.uic-double-badge__item[data-variant="neutral"]::before'),
