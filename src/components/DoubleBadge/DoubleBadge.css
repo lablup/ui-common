@@ -21,12 +21,13 @@
     inset-block: 0;
     inset-inline-start: 0;
     width: var(--border-width);
-    background-color: var(--color-border);
+    background-color: var(--color-border-emphasized);
     pointer-events: none;
   }
 
   /* A coloured badge takes the border of its own hue; a neutral one, and a
-     variant with no hue of its own, keeps --color-border above. The status
+     variant with no hue of its own, keeps --color-border-emphasized above:
+     --color-border is a faint line that a gray fill can match. The status
      variants take the palette hue of their status. */
   .uic-double-badge__item[data-variant="info"]::before,
   .uic-double-badge__item[data-variant="blue"]::before {
