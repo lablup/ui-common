@@ -53,6 +53,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`DataGrid`'s page-size list flips above its trigger near the viewport
+  bottom** (#114). Astryx's `Pagination` gives its page-size `Selector` no
+  placement, so the list was laid over the trigger by a negative
+  `margin-block-start`, which keeps the browser from flipping it: a grid at
+  the bottom of the page opened the list downward, clipped. `DataGrid.css`
+  now zeroes that margin on the pager's own list, so it opens flush below the
+  trigger and above it when there is no room below. A consumer override of
+  the same margin can be removed.
+
 - **`Board`: a click on a move or resize handle no longer leaves the item in
   keyboard mode** (#102). A click without a drag activates the handle for
   arrow keys and direction buttons; that activation now ends, committed as on
