@@ -74,7 +74,7 @@ describe("DoubleBadge", () => {
           "position: absolute",
           "inset-inline-start: 0",
           "width: var(--border-width)",
-          "background-color: var(--color-border-emphasized)",
+          "background-color: color-mix(in srgb, currentColor 30%, transparent)",
         ]),
       );
       expect(declarationsFor(".uic-double-badge__item:not(:first-child)")).toContain(

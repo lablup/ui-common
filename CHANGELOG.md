@@ -67,8 +67,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   each Badge's outline, and Astryx's Badge has a fill and no border, so two
   badges of one variant read as one pill under the default theme, and a
   theme outline close to the fill lost the seam too. Every badge but the
-  first now draws a `--border-width` divider in `--color-border-emphasized`
-  on the column it overlaps its neighbour by, so a theme that outlines
+  first now draws a light `--border-width` divider, its own text colour at
+  30%, on the column it overlaps its neighbour by, so a theme that outlines
   badges still gets one line, not two. A theme override added only to show
   the seam can be removed.
 

@@ -21,7 +21,9 @@
     inset-block: 0;
     inset-inline-start: 0;
     width: var(--border-width);
-    background-color: var(--color-border-emphasized);
+    /* The badge's own text colour, faded: light on every fill, and it follows
+       the fill's contrast in both colour schemes. */
+    background-color: color-mix(in srgb, currentColor 30%, transparent);
     pointer-events: none;
   }
 
