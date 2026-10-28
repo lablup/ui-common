@@ -1,1 +1,0 @@
-import{t as e}from"./iframe-DTjs3FUi.js";e();
