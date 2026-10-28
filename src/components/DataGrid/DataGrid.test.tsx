@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
+import { Selector } from "@astryxdesign/core/Selector";
 
 import { uiCommonMessages } from "../../i18n/messages";
 import { DataGrid, dataGridSettingsToOverrides, type DataGridColumn } from "./DataGrid";
@@ -142,6 +143,33 @@ describe("DataGrid pagination", () => {
     await userEvent.click(screen.getByRole("button", { name: "Go to page 2" }));
 
     expect(onChange).toHaveBeenLastCalledWith(2, 20);
+  });
+
+  // jsdom has no layout, so the stylesheet rule itself is the contract, and
+  // its selector must reach the open page-size list and nothing else.
+  it("lets the page-size list flip above: no overlay margin on its popover", async () => {
+    const css = readFileSync(join(__dirname, "DataGrid.css"), "utf8");
+    const [, selector = "", body = ""] =
+      /(\.uic-data-grid__footer nav [^{]*)\{([^}]*)\}/.exec(css) ?? [];
+    expect(body).toMatch(/margin-block-start:\s*0 !important;/);
+
+    renderGrid({
+      data: makeRows(25),
+      pagination: {
+        endContent: (
+          <Selector label="Extra" options={["a", "b"]} value="a" onChange={() => {}} />
+        ),
+      },
+    });
+    const popoverOf = (name: string) =>
+      screen.getByRole("listbox", { name }).closest<HTMLElement>("[popover]")!;
+
+    await userEvent.click(screen.getByRole("combobox", { name: "Items per page" }));
+    expect(popoverOf("Items per page").matches(selector.trim())).toBe(true);
+    await userEvent.keyboard("{Escape}");
+
+    await userEvent.click(screen.getByRole("combobox", { name: "Extra" }));
+    expect(popoverOf("Extra").matches(selector.trim())).toBe(false);
   });
 
   it("renders endContent at the end of the bar", () => {
