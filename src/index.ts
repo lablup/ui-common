@@ -1325,6 +1325,7 @@ export {
   columnsForWidth,
   interpretItems,
   transformItems,
+  useIsInBoardItem,
 } from "./components/Board";
 export type {
   BoardColumnBreakpoint,

@@ -9,8 +9,10 @@
  * what the parent passes back is what renders.
  *
  * An item renders a header row with its `title` and its `description`
- * under it; without a title the description takes the whole item. Both
- * are padded by `itemPadding`. A drag handle at the item's top-left corner
+ * under it; without a title the description takes the whole item. Inside
+ * the description `useIsInBoardItem()` is true, and when the item has no
+ * title, the first `BoardItemTitle` there renders in the header row instead
+ * (unless it is `inline`). Both are padded by `itemPadding`. A drag handle at the item's top-left corner
  * moves it, on the header row's first line; a handle at the bottom-right
  * resizes it. Dragging a handle moves or resizes by pointer: the
  * item follows the pointer, the rest of the board previews where everything
@@ -33,7 +35,9 @@
  * // itemPadding={12}, itemPadding="1rem" or itemPadding={{ top: 12, left: 16 }} set the content padding.
  */
 import {
+  useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -48,6 +52,7 @@ import { Text } from "@astryxdesign/core/Text";
 import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
+import { BoardItemContext, type BoardItemContextValue } from "./BoardItemContext";
 import {
   appendPath,
   LayoutEngine,
@@ -1100,7 +1105,6 @@ export function Board<D = unknown>({
             };
             const extra =
               typeof itemClassName === "function" ? itemClassName(item) : itemClassName;
-            const hasHeader = item.title != null && item.title !== false;
             const dragHandle = isMovable ? (
               <span className="uic-board-item__handle uic-board-item__handle--drag">
                 <IconButton
@@ -1146,26 +1150,7 @@ export function Board<D = unknown>({
                 data-board-item-id={item.id}
               >
                 {dragHandle}
-                {hasHeader ? (
-                  <div className="uic-board-item__header">
-                    <div className="uic-board-item__title">
-                      {typeof item.title === "string" ? (
-                        <Heading level={5} className="uic-board-item__heading">
-                          {item.title}
-                        </Heading>
-                      ) : (
-                        item.title
-                      )}
-                    </div>
-                  </div>
-                ) : null}
-                <div className="uic-board-item__content">
-                  {typeof item.description === "string" ? (
-                    <Text>{item.description}</Text>
-                  ) : (
-                    item.description
-                  )}
-                </div>
+                <BoardItemBody title={item.title} description={item.description} />
                 {isResizable ? (
                   <span className="uic-board-item__handle uic-board-item__handle--resize">
                     <IconButton
@@ -1199,3 +1184,56 @@ export function Board<D = unknown>({
 }
 
 Board.displayName = "Board";
+
+/**
+ * An item's header row and description. The description renders inside
+ * `BoardItemContext`; when the item has no `title`, the first
+ * `BoardItemTitle` in it claims the header row and renders there through a
+ * portal, so the row exists only while something fills it.
+ */
+function BoardItemBody({
+  title,
+  description,
+}: Pick<BoardItem<unknown>, "title" | "description">) {
+  const hasTitle = title != null && title !== false;
+  const [claimants, setClaimants] = useState<ReadonlyArray<string>>([]);
+  const [headerSlot, setHeaderSlot] = useState<HTMLElement | null>(null);
+  const claim = useCallback((id: string) => {
+    setClaimants((current) => [...current, id]);
+    return () => setClaimants((current) => current.filter((other) => other !== id));
+  }, []);
+  const headerOwner = hasTitle ? null : (claimants[0] ?? null);
+  const context = useMemo<BoardItemContextValue>(
+    () => ({
+      claimHeader: hasTitle ? null : claim,
+      headerOwner,
+      headerSlot: headerOwner === null ? null : headerSlot,
+    }),
+    [hasTitle, claim, headerOwner, headerSlot],
+  );
+  return (
+    <>
+      {hasTitle || headerOwner !== null ? (
+        <div className="uic-board-item__header">
+          <div
+            ref={hasTitle ? undefined : setHeaderSlot}
+            className="uic-board-item__title"
+          >
+            {!hasTitle ? null : typeof title === "string" ? (
+              <Heading level={5} className="uic-board-item__heading">
+                {title}
+              </Heading>
+            ) : (
+              title
+            )}
+          </div>
+        </div>
+      ) : null}
+      <div className="uic-board-item__content">
+        <BoardItemContext.Provider value={context}>
+          {typeof description === "string" ? <Text>{description}</Text> : description}
+        </BoardItemContext.Provider>
+      </div>
+    </>
+  );
+}

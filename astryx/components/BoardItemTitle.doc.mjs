@@ -37,10 +37,17 @@ export default {
       type: "ReactNode",
       description: "Actions at the end of the row.",
     },
+    {
+      name: "inline",
+      type: "boolean",
+      description:
+        "Inside a Board item's description, stay in the body instead of moving to the item's header row (a second section title, say).",
+      default: "false",
+    },
   ],
   usage: {
     description:
-      "As a Board item's title. Other div attributes (className, style, data-*) reach the row.",
+      "As a Board item's title, or inside its description: when the item has no title, the first BoardItemTitle in the description renders in the item's header row, with the same layout and drag-handle alignment as a title node; inline keeps it in the body. Other div attributes (className, style, data-*) reach the row.",
   },
   examples: [
     {
