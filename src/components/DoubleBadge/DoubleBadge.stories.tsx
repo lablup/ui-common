@@ -29,6 +29,21 @@ export const Variants: Story = {
   ),
 };
 
+/** Badges of one variant: the divider keeps them apart. */
+export const SameVariant: Story = {
+  render: () => (
+    <div style={{ display: "grid", gap: 8, justifyItems: "start" }}>
+      <DoubleBadge values={["Draft", "Draft"]} />
+      <DoubleBadge
+        values={[
+          { label: "PENDING", variant: "warning" },
+          { label: "Queued", variant: "warning" },
+        ]}
+      />
+    </div>
+  ),
+};
+
 export const ThreeValues: Story = {
   args: {
     values: [

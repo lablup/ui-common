@@ -4,12 +4,25 @@
  * current radius.
  */
 @layer ui-common {
-  /* Each badge carries a 1px outline, so neighbours overlap by that width and
-     the two strokes read as one seam. */
+  /* A Badge has a fill and, unless the theme adds one, no outline, so the run
+     draws its own divider. Neighbours overlap by one border width and the
+     divider sits on that shared column: a theme that outlines badges gets
+     the divider in place of the two outlines, not a third line beside them. */
   .uic-double-badge__item:not(:first-child) {
+    position: relative;
     margin-inline-start: calc(var(--border-width) * -1);
     border-start-start-radius: 0;
     border-end-start-radius: 0;
+  }
+
+  .uic-double-badge__item:not(:first-child)::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: var(--border-width);
+    background-color: var(--color-border-emphasized);
+    pointer-events: none;
   }
 
   .uic-double-badge__item:not(:last-child) {

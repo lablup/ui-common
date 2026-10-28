@@ -63,6 +63,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`DoubleBadge` draws its own divider** (#117). The run left the seam to
+  each Badge's outline, and Astryx's Badge has a fill and no border, so two
+  badges of one variant read as one pill under the default theme, and a
+  theme outline close to the fill lost the seam too. Every badge but the
+  first now draws a `--border-width` divider in `--color-border-emphasized`
+  on the column it overlaps its neighbour by, so a theme that outlines
+  badges still gets one line, not two. A theme override added only to show
+  the seam can be removed.
+
 - **`DataGrid`'s page-size list flips above its trigger near the viewport
   bottom** (#114). Astryx's `Pagination` gives its page-size `Selector` no
   placement, so the list was laid over the trigger by a negative

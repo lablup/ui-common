@@ -11,7 +11,7 @@ export default {
   category: "Feedback & Status",
   keywords: ["badge", "pair", "welded", "status and detail", "badge group"],
   description:
-    "A run of Astryx Badges welded into one chip, for a live pair such as a status and its detail. Neighbours overlap by one border width and square their inner corners.",
+    "A run of Astryx Badges welded into one chip, for a live pair such as a status and its detail. Neighbours overlap by one border width, square their inner corners and draw a divider (--color-border-emphasized) on the shared column, so badges of one variant stay apart with or without a theme outline.",
   props: [
     {
       name: "values",
