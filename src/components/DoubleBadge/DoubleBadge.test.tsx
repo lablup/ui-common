@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
 
@@ -42,6 +44,97 @@ describe("DoubleBadge", () => {
     expect(root(container).children).toHaveLength(1);
     const { container: empty } = render(<DoubleBadge values={[]} />);
     expect(empty).toBeEmptyDOMElement();
+  });
+
+  // jsdom drops `@layer`, so the divider is read from the stylesheet source.
+  describe("divider", () => {
+    const CSS = readFileSync(join(__dirname, "DoubleBadge.css"), "utf8").replace(
+      /\/\*[\s\S]*?\*\//g,
+      "",
+    );
+
+    /** Declarations of every rule whose selector list includes `selector`. */
+    function declarationsFor(selector: string): string[] {
+      return [...CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+        .filter((m) =>
+          (m[1] ?? "")
+            .split(",")
+            .map((s) => s.trim())
+            .includes(selector),
+        )
+        .flatMap((m) =>
+          (m[2] ?? "")
+            .split(";")
+            .map((d) => d.trim().replace(/\s+/g, " "))
+            .filter(Boolean),
+        );
+    }
+
+    it("draws its own divider before every badge but the first", () => {
+      expect(
+        declarationsFor(".uic-double-badge__item:not(:first-child)::before"),
+      ).toEqual(
+        expect.arrayContaining([
+          'content: ""',
+          "position: absolute",
+          "inset-inline-start: 0",
+          "width: var(--border-width)",
+          "background-color: var(--double-badge-divider, var(--color-border-emphasized))",
+        ]),
+      );
+      expect(declarationsFor(".uic-double-badge__item:not(:first-child)")).toContain(
+        "position: relative",
+      );
+    });
+
+    it.each([
+      ["info", "blue"],
+      ["success", "green"],
+      ["warning", "yellow"],
+      ["error", "red"],
+      ["blue", "blue"],
+      ["cyan", "cyan"],
+      ["green", "green"],
+      ["orange", "orange"],
+      ["pink", "pink"],
+      ["purple", "purple"],
+      ["red", "red"],
+      ["teal", "teal"],
+      ["yellow", "yellow"],
+    ])("draws a %s badge's divider in the %s border", (variant, hue) => {
+      expect(
+        declarationsFor(`.uic-double-badge__item[data-variant="${variant}"]::before`),
+      ).toEqual([`background-color: var(--color-border-${hue})`]);
+    });
+
+    it.each([
+      ["info", "blue"],
+      ["success", "green"],
+      ["warning", "yellow"],
+      ["error", "red"],
+      ["teal", "teal"],
+    ])(
+      "draws the divider after a %s badge in the %s border, ahead of the next badge's own",
+      (variant, hue) => {
+        expect(
+          declarationsFor(
+            `.uic-double-badge__item[data-variant="${variant}"] + .uic-double-badge__item::before`,
+          ),
+        ).toEqual([`background-color: var(--color-border-${hue})`]);
+      },
+    );
+
+    it("keeps a neutral badge's divider in the theme's divider token, else the emphasized border", () => {
+      expect(
+        declarationsFor('.uic-double-badge__item[data-variant="neutral"]::before'),
+      ).toEqual([]);
+    });
+
+    it("lays the divider on the overlapped column, so an outlined theme gets one line", () => {
+      const item = declarationsFor(".uic-double-badge__item:not(:first-child)");
+      expect(item).toContain("margin-inline-start: calc(var(--border-width) * -1)");
+      expect(item.some((d) => d.startsWith("border-inline-start"))).toBe(false);
+    });
   });
 
   it("takes shorthand and object values mixed in one list", () => {

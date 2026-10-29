@@ -6,4 +6,9 @@
  * `@lablup/ui-common/theme/lablup/theme.css` instead. Use one or the other,
  * not both: they register the same theme name.
  */
-export { LABLUP_ACCENT, LABLUP_INFO_TOKEN, lablupTheme } from "./lablupTheme";
+export {
+  LABLUP_ACCENT,
+  LABLUP_DOUBLE_BADGE_DIVIDER_TOKEN,
+  LABLUP_INFO_TOKEN,
+  lablupTheme,
+} from "./lablupTheme";

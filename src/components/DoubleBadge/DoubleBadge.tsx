@@ -2,8 +2,10 @@
  * DoubleBadge
  *
  * A run of Badges welded into one chip: a live pair such as a status and its
- * detail, or a label and a ticker. Neighbours overlap by one border width and
- * square their inner corners, so the outlines read as one seam.
+ * detail, or a label and a ticker. Neighbours overlap by one border width,
+ * square their inner corners and draw a divider on the shared column, so two
+ * badges of one variant still read as two, whether or not the theme outlines
+ * badges.
  *
  * A string value is a neutral Badge. Values with an empty label are skipped,
  * and an empty list renders nothing.
