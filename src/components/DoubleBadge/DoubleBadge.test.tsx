@@ -79,7 +79,7 @@ describe("DoubleBadge", () => {
           "position: absolute",
           "inset-inline-start: 0",
           "width: var(--border-width)",
-          "background-color: var(--color-border-emphasized)",
+          "background-color: color-mix(in srgb, currentColor 25%, transparent)",
         ]),
       );
       expect(declarationsFor(".uic-double-badge__item:not(:first-child)")).toContain(
@@ -124,7 +124,7 @@ describe("DoubleBadge", () => {
       },
     );
 
-    it("keeps a neutral badge's divider in the emphasized border", () => {
+    it("keeps a neutral badge's divider in its own text colour at 25%", () => {
       expect(
         declarationsFor('.uic-double-badge__item[data-variant="neutral"]::before'),
       ).toEqual([]);
