@@ -10,7 +10,7 @@
     background-color: var(--color-background-gray);
     --color-text-primary: var(--color-text-gray);
     box-shadow: inset 0 0 0 var(--border-width)
-      color-mix(in srgb, currentColor 25%, transparent);
+      var(--uic-double-badge-divider, var(--color-border-emphasized));
   }
   .uic-story-tinted-badges .astryx-badge[data-variant="info"] {
     background-color: var(--color-background-blue);

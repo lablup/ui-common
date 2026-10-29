@@ -11,7 +11,12 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { lablupTheme as builtTheme } from "./built/lablup.js";
-import { LABLUP_ACCENT, LABLUP_INFO_TOKEN, lablupTheme } from "./lablupTheme";
+import {
+  LABLUP_ACCENT,
+  LABLUP_DOUBLE_BADGE_DIVIDER_TOKEN,
+  LABLUP_INFO_TOKEN,
+  lablupTheme,
+} from "./lablupTheme";
 
 const STYLES = join(__dirname, "..", "..", "styles");
 
@@ -59,6 +64,14 @@ describe("lablup theme", () => {
     expect(pair(tokens[LABLUP_INFO_TOKEN])).toEqual([
       tokenValue("base.css", "colorInfo"),
       tokenValue("themes/orange-dark.css", "colorInfo"),
+    ]);
+  });
+
+  it("sets a lighter DoubleBadge divider than its emphasized border", () => {
+    const tokens = builtTheme.tokens as Record<string, string>;
+    expect(pair(tokens[LABLUP_DOUBLE_BADGE_DIVIDER_TOKEN])).toEqual([
+      "#d6cdc7",
+      "#51463f",
     ]);
   });
 

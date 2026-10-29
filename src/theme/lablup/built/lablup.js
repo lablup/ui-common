@@ -197,7 +197,8 @@ export const lablupTheme = {
     "--shadow-inset-error": "inset 0px 0px 0px 2px #de47454D",
     "--color-background-inverted": "light-dark(#211A16, #FFFBF8)",
     "--color-track": "light-dark(#B8A89F, #51443C)",
-    "--color-info": "light-dark(#0066cc, #009bdd)"
+    "--color-info": "light-dark(#0066cc, #009bdd)",
+    "--uic-double-badge-divider": "light-dark(#d6cdc7, #51463f)"
   },
   localTokens: {
     "--astryx-theme-neutral-color-status-fill-accent": "light-dark(#0074e2, #6d9cfe)",

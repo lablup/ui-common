@@ -41,7 +41,7 @@ const ASTRYX_TOKENS = new Set(
 );
 
 /** Tokens a ui-common theme declares that Astryx does not. */
-const UI_COMMON_TOKENS = new Set(["--color-info"]);
+const UI_COMMON_TOKENS = new Set(["--color-info", "--uic-double-badge-divider"]);
 
 /** The body of the single `@layer ui-common { ... }` block, or a failure. */
 function layerBody(source: string): string {
