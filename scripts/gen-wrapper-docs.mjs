@@ -130,6 +130,9 @@ const WRAPPERS = {
         default: "'below'",
         note: "Defaults to 'below', so the panel does not cover the item's label.",
       },
+      options: {
+        note: "An option's disabled also takes { reason: string }: the option is disabled and a glyph at the end of its row shows the reason in a tooltip (also its accessible name). renderOption still receives a boolean disabled.",
+      },
     },
     example:
       '<Form.Item name="region" label="Region" rules={[{ required: true }]}>\n  <Selector\n    options={[\n      { value: "kr", label: "Korea" },\n      { value: "us", label: "United States" },\n    ]}\n  />\n</Form.Item>',
@@ -142,6 +145,9 @@ const WRAPPERS = {
       triggerDisplay: {
         default: "'labels'",
         note: "Defaults to 'labels'.",
+      },
+      options: {
+        note: "An option's disabled also takes { reason: string }: the option is disabled and a glyph at the end of its row shows the reason in a tooltip (also its accessible name). renderOption still receives a boolean disabled.",
       },
     },
     example:

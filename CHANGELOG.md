@@ -7,6 +7,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
+- **An option can say why it is disabled** (#106). `Selector` and
+  `MultiSelector` option data take `disabled: boolean | { reason: string }`,
+  `PagedSelectorOption` takes `isDisabled: boolean | { reason: string }`. The
+  object form disables the option and draws a glyph at the end of its row
+  whose tooltip, and accessible name, is the reason, after the caller's
+  `renderOption` when there is one; the row keeps its height. The
+  `SelectorOptionData` / `MultiSelectorOptionData` types (and their section
+  and option-type unions) are widened to match; `renderOption` and
+  `renderValue` still receive a boolean `disabled`.
 - **`Board` draws an item's title row and description.** `BoardItem` takes `title`
   and `description`, each a string or a node: a string title renders as a
   level-5 heading, a string description as text, a node (a `BoardItemTitle`
