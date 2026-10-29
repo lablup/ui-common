@@ -21,13 +21,13 @@
     inset-block: 0;
     inset-inline-start: 0;
     width: var(--border-width);
-    background-color: var(--uic-double-badge-divider, var(--color-border-emphasized));
+    background-color: var(--double-badge-divider, var(--color-border-emphasized));
     pointer-events: none;
   }
 
   /* A divider next to a coloured badge takes the border of that badge's hue,
      the preceding badge's first (the sibling selector outranks the badge's
-     own); between two neutral badges it is --uic-double-badge-divider above,
+     own); between two neutral badges it is --double-badge-divider above,
      a theme's say on that line, else --color-border-emphasized. The status variants take the palette hue of their status. */
   .uic-double-badge__item[data-variant="info"]::before,
   .uic-double-badge__item[data-variant="blue"]::before,

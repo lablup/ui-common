@@ -30,7 +30,7 @@ export const LABLUP_INFO_TOKEN = "--color-info";
  * `--color-border-emphasized`, which the brand's warm neutral makes too heavy
  * here, so the theme sets a lighter one.
  */
-export const LABLUP_DOUBLE_BADGE_DIVIDER_TOKEN = "--uic-double-badge-divider";
+export const LABLUP_DOUBLE_BADGE_DIVIDER_TOKEN = "--double-badge-divider";
 
 export const lablupTheme = defineTheme({
   name: "lablup",

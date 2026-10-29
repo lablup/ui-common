@@ -264,7 +264,7 @@
     --color-background-inverted: light-dark(#211A16, #FFFBF8);
     --color-track: light-dark(#B8A89F, #51443C);
     --color-info: light-dark(#0066cc, #009bdd);
-    --uic-double-badge-divider: light-dark(#d6cdc7, #51463f);
+    --double-badge-divider: light-dark(#d6cdc7, #51463f);
     --astryx-theme-neutral-color-status-fill-accent: light-dark(#0074e2, #6d9cfe);
     --astryx-theme-neutral-color-status-fill-success: light-dark(#198100, #64af4c);
     --astryx-theme-neutral-color-status-fill-warning: #ffce2f;

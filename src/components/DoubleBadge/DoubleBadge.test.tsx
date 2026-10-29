@@ -79,7 +79,7 @@ describe("DoubleBadge", () => {
           "position: absolute",
           "inset-inline-start: 0",
           "width: var(--border-width)",
-          "background-color: var(--uic-double-badge-divider, var(--color-border-emphasized))",
+          "background-color: var(--double-badge-divider, var(--color-border-emphasized))",
         ]),
       );
       expect(declarationsFor(".uic-double-badge__item:not(:first-child)")).toContain(
