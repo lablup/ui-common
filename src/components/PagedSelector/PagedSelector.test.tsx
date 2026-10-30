@@ -13,7 +13,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { PagedSelector, type PagedSelectorOption } from "./PagedSelector";
@@ -319,7 +319,7 @@ describe("PagedSelector popup: disabled options", () => {
     expect(highlightedLabels()).toEqual(["alpha"]);
   });
 
-  it("disables a `{ reason }` row and names its end glyph with the reason", async () => {
+  it("disables a `{ reason }` row and reads the reason with it", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     render(
@@ -337,9 +337,9 @@ describe("PagedSelector popup: disabled options", () => {
     const [plain, withReason] = optionRows();
     expect(withReason).toHaveAttribute("aria-disabled", "true");
     expect(
-      withReason!.querySelector('.uic-option-disabled-reason[aria-label="No access"]'),
+      within(withReason!).queryByText("No access", { ignore: '[role="tooltip"] *' }),
     ).not.toBeNull();
-    expect(plain!.querySelector(".uic-option-disabled-reason")).toBeNull();
+    expect(plain!.querySelector('[role="tooltip"]')).toBeNull();
     await user.click(withReason!);
     expect(onChange).not.toHaveBeenCalled();
   });

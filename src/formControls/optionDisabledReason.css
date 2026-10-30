@@ -1,29 +1,8 @@
 @layer ui-common {
-  .uic-option-disabled-reason__row {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
-    width: 100%;
-    min-width: 0;
-  }
-
-  .uic-option-disabled-reason__content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .uic-option-disabled-reason {
-    display: inline-flex;
-    flex: none;
-  }
-
-  .uic-option-disabled-reason__glyph {
-    display: inline-flex;
-  }
-
   /* MultiSelector's own label, drawn here when a reason replaces its row. */
   .uic-option-disabled-reason__label {
     display: block;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

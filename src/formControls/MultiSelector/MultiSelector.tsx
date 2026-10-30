@@ -3,9 +3,8 @@
  * owns (label, description, required marker, status message; see
  * ../formControl.tsx). The item's `<label htmlFor>` names it.
  *
- * An option's `disabled` also takes `{ reason }`: the option is disabled, a
- * glyph marks its row, and hovering the row says why
- * (../optionDisabledReason.tsx).
+ * An option's `disabled` also takes `{ reason }`: the option is disabled and
+ * hovering its row says why (../optionDisabledReason.tsx).
  */
 import {
   MultiSelector as AstryxMultiSelector,

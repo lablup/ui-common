@@ -37,7 +37,7 @@ export default {
       name: "options",
       type: "PagedSelectorOption[]",
       description:
-        "The loaded options, every page so far: { value, label, labelContent?, icon?, description?, endContent?, isDisabled? }. label is a string: the trigger text and the row's name. isDisabled is boolean | { reason }: the object form also puts a glyph at the end of the row named by the reason, and hovering the row shows it in a tooltip.",
+        "The loaded options, every page so far: { value, label, labelContent?, icon?, description?, endContent?, isDisabled? }. label is a string: the trigger text and the row's name. isDisabled is boolean | { reason }: with the object form, hovering the row shows the reason in a tooltip, and the reason is part of the option's accessible name.",
       required: true,
     },
     {
