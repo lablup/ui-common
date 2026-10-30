@@ -72,14 +72,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
-- **`Form.useWatch` no longer drops a change back to a value it has already
-  reported** when the component calling it is wrapped in `memo()` or
-  `forwardRef()` on React 19.2. The watcher compared the store's value with
-  the one in its `useEffectEvent` closure, and React 19.2 keeps the first
-  render's closure for those components (facebook/react#34818, fixed in
-  19.3), so a field that went A → B → A stayed at B. The comparison now reads
-  the current state through a functional update, so it no longer depends on
-  the closure being fresh.
+- **`Form.useWatch` no longer freezes at its first render** when the component
+  calling it is wrapped in `memo()` or `forwardRef()` on React 19.2 (#121).
+  The watcher ran in a `useEffectEvent` callback, and React 19.2 keeps the
+  first render's closure for those components (facebook/react#34818, fixed in
+  19.3), so a field going A → B → A stayed at B, a dynamic path or an inline
+  selector kept its first form, and a `form` passed after mount was never
+  watched. The watcher now reads the latest path, selector and form through a
+  ref and no longer depends on the effect-event closure at all. Equality now
+  uses `isEqual` instead of JSON serialisation, so a `Set` or `Map` that
+  changes is reported, and an unchanged value queues no render.
 
 - **`DoubleBadge` draws its own divider** (#117). The run left the seam to
   each Badge's outline, and Astryx's Badge has a fill and no border, so two
