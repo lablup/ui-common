@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./jsx-runtime-DeHZSEgm.js";import{n,t as r}from"./Button-CVWW7TyG.js";function i({icon:e,...t}){return(0,a.jsx)(r,{...t,icon:e,isIconOnly:!0})}var a;function o(){return(o=e((()=>{n(),a=t(),i.displayName=`IconButton`})))()}export{o as n,i as t};
