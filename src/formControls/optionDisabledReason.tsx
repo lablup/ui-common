@@ -27,9 +27,8 @@ const OPTION_ROW = '[role="option"], [role="row"]';
 /**
  * The reason, hidden but read with the option, and the tooltip of the row it
  * sits in. The selectors own the row's element, so the row is found from the
- * hidden text; the tooltip goes beside the row, where it covers no other
- * option. An option is an action to Astryx's tooltip, which would keep it shut
- * on a tap otherwise.
+ * hidden text. An option is an action to Astryx's tooltip, which would keep it
+ * shut on a tap otherwise.
  */
 export function OptionDisabledReason({ reason }: { reason: string }) {
   const rowRef = useRef<HTMLElement | null>(null);
@@ -42,7 +41,7 @@ export function OptionDisabledReason({ reason }: { reason: string }) {
       >
         {reason}
       </VisuallyHidden>
-      <Tooltip anchorRef={rowRef} content={reason} placement="end" touchTrigger="tap" />
+      <Tooltip anchorRef={rowRef} content={reason} touchTrigger="tap" />
     </>
   );
 }

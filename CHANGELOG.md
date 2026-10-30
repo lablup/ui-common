@@ -11,8 +11,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `MultiSelector` option data take `disabled: boolean | { reason: string }`,
   `PagedSelectorOption` takes `isDisabled: boolean | { reason: string }`. The
   object form disables the option, and hovering anywhere on its row, padding
-  and check mark included, shows the reason in a tooltip beside it (#122), as
-  does a tap on touch. The reason is part of the option's accessible name, and
+  and check mark included, shows the reason in a tooltip (#122), as does a tap
+  on touch. The reason is part of the option's accessible name, and
   the row draws nothing extra: a caller's `renderOption` is kept as is. The
   `SelectorOptionData` / `MultiSelectorOptionData` types (and their section
   and option-type unions) are widened to match; `renderOption` and
