@@ -12,12 +12,13 @@
     min-width: 0;
   }
 
-  /* A disabled Selector item sets `pointer-events: none`; the glyph still
-     takes the hover that opens its tooltip. */
   .uic-option-disabled-reason {
     display: inline-flex;
     flex: none;
-    pointer-events: auto;
+  }
+
+  .uic-option-disabled-reason__glyph {
+    display: inline-flex;
   }
 
   /* MultiSelector's own label, drawn here when a reason replaces its row. */

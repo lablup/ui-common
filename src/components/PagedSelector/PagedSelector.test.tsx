@@ -13,7 +13,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { PagedSelector, type PagedSelectorOption } from "./PagedSelector";
@@ -337,11 +337,28 @@ describe("PagedSelector popup: disabled options", () => {
     const [plain, withReason] = optionRows();
     expect(withReason).toHaveAttribute("aria-disabled", "true");
     expect(
-      withReason!.querySelector('.uic-option-disabled-reason [aria-label="No access"]'),
+      withReason!.querySelector('.uic-option-disabled-reason[aria-label="No access"]'),
     ).not.toBeNull();
     expect(plain!.querySelector(".uic-option-disabled-reason")).toBeNull();
     await user.click(withReason!);
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("shows a `{ reason }` row's reason when the row is hovered", async () => {
+    const user = userEvent.setup();
+    render(
+      <PagedSelector
+        label="Targets"
+        options={[{ value: "b", label: "bravo", isDisabled: { reason: "No access" } }]}
+      />,
+    );
+    await user.click(trigger());
+
+    const tooltip = screen.getByRole("tooltip", { hidden: true });
+    expect(tooltip).toHaveTextContent("No access");
+    expect(tooltip).not.toHaveAttribute("popover-open");
+    await user.hover(optionRows()[0]!);
+    await waitFor(() => expect(tooltip).toHaveAttribute("popover-open"));
   });
 
   it("arrows step over the disabled row instead of resting on it", async () => {

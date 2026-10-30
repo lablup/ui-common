@@ -71,8 +71,8 @@ export const Statuses: Story = {
 };
 
 /**
- * An option's `disabled` takes `{ reason }`: the option is disabled, and the
- * glyph at the end of its row says why. A bare `true` disables silently.
+ * An option's `disabled` takes `{ reason }`: the option is disabled, a glyph
+ * marks its row, and hovering the row says why. A bare `true` disables silently.
  */
 export const DisabledOptionReason: Story = {
   args: {

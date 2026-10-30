@@ -74,7 +74,7 @@ export interface PagedSelectorOption {
   description?: ReactNode;
   /** Trailing content (tokens, meta). */
   endContent?: ReactNode;
-  /** `{ reason }` disables the option and shows why at the end of its row. */
+  /** `{ reason }` disables the option and shows why when its row is hovered. */
   isDisabled?: OptionDisabled;
 }
 

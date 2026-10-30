@@ -1,10 +1,11 @@
 /**
  * `disabled: { reason }` on Selector and MultiSelector options (#106): the
- * option is disabled, Astryx still receives a boolean, and the end of the row
- * carries a glyph named by the reason. jsdom has no Popover API, so the mock
- * is Astryx's own, and the open panel needs `{ hidden: true }` queries.
+ * option is disabled, Astryx still receives a boolean, the end of the row
+ * carries a glyph named by the reason, and hovering the row shows the reason
+ * (#122). jsdom has no Popover API, so the mock is Astryx's own, and the open
+ * panel needs `{ hidden: true }` queries.
  */
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -43,8 +44,7 @@ const OPTIONS = [
   { value: "b", label: "bravo", disabled: { reason: "No access" } },
   { value: "c", label: "charlie", disabled: true },
 ];
-const glyph = (row: HTMLElement) =>
-  row.querySelector(".uic-option-disabled-reason [aria-label]");
+const glyph = (row: HTMLElement) => row.querySelector(".uic-option-disabled-reason");
 
 describe("withOptionDisabledReason", () => {
   const renderDefault = (option: { value: string }) => `default ${option.value}`;
@@ -110,6 +110,24 @@ describe.each([
 
     await user.click(bravo);
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it("shows the reason when the row is hovered, not only the glyph", async () => {
+    const user = userEvent.setup();
+    render(<Control aria-label="Targets" options={OPTIONS} />);
+    await user.click(screen.getByRole("combobox"));
+
+    // The one tooltip in the panel: a bare `true` has none.
+    const tooltip = screen.getByRole("tooltip", h);
+    expect(tooltip).toHaveTextContent("No access");
+    expect(tooltip).not.toHaveAttribute("popover-open");
+
+    const rows = screen.getAllByRole("option", h);
+    await user.hover(rows.find((row) => row.textContent?.includes("bravo"))!);
+    await waitFor(() => expect(tooltip).toHaveAttribute("popover-open"));
+
+    await user.hover(rows.find((row) => row.textContent?.includes("alpha"))!);
+    await waitFor(() => expect(tooltip).not.toHaveAttribute("popover-open"));
   });
 
   it("keeps the caller's renderOption and adds the glyph after it", async () => {
