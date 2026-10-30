@@ -55,7 +55,6 @@ export {
   SankeyNode,
   Schedule,
   ScheduleContext,
-  Stat,
   ThreeDAxis,
   ThreeDBar,
   ThreeDChart,
@@ -265,11 +264,6 @@ export type {
   ScheduleViewSelectorPluginOptions,
   ScheduleWeeklyViewOptions,
   SequentialHue,
-  StatDelta,
-  StatDeltaDirection,
-  StatDeltaSentiment,
-  StatProps,
-  StatSize,
   SyntaxToken,
   ThreeDAxisProps,
   ThreeDBarProps,
@@ -299,3 +293,13 @@ export type {
   TourStepProps,
   UseTourReturn,
 } from "../forks/Tour";
+
+// Stat: ui-common's own copy, in place of Astryx's.
+export { Stat } from "../forks/Stat";
+export type {
+  StatDelta,
+  StatDeltaDirection,
+  StatDeltaSentiment,
+  StatProps,
+  StatSize,
+} from "../forks/Stat";

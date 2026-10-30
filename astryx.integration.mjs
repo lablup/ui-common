@@ -36,7 +36,7 @@ export default {
       "Use Modal, not Dialog. ui-common hides Astryx Dialog (exports.exclude.json) so every product has one dialog surface.",
       "Theme with <Theme theme={lablupTheme}> from @lablup/ui-common/theme/lablup/built (pairs with theme.css). Declare @layer reset, theme, base, astryx-base, astryx-theme, ui-common, components, utilities; first.",
       "ui-common strings resolve through Astryx InternationalizationProvider: pass uiCommonMessages from @lablup/ui-common/i18n-catalog in its messages.",
-      "ComplexSelector, and lab's Drawer and Tour, come from ui-common: fixed copies of Astryx's, same API and import paths. ComplexSelector adds hasClear/onClear.",
+      "ComplexSelector, and lab's Drawer, Tour and Stat, come from ui-common: fixed copies of Astryx's, same API and import paths. ComplexSelector adds hasClear/onClear; Stat adds deltaTooltip.",
       "Form controls (TextInput, Selector, Switch, ...) take no label/description/isRequired/status message: put them in Form.Item, which owns label, extra, rules, help. status is 'error'|'warning' (border only).",
       'Before hand-writing a page, run `ui-common build "<need>"` and scaffold from ui-common\'s templates: list-page, list-toolbar, tabbed-page, create-modal, detail-drawer, info-modal, settings-page, dashboard-board.',
     ],

@@ -67,6 +67,27 @@
       "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
     }
   },
+  "Stat": {
+    "package": "@astryxdesign/lab",
+    "version": "0.7.3-canary.cac3d8d",
+    "upstream": null,
+    "notes": "An addition, not a fix: deltaTooltip, a tooltip anchored to the delta that the delta takes keyboard focus for, with media outside it. Without deltaTooltip the markup is upstream's. On an Astryx bump, keep it until lab has a way to explain the delta.",
+    "files": {
+      "src/Stat/Stat.tsx": "c30208aff1e036ab7ba916645c52d76ac5b1e3c0b0b2be3096881ee4d865925d",
+      "src/Stat/index.ts": "7c3483cbcd97c527f22b8aa6e202b3f1d2f1e4db6afda7e7a62c2d60fb24c282",
+      "src/Stat/Stat.test.tsx": "72366100b3f6aac745d4ef7e5073aac8752b85a56982421b6a1cf36bdca67d95",
+      "dist/Stat/Stat.js": "895c4c7dbdbc4f5f3b5749839bdab62fcee3b2bbfc22b9156f05852aef6c94fe"
+    },
+    "styles": {
+      "file": "src/forks/Stat/Stat.styles.ts",
+      "from": [
+        {
+          "file": "dist/Stat/Stat.js",
+          "consts": ["styles", "sizeStyles", "sentimentStyles"]
+        }
+      ]
+    }
+  },
   "Switch": {
     "package": "@astryxdesign/core",
     "version": "0.7.3",

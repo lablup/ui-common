@@ -117,7 +117,7 @@ rules: {
 
 **Local patches on Astryx.** A pnpm patch reaches only the project that
 declares it, and ui-common ships its own copies of `ComplexSelector`,
-`Switch`, `FileInput`, `SegmentedControl`, `Drawer` and lab `Tour`, which no
+`Switch`, `FileInput`, `SegmentedControl`, `Drawer`, and lab `Tour` and `Stat`, which no
 patch on Astryx reaches. The report says which patch a
 fork covers, and which is keyed to an Astryx version ui-common does not pin:
 pnpm stops the install on that one, so re-cut or drop it first.

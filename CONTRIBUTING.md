@@ -113,6 +113,7 @@ consumers, and ui-common's consumers import Astryx through ui-common.
 | `SegmentedControl` | inside `src/formControls/SegmentedControl` | a passed `aria-describedby` is merged into the radiogroup's own, not overwritten (`SegmentedControlItem` is copied for the context)         | not filed                                                            |
 | `Drawer`           | `@lablup/ui-common/Drawer`                 | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
 | `Tour`             | `@lablup/ui-common/lab`                    | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
+| `Stat`             | `@lablup/ui-common/lab`                    | `deltaTooltip`: a tooltip anchored to the delta, which takes keyboard focus for it, with `media` outside it (see below)                     | not filed                                                            |
 
 `Drawer`'s other changes are ui-common's own, not upstream fixes. Astryx (lab
 from 0.6.5, core since 0.7.2) opens a scrimless drawer as a manual popover,
@@ -125,6 +126,12 @@ so the fork provides that dialog through `ModalPortalContext` while open, and
 a `Modal` inside renders there. Keep both on a bump for as long as `Modal`
 and the notification stack are not top layer themselves; `provenance.json`
 records them as `notes`.
+
+`Stat`'s `deltaTooltip` is an addition, not a fix. Lab's `delta.value` is a
+string, so a wrapper cannot anchor a tooltip to the delta: wrapping the whole
+`Stat` opens it away from the change it explains and nests a `media`
+sparkline's own tooltip inside it. Without `deltaTooltip` the fork renders
+lab's markup. Keep it on a bump until lab has a way to explain the delta.
 
 How one is put together:
 
