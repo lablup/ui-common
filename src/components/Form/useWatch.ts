@@ -69,20 +69,22 @@ function useWatch<Values = StoreValue>(
   );
 
   /**
-   * Stable across renders while always reading the latest `dependencies` /
-   * `value` / `options`. That combination is the whole point: the watcher is
-   * registered ONCE (re-registering on every render would churn the store's
-   * subscriber set), yet a selector function redefined inline at the call
-   * site must still be the one that runs.
+   * Stable across renders while reading the latest `dependencies` / `options`.
+   * That combination is the whole point: the watcher is registered ONCE
+   * (re-registering on every render would churn the store's subscriber set),
+   * yet a selector function redefined inline at the call site must still be
+   * the one that runs. The equality check reads the current state through a
+   * functional update, not `value` from this closure: React 19.2 keeps a
+   * memo()/forwardRef() fiber's first closure (facebook/react#34818).
    */
   const triggerUpdate = React.useEffectEvent((values?: Store, allValues?: Store) => {
     if (!isValidForm) return;
     const nextValue = read(values, allValues);
     // Compare by serialisation, not identity: the store hands back a fresh
     // object on every write, so identity comparison would never settle.
-    if (stringify(value) !== stringify(nextValue)) {
-      setValue(nextValue);
-    }
+    setValue((prev: any) =>
+      stringify(prev) === stringify(nextValue) ? prev : nextValue,
+    );
   });
 
   // A selector function has no stable serialisation, so it identifies itself.

@@ -72,6 +72,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`Form.useWatch` no longer drops a change back to a value it has already
+  reported** when the component calling it is wrapped in `memo()` or
+  `forwardRef()` on React 19.2. The watcher compared the store's value with
+  the one in its `useEffectEvent` closure, and React 19.2 keeps the first
+  render's closure for those components (facebook/react#34818, fixed in
+  19.3), so a field that went A → B → A stayed at B. The comparison now reads
+  the current state through a functional update, so it no longer depends on
+  the closure being fresh.
+
 - **`DoubleBadge` draws its own divider** (#117). The run left the seam to
   each Badge's outline, and Astryx's Badge has a fill and no border, so two
   badges of one variant read as one pill under the default theme, and a
