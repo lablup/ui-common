@@ -41,6 +41,14 @@ export const WithDeltaTooltip: Story = {
   args: { deltaTooltip: "Previous 7 days: 2,122" },
 };
 
+/** An increase: the up glyph and the positive colour, with the same tooltip. */
+export const WithPositiveDeltaTooltip: Story = {
+  args: {
+    delta: { value: "+918", direction: "up" },
+    deltaTooltip: "Previous 7 days: 286",
+  },
+};
+
 /** The sparkline stays outside the delta's tooltip. */
 export const WithDeltaTooltipAndMedia: Story = {
   args: { deltaTooltip: "Previous 7 days: 2,122", media: <Sparkline /> },
