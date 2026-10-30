@@ -3,8 +3,8 @@
  * owns (label, description, required marker, status message; see
  * ../formControl.tsx). The item's `<label htmlFor>` names it.
  *
- * An option's `disabled` also takes `{ reason }`: the option is disabled and a
- * glyph at the end of its row says why (../optionDisabledReason.tsx).
+ * An option's `disabled` also takes `{ reason }`: the option is disabled and
+ * hovering its row says why (../optionDisabledReason.tsx).
  */
 import {
   Selector as AstryxSelector,
@@ -27,7 +27,7 @@ import { withOptionDisabledReason, type OptionDisabled } from "../optionDisabled
 
 /** Astryx's option, with `disabled` also taking `{ reason }`. */
 export type SelectorOptionData = Omit<AstryxSelectorOptionData, "disabled"> & {
-  /** `{ reason }` disables the option and shows why at the end of its row. */
+  /** `{ reason }` disables the option and shows why when its row is hovered. */
   disabled?: OptionDisabled;
 };
 export type SelectorSection = Omit<AstryxSelectorSection, "options"> & {

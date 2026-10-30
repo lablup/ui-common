@@ -74,7 +74,7 @@ export interface PagedSelectorOption {
   description?: ReactNode;
   /** Trailing content (tokens, meta). */
   endContent?: ReactNode;
-  /** `{ reason }` disables the option and shows why at the end of its row. */
+  /** `{ reason }` disables the option and shows why when its row is hovered. */
   isDisabled?: OptionDisabled;
 }
 
@@ -510,17 +510,11 @@ export function PagedSelector(props: PagedSelectorProps) {
                         icon={option.icon}
                         label={option.labelContent ?? option.label}
                         description={option.description}
-                        endContent={
-                          disabledReason ? (
-                            <>
-                              <OptionDisabledReason reason={disabledReason} />
-                              {option.endContent}
-                            </>
-                          ) : (
-                            option.endContent
-                          )
-                        }
+                        endContent={option.endContent}
                       />
+                      {disabledReason ? (
+                        <OptionDisabledReason reason={disabledReason} />
+                      ) : null}
                     </span>
                     {/* Rendered with the state passed down: a theme that swaps
                         the check for a radio draws its empty circle too. */}

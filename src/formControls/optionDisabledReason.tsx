@@ -1,13 +1,14 @@
 /**
  * An option's disabled flag may carry why it is disabled:
- * `disabled: { reason }` (`isDisabled` on `PagedSelector`). The selector draws
- * a glyph at the end of the row whose tooltip is the reason; the row keeps its
- * height. Shared by `Selector`, `MultiSelector` and `PagedSelector`.
+ * `disabled: { reason }` (`isDisabled` on `PagedSelector`). Hovering anywhere
+ * on the row shows the reason in a tooltip, and the reason is part of the
+ * option's accessible name; the row looks and measures like any disabled row.
+ * Shared by `Selector`, `MultiSelector` and `PagedSelector`.
  */
-import type { ReactNode } from "react";
-import { CircleAlert } from "lucide-react";
+import { useRef, type ReactNode } from "react";
+import { Tooltip } from "@astryxdesign/core/Tooltip";
+import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden";
 
-import { IconWithTooltip } from "../components/IconWithTooltip/IconWithTooltip";
 import "./optionDisabledReason.css";
 
 /** `true` disables the option; `{ reason }` disables it and says why. */
@@ -20,16 +21,28 @@ export const optionDisabledReason = (
     ? disabled.reason
     : undefined;
 
-/** The glyph whose tooltip, and accessible name, is the reason. */
+/** The row the reason sits in; `row` is MultiSelector's, once an option has an action. */
+const OPTION_ROW = '[role="option"], [role="row"]';
+
+/**
+ * The reason, hidden but read with the option, and the tooltip of the row it
+ * sits in. The selectors own the row's element, so the row is found from the
+ * hidden text. An option is an action to Astryx's tooltip, which would keep it
+ * shut on a tap otherwise.
+ */
 export function OptionDisabledReason({ reason }: { reason: string }) {
+  const rowRef = useRef<HTMLElement | null>(null);
   return (
-    <span className="uic-option-disabled-reason">
-      <IconWithTooltip
-        content={reason}
-        focusable={false}
-        icon={<CircleAlert size="1em" aria-hidden />}
-      />
-    </span>
+    <>
+      <VisuallyHidden
+        ref={(hidden) => {
+          rowRef.current = hidden?.closest<HTMLElement>(OPTION_ROW) ?? hidden;
+        }}
+      >
+        {reason}
+      </VisuallyHidden>
+      <Tooltip anchorRef={rowRef} content={reason} touchTrigger="tap" />
+    </>
   );
 }
 
@@ -41,8 +54,7 @@ type AstryxOption = { value: string; disabled?: boolean };
  * Astryx's `options` and `renderOption` for options whose `disabled` may be
  * `{ reason }`: every reason becomes a boolean `disabled`, and when any option
  * had one, `renderOption` draws the caller's row (or `renderDefault`, Astryx's
- * own row) with the reason glyph at its end. Without a reason both are handed
- * back as given.
+ * own row) with its reason. Without a reason both are handed back as given.
  */
 export function withOptionDisabledReason<O, D extends AstryxOption>({
   options,
@@ -77,10 +89,10 @@ export function withOptionDisabledReason<O, D extends AstryxOption>({
       const content = renderOption ? renderOption(option) : renderDefault(option);
       const reason = reasons.get(option.value);
       return reason ? (
-        <span className="uic-option-disabled-reason__row">
-          <span className="uic-option-disabled-reason__content">{content}</span>
+        <>
+          {content}
           <OptionDisabledReason reason={reason} />
-        </span>
+        </>
       ) : (
         content
       );

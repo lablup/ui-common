@@ -10,9 +10,10 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 - **An option can say why it is disabled** (#106). `Selector` and
   `MultiSelector` option data take `disabled: boolean | { reason: string }`,
   `PagedSelectorOption` takes `isDisabled: boolean | { reason: string }`. The
-  object form disables the option and draws a glyph at the end of its row
-  whose tooltip, and accessible name, is the reason, after the caller's
-  `renderOption` when there is one; the row keeps its height. The
+  object form disables the option, and hovering anywhere on its row, padding
+  and check mark included, shows the reason in a tooltip (#122), as does a tap
+  on touch. The reason is part of the option's accessible name, and
+  the row draws nothing extra: a caller's `renderOption` is kept as is. The
   `SelectorOptionData` / `MultiSelectorOptionData` types (and their section
   and option-type unions) are widened to match; `renderOption` and
   `renderValue` still receive a boolean `disabled`.

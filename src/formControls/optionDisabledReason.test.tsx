@@ -1,10 +1,11 @@
 /**
  * `disabled: { reason }` on Selector and MultiSelector options (#106): the
- * option is disabled, Astryx still receives a boolean, and the end of the row
- * carries a glyph named by the reason. jsdom has no Popover API, so the mock
- * is Astryx's own, and the open panel needs `{ hidden: true }` queries.
+ * option is disabled, Astryx still receives a boolean, the reason is hidden
+ * text in the row, and hovering the row shows it (#122). jsdom has no Popover
+ * API, so the mock is Astryx's own, and the open panel needs `{ hidden: true }`
+ * queries.
  */
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -43,8 +44,9 @@ const OPTIONS = [
   { value: "b", label: "bravo", disabled: { reason: "No access" } },
   { value: "c", label: "charlie", disabled: true },
 ];
-const glyph = (row: HTMLElement) =>
-  row.querySelector(".uic-option-disabled-reason [aria-label]");
+/** The reason as read with the option, not the tooltip's copy of it. */
+const hiddenReason = (row: HTMLElement, reason: string) =>
+  within(row).queryByText(reason, { ignore: '[role="tooltip"] *' });
 
 describe("withOptionDisabledReason", () => {
   const renderDefault = (option: { value: string }) => `default ${option.value}`;
@@ -70,9 +72,9 @@ describe("withOptionDisabledReason", () => {
 
     const { container: withReason } = render(<>{renderOption!({ value: "x" })}</>);
     expect(withReason).toHaveTextContent("default x");
-    expect(withReason.querySelector('[aria-label="Why"]')).not.toBeNull();
+    expect(hiddenReason(withReason, "Why")).not.toBeNull();
     const { container: silent } = render(<>{renderOption!({ value: "y" })}</>);
-    expect(silent.querySelector(".uic-option-disabled-reason")).toBeNull();
+    expect(silent.querySelector('[role="tooltip"]')).toBeNull();
   });
 
   it("hands options and renderOption back as given when no option has a reason", () => {
@@ -93,7 +95,7 @@ describe.each([
   ["Selector", Selector],
   ["MultiSelector", MultiSelector],
 ] as const)("%s option `disabled: { reason }`", (_name, Control) => {
-  it("disables the option and names the glyph at its end with the reason", async () => {
+  it("disables the option and reads the reason with it, drawing no glyph", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     render(<Control aria-label="Targets" options={OPTIONS} onChange={onChange} />);
@@ -103,16 +105,35 @@ describe.each([
     const bravo = rows.find((row) => row.textContent?.includes("bravo"))!;
     const charlie = rows.find((row) => row.textContent?.includes("charlie"))!;
     expect(bravo).toHaveAttribute("aria-disabled", "true");
-    expect(glyph(bravo)).toHaveAttribute("aria-label", "No access");
+    expect(hiddenReason(bravo, "No access")).not.toBeNull();
+    expect(bravo.querySelector(".lucide-circle-alert")).toBeNull();
     // A bare `true` disables silently.
     expect(charlie).toHaveAttribute("aria-disabled", "true");
-    expect(glyph(charlie)).toBeNull();
+    expect(charlie.querySelector('[role="tooltip"]')).toBeNull();
 
     await user.click(bravo);
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it("keeps the caller's renderOption and adds the glyph after it", async () => {
+  it("shows the reason when the row is hovered, not only the glyph", async () => {
+    const user = userEvent.setup();
+    render(<Control aria-label="Targets" options={OPTIONS} />);
+    await user.click(screen.getByRole("combobox"));
+
+    // The one tooltip in the panel: a bare `true` has none.
+    const tooltip = screen.getByRole("tooltip", h);
+    expect(tooltip).toHaveTextContent("No access");
+    expect(tooltip).not.toHaveAttribute("popover-open");
+
+    const rows = screen.getAllByRole("option", h);
+    await user.hover(rows.find((row) => row.textContent?.includes("bravo"))!);
+    await waitFor(() => expect(tooltip).toHaveAttribute("popover-open"));
+
+    await user.hover(rows.find((row) => row.textContent?.includes("alpha"))!);
+    await waitFor(() => expect(tooltip).not.toHaveAttribute("popover-open"));
+  });
+
+  it("keeps the caller's renderOption and adds the reason after it", async () => {
     const user = userEvent.setup();
     render(
       <Control
@@ -127,6 +148,6 @@ describe.each([
       .getAllByRole("option", h)
       .find((row) => row.textContent?.includes("bravo!"))!;
     expect(bravo.querySelector('[data-testid="custom"]')).not.toBeNull();
-    expect(glyph(bravo)).toHaveAttribute("aria-label", "No access");
+    expect(hiddenReason(bravo, "No access")).not.toBeNull();
   });
 });

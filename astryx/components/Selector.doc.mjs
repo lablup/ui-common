@@ -262,7 +262,7 @@ export default {
       name: "options",
       type: "SelectorOption[]",
       description:
-        'Array of items: strings, objects with value/label/description/icon/disabled, dividers ({type: "divider"}), or sections ({type: "section", title, options}). An option\'s disabled also takes { reason: string }: the option is disabled and a glyph at the end of its row shows the reason in a tooltip (also its accessible name). renderOption still receives a boolean disabled.',
+        'Array of items: strings, objects with value/label/description/icon/disabled, dividers ({type: "divider"}), or sections ({type: "section", title, options}). An option\'s disabled also takes { reason: string }: the option is disabled, hovering its row shows the reason in a tooltip, and the reason is part of the option\'s accessible name. renderOption still receives a boolean disabled.',
       required: true,
     },
     {
