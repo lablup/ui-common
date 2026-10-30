@@ -68,45 +68,43 @@ function useWatch<Values = StoreValue>(
         : undefined,
   );
 
-  /**
-   * Stable across renders while always reading the latest `dependencies` /
-   * `value` / `options`. That combination is the whole point: the watcher is
-   * registered ONCE (re-registering on every render would churn the store's
-   * subscriber set), yet a selector function redefined inline at the call
-   * site must still be the one that runs.
-   */
-  const triggerUpdate = React.useEffectEvent((values?: Store, allValues?: Store) => {
-    if (!isValidForm) return;
-    const nextValue = read(values, allValues);
-    // Compare by serialisation, not identity: the store hands back a fresh
-    // object on every write, so identity comparison would never settle.
-    if (stringify(value) !== stringify(nextValue)) {
-      setValue(nextValue);
-    }
+  // The registered watcher reads `read` / `isValidForm` through this ref, not a
+  // render closure: React 19.2 keeps the first closure of a memo()/forwardRef()
+  // fiber's useEffectEvent (facebook/react#34818).
+  const latestRef = React.useRef({ read, isValidForm });
+  React.useLayoutEffect(() => {
+    latestRef.current = { read, isValidForm };
   });
+
+  // The last value handed to `setValue`, so an unchanged read queues nothing.
+  const lastValueRef = React.useRef(value);
+  const triggerUpdate = React.useCallback((values?: Store, allValues?: Store) => {
+    const latest = latestRef.current;
+    if (!latest.isValidForm) return;
+    const nextValue = latest.read(values, allValues);
+    // A value JSON cannot serialise compares as changed every time.
+    if (stringify(lastValueRef.current) === stringify(nextValue)) return;
+    lastValueRef.current = nextValue;
+    setValue(() => nextValue);
+  }, []);
 
   // A selector function has no stable serialisation, so it identifies itself.
   const flattenDeps =
     typeof dependencies === "function" ? dependencies : JSON.stringify(dependencies);
 
+  // Subscribe once per form; the callback reads the latest path and selector
+  // through `latestRef`, so neither needs a re-subscription.
   React.useEffect(() => {
     if (!isValidForm) return undefined;
-    const registerWatch = formInstance.getInternalHooks(HOOK_MARK)?.registerWatch;
-    const cancel = registerWatch?.((values, allValues) => {
-      triggerUpdate(values, allValues);
-    });
-    // Re-read once the WATCHED PATH itself changes (not the value — the store
-    // notifies us for that). This matters for dynamic paths such as
-    // `useWatch(['rows', index, 'slot'])`, where removing a list row shifts
-    // the index: without this the hook keeps reporting the OLD row's value
-    // until some unrelated write happens to notify the watchers.
-    // The `useState` seed above covers mount, so this only fires on a genuine
-    // path change: a synchronisation against the form store.
+    return formInstance.getInternalHooks(HOOK_MARK)?.registerWatch(triggerUpdate);
+  }, [isValidForm, formInstance, triggerUpdate]);
+
+  // Re-read when the path, selector, `preserve` or form changes. An inline
+  // selector is a new key every commit; those re-reads are no-ops unless the
+  // value differs.
+  React.useEffect(() => {
     triggerUpdate();
-    return cancel;
-    // `triggerUpdate` is recreated every render; these are the real triggers.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isValidForm, formInstance, flattenDeps]);
+  }, [flattenDeps, options.preserve, isValidForm, formInstance, triggerUpdate]);
 
   return value;
 }

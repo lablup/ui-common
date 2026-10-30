@@ -72,6 +72,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`Form.useWatch` no longer freezes at its first render** when the component
+  calling it is wrapped in `memo()` or `forwardRef()` on React 19.2 (#121).
+  The watcher ran in a `useEffectEvent` callback, and React 19.2 keeps the
+  first render's closure for those components (facebook/react#34818, fixed in
+  19.3), so a field going A → B → A stayed at B, a dynamic path or an inline
+  selector kept its first form, and a `form` passed after mount was never
+  watched. The watcher now reads its path, selector, form and last value
+  through refs instead of the effect-event closure, and an unchanged value
+  queues no render.
+
 - **`DoubleBadge` draws its own divider** (#117). The run left the seam to
   each Badge's outline, and Astryx's Badge has a fill and no border, so two
   badges of one variant read as one pill under the default theme, and a
