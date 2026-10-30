@@ -1,4 +1,5 @@
 export { Board, DEFAULT_BOARD_COLUMN_BREAKPOINTS, columnsForWidth } from "./Board";
+export { useIsInBoardItem } from "./BoardItemContext";
 export type {
   BoardProps,
   BoardOperation,

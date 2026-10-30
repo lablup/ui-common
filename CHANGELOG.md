@@ -7,6 +7,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
+- **An option can say why it is disabled** (#106). `Selector` and
+  `MultiSelector` option data take `disabled: boolean | { reason: string }`,
+  `PagedSelectorOption` takes `isDisabled: boolean | { reason: string }`. The
+  object form disables the option and draws a glyph at the end of its row
+  whose tooltip, and accessible name, is the reason, after the caller's
+  `renderOption` when there is one; the row keeps its height. The
+  `SelectorOptionData` / `MultiSelectorOptionData` types (and their section
+  and option-type unions) are widened to match; `renderOption` and
+  `renderValue` still receive a boolean `disabled`.
 - **`Board` draws an item's title row and description.** `BoardItem` takes `title`
   and `description`, each a string or a node: a string title renders as a
   level-5 heading, a string description as text, a node (a `BoardItemTitle`
@@ -24,6 +33,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   wraps the whole `Stat` in a `Tooltip`. `@lablup/ui-common/lab` now exports
   ui-common's copy of `Stat` (a fork, `src/forks/Stat`) in place of lab's,
   with the same names; without `deltaTooltip` it renders lab's markup.
+- **A `BoardItemTitle` inside an untitled `Board` item's description renders
+  in the item's header row** (#108), with the same layout and drag-handle
+  alignment as a `title` node, so content that draws its own title row needs
+  no `title` and no placeholder. Only the first one moves; `inline` keeps a
+  `BoardItemTitle` in the body (a second section title, say). An item with
+  neither a `title` nor such a title still has no header row. The row stays
+  in its item when the item moves or resizes, and the board does not put it
+  in the items it reports.
+- **`useIsInBoardItem()`**, true inside a `Board` item's description, so
+  content can drop its own inset when the board pads it.
 
 ### Changed
 
@@ -59,6 +78,27 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `description`.
 
 ### Fixed
+
+- **`DoubleBadge` draws its own divider** (#117). The run left the seam to
+  each Badge's outline, and Astryx's Badge has a fill and no border, so two
+  badges of one variant read as one pill under the default theme, and a
+  theme outline close to the fill lost the seam too. Every badge but the
+  first now draws a `--border-width` divider, `--double-badge-divider` (else `--color-border-emphasized`; the Lablup theme sets a lighter one) between two
+  neutral badges and, next to a coloured badge, the border of that badge's hue
+  (the preceding badge's first)
+  (`--color-border-green` for `success`, `-blue` for `info`, `-yellow` for
+  `warning`, `-red` for `error`), on the column it overlaps its neighbour by, so a theme that outlines
+  badges still gets one line, not two. A theme override added only to show
+  the seam can be removed.
+
+- **`DataGrid`'s page-size list flips above its trigger near the viewport
+  bottom** (#114). Astryx's `Pagination` gives its page-size `Selector` no
+  placement, so the list was laid over the trigger by a negative
+  `margin-block-start`, which keeps the browser from flipping it: a grid at
+  the bottom of the page opened the list downward, clipped. `DataGrid.css`
+  now zeroes that margin on the pager's own list, so it opens flush below the
+  trigger and above it when there is no room below. A consumer override of
+  the same margin can be removed.
 
 - **`Board`: a click on a move or resize handle no longer leaves the item in
   keyboard mode** (#102). A click without a drag activates the handle for

@@ -7,6 +7,7 @@ import { HStack, Stack } from "../../astryx/Stack";
 import { BoardItemTitle } from "../BoardItemTitle";
 import { useArgState } from "../../stories/helpers";
 import { Board, type BoardItemsChangeDetail } from "./Board";
+import { useIsInBoardItem } from "./BoardItemContext";
 import type { BoardItem } from "./layout";
 
 /** The items carry nothing of their own: `title` and `description` are the whole content. */
@@ -191,6 +192,44 @@ export const NoTitle: Story = {
     isMovable: true,
     items: WIDGETS.map(({ title: _title, ...item }) => item),
   },
+  render: renderEditable,
+};
+
+/** A panel that draws its own title row, as content does when it is built once and used in a board and elsewhere. */
+function Panel({ title, body }: { title: string; body: string }) {
+  const isInBoardItem = useIsInBoardItem();
+  return (
+    <Stack gap={3} style={isInBoardItem ? undefined : { padding: 16 }}>
+      <BoardItemTitle
+        title={title}
+        tooltip="Measured over the last 15 minutes."
+        endContent={<Button label="View all" variant="ghost" size="sm" />}
+      />
+      <p style={{ margin: 0 }}>{body}</p>
+      <BoardItemTitle title="Details" inline />
+      <p style={{ margin: 0 }}>
+        {isInBoardItem ? "Inside a board item." : "Standalone."}
+      </p>
+    </Stack>
+  );
+}
+
+/**
+ * Without a `title`, the first `BoardItemTitle` in the description renders in
+ * the item's header row; `inline` keeps one in the body. `useIsInBoardItem()`
+ * is true inside the description.
+ */
+export const TitleInDescription: Story = {
+  args: {
+    isMovable: true,
+    isResizable: true,
+    items: WIDGETS.map(({ title, description, ...item }) => ({
+      ...item,
+      rowSpan: 3,
+      description: <Panel title={String(title)} body={String(description)} />,
+    })),
+  },
+  parameters: { docs: { source: { type: "code" } } },
   render: renderEditable,
 };
 

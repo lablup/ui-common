@@ -25,6 +25,13 @@ export const LABLUP_ACCENT: [string, string] = ["#FF7A00", "#DC6B03"];
  */
 export const LABLUP_INFO_TOKEN = "--color-info";
 
+/**
+ * The divider `DoubleBadge` draws between two neutral badges. It falls back to
+ * `--color-border-emphasized`, which the brand's warm neutral makes too heavy
+ * here, so the theme sets a lighter one.
+ */
+export const LABLUP_DOUBLE_BADGE_DIVIDER_TOKEN = "--double-badge-divider";
+
 export const lablupTheme = defineTheme({
   name: "lablup",
   extends: neutralTheme,
@@ -45,10 +52,10 @@ export const lablupTheme = defineTheme({
     // In `tokens`, not `localTokens`: a theme extending this one can then
     // override it through `tokens`, as the WebUI theme sets it. Astryx's
     // `TokenName` does not list it, hence the widened map.
-    ...({ [LABLUP_INFO_TOKEN]: ["#0066cc", "#009bdd"] } as Record<
-      string,
-      [string, string]
-    >),
+    ...({
+      [LABLUP_INFO_TOKEN]: ["#0066cc", "#009bdd"],
+      [LABLUP_DOUBLE_BADGE_DIVIDER_TOKEN]: ["#d6cdc7", "#51463f"],
+    } as Record<string, [string, string]>),
   },
 });
 

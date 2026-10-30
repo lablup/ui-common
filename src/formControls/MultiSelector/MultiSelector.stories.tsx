@@ -67,6 +67,24 @@ export const Statuses: Story = {
   ),
 };
 
+/**
+ * An option's `disabled` takes `{ reason }`: the option is disabled, and the
+ * glyph at the end of its row says why. A bare `true` disables silently.
+ */
+export const DisabledOptionReason: Story = {
+  args: {
+    options: [
+      { value: "north", label: "North" },
+      {
+        value: "south",
+        label: "South",
+        disabled: { reason: "No agent in this region has a GPU." },
+      },
+      { value: "east", label: "East", disabled: true },
+    ],
+  },
+};
+
 /** On its own, disabled. */
 export const Disabled: Story = {
   args: { disabled: true },

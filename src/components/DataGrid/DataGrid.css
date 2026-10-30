@@ -127,6 +127,17 @@
     margin-top: var(--spacing-3);
   }
 
+  /* The page-size list. Astryx's Pagination gives its Selector no placement,
+     so the list is laid over the trigger by a negative inline
+     `margin-block-start`, and a box with that margin cannot take the
+     flip-block fallback: near the viewport bottom it opens downward and is
+     clipped. Zeroed, it opens flush below the trigger and flips above when
+     there is no room. `!important` beats the inline margin. Scoped to the
+     pager's `nav`, so a selector in `endContent` keeps its own geometry. */
+  .uic-data-grid__footer nav [popover]:has([role="listbox"]) {
+    margin-block-start: 0 !important;
+  }
+
   /* Column settings and CSV export dialogs. */
   .uic-data-grid-dialog {
     min-width: 0;

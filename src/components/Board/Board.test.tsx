@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ComponentProps } from "react";
+import { StrictMode, useEffect, type ComponentProps } from "react";
 
+import { BoardItemTitle } from "../BoardItemTitle";
 import { Board, columnsForWidth, type BoardItemsChangeDetail } from "./Board";
+import { useIsInBoardItem } from "./BoardItemContext";
 import type { BoardItem } from "./layout";
 
 /** jsdom has no layout: report the width a test chose, as soon as observed. */
@@ -828,5 +830,194 @@ describe("Board item title and description", () => {
       "",
       "",
     ]);
+  });
+});
+
+describe("Board item context", () => {
+  const item = (overrides: Partial<BoardItem<Data>>): BoardItem<Data> => ({
+    id: "a",
+    rowSpan: 2,
+    columnSpan: 2,
+    data: null,
+    ...overrides,
+  });
+  const headers = () => [...document.querySelectorAll(".uic-board-item__header")];
+  const content = () =>
+    document.querySelector(".uic-board-item__content") as HTMLElement;
+
+  function InItem() {
+    return <span>{useIsInBoardItem() ? "in an item" : "outside"}</span>;
+  }
+
+  it("tells the description it is in an item, and nothing else", () => {
+    render(
+      <>
+        <InItem />
+        <Board<Data>
+          items={[item({ title: <InItem />, description: <InItem /> })]}
+          onItemsChange={vi.fn()}
+        />
+      </>,
+    );
+    expect(within(content()).getByText("in an item")).toBeTruthy();
+    expect(within(headers()[0] as HTMLElement).getByText("outside")).toBeTruthy();
+    expect(screen.getAllByText("outside")).toHaveLength(2);
+  });
+
+  it("renders a body BoardItemTitle in the header row of an untitled item", () => {
+    render(
+      <Board<Data>
+        items={[
+          item({
+            description: (
+              <>
+                <BoardItemTitle
+                  title="Alpha"
+                  endContent={<button type="button">Refresh</button>}
+                />
+                <p>The first one.</p>
+              </>
+            ),
+          }),
+        ]}
+        isMovable
+        onItemsChange={vi.fn()}
+      />,
+    );
+    expect(headers()).toHaveLength(1);
+    const slot = headers()[0]!.querySelector(".uic-board-item__title") as HTMLElement;
+    const row = slot.firstElementChild as HTMLElement;
+    expect(row).toHaveClass("uic-board-item-title");
+    expect(within(row).getByRole("heading", { level: 5, name: "Alpha" })).toBeTruthy();
+    expect(within(row).getByRole("button", { name: "Refresh" })).toBeTruthy();
+    expect(content().querySelector(".uic-board-item-title")).toBeNull();
+    expect(within(content()).getByText("The first one.")).toBeTruthy();
+    expect(screen.getAllByRole("heading")).toHaveLength(1);
+  });
+
+  it("keeps a body BoardItemTitle in the body when the item has a title or it is inline", () => {
+    const { rerender } = render(
+      <Board<Data>
+        items={[
+          item({ title: "Alpha", description: <BoardItemTitle title="Section" /> }),
+        ]}
+        onItemsChange={vi.fn()}
+      />,
+    );
+    expect(headers()).toHaveLength(1);
+    expect(within(content()).getByRole("heading", { name: "Section" })).toBeTruthy();
+    rerender(
+      <Board<Data>
+        items={[item({ description: <BoardItemTitle title="Section" inline /> })]}
+        onItemsChange={vi.fn()}
+      />,
+    );
+    expect(headers()).toHaveLength(0);
+    expect(within(content()).getByRole("heading", { name: "Section" })).toBeTruthy();
+  });
+
+  it("moves only the first body BoardItemTitle; the next one takes over when it leaves", () => {
+    const board = (first: boolean) => (
+      <Board<Data>
+        items={[
+          item({
+            description: (
+              <>
+                {first ? <BoardItemTitle title="First" /> : null}
+                <BoardItemTitle title="Second" />
+              </>
+            ),
+          }),
+        ]}
+        onItemsChange={vi.fn()}
+      />
+    );
+    const { rerender } = render(board(true));
+    expect(
+      within(headers()[0] as HTMLElement).getByRole("heading", { name: "First" }),
+    ).toBeTruthy();
+    expect(within(content()).getByRole("heading", { name: "Second" })).toBeTruthy();
+    rerender(board(false));
+    expect(
+      within(headers()[0] as HTMLElement).getByRole("heading", { name: "Second" }),
+    ).toBeTruthy();
+    expect(content().querySelector(".uic-board-item-title")).toBeNull();
+  });
+
+  it("drops the header row when the body title goes, and works under StrictMode", () => {
+    const board = (withTitle: boolean) => (
+      <StrictMode>
+        <Board<Data>
+          items={[
+            item({
+              description: withTitle ? <BoardItemTitle title="Alpha" /> : "Body only.",
+            }),
+          ]}
+          onItemsChange={vi.fn()}
+        />
+      </StrictMode>
+    );
+    const { rerender } = render(board(true));
+    expect(headers()).toHaveLength(1);
+    expect(screen.getAllByRole("heading", { name: "Alpha" })).toHaveLength(1);
+    rerender(board(false));
+    expect(headers()).toHaveLength(0);
+    expect(screen.queryByRole("heading")).toBeNull();
+  });
+
+  it("keeps a nested board's item title in its own item", () => {
+    render(
+      <Board<Data>
+        items={[
+          item({
+            id: "outer",
+            description: (
+              <Board<Data>
+                items={[item({ id: "inner", title: <BoardItemTitle title="Inner" /> })]}
+                onItemsChange={vi.fn()}
+              />
+            ),
+          }),
+        ]}
+        onItemsChange={vi.fn()}
+      />,
+    );
+    const inner = document.querySelector('[data-board-item-id="inner"]') as HTMLElement;
+    expect(headers()).toHaveLength(1);
+    expect(inner.contains(headers()[0]!)).toBe(true);
+    expect(
+      within(headers()[0] as HTMLElement).getByRole("heading", { name: "Inner" }),
+    ).toBeTruthy();
+  });
+
+  it("keeps one title row, mounted once, when the items move", () => {
+    let mounts = 0;
+    function Counted() {
+      useEffect(() => {
+        mounts += 1;
+      }, []);
+      return <button type="button">Refresh</button>;
+    }
+    const alpha = item({
+      id: "a",
+      description: <BoardItemTitle title="Alpha" endContent={<Counted />} />,
+    });
+    const beta = item({ id: "b", title: "Beta" });
+    const { rerender } = render(
+      <Board<Data> items={[alpha, beta]} onItemsChange={vi.fn()} />,
+    );
+    const row = screen.getByRole("heading", { name: "Alpha" });
+    rerender(
+      <Board<Data>
+        items={[
+          { ...beta, columnOffset: { 4: 0 } },
+          { ...alpha, columnOffset: { 4: 2 } },
+        ]}
+        onItemsChange={vi.fn()}
+      />,
+    );
+    expect(screen.getAllByRole("heading", { name: "Alpha" })).toEqual([row]);
+    expect(row.closest(".uic-board-item__header")).not.toBeNull();
+    expect(mounts).toBe(1);
   });
 });

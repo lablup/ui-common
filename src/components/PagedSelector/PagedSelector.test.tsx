@@ -319,6 +319,31 @@ describe("PagedSelector popup: disabled options", () => {
     expect(highlightedLabels()).toEqual(["alpha"]);
   });
 
+  it("disables a `{ reason }` row and names its end glyph with the reason", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <PagedSelector
+        label="Targets"
+        options={[
+          { value: "a", label: "alpha" },
+          { value: "b", label: "bravo", isDisabled: { reason: "No access" } },
+        ]}
+        onChange={onChange}
+      />,
+    );
+    await user.click(trigger());
+
+    const [plain, withReason] = optionRows();
+    expect(withReason).toHaveAttribute("aria-disabled", "true");
+    expect(
+      withReason!.querySelector('.uic-option-disabled-reason [aria-label="No access"]'),
+    ).not.toBeNull();
+    expect(plain!.querySelector(".uic-option-disabled-reason")).toBeNull();
+    await user.click(withReason!);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it("arrows step over the disabled row instead of resting on it", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
