@@ -13,12 +13,14 @@ interface WatcherProps {
   form?: FormInstance;
   index?: number;
   k?: string;
+  preserve?: boolean;
+  onRender?: () => void;
 }
 
 type Watcher = React.ComponentType<WatcherProps>;
 
 const show = (value: unknown) =>
-  value instanceof Set ? `set:${[...value].join(",")}` : String(value);
+  typeof value === "object" && value !== null ? JSON.stringify(value) : String(value);
 
 /** The hook under test, called in the component's own render. */
 type UseWatched = (props: WatcherProps) => unknown;
@@ -30,10 +32,12 @@ function makeWatchers(
   useWatched: UseWatched,
 ): [plain: Named, memo: Named, forwardRef: Named] {
   function Plain(props: WatcherProps) {
+    props.onRender?.();
     return <div data-testid="watched">{show(useWatched(props))}</div>;
   }
   const WithRef = React.forwardRef<HTMLDivElement, WatcherProps>(
     function ForwardRefWatcher(props, ref) {
+      props.onRender?.();
       return (
         <div ref={ref} data-testid="watched">
           {show(useWatched(props))}
@@ -144,16 +148,69 @@ describe.each(
   });
 });
 
-describe("Form.useWatch equality", () => {
-  it("reports a Set that gains a member", async () => {
-    const [[, Watcher]] = makeWatchers(({ form }) =>
-      Form.useWatch(["s"], { form, preserve: true }),
+describe.each(
+  makeWatchers(({ form }) => Form.useWatch(["rg"], { form, preserve: true })),
+)("Form.useWatch render count in a %s component", (_name, Watcher) => {
+  it("does not render for a write that leaves the value unchanged", async () => {
+    let renders = 0;
+    const onRender = () => {
+      renders += 1;
+    };
+    const { FormHost, getForm } = makeFormHost({ rg: "a", other: 0 });
+    render(
+      <FormHost>{(form) => <Watcher form={form} onRender={onRender} />}</FormHost>,
     );
-    const { FormHost, getForm } = makeFormHost({ s: new Set([1]) });
-    render(<FormHost>{(form) => <Watcher form={form} />}</FormHost>);
-    await waitFor(() => expect(watched()).toHaveTextContent("set:1"));
+    await waitFor(() => expect(watched()).toHaveTextContent("a"));
+    const settled = renders;
 
-    await act(async () => getForm().setFieldValue("s", new Set([1, 2])));
-    await waitFor(() => expect(watched()).toHaveTextContent("set:1,2"));
+    await act(async () => getForm().setFieldValue("rg", "a"));
+    await act(async () => getForm().setFieldValue("rg", "a"));
+    // Watchers are notified in write order, so once "b" shows, the two
+    // unchanged writes before it have been delivered.
+    await act(async () => getForm().setFieldValue("rg", "b"));
+    await waitFor(() => expect(watched()).toHaveTextContent("b"));
+    expect(renders).toBe(settled + 1);
+  });
+});
+
+describe.each(
+  makeWatchers(({ form }) =>
+    Form.useWatch((values: any) => ({ x: values?.x }), { form, preserve: true }),
+  ),
+)(
+  "Form.useWatch with an inline object selector in a %s component",
+  (_name, Watcher) => {
+    it("settles instead of rendering in a loop", async () => {
+      let renders = 0;
+      const onRender = () => {
+        renders += 1;
+      };
+      const { FormHost, getForm } = makeFormHost({ x: "X", other: 0 });
+      render(
+        <FormHost>{(form) => <Watcher form={form} onRender={onRender} />}</FormHost>,
+      );
+      await waitFor(() => expect(watched()).toHaveTextContent('{"x":"X"}'));
+      const settled = renders;
+
+      await act(async () => getForm().setFieldValue("other", 1));
+      await act(async () => getForm().setFieldValue("x", "X2"));
+      await waitFor(() => expect(watched()).toHaveTextContent('{"x":"X2"}'));
+      expect(renders).toBe(settled + 1);
+    });
+  },
+);
+
+describe.each(
+  makeWatchers(({ form, preserve }) => Form.useWatch(["hidden"], { form, preserve })),
+)("Form.useWatch flipping preserve in a %s component", (_name, Watcher) => {
+  it("re-reads an unmounted field's value", async () => {
+    const { FormHost } = makeFormHost({ hidden: "H" });
+    const { rerender } = render(
+      <FormHost>{(form) => <Watcher form={form} preserve={false} />}</FormHost>,
+    );
+    await waitFor(() => expect(watched()).toHaveTextContent("undefined"));
+
+    rerender(<FormHost>{(form) => <Watcher form={form} preserve />}</FormHost>);
+    await waitFor(() => expect(watched()).toHaveTextContent("H"));
   });
 });

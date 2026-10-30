@@ -6,14 +6,21 @@
  * absolute even inside a `Form.List`, because `useWatch` reads from the form
  * instance, never from `prefixName`.
  *
- * Change detection is by deep equality (`isEqual`), so a watcher on an object
- * path settles instead of re-rendering on every new identity.
+ * Change detection is by JSON stringification, matching upstream, so a watcher
+ * on an object path settles instead of re-rendering on every new identity.
  */
 import { FieldContext, FormItemLayoutContext, HOOK_MARK } from "./context";
 import type { FormInstance, InternalFormInstance, StoreValue } from "./interface";
-import { isEqual } from "./isEqual";
 import { getNamePath, getValue, type NamePath, type Store } from "./namePath";
 import * as React from "react";
+
+function stringify(value: any): string | number {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return Math.random();
+  }
+}
 
 function isFormInstance(form: any): form is InternalFormInstance {
   return form && !!form._init;
@@ -75,7 +82,8 @@ function useWatch<Values = StoreValue>(
     const latest = latestRef.current;
     if (!latest.isValidForm) return;
     const nextValue = latest.read(values, allValues);
-    if (isEqual(lastValueRef.current, nextValue)) return;
+    // A value JSON cannot serialise compares as changed every time.
+    if (stringify(lastValueRef.current) === stringify(nextValue)) return;
     lastValueRef.current = nextValue;
     setValue(() => nextValue);
   }, []);
@@ -84,18 +92,19 @@ function useWatch<Values = StoreValue>(
   const flattenDeps =
     typeof dependencies === "function" ? dependencies : JSON.stringify(dependencies);
 
+  // Subscribe once per form; the callback reads the latest path and selector
+  // through `latestRef`, so neither needs a re-subscription.
   React.useEffect(() => {
     if (!isValidForm) return undefined;
-    const registerWatch = formInstance.getInternalHooks(HOOK_MARK)?.registerWatch;
-    const cancel = registerWatch?.((values, allValues) => {
-      triggerUpdate(values, allValues);
-    });
-    // Re-read when the form or the watched path changes (a dynamic
-    // `['rows', index]`, say). An inline selector is a new key every commit;
-    // those re-reads are no-ops unless the value differs.
+    return formInstance.getInternalHooks(HOOK_MARK)?.registerWatch(triggerUpdate);
+  }, [isValidForm, formInstance, triggerUpdate]);
+
+  // Re-read when the path, selector, `preserve` or form changes. An inline
+  // selector is a new key every commit; those re-reads are no-ops unless the
+  // value differs.
+  React.useEffect(() => {
     triggerUpdate();
-    return cancel;
-  }, [isValidForm, formInstance, flattenDeps, triggerUpdate]);
+  }, [flattenDeps, options.preserve, isValidForm, formInstance, triggerUpdate]);
 
   return value;
 }

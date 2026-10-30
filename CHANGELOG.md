@@ -78,10 +78,9 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   first render's closure for those components (facebook/react#34818, fixed in
   19.3), so a field going A → B → A stayed at B, a dynamic path or an inline
   selector kept its first form, and a `form` passed after mount was never
-  watched. The watcher now reads the latest path, selector and form through a
-  ref and no longer depends on the effect-event closure at all. Equality now
-  uses `isEqual` instead of JSON serialisation, so a `Set` or `Map` that
-  changes is reported, and an unchanged value queues no render.
+  watched. The watcher now reads its path, selector, form and last value
+  through refs instead of the effect-event closure, and an unchanged value
+  queues no render.
 
 - **`DoubleBadge` draws its own divider** (#117). The run left the seam to
   each Badge's outline, and Astryx's Badge has a fill and no border, so two
