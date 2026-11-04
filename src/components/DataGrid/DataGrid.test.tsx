@@ -6,6 +6,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
 import { Selector } from "@astryxdesign/core/Selector";
+import { HStack } from "@astryxdesign/core/Stack";
 
 import { uiCommonMessages } from "../../i18n/messages";
 import { DataGrid, dataGridSettingsToOverrides, type DataGridColumn } from "./DataGrid";
@@ -170,6 +171,35 @@ describe("DataGrid pagination", () => {
 
     await userEvent.click(screen.getByRole("combobox", { name: "Extra" }));
     expect(popoverOf("Extra").matches(selector.trim())).toBe(false);
+  });
+
+  // jsdom has no layout: the wrap classes and rules are the contract.
+  it("wraps the bar and the pager instead of overflowing a narrow container", () => {
+    const css = readFileSync(join(__dirname, "DataGrid.css"), "utf8");
+    const [, body = ""] = /\.uic-data-grid__pagination\s*\{([^}]*)\}/.exec(css) ?? [];
+    expect(body).toMatch(/flex-wrap:\s*wrap;/);
+    expect(body).toMatch(/justify-content:\s*flex-end;/);
+
+    const { container } = renderGrid({
+      data: makeRows(100),
+      pagination: { className: "caller-pager" },
+    });
+    const footer = container.querySelector<HTMLElement>(".uic-data-grid__footer")!;
+    const { container: reference } = render(
+      <HStack
+        justify="end"
+        align="center"
+        gap={2}
+        wrap="wrap"
+        className="uic-data-grid__footer"
+      />,
+    );
+    expect(footer.className).toBe(
+      (reference.firstElementChild as HTMLElement).className,
+    );
+    const nav = screen.getByRole("navigation");
+    expect(footer).toContainElement(nav);
+    expect(nav).toHaveClass("uic-data-grid__pagination", "caller-pager");
   });
 
   it("renders endContent at the end of the bar", () => {

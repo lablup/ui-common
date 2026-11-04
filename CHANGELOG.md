@@ -80,6 +80,14 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`DataGrid`'s bottom bar wraps in a narrow container** (#129). The range
+  text, the pager and the settings / export buttons sat on one row that never
+  wrapped, so in a narrow card that clips its content the page buttons and the
+  page-size selector were cut off. The bar now wraps, end-aligned as before:
+  the range text takes its own line first, and the pager's own row (page-size
+  selector, page buttons) wraps next. The pager gets the
+  `uic-data-grid__pagination` class, merged with a `pagination.className`.
+
 - **`Form.useWatch` no longer freezes at its first render** when the component
   calling it is wrapped in `memo()` or `forwardRef()` on React 19.2 (#121).
   The watcher ran in a `useEffectEvent` callback, and React 19.2 keeps the
