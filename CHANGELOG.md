@@ -102,12 +102,36 @@ lab pin and its core override.
   the backdrop-press rule, no blur), `FileInput` (all rejected files in one
   message, `FormLayout` required default, busy announcement), `Switch`,
   `Tour` and `Stat`. What they leave out of upstream, because it runs on
-  core's private modules, is written in each fork's header: `Switch` keeps
-  Astryx's CSS but not 0.7.7's touch presentation (the iOS-style lift,
-  drag-to-flip and the 44 px hit area under a finger); a modal `Drawer` does
-  not host Astryx's toast viewport or speak `useAnnounce` from inside itself;
-  a busy `ComplexSelector` / `FileInput` announces through the page's live
-  region even inside a modal.
+  core's private modules, is written in each fork's header: `Switch` leaves
+  out 0.7.7's touch presentation (the iOS-style lift, drag-to-flip and the
+  44 px hit area) and its touch-only CSS with it, so under a coarse pointer it
+  slides on CSS transitions as under a mouse, leaves horizontal pans to the
+  page, and keeps a 24 × 24 px minimum target, as in 0.2.0-alpha.20; a modal
+  `Drawer` does not host Astryx's toast viewport or speak `useAnnounce` from
+  inside itself; a busy `ComplexSelector` / `FileInput` announces through the
+  page's live region, which a native modal `<dialog>` inerts.
+- **A press inside a `Drawer` no longer bubbles to React handlers around
+  where the drawer is written** (Astryx 0.7.7's layer click boundary). Its
+  `<dialog>` stops the React propagation of 21 mouse, pointer and touch
+  events (`onClick`, `onPointerDown`, `onMouseDown`, `onTouchStart`, …) after
+  the drawer's own handlers ran; native `document` / `window` listeners still
+  receive them. A parent's React `onClick` / `onPointerDown` that relied on
+  portal bubbling (a click-outside dismisser, an analytics handler, dnd-kit
+  listeners on an ancestor) stops firing for presses in the drawer: listen on
+  the drawer's content, or natively on `document`.
+- **Astryx's live regions stay reachable while a ui-common `Modal` is open.**
+  The modal stack no longer inerts `[data-astryx-live-region]`, so
+  `useAnnounce` messages (a busy field's "Loading" among them) made inside a
+  `Modal` are spoken.
+- **`PagedSelector` announces a load once.** While `isLoading`, its own
+  polite region stays quiet: the field's busy announcement says "Loading".
+- **A disabled field commits nothing and is not validated.** Disabled text
+  fields keep their Tab stop since Astryx 0.7.5, so they blur:
+  `UncontrolledInput` no longer calls `onCommit` from a disabled field,
+  `Form.Item`'s `validateTrigger` (`onBlur`) skips a disabled control (its own
+  `disabled` or `<Form disabled>`), and a `PagedSelector` panel left open
+  after the field is disabled commits nothing, as Astryx's `ComplexSelector`
+  guards its commit helper (0.7.6).
 - The `internal/touch` and `internal/touch-sheet` subpaths Astryx core 0.7.7
   exports for its own packages are not mirrored (`exports.exclude.json`):
   Astryx keeps them outside its public API.

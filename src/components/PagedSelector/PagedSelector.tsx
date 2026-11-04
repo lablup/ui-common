@@ -37,7 +37,14 @@
  *   totalCount={count}
  * />
  */
-import { useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useId,
+  useInsertionEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   ComplexSelector,
   type ComplexSelectorProps,
@@ -308,7 +315,15 @@ export function PagedSelector(props: PagedSelectorProps) {
 
   const isSelected = (value: string) => selectedValues.includes(value);
 
+  // The panel can stay mounted after the field is disabled, as Astryx's
+  // ComplexSelector guards its own commit helper for (0.7.6).
+  const isDisabledRef = useRef(rest.isDisabled);
+  useInsertionEffect(() => {
+    isDisabledRef.current = rest.isDisabled;
+  }, [rest.isDisabled]);
+
   const commit = (option: PagedSelectorOption, close: () => void) => {
+    if (isDisabledRef.current) return;
     if (!isMultiple) {
       emit([option.value]);
       close();
@@ -547,10 +562,10 @@ export function PagedSelector(props: PagedSelectorProps) {
                 </Text>
               </HStack>
             ) : null)}
+          {/* While `isLoading` the field announces "Loading" itself (Astryx's
+              busy announcement), so this region stays quiet then. */}
           <VisuallyHidden as="div" aria-live="polite">
-            {options.length === 0 && isLoading
-              ? loadingText
-              : totalText(options.length)}
+            {isLoading ? null : totalText(options.length)}
           </VisuallyHidden>
         </div>
       )}

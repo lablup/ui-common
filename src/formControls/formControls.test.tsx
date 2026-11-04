@@ -856,3 +856,48 @@ describe("Slider props types (#91)", () => {
     >();
   });
 });
+
+describe("validateTrigger on a disabled text field", () => {
+  // Astryx 0.7.5 keeps a disabled text field in the Tab order, so it still
+  // blurs; nothing the user can edit, so nothing to validate.
+  it.each([
+    ["the item's own disabled", { disabled: true }, {}],
+    ["<Form disabled>", {}, { disabled: true }],
+  ])("does not validate on blur with %s", async (_, itemProps, formProps) => {
+    render(
+      <Form {...formProps}>
+        <Form.Item
+          label="Name"
+          name="name"
+          validateTrigger="onBlur"
+          rules={[{ required: true, message: "Fill this in." }]}
+        >
+          <TextInput {...itemProps} />
+        </Form.Item>
+      </Form>,
+    );
+    await userEvent.tab();
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveFocus();
+    await userEvent.tab();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByText("Fill this in.")).toBeNull();
+  });
+
+  it("still validates on blur when enabled", async () => {
+    render(
+      <Form>
+        <Form.Item
+          label="Name"
+          name="name"
+          validateTrigger="onBlur"
+          rules={[{ required: true, message: "Fill this in." }]}
+        >
+          <TextInput />
+        </Form.Item>
+      </Form>,
+    );
+    await userEvent.tab();
+    await userEvent.tab();
+    expect(await screen.findByText("Fill this in.")).toBeInTheDocument();
+  });
+});

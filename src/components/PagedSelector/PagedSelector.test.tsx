@@ -311,6 +311,27 @@ describe("PagedSelector popup: multiple", () => {
   });
 });
 
+describe("PagedSelector popup: disabled field", () => {
+  it("commits nothing from a panel left open after the field is disabled", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const { rerender } = render(
+      <PagedSelector label="Targets" options={OPTIONS} onChange={onChange} />,
+    );
+    await user.click(trigger());
+    rerender(
+      <PagedSelector
+        label="Targets"
+        options={OPTIONS}
+        onChange={onChange}
+        isDisabled
+      />,
+    );
+    await user.click(optionRows()[0]!);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+});
+
 describe("PagedSelector popup: disabled options", () => {
   it("never lets a disabled row wear the highlight on hover", async () => {
     const user = userEvent.setup();
@@ -482,6 +503,17 @@ describe("PagedSelector popup: empty state", () => {
     await user.click(trigger());
     expect(listbox()).toHaveTextContent("Loading...");
     expect(listbox()).not.toHaveTextContent(/no results/i);
+  });
+
+  it("announces the load once: the field's busy announcement, not its own region too", async () => {
+    const user = userEvent.setup();
+    render(<PagedSelector label="Targets" options={[]} isLoading />);
+    await user.click(trigger());
+    const ownRegions = Array.from(
+      document.querySelectorAll('[aria-live="polite"]:not([data-astryx-live-region])'),
+    );
+    expect(ownRegions.length).toBeGreaterThan(0);
+    for (const region of ownRegions) expect(region).not.toHaveTextContent(/loading/i);
   });
 
   it("leaves a populated list alone while loading", async () => {

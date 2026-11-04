@@ -140,7 +140,7 @@
         }
       ]
     },
-    "notes": "Upstream 0.7.7's touch presentation (useSwitchTouch, switchTouch.ts, switchFill.ts and the utils/hitArea observers) is not copied: it runs on core's private gesture, motion and hit-area modules. Its CSS is kept (compiled), so the thumb rests correctly under a coarse pointer. Re-check on a bump whether core exports those modules."
+    "notes": "Upstream 0.7.7's touch presentation (useSwitchTouch, switchTouch.ts, switchFill.ts and the utils/hitArea observers) is not copied: it runs on core's private gesture, motion and hit-area modules. Its touch-only atoms (TOUCH_ONLY_ATOMS in Switch.tsx), touch-action: pan-y and the press-holds-drag mark are left out with it, so a coarse pointer gets the mouse presentation, plus core's 24px min-width/min-height atoms under (pointer: coarse). Switch.fork.test.tsx re-checks the atom list against astryx.css; re-check on a bump whether core exports those modules."
   },
   "FileInput": {
     "package": "@astryxdesign/core",

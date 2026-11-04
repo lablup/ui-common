@@ -16,15 +16,17 @@
  *
  * Everything else is upstream's, line for line. Two things differ in form
  * only: the style namespaces and the scope markers are Astryx's
- * compiled output (src/forks/compiled.ts), and `useResolvedRequired` and
- * `pressHoldsDragProps`, which Astryx does not export, are inlined.
+ * compiled output (src/forks/compiled.ts), and `useResolvedRequired`, which
+ * Astryx does not export, is inlined.
  *
  * One part of upstream is left out: 0.7.7's touch presentation
  * (`useSwitchTouch`: the iOS-style lift, drag-to-flip and spring, and the
  * hit-area observers that grow the target toward 44 px under a coarse
  * pointer). It runs on core's private gesture, motion and hit-area modules,
- * which no public subpath exports. Its CSS still applies, so under a finger
- * the thumb rests at each end and a tap toggles through the native click.
+ * which no public subpath exports. Its touch-only CSS is left out with it
+ * (`TOUCH_ONLY_ATOMS`, with `touch-action: pan-y` and the press-holds-drag
+ * mark), so a coarse pointer gets the mouse presentation, CSS transitions
+ * included, plus a 24 px minimum target (`coarseMinTarget`), as in 0.7.3.
  *
  * Delete this fork, and its exports.exclude.json entry, once Astryx ships
  * the fix (CONTRIBUTING, "Forks of Astryx components").
@@ -60,23 +62,103 @@ import { useTranslator } from "@astryxdesign/core/i18n";
 import { useMergedRefs } from "@astryxdesign/core/hooks";
 import { usePressFeedback } from "@astryxdesign/core/hooks";
 
-import { compiledStyles } from "../compiled";
+import { compiledStyles, type CompiledStyle } from "../compiled";
 import * as compiled from "./Switch.styles";
 
+/**
+ * ui-common: the atoms of upstream's touch presentation, the rules astryx.css
+ * holds only under `@media (pointer: coarse)` (and not for reduced motion).
+ * They position the thumb by insets for the JS animator, add the press and
+ * colour-fade layers it drives, and size the input by the hit-area observers,
+ * none of which the fork copies. Without them a coarse pointer gets the mouse
+ * presentation: the thumb slides and the track fades on CSS transitions.
+ * `Switch.fork.test.tsx` checks the list against astryx.css on every bump.
+ */
+export const TOUCH_ONLY_ATOMS: ReadonlySet<string> = new Set([
+  "x13kxlb5",
+  "xhyyqqw",
+  "xsprn4g",
+  "xskqmzm",
+  "x1syr3z6",
+  "x1pxz8w1",
+  "x6su2wr",
+  "x1uj43hb",
+  "xgjkl26",
+  "x1xdvw9q",
+  "xrxqdxo",
+  "xsmms64",
+  "xouc37c",
+  "xowtp19",
+  "xpxppvc",
+  "x15cra4q",
+  "x2huugr",
+  "x1ccaw7f",
+  "xxhzo2e",
+  "xvym4rz",
+  "xigdn9b",
+  "xgq6fxe",
+  "xq2jpp1",
+  "x1ep27e9",
+  "xqycr0j",
+  "x8imsj1",
+  "x1s6gw0t",
+  "xfmjvo4",
+  "x1e8ofxz",
+  "x1bjav06",
+  "xiz4dsw",
+]);
+
+function withoutTouchAtoms<K extends string>(
+  namespace: Record<K, CompiledStyle>,
+): Record<K, CompiledStyle> {
+  const out = {} as Record<K, CompiledStyle>;
+  for (const name of Object.keys(namespace) as K[]) {
+    const entry: Record<string, string | boolean | null> = {};
+    for (const [key, value] of Object.entries(namespace[name])) {
+      if (typeof value !== "string") {
+        entry[key] = value;
+        continue;
+      }
+      const kept = value.split(" ").filter((atom) => !TOUCH_ONLY_ATOMS.has(atom));
+      // null still resets the property, as an empty upstream value would.
+      entry[key] = kept.length > 0 ? kept.join(" ") : null;
+    }
+    out[name] = entry as CompiledStyle;
+  }
+  return out;
+}
+
+/**
+ * ui-common: a 24 px minimum target under a coarse pointer (WCAG 2.5.8), as
+ * the 0.7.3 fork had, in place of upstream's hit-area observers. Both atoms
+ * are core's own (`min-width` / `min-height: 24px` under `(pointer: coarse)`)
+ * and already in astryx.css.
+ */
+export const coarseMinTarget = {
+  kjFi6P: "xkagaj0",
+  kHzOjL: "x80b3aj",
+  $$css: true,
+} as const;
+
 // dist/Switch/Switch.js, dist/Switch/switch.markers.stylex.js and
-// dist/utils/interactionOverlay.stylex.js.
-const wrapperSizeStyles = compiledStyles(compiled.wrapperSizeStyles);
-const trackSizeStyles = compiledStyles(compiled.trackSizeStyles);
-const thumbOffSizeStyles = compiledStyles(compiled.thumbOffSizeStyles);
-const thumbOnSizeStyles = compiledStyles(compiled.thumbOnSizeStyles);
-const labelWrapperSizeStyles = compiledStyles(compiled.labelWrapperSizeStyles);
-const styles = compiledStyles(compiled.styles);
+// dist/utils/interactionOverlay.stylex.js, less the touch-only atoms.
+const wrapperSizeStyles = compiledStyles(withoutTouchAtoms(compiled.wrapperSizeStyles));
+const trackSizeStyles = compiledStyles(withoutTouchAtoms(compiled.trackSizeStyles));
+const thumbOffSizeStyles = compiledStyles(
+  withoutTouchAtoms(compiled.thumbOffSizeStyles),
+);
+const thumbOnSizeStyles = compiledStyles(withoutTouchAtoms(compiled.thumbOnSizeStyles));
+const labelWrapperSizeStyles = compiledStyles(
+  withoutTouchAtoms(compiled.labelWrapperSizeStyles),
+);
+const styles = compiledStyles(withoutTouchAtoms(compiled.styles));
+const coarseMinTargetStyle = coarseMinTarget as unknown as stylex.StyleXStyles;
 const dynamicWidthStyles = compiled.dynamicWidthStyles as unknown as {
   width: (width: SizeValue | null) => stylex.StyleXStyles;
 };
 const switchScope = compiled.switchScope as unknown as stylex.StyleXStyles;
 const switchFocusInput = compiled.switchFocusInput as unknown as stylex.StyleXStyles;
-const pressOwnerStyles = compiledStyles(compiled.pressOwnerStyles);
+const pressOwnerStyles = compiledStyles(withoutTouchAtoms(compiled.pressOwnerStyles));
 const interactionOverlayStyles = compiledStyles(compiled.interactionOverlayStyles);
 
 // @astryxdesign/core 0.7.7 src/hooks/useResolvedRequired.ts, which core does
@@ -91,12 +173,6 @@ function useResolvedRequired({
 }): boolean {
   const { defaultOptionality } = use(FormLayoutContext);
   return !isOptional && (isRequired || defaultOptionality === "required");
-}
-
-// @astryxdesign/core 0.7.7 src/privateAttributes/pressHoldsDrag.stylex.ts,
-// which core does not export: the row keeps its press through a drag.
-function pressHoldsDragProps(holdsDrag: boolean): Record<string, string> {
-  return holdsDrag ? { "data-astryx-press-holds-drag": "" } : {};
 }
 
 export type SwitchLabelPosition = "start" | "end";
@@ -354,12 +430,8 @@ export function Switch({
     describedByParts.length > 0 ? describedByParts.join(" ") : undefined;
 
   // ui-common: upstream's touch presentation (useSwitchTouch, the hit area
-  // observers) is not copied: it runs on core's private gesture and motion
-  // modules. Its CSS still rests the thumb under a finger.
-  const surfaceRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const thumbRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  // observers) is not copied, and neither are its touch-only atoms
+  // (TOUCH_ONLY_ATOMS), so its refs are gone too.
   // The track in a state: its theme target and fill. The other state's, for
   // the fade layer's colour (switchFill.ts).
   const trackPropsFor = (on: boolean) =>
@@ -379,16 +451,9 @@ export function Switch({
       ),
     );
   const switchElement = (
-    <div
-      ref={surfaceRef}
-      {...stylex.props(
-        styles.switchWrapper,
-        wrapperSizeStyles[size],
-        !isDisabled && !isBusy && styles.switchWrapperInteractive,
-      )}
-    >
+    <div {...stylex.props(styles.switchWrapper, wrapperSizeStyles[size])}>
       <input
-        ref={useMergedRefs(ref, disabledMessageTooltip.positionRef, inputRef)}
+        ref={useMergedRefs(ref, disabledMessageTooltip.positionRef)}
         id={id}
         type="checkbox"
         role="switch"
@@ -429,14 +494,14 @@ export function Switch({
           styles.input,
           rtlStyles.centerInline("-50%"),
           styles.inputCoarse,
+          coarseMinTargetStyle,
           isDisabled && styles.inputDisabled,
           isBusy && styles.inputBusy,
           switchFocusInput,
         )}
       />
-      <div ref={trackRef} aria-hidden="true" {...trackPropsFor(isOn)}>
+      <div aria-hidden="true" {...trackPropsFor(isOn)}>
         <div
-          ref={thumbRef}
           {...mergeProps(
             themeProps("switch-thumb", {
               checked: isOn ? "checked" : null,
@@ -505,7 +570,6 @@ export function Switch({
           disabledMessageTooltip.interactionRef(el);
         }}
         {...(isDisabled ? undefined : pressable)}
-        {...pressHoldsDragProps(!isDisabled)}
         {...stylex.props(
           styles.container,
           isLabelHidden && styles.containerLabelHidden,

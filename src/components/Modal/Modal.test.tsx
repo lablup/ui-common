@@ -109,6 +109,26 @@ describe("Modal surface", () => {
     expect(screen.getByText("page")).toHaveAttribute("inert");
   });
 
+  it("leaves Astryx's live regions reachable, so announcements inside it are spoken", () => {
+    const region = document.createElement("div");
+    region.setAttribute("data-astryx-live-region", "polite");
+    document.body.appendChild(region);
+    try {
+      const { container } = render(
+        <>
+          <main>page</main>
+          <Modal isOpen onOpenChange={vi.fn()} aria-label="over">
+            body
+          </Modal>
+        </>,
+      );
+      expect(container).toHaveAttribute("inert");
+      expect(region).not.toHaveAttribute("inert");
+    } finally {
+      region.remove();
+    }
+  });
+
   it("picks up a NotificationStack that appears while the modal is open", () => {
     function App({ notices }: { notices: number }) {
       return (

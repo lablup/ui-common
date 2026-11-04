@@ -71,6 +71,23 @@ describe("UncontrolledInput", () => {
     );
   });
 
+  it("commits nothing from a disabled field that is focused and left", async () => {
+    const onCommit = vi.fn();
+    render(
+      <UncontrolledInput
+        label="Name"
+        defaultValue="a"
+        isDisabled
+        onCommit={onCommit}
+      />,
+    );
+    await userEvent.tab();
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    expect(onCommit).not.toHaveBeenCalled();
+  });
+
   it("falls back to a hidden catalog name, translated", () => {
     const { rerender } = render(<UncontrolledInput />);
     expect(screen.getByRole("textbox", { name: "Select" })).toBeInTheDocument();

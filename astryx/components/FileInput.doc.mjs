@@ -31,7 +31,7 @@ export default {
   import: "@lablup/ui-common/FileInput",
   usage: {
     description:
-      "FileInput provides file upload with optional drag-and-drop support. Use it for single or multiple file selection with built-in validation for file type, size, and count. ui-common's FileInput is Astryx's, wrapped for Form.Item: it takes no label, description, required marker or status message, which the item's label, extra, rules and help own. It takes antd's disabled and status, and without value it is uncontrolled from defaultValue.",
+      "FileInput provides file upload with optional drag-and-drop support. Use it for single or multiple file selection with built-in validation for file type, size, and count. ui-common's FileInput is ui-common's copy of Astryx's (src/forks/FileInput), wrapped for Form.Item: it takes no label, description, required marker or status message, which the item's label, extra, rules and help own. It takes antd's disabled and status, and without value it is uncontrolled from defaultValue. The copy sends aria-* props, onFocus and onBlur to the trigger button, not the hidden native input.",
     bestPractices: [
       {
         guidance: true,

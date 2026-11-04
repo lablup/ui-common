@@ -77,7 +77,11 @@ const itemWidth = (value, antd) => ({
 /**
  * What each wrapper changes beyond the chrome, and an example of it.
  *
- * @type {Record<string, {props?: Record<string, object>, add?: object[], example: string, standalone: string}>}
+ * `fork` says what ui-common's copy changes, when the wrapper renders a fork
+ * (src/forks) instead of Astryx's component; `dropSentences` takes out the
+ * sentences of Astryx's description the fork does not do.
+ *
+ * @type {Record<string, {props?: Record<string, object>, add?: object[], example: string, standalone: string, fork?: string, dropSentences?: RegExp}>}
  */
 const WRAPPERS = {
   TextInput: {
@@ -192,6 +196,8 @@ const WRAPPERS = {
     standalone: '<DateRangeInput aria-label="Period" />',
   },
   Switch: {
+    fork: "The copy passes a given id to the native checkbox. It leaves out Astryx's touch presentation (the lift, drag-to-flip and the 44 × 44 px hit area): under a coarse pointer it slides on CSS transitions as under a mouse, a tap toggles it, and its target is at least 24 × 24 px.",
+    dropSentences: /iOS switch|hit area|cross-fades on a touch screen/,
     props: { width: itemWidth("'fit-content'", "Switch") },
     add: [
       {
@@ -263,6 +269,7 @@ const WRAPPERS = {
     standalone: '<Slider aria-label="Volume" defaultValue={50} />',
   },
   FileInput: {
+    fork: "The copy sends aria-* props, onFocus and onBlur to the trigger button, not the hidden native input.",
     props: {
       width: {
         default: "'fit-content' in a Form.Item ('100%' with mode=\"dropzone\")",
@@ -349,15 +356,18 @@ function keepAdvice(practice) {
 
 function wrapperUsage(name, usage) {
   const inline = name === "Switch" || name === "CheckboxInput";
+  const { fork, dropSentences } = WRAPPERS[name] ?? {};
   const description = (usage.description ?? "")
     .split(/(?<=\.)\s+/)
     .filter((sentence) => !CHROME_SENTENCE.test(sentence))
+    .filter((sentence) => !dropSentences?.test(sentence))
     .join(" ");
   return {
     ...usage,
     description:
-      `${description} ui-common's ${name} is Astryx's, wrapped for Form.Item: it takes no label, description, required marker or status message, ` +
-      "which the item's label, extra, rules and help own. It takes antd's disabled and status, and without value it is uncontrolled from defaultValue.",
+      `${description} ui-common's ${name} is ${fork ? `ui-common's copy of Astryx's (src/forks/${name})` : "Astryx's"}, wrapped for Form.Item: it takes no label, description, required marker or status message, ` +
+      "which the item's label, extra, rules and help own. It takes antd's disabled and status, and without value it is uncontrolled from defaultValue." +
+      (fork ? ` ${fork}` : ""),
     anatomy: (usage.anatomy ?? []).flatMap((part) => {
       if (inline && part.name === "Label") {
         return [

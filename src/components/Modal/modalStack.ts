@@ -116,6 +116,13 @@ function resolveZIndex(
  */
 export const MODAL_LIVE_ATTRIBUTE = "data-uic-modal-live";
 
+/**
+ * Astryx's shared live regions (`useAnnounce`, appended to `document.body`).
+ * Spared like a marked element, so an announcement made while a modal is open
+ * (a busy field inside it) is still spoken.
+ */
+const ASTRYX_LIVE_REGION_SELECTOR = "[data-astryx-live-region]";
+
 /** The background elements this module made inert, and only those. */
 const inertedBackground = new Set<Element>();
 
@@ -150,8 +157,8 @@ function backgroundOf(keep: Element[]): Element[] {
 /**
  * While any modal is open the rest of the page is `inert`, which is what
  * `aria-modal` promises. Modal roots (a drawer's too, when it claims a level
- * through `useModalLevel`) and elements marked `MODAL_LIVE_ATTRIBUTE` are
- * spared. An `inert` the page set itself is left alone, before and after.
+ * through `useModalLevel`), elements marked `MODAL_LIVE_ATTRIBUTE` and
+ * Astryx's live regions are spared. An `inert` the page set itself is left alone, before and after.
  */
 function syncBackground(): void {
   if (typeof document === "undefined" || !document.body) return;
@@ -164,6 +171,7 @@ function syncBackground(): void {
       : backgroundOf([
           ...roots,
           ...Array.from(document.querySelectorAll(`[${MODAL_LIVE_ATTRIBUTE}]`)),
+          ...Array.from(document.querySelectorAll(ASTRYX_LIVE_REGION_SELECTOR)),
         ]),
   );
   for (const el of inertedBackground) {

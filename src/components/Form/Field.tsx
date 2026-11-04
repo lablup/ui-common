@@ -90,6 +90,21 @@ function requireUpdate(
   return prevValue !== nextValue;
 }
 
+/**
+ * Whether the control a validate trigger fired on is disabled: by its own
+ * props, or (for `<Form disabled>`, which `Form.Item` injects after this
+ * runs) by the `disabled` / `aria-disabled` of the element the event is on.
+ */
+function isDisabledControl(childProps: Record<string, any>, event: unknown): boolean {
+  if (childProps.disabled === true || childProps.isDisabled === true) return true;
+  const target = (event as { target?: unknown } | null)?.target;
+  if (!(target instanceof Element)) return false;
+  return (
+    target.getAttribute("aria-disabled") === "true" ||
+    (target as HTMLInputElement).disabled === true
+  );
+}
+
 class Field
   extends React.PureComponent<InternalFieldProps, { resetCount: number }>
   implements FieldEntity
@@ -503,6 +518,9 @@ class Field
       const originTrigger = control[triggerName];
       control[triggerName] = (...args: any[]) => {
         originTrigger?.(...args);
+        // A disabled text field keeps its Tab stop (Astryx 0.7.5), so it
+        // still blurs; the user cannot edit it, so it is not validated.
+        if (isDisabledControl(childProps, args[0])) return;
         // Read `rules` at call time — a `dependencies`-driven rule swap must
         // take effect immediately, not on the next render.
         const { rules } = this.props;

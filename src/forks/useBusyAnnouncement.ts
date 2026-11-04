@@ -13,9 +13,12 @@ import { useAnnounce } from "@astryxdesign/core/hooks";
 /**
  * Announces each busy start of a control once, politely, through the public
  * `useAnnounce`; a re-render or a StrictMode replay does not repeat it, and
- * the settle re-arms it. Upstream's route through a region inside an open
- * modal dialog, and its withdrawal of a not-yet-exposed message, use private
- * parts of core's announcement channel, so they are not copied.
+ * the settle re-arms it. Inside ui-common's `Modal` it is still spoken: the
+ * modal stack leaves Astryx's live regions out of the page it inerts
+ * (modalStack.ts). Upstream's route through a region inside an open native
+ * modal `<dialog>` (a scrimmed Drawer), and its withdrawal of a not-yet-exposed
+ * message, use private parts of core's announcement channel, so they are not
+ * copied.
  */
 export function useBusyAnnouncement(isBusy: boolean, message: string): void {
   const announce = useAnnounce();
