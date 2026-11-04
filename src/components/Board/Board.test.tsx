@@ -633,6 +633,101 @@ describe("Board", () => {
       expect(detail.resizedItem).toMatchObject({ id: "a", columnSpan: 3, rowSpan: 3 });
       expect(shell("Alpha")).not.toHaveClass("uic-board-item--resizing");
     });
+
+    const placeholderCount = () =>
+      document.querySelectorAll(".uic-board__placeholder").length;
+
+    it("commits a drag whose handle loses its capture without a pointerup", () => {
+      const { onItemsChange } = renderBoard({ isResizable: true });
+      const handle = resizeHandleOf("Alpha");
+      press(handle, 1, 395, 495);
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 545, clientY: 595 });
+      expect(placeholderCount()).toBeGreaterThan(0);
+
+      fireEvent.lostPointerCapture(handle, { pointerId: 1 });
+      expect(liveText()).toBe("Resize committed.");
+      expect(onItemsChange).toHaveBeenCalledTimes(1);
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--active");
+      expect(placeholderCount()).toBe(0);
+      expect(shell("Beta").style.transform).toBe("");
+
+      // The capture also goes after a normal release: nothing ends twice.
+      press(handle, 2, 395, 495);
+      fireEvent.pointerMove(handle, { pointerId: 2, clientX: 545, clientY: 595 });
+      fireEvent.pointerUp(handle, { pointerId: 2 });
+      fireEvent.lostPointerCapture(handle, { pointerId: 2 });
+      expect(onItemsChange).toHaveBeenCalledTimes(2);
+    });
+
+    it("drops a press whose pointerup was missed, so a later hover does not drag", () => {
+      renderBoard({ isResizable: true });
+      const handle = resizeHandleOf("Alpha");
+      press(handle, 1, 395, 495);
+      fireEvent.lostPointerCapture(handle, { pointerId: 1 });
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 545, clientY: 595 });
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--active");
+      expect(placeholderCount()).toBe(0);
+    });
+
+    it("ends a drag on a pointerup or pointercancel only the window receives", () => {
+      const { onItemsChange } = renderBoard({ isResizable: true });
+      const handle = resizeHandleOf("Alpha");
+      press(handle, 1, 395, 495);
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 545, clientY: 595 });
+      // Another pointer's release changes nothing.
+      fireEvent.pointerUp(window, { pointerId: 7 });
+      expect(shell("Alpha")).toHaveClass("uic-board-item--resizing");
+
+      fireEvent.pointerUp(window, { pointerId: 1 });
+      expect(liveText()).toBe("Resize committed.");
+      expect(onItemsChange).toHaveBeenCalledTimes(1);
+      expect(placeholderCount()).toBe(0);
+
+      press(handle, 2, 395, 495);
+      fireEvent.pointerMove(handle, { pointerId: 2, clientX: 545, clientY: 595 });
+      fireEvent.pointerCancel(window, { pointerId: 2 });
+      expect(liveText()).toBe("Resize discarded.");
+      expect(onItemsChange).toHaveBeenCalledTimes(1);
+      expect(placeholderCount()).toBe(0);
+    });
+
+    it("discards an operation whose handle is turned off", () => {
+      const onItemsChange = vi.fn();
+      const view = render(
+        <Board<Data>
+          items={THREE}
+          onItemsChange={onItemsChange}
+          isMovable
+          isResizable
+        />,
+      );
+      const handle = resizeHandleOf("Alpha");
+      press(handle, 1, 395, 495);
+      fireEvent.pointerMove(handle, { pointerId: 1, clientX: 545, clientY: 595 });
+
+      // Turning moving off leaves a resize on.
+      view.rerender(
+        <Board<Data> items={THREE} onItemsChange={onItemsChange} isResizable />,
+      );
+      expect(shell("Alpha")).toHaveClass("uic-board-item--resizing");
+
+      view.rerender(<Board<Data> items={THREE} onItemsChange={onItemsChange} />);
+      expect(liveText()).toBe("Resize discarded.");
+      expect(onItemsChange).not.toHaveBeenCalled();
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--active");
+      expect(shell("Alpha").style.width).toBe("");
+      expect(placeholderCount()).toBe(0);
+
+      // A keyboard activation goes the same way.
+      view.rerender(
+        <Board<Data> items={THREE} onItemsChange={onItemsChange} isMovable />,
+      );
+      fireEvent.keyDown(dragHandleOf("Alpha"), { key: "Enter" });
+      expect(shell("Alpha")).toHaveClass("uic-board-item--active");
+      view.rerender(<Board<Data> items={THREE} onItemsChange={onItemsChange} />);
+      expect(liveText()).toBe("Move discarded.");
+      expect(shell("Alpha")).not.toHaveClass("uic-board-item--active");
+    });
   });
 
   describe("keyboard resize", () => {

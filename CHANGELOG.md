@@ -80,6 +80,14 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`Board` no longer gets stuck in a move or resize whose pointer release it
+  missed** (#128). A pointer drag ended only on the handle's own `pointerup` or
+  `pointercancel`, so a release the handle never saw left the item active, the
+  other items in their preview places (overlapping) and the drop placeholders
+  on screen, even after `isMovable` / `isResizable` went off. A drag now also
+  ends when its handle loses pointer capture or when the release reaches the
+  window, a press whose release was missed is dropped, and turning a handle off
+  discards its operation.
 - **`Form.useWatch` no longer freezes at its first render** when the component
   calling it is wrapped in `memo()` or `forwardRef()` on React 19.2 (#121).
   The watcher ran in a `useEffectEvent` callback, and React 19.2 keeps the
