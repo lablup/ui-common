@@ -63,7 +63,8 @@ jobs:
   # Everything that runs repository code — install, verify, build, pack — runs
   # here, with no secret, no environment and no id-token: a PR preview runs
   # unreviewed code, and anything that shares a runner with a step holding
-  # NPM_TOKEN can read it. The registry jobs below only download the tarballs.
+  # a registry credential can read it. The registry jobs below only download
+  # the tarballs.
   #
   # The dist-tag is decided once, before either registry publishes. main's
   # line publishes a prerelease under `next` and a plain version under
@@ -77,7 +78,7 @@ jobs:
   # package's and the commit, under `canary` or `pr-<number>`, with nothing
   # committed.
   build:
-    # Dependabot PRs get Dependabot's secrets, which hold no NPM_TOKEN.
+    # Dependabot PRs run without the release environment's trust; skip them.
     if: >-
       github.event_name != 'pull_request' ||
       (github.event.pull_request.head.repo.full_name == github.repository &&
@@ -283,15 +284,16 @@ jobs:
           name: packed
           path: packed
 
-      - name: Confirm the credential is valid for npmjs
-        run: npm whoami --registry https://registry.npmjs.org
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # npmjs trusts this workflow (OIDC trusted publishing, configured on each
+      # package's npmjs settings), so no token is stored. Needs npm >= 11.5.1.
+      - name: Use an npm with trusted publishing
+        run: npm install -g npm@11.16.0
 
       # npm publishes the tarballs pnpm packed: provenance is an npm CLI
       # feature, and npm would leave the CLI's `workspace:*` peer unrewritten
-      # if it packed the directory itself. A version that is already there only
-      # gets its dist-tag moved.
+      # if it packed the directory itself. Trusted publishing covers `npm
+      # publish` only, so a version that is already there (a re-run) is left
+      # alone; move its dist-tag by hand if needed.
       - name: Publish
         if: >-
           github.event_name == 'release' || github.event_name == 'push' ||
@@ -299,13 +301,12 @@ jobs:
         run: |
           for NAME in ui-common ui-common-cli; do
             if npm view "@lablup/$NAME@$VERSION" version --registry "$REGISTRY" > /dev/null 2>&1; then
-              npm dist-tag add "@lablup/$NAME@$VERSION" "$TAG" --registry "$REGISTRY"
+              echo "::warning::@lablup/$NAME@$VERSION is already on npmjs; not republished. To move the tag: npm dist-tag add @lablup/$NAME@$VERSION $TAG"
             else
               npm publish "./packed/lablup-$NAME-$VERSION.tgz" --provenance --access public --tag "$TAG" --registry "$REGISTRY"
             fi
           done
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           REGISTRY: https://registry.npmjs.org
           VERSION: ${{ needs.build.outputs.version }}
           TAG: ${{ needs.build.outputs.tag }}
@@ -317,7 +318,6 @@ jobs:
             npm publish "./packed/lablup-$NAME-$VERSION.tgz" --dry-run --access public --tag "$TAG" --registry https://registry.npmjs.org
           done
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           VERSION: ${{ needs.build.outputs.version }}
           TAG: ${{ needs.build.outputs.tag }}
 

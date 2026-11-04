@@ -631,8 +631,10 @@ the step against it.
    that the tag matches both `package.json` files and refuses to publish on a
    mismatch.
 4. The workflow runs in the `release` environment with `packages: write` and
-   the built-in `GITHUB_TOKEN` for GitHub Packages, and `NPM_TOKEN` for
-   npmjs.
+   the built-in `GITHUB_TOKEN` for GitHub Packages, and npm trusted
+   publishing (OIDC) for npmjs: each package's npmjs settings trust
+   `lablup/ui-common`, workflow `publish.yml`, environment `release`. No npm
+   token is stored.
 
 ### Patching an older line
 
