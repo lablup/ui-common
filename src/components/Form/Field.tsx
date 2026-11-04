@@ -93,11 +93,13 @@ function requireUpdate(
 /**
  * Whether the control a validate trigger fired on is disabled: by its own
  * props, or (for `<Form disabled>`, which `Form.Item` injects after this
- * runs) by the `disabled` / `aria-disabled` of the element the event is on.
+ * runs) by the `disabled` / `aria-disabled` of the element the handler is on,
+ * not of a descendant the event bubbled from.
  */
 function isDisabledControl(childProps: Record<string, any>, event: unknown): boolean {
   if (childProps.disabled === true || childProps.isDisabled === true) return true;
-  const target = (event as { target?: unknown } | null)?.target;
+  const e = event as { currentTarget?: unknown; target?: unknown } | null;
+  const target = e?.currentTarget ?? e?.target;
   if (!(target instanceof Element)) return false;
   return (
     target.getAttribute("aria-disabled") === "true" ||
