@@ -123,8 +123,19 @@
     padding: var(--spacing-3);
   }
 
+  /* The bar wraps (the `HStack`'s `wrap`) instead of overflowing a narrow
+     container: the range text takes its own line first, then the pager. */
   .uic-data-grid__footer {
     margin-top: var(--spacing-3);
+  }
+
+  /* The pager's own row (page-size selector, page buttons) wraps too, page
+     buttons on the last line, kept at the end like the bar. Astryx sets
+     `justify-content: space-between`, which would start a wrapped line. */
+  .uic-data-grid__pagination {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: var(--spacing-2);
   }
 
   /* The page-size list. Astryx's Pagination gives its Selector no placement,

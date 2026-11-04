@@ -1053,7 +1053,13 @@ export function DataGrid<T extends object = AnyRow>({
       </div>
 
       {hasBottomBar ? (
-        <HStack justify="end" align="center" gap={2} className="uic-data-grid__footer">
+        <HStack
+          justify="end"
+          align="center"
+          gap={2}
+          wrap="wrap"
+          className="uic-data-grid__footer"
+        >
           {isPagerVisible ? (
             <>
               <Text type="supporting" color="secondary">
@@ -1068,6 +1074,9 @@ export function DataGrid<T extends object = AnyRow>({
               <Pagination
                 variant="pages"
                 {...paginationRest}
+                className={["uic-data-grid__pagination", paginationRest.className]
+                  .filter(Boolean)
+                  .join(" ")}
                 page={activePage}
                 pageSize={pageSize}
                 totalItems={total}
