@@ -110,6 +110,8 @@ export function UncontrolledInput({
     controlStyle,
   };
   const commit = () => {
+    // A disabled field keeps its Tab stop (Astryx 0.7.5) and still blurs.
+    if (isDisabled) return;
     const value = justChanged.current ?? draft;
     justChanged.current = null;
     onCommit?.(value);

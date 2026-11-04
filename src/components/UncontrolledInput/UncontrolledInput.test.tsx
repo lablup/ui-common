@@ -63,7 +63,29 @@ describe("UncontrolledInput", () => {
 
   it("disables the field", () => {
     render(<UncontrolledInput label="Name" isDisabled />);
-    expect(screen.getByRole("textbox", { name: "Name" })).toBeDisabled();
+    // Astryx 0.7.5: a disabled text field is aria-disabled and keeps its Tab
+    // stop, not natively disabled.
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+  });
+
+  it("commits nothing from a disabled field that is focused and left", async () => {
+    const onCommit = vi.fn();
+    render(
+      <UncontrolledInput
+        label="Name"
+        defaultValue="a"
+        isDisabled
+        onCommit={onCommit}
+      />,
+    );
+    await userEvent.tab();
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await userEvent.tab();
+    expect(onCommit).not.toHaveBeenCalled();
   });
 
   it("falls back to a hidden catalog name, translated", () => {

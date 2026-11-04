@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.3, src/Drawer/Drawer.test.tsx
+// Forked from @astryxdesign/core 0.7.7, src/Drawer/Drawer.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
 // in the *.fork.test.tsx beside it. `DrawerHeader` is Astryx's own (not forked).
 // Changed (marked `ui-common:`): the non-modal tests, since this copy opens a
@@ -18,7 +18,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import { createContext, createRef, use, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { Drawer } from "./Drawer";
@@ -32,6 +32,7 @@ import * as compiled from "./Drawer.styles";
 // ui-common: core does not export layerStructureReset; the fork reuses its
 // compiled object (Drawer.styles.ts).
 const layerStructureReset = compiledStyles(compiled.layerStructureReset);
+import { Tooltip } from "@astryxdesign/core/Tooltip";
 
 // Mock dialog methods since they're not fully implemented in jsdom
 beforeEach(() => {
@@ -71,6 +72,21 @@ afterEach(() => {
 });
 
 describe("Drawer", () => {
+  // ui-common: skipped. It reads the computed style, and jsdom has none of
+  // the compiled CSS the fork's class names point at (astryx.css).
+  it.skip("clips its panel with `clip`, not `hidden`: the panel is no scroll container", () => {
+    // `hidden` clips exactly as well, so it reads as a harmless tidy-up, but it
+    // makes the panel a scroll container, and in Chromium its overscroll
+    // containment then holds a drag on the page beside a non-modal drawer
+    // (__tests__/DrawerNonModalPageScroll.a11y.chromium.spec.ts).
+    render(
+      <Drawer isOpen onOpenChange={() => {}} label="Details" hasScrim={false}>
+        Content
+      </Drawer>,
+    );
+    expect(getComputedStyle(screen.getByRole("dialog")).overflow).toBe("clip");
+  });
+
   it("renders children when open", () => {
     render(
       <Drawer isOpen onOpenChange={() => {}} label="Host details">
@@ -275,6 +291,28 @@ describe("Drawer", () => {
       expect(cancelEvent.defaultPrevented).toBe(true);
     });
 
+    // A file input fires a bubbling `cancel` at itself when its picker is
+    // dismissed (Escape, or Cancel in the chooser). It reaches the <dialog>
+    // like a close request but is not one.
+    it("stays open when a file picker inside it is dismissed", () => {
+      const handleOpenChange = vi.fn();
+      render(
+        <Drawer isOpen onOpenChange={handleOpenChange} label="Details">
+          <input type="file" aria-label="Picture" />
+        </Drawer>,
+      );
+      const fromPicker = new Event("cancel", { bubbles: true, cancelable: true });
+      screen.getByLabelText("Picture").dispatchEvent(fromPicker);
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      expect(fromPicker.defaultPrevented).toBe(false);
+      // Its own close request still closes it.
+      screen
+        .getByRole("dialog")
+        .dispatchEvent(new Event("cancel", { cancelable: true }));
+      expect(handleOpenChange).toHaveBeenCalledTimes(1);
+      expect(handleOpenChange).toHaveBeenCalledWith(false);
+    });
+
     it("ignores other keys", () => {
       const handleOpenChange = vi.fn();
       render(
@@ -474,6 +512,8 @@ describe("Drawer", () => {
           Content
         </Drawer>,
       );
+      fireEvent.pointerDown(screen.getByRole("dialog"));
+      fireEvent.pointerUp(screen.getByRole("dialog"));
       fireEvent.click(screen.getByRole("dialog"));
       expect(handleClick).toHaveBeenCalledTimes(1);
       expect(handleOpenChange).toHaveBeenCalledWith(false);
@@ -577,8 +617,42 @@ describe("Drawer", () => {
           Content
         </Drawer>,
       );
+      fireEvent.pointerDown(screen.getByRole("dialog"));
+      fireEvent.pointerUp(screen.getByRole("dialog"));
       fireEvent.click(screen.getByRole("dialog"));
       expect(handleOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it("forwards the caller's pointer handlers when a child prevents default", () => {
+      const onPointerDown = vi.fn();
+      const onPointerUp = vi.fn();
+      const onPointerCancel = vi.fn();
+      render(
+        <Drawer
+          isOpen
+          onOpenChange={() => {}}
+          label="Details"
+          onPointerDown={onPointerDown}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
+        >
+          <button
+            type="button"
+            onPointerDown={(event) => event.preventDefault()}
+            onPointerUp={(event) => event.preventDefault()}
+            onPointerCancel={(event) => event.preventDefault()}
+          >
+            Clear
+          </button>
+        </Drawer>,
+      );
+      const child = screen.getByRole("button", { name: "Clear" });
+      fireEvent.pointerDown(child);
+      fireEvent.pointerUp(child);
+      fireEvent.pointerCancel(child);
+      expect(onPointerDown).toHaveBeenCalledTimes(1);
+      expect(onPointerUp).toHaveBeenCalledTimes(1);
+      expect(onPointerCancel).toHaveBeenCalledTimes(1);
     });
 
     it("does not close when drawer content is clicked", () => {
@@ -889,6 +963,8 @@ describe("Drawer", () => {
       );
       const dialog = screen.getByRole("dialog");
       fireEvent.keyDown(dialog, { key: "Escape" });
+      fireEvent.pointerDown(dialog);
+      fireEvent.pointerUp(dialog);
       fireEvent.click(dialog);
       expect(handleOpenChange).toHaveBeenCalledTimes(2);
       expect(handleOpenChange).toHaveBeenNthCalledWith(1, false);
@@ -1285,5 +1361,78 @@ describe("Drawer", () => {
         getComputedStyle(dialog).getPropertyValue("--container-padding-inline-start"),
       ).toBe("0px");
     });
+  });
+});
+
+describe("Drawer without a scrim, opened from the keyboard", () => {
+  // ui-common: skipped. The fork opens a scrimless drawer with `show()`, not
+  // `showPopover()`, so the nested-show refusal this guards against cannot
+  // happen (useDrawerDialogPresence.ts).
+  it.skip("lets a focused control open its tooltip after the show, with no error", async () => {
+    // A <dialog>'s showPopover() runs the dialog focusing steps and focuses
+    // its first control inside the show. After a key press that focus is
+    // :focus-visible, so the control's tooltip asks to show while the
+    // drawer's show is still running, which the browser refuses with an
+    // InvalidStateError. This stand-in refuses the same way.
+    let showing = 0;
+    const tooltipShows: HTMLElement[] = [];
+    HTMLElement.prototype.showPopover = vi.fn(function (this: HTMLElement) {
+      if (showing > 0) {
+        throw new DOMException(
+          "Invalid to show a popover during another show operation",
+          "InvalidStateError",
+        );
+      }
+      showing++;
+      try {
+        this.setAttribute("open", "");
+        if (this instanceof HTMLDialogElement) {
+          this.querySelector<HTMLElement>("button")?.focus();
+        } else {
+          tooltipShows.push(this);
+        }
+      } finally {
+        showing--;
+      }
+    });
+    const matches = Element.prototype.matches;
+    vi.spyOn(Element.prototype, "matches").mockImplementation(function (
+      this: Element,
+      selector: string,
+    ) {
+      if (selector === ":focus-visible") {
+        return true;
+      }
+      return matches.call(this, selector);
+    });
+    const errors: unknown[] = [];
+    const onError = (event: ErrorEvent) => {
+      errors.push(event.error);
+      event.preventDefault();
+    };
+    window.addEventListener("error", onError);
+    try {
+      const { rerender } = render(
+        <Drawer isOpen={false} onOpenChange={() => {}} label="Filters" hasScrim={false}>
+          <Tooltip content="Close the filters">
+            <button type="button">Close</button>
+          </Tooltip>
+        </Drawer>,
+      );
+      rerender(
+        <Drawer isOpen onOpenChange={() => {}} label="Filters" hasScrim={false}>
+          <Tooltip content="Close the filters">
+            <button type="button">Close</button>
+          </Tooltip>
+        </Drawer>,
+      );
+      expect(document.activeElement).toBe(
+        screen.getByRole("button", { name: "Close", hidden: true }),
+      );
+      await waitFor(() => expect(tooltipShows.length).toBeGreaterThan(0));
+      expect(errors).toEqual([]);
+    } finally {
+      window.removeEventListener("error", onError);
+    }
   });
 });

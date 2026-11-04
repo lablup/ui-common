@@ -160,7 +160,7 @@ describe("Drawer fork: Escape goes through core's layer-dismissal stack, as lab'
   it("closes only an open ComplexSelector inside it, then itself on a second Escape", async () => {
     const user = userEvent.setup();
     render(<DrawerWithLayers />);
-    const trigger = screen.getByRole("button", { name: "Owner" });
+    const trigger = screen.getByRole("combobox", { name: "Owner" });
     await user.click(trigger);
     expect(trigger).toHaveAttribute("aria-expanded", "true");
     (await screen.findByLabelText("Owner search")).focus();

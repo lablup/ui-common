@@ -1,6 +1,6 @@
 {
   "name": "@lablup/ui-common",
-  "version": "0.2.0-alpha.20",
+  "version": "0.2.0-alpha.21",
   "description": "Lablup's UI layer on Astryx: the Astryx surface re-exported 1:1, the Lablup theme, and shared components",
   "license": "Apache-2.0",
   "author": "Lablup Inc.",
@@ -297,6 +297,10 @@
       "types": "./dist/astryx/Indicator.d.ts",
       "import": "./dist/astryx/Indicator.js"
     },
+    "./InfoTip": {
+      "types": "./dist/astryx/InfoTip.d.ts",
+      "import": "./dist/astryx/InfoTip.js"
+    },
     "./InputGroup": {
       "types": "./dist/astryx/InputGroup.d.ts",
       "import": "./dist/astryx/InputGroup.js"
@@ -541,6 +545,42 @@
       "types": "./dist/astryx/Typeahead/utils.d.ts",
       "import": "./dist/astryx/Typeahead/utils.js"
     },
+    "./CodeBlock/languages/dockerfile": {
+      "types": "./dist/astryx/CodeBlock/languages/dockerfile.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/dockerfile.js"
+    },
+    "./CodeBlock/languages/graphql": {
+      "types": "./dist/astryx/CodeBlock/languages/graphql.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/graphql.js"
+    },
+    "./CodeBlock/languages/java": {
+      "types": "./dist/astryx/CodeBlock/languages/java.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/java.js"
+    },
+    "./CodeBlock/languages/lua": {
+      "types": "./dist/astryx/CodeBlock/languages/lua.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/lua.js"
+    },
+    "./CodeBlock/languages/objective-c": {
+      "types": "./dist/astryx/CodeBlock/languages/objective-c.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/objective-c.js"
+    },
+    "./CodeBlock/languages/powershell": {
+      "types": "./dist/astryx/CodeBlock/languages/powershell.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/powershell.js"
+    },
+    "./CodeBlock/languages/ruby": {
+      "types": "./dist/astryx/CodeBlock/languages/ruby.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/ruby.js"
+    },
+    "./CodeBlock/languages/thrift": {
+      "types": "./dist/astryx/CodeBlock/languages/thrift.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/thrift.js"
+    },
+    "./CodeBlock/languages/toml": {
+      "types": "./dist/astryx/CodeBlock/languages/toml.d.ts",
+      "import": "./dist/astryx/CodeBlock/languages/toml.js"
+    },
     "./Markdown/remark": {
       "types": "./dist/astryx/Markdown/remark.d.ts",
       "import": "./dist/astryx/Markdown/remark.js"
@@ -687,8 +727,8 @@
     "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run check:boundary && pnpm run theme:check && pnpm run test && pnpm run build && pnpm run check:pack && pnpm run check:integration"
   },
   "dependencies": {
-    "@astryxdesign/core": "0.7.3",
-    "@astryxdesign/theme-neutral": "0.7.3",
+    "@astryxdesign/core": "0.7.7",
+    "@astryxdesign/theme-neutral": "0.7.7",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/modifiers": "9.0.0",
     "@dnd-kit/sortable": "10.0.0",
@@ -698,7 +738,7 @@
   },
   "peerDependencies": {
     "@astryxdesign/cli": ">=0.6.7",
-    "@astryxdesign/lab": "0.7.3-canary.cac3d8d",
+    "@astryxdesign/lab": "0.7.7-canary.273ec43",
     "@stylexjs/stylex": "^0.19.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
@@ -712,8 +752,8 @@
     }
   },
   "devDependencies": {
-    "@astryxdesign/cli": "0.7.3",
-    "@astryxdesign/lab": "0.7.3-canary.cac3d8d",
+    "@astryxdesign/cli": "0.7.7",
+    "@astryxdesign/lab": "0.7.7-canary.273ec43",
     "@eslint/js": "^9.39.0",
     "@storybook/addon-docs": "^10.6.1",
     "@storybook/react-vite": "^10.6.1",

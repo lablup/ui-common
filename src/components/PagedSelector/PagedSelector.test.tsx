@@ -61,11 +61,15 @@ const FOUR: PagedSelectorOption[] = [...OPTIONS, { value: "d", label: "delta" }]
 
 const h = { hidden: true } as const;
 
-const trigger = () => screen.getAllByRole("button")[0]!;
+// Astryx 0.7.6 gives ComplexSelector's trigger the combobox role, as the
+// panel's search input has.
+const trigger = () =>
+  screen.getAllByRole("combobox", h).find((el) => el.tagName === "BUTTON")!;
 const triggerText = () => trigger().textContent?.trim() ?? "";
 const listbox = () => screen.getByRole("listbox", h);
 const optionRows = () => screen.getAllByRole("option", h);
-const searchBox = () => screen.getByRole("combobox", h);
+const searchBox = () =>
+  screen.getAllByRole("combobox", h).find((el) => el.tagName === "INPUT")!;
 const highlightedLabels = () =>
   optionRows()
     .filter((row) => row.getAttribute("data-highlighted") === "true")
@@ -216,7 +220,7 @@ describe("PagedSelector popup: keyboard", () => {
 
     await user.click(trigger());
     expect(listbox()).toHaveAttribute("tabindex", "0");
-    expect(screen.queryByRole("combobox", h)).not.toBeInTheDocument();
+    expect(searchBox()).toBeUndefined();
 
     listbox().focus();
     await user.keyboard("{ArrowDown}");
@@ -304,6 +308,27 @@ describe("PagedSelector popup: multiple", () => {
     expect(onChange).toHaveBeenLastCalledWith(["z"], [{ value: "z", label: "zulu" }]);
     // The panel stays open for the next pick.
     expect(trigger()).toHaveAttribute("aria-expanded", "true");
+  });
+});
+
+describe("PagedSelector popup: disabled field", () => {
+  it("commits nothing from a panel left open after the field is disabled", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const { rerender } = render(
+      <PagedSelector label="Targets" options={OPTIONS} onChange={onChange} />,
+    );
+    await user.click(trigger());
+    rerender(
+      <PagedSelector
+        label="Targets"
+        options={OPTIONS}
+        onChange={onChange}
+        isDisabled
+      />,
+    );
+    await user.click(optionRows()[0]!);
+    expect(onChange).not.toHaveBeenCalled();
   });
 });
 
@@ -478,6 +503,17 @@ describe("PagedSelector popup: empty state", () => {
     await user.click(trigger());
     expect(listbox()).toHaveTextContent("Loading...");
     expect(listbox()).not.toHaveTextContent(/no results/i);
+  });
+
+  it("announces the load once: the field's busy announcement, not its own region too", async () => {
+    const user = userEvent.setup();
+    render(<PagedSelector label="Targets" options={[]} isLoading />);
+    await user.click(trigger());
+    const ownRegions = Array.from(
+      document.querySelectorAll('[aria-live="polite"]:not([data-astryx-live-region])'),
+    );
+    expect(ownRegions.length).toBeGreaterThan(0);
+    for (const region of ownRegions) expect(region).not.toHaveTextContent(/loading/i);
   });
 
   it("leaves a populated list alone while loading", async () => {

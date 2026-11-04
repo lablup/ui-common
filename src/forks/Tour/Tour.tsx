@@ -1,6 +1,6 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 //
-// Forked from @astryxdesign/core 0.7.3, src/Tour/Tour.tsx
+// Forked from @astryxdesign/lab 0.7.7-canary.273ec43, src/Tour/Tour.tsx
 // (MIT; see NOTICE). Unchanged: forked with TourStep, whose context it provides.
 // Provenance and the drift guard: src/forks/provenance.json.
 
@@ -10,7 +10,7 @@
  * @file Tour.tsx
  * @input Uses React state/refs, TourContext
  * @output Exports Tour controller component and TourProps
- * @position Lab experiment (facebook/astryx#4239); controller consumed by index.ts
+ * @position Lab experiment (meta/astryx#4239); controller consumed by index.ts
  *
  * Tour is the controller for a product-tour / NUX walkthrough. It renders no
  * visible chrome of its own — it owns the tour state (active step, advance /

@@ -1,20 +1,24 @@
 {
   "ComplexSelector": {
     "package": "@astryxdesign/core",
-    "version": "0.7.3",
+    "version": "0.7.7",
     "upstream": "https://github.com/facebook/astryx/pull/6362",
     "files": {
-      "src/ComplexSelector/ComplexSelector.tsx": "87f8e0bce13e4e832f53f32f76bc2e48ec749db38bd0ccab87ba354051f6a06f",
+      "src/ComplexSelector/ComplexSelector.tsx": "c6aef1a97e703e342ba29f855683ac0ed553437a96df5ad3571ca2b1c3c66371",
       "src/ComplexSelector/index.ts": "afba2b6a8d7b7e686cae84eb033c2ad4eafc8b48c8f30997022a1597d943b359",
-      "src/ComplexSelector/ComplexSelector.test.tsx": "9e3c686f8a1d118576e12cba9e5cd504042eab0723a8c34dceaf575eaf526426",
       "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
-      "dist/ComplexSelector/ComplexSelector.js": "d9b53e61ebfd2ccc5ff5f9c3c8786a169d9dcab1edf2f4cded096b0c227bcc0f",
-      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
+      "dist/ComplexSelector/ComplexSelector.js": "3fe03cc6b4d510ae66e39c465c3076d27836a65cd78e9139ce229e8a27863a50",
+      "dist/utils/interactionOverlay.stylex.js": "665bd08d1c2858df73257035bafbbaf45b03c74daf3ca2800c696046492f47d5",
+      "src/Field/fieldParts.ts": "67444f567388150535f53437f686d0c950a5360f2e9f15b0ff941f6f5ac74083",
+      "src/hooks/useBusyAnnouncement.ts": "3a2539c4fc41f8821bae43753a1f45f65d4c702d07b99df26d3f1fe3fd5c6cf0"
     },
     "styles": {
       "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
       "from": [
-        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
+        {
+          "file": "dist/ComplexSelector/ComplexSelector.js",
+          "consts": ["styles"]
+        },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -24,16 +28,21 @@
   },
   "Drawer": {
     "package": "@astryxdesign/core",
-    "version": "0.7.3",
+    "version": "0.7.7",
     "upstream": null,
-    "notes": "Deliberate divergence beyond a fix: a scrimless drawer opens with show() and a z-index (base 1000, later drawers above) instead of upstream's manual popover (showPopover), because ui-common's Modal and notification stack are z-index surfaces a top-layer drawer would cover; aria-modal passes through; a scrimmed (modal) drawer provides its dialog through ModalPortalContext so ui-common's Modal opened inside renders there, in the top layer. Escape routing is upstream's. On an Astryx bump, keep these until ui-common's Modal and notification stack are top layer and Astryx passes aria-modal through.",
+    "notes": "Deliberate divergence beyond a fix: a scrimless drawer opens with show() and a z-index (base 1000, later drawers above) instead of upstream's manual popover (showPopover), because ui-common's Modal and notification stack are z-index surfaces a top-layer drawer would cover; aria-modal passes through; a scrimmed (modal) drawer provides its dialog through ModalPortalContext so ui-common's Modal opened inside renders there, in the top layer. Escape routing is upstream's. On an Astryx bump, keep these until ui-common's Modal and notification stack are top layer and Astryx passes aria-modal through. Since 0.7.7, core's private useModalOutlet (toast viewport hosted in an open modal drawer) and ModalAnnounceProvider (announcements from inside the modal drawer) are left out, as is LayerContentBoundary; the stateless helpers 0.7.7 added are inlined.",
     "files": {
-      "src/Drawer/Drawer.tsx": "2a393e8721656b6468b47e69c760ad2c3a301ab47f20ae17530e3c460707a305",
-      "src/Drawer/useDrawerDialogPresence.ts": "577ca01264adf3d7c110262b865c7a8364632effdab395653c9569774bc9acb3",
+      "src/Drawer/Drawer.tsx": "33f0288d97a214b0597c0aebed2eef9f026877ca7afc453b5d6f60f8d612d03c",
+      "src/Drawer/useDrawerDialogPresence.ts": "7443cbd59d2e77e4599f60ca173425ea995d75d581e771eec4d206755d3aa567",
       "src/Drawer/index.ts": "9361a3abfdb99a10cae6473e3ad1095fb6845c695673d44ec4ac7f104d0533cd",
-      "src/Drawer/Drawer.test.tsx": "2860eba67711140f68c9f3c5bff41ff5b4058044e482290b93868f8cbe971d0b",
-      "dist/Drawer/Drawer.js": "215e35c5d9bd4d8cd6f2b3e6ee6192e6b311499f80208e1f66e7a5ac7dec88f9",
-      "dist/Layer/layerStructureReset.stylex.js": "7bbb1c9ad2167cef09004d9d62e5e9189289d1869694274ffa95ff02e3b1cea8"
+      "dist/Drawer/Drawer.js": "f020f7b9a152b74f7a702a4b6958c6e2830648ec51964d754d8f5c896c561e71",
+      "dist/Layer/layerStructureReset.stylex.js": "c0699e4e2b709929d205dc171ff5d474b0b95865420f31c327855a993e277844",
+      "src/hooks/useIsHydrating.ts": "61c0a3581a6fa2b8a40dc47e4b1343b4d75d54c854df27060e747662af7747c0",
+      "src/hooks/useSettledOpen.ts": "d95838c17f12a86bec1090e2cc3cbd2bf8370d02a18a20ad5e49214b77bbf30c",
+      "src/Layer/useBackdropPress.ts": "9262ce43968c05be7b4609151f803252cd8532bb2d38692737ef392d0da532ec",
+      "src/utils/chainEventHandlers.ts": "12375fe37071db75ab037fe6ed620b79a864553c8e452a3278bd7dfc14e41613",
+      "src/Layer/layerClickBoundary.ts": "4cdce6e435c278b268fdd1870b57ab75d77db2249e0d6820108e5319a5f9ef28",
+      "src/privateAttributes/layerRoot.stylex.ts": "3ae6eff027819e798e33ab3079928948866161b30489e512eacd5007aa52d13d"
     },
     "styles": {
       "file": "src/forks/Drawer/Drawer.styles.ts",
@@ -51,32 +60,35 @@
   },
   "Tour": {
     "package": "@astryxdesign/lab",
-    "version": "0.7.3-canary.cac3d8d",
+    "version": "0.7.7-canary.273ec43",
     "upstream": null,
     "files": {
-      "src/Tour/Tour.tsx": "22a39b4c8d6a0ad73e9392bfe6e50deb9eba2831c70bb54e6227b875dc240554",
-      "src/Tour/TourStep.tsx": "8977c221017d9a8b466528f1e9ba3d652308a3446d6d42afbfac25c8401da038",
+      "src/Tour/Tour.tsx": "bc639d0d841ae518d00a871d1628f03c97e6813c08a625e4119e8068d7752d0c",
+      "src/Tour/TourStep.tsx": "1cea8429701ef9210e98e985151578c4b220faa112ee85eb6818818cacaa6e06",
       "src/Tour/TourContext.ts": "638a4cde7e3b10952a04dc1d86de5e2fbc3fff88c7ed12243e30f072458dff36",
       "src/Tour/useTour.ts": "431878830f7c070e7520dd8c402e6c8cfab1e5ececefa289b3058791ec0ac49b",
       "src/Tour/index.ts": "127c290fb8ed1a977d282e0dd407724c0f133634ec8f38b515dc038f1da2efa8",
-      "src/Tour/Tour.test.tsx": "1cdae08a08cda7aa0a9ed29456cb7efa8c6e57135d3d1ab2ce18735f36cfd1ad",
-      "dist/Tour/TourStep.js": "67b192f77652222b3a0eafac98ea1397a224108e0f35d4534efca261a27c64b5"
+      "dist/Tour/TourStep.js": "e7b192fd1a168aa78b6c8d70f775cb261cc95a46cd4030d24ffb3315d87e6d15"
     },
     "styles": {
       "file": "src/forks/Tour/TourStep.styles.ts",
-      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
+      "from": [
+        {
+          "file": "dist/Tour/TourStep.js",
+          "consts": ["styles"]
+        }
+      ]
     }
   },
   "Stat": {
     "package": "@astryxdesign/lab",
-    "version": "0.7.3-canary.cac3d8d",
+    "version": "0.7.7-canary.273ec43",
     "upstream": null,
     "notes": "An addition, not a fix: deltaTooltip, a tooltip anchored to the delta that the delta takes keyboard focus for, with media outside it. Without deltaTooltip the markup is upstream's. On an Astryx bump, keep it until lab has a way to explain the delta.",
     "files": {
-      "src/Stat/Stat.tsx": "c30208aff1e036ab7ba916645c52d76ac5b1e3c0b0b2be3096881ee4d865925d",
+      "src/Stat/Stat.tsx": "4d11c35c26a512a64dda4b72550f900a5ce808d9710d4f64d1e8421bc4250c01",
       "src/Stat/index.ts": "7c3483cbcd97c527f22b8aa6e202b3f1d2f1e4db6afda7e7a62c2d60fb24c282",
-      "src/Stat/Stat.test.tsx": "72366100b3f6aac745d4ef7e5073aac8752b85a56982421b6a1cf36bdca67d95",
-      "dist/Stat/Stat.js": "895c4c7dbdbc4f5f3b5749839bdab62fcee3b2bbfc22b9156f05852aef6c94fe"
+      "dist/Stat/Stat.js": "a80696c467849680bcb53a6432fb4f496d609d61ef75cc2192e145de8688eb51"
     },
     "styles": {
       "file": "src/forks/Stat/Stat.styles.ts",
@@ -90,17 +102,17 @@
   },
   "Switch": {
     "package": "@astryxdesign/core",
-    "version": "0.7.3",
+    "version": "0.7.7",
     "upstream": null,
     "wrappedBy": "Switch",
     "files": {
-      "src/Switch/Switch.tsx": "30951231b1ee694c952c979917687f2c3e52d4de06a6429698120c45089b8854",
+      "src/Switch/Switch.tsx": "2b75d518305559ca003b3cfabc7e1913f2a89bb3affd6558360f293e765c842e",
       "src/Switch/index.ts": "b3e10a21443b08868eedcb4a26660145c16f7a06216e5e5bed85148c9d78168b",
-      "src/Switch/Switch.test.tsx": "38b6d7f39ae909e58f14843b9c385afebda42c091a49840d42af6ac6961b6f40",
       "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
-      "dist/Switch/Switch.js": "a3726fecbc3d251d55f27c0182c1336c5b6819ac5927a8314229fa2ad57547c2",
-      "dist/Switch/switch.markers.stylex.js": "47679bb46e7668c61404fadb8054021255b7a4ef9064745654e5c99f83e492f8",
-      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
+      "dist/Switch/Switch.js": "ef4fdeb4ff7c83eecea1812f1e884c1adcf4f0ce6d3b00c5afeb07543eaed9c8",
+      "dist/Switch/switch.markers.stylex.js": "46f763479368037c8da5ad3b5ec7fdc17d8e4414626b5d2e16220cd376fe9bba",
+      "dist/utils/interactionOverlay.stylex.js": "665bd08d1c2858df73257035bafbbaf45b03c74daf3ca2800c696046492f47d5",
+      "src/privateAttributes/pressHoldsDrag.stylex.ts": "7c2cfa1fe06a7f05f4136b1796355ac3bce483e5c7c2d7c7d8e1b3e73fcb5292"
     },
     "styles": {
       "file": "src/forks/Switch/Switch.styles.ts",
@@ -109,10 +121,10 @@
           "file": "dist/Switch/Switch.js",
           "consts": [
             "wrapperSizeStyles",
-            "inputSizeStyles",
             "trackSizeStyles",
             "thumbOffSizeStyles",
             "thumbOnSizeStyles",
+            "pressOwnerStyles",
             "labelWrapperSizeStyles",
             "styles",
             "dynamicWidthStyles"
@@ -120,26 +132,29 @@
         },
         {
           "file": "dist/Switch/switch.markers.stylex.js",
-          "consts": ["switchScope", "switchFocusScope"]
+          "consts": ["switchScope", "switchFocusInput"]
         },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
         }
       ]
-    }
+    },
+    "notes": "Upstream 0.7.7's touch presentation (useSwitchTouch, switchTouch.ts, switchFill.ts and the utils/hitArea observers) is not copied: it runs on core's private gesture, motion and hit-area modules. Its touch-only atoms (TOUCH_ONLY_ATOMS in Switch.tsx), touch-action: pan-y and the press-holds-drag mark are left out with it, so a coarse pointer gets the mouse presentation, plus core's 24px min-width/min-height atoms under (pointer: coarse). Switch.fork.test.tsx re-checks the atom list against astryx.css; re-check on a bump whether core exports those modules."
   },
   "FileInput": {
     "package": "@astryxdesign/core",
-    "version": "0.7.3",
+    "version": "0.7.7",
     "upstream": null,
     "wrappedBy": "FileInput",
     "files": {
-      "src/FileInput/FileInput.tsx": "8f3613ee436441c12c950588a189e89ddf8628ea93ca94cb92189e8baa9e0650",
+      "src/FileInput/FileInput.tsx": "39858a1f20d744df8a3bb2fb4c5b024598457f4c2f2b85fa1f75f1c57da4155a",
       "src/FileInput/index.ts": "7b0a29d5e380a860c86919aa059e607e3bf3d36ebb67108670e8bf629145bedc",
-      "src/FileInput/FileInput.test.tsx": "0a7ef5863ab52d175f65fc8f1416b03552319ad65c21bb08f69d39f90dc79cc0",
       "src/Field/fieldParts.ts": "67444f567388150535f53437f686d0c950a5360f2e9f15b0ff941f6f5ac74083",
-      "dist/FileInput/FileInput.js": "c168202919d0a67ac4e30b7f00de2ce9c98ff749c55a1ffedd5a490d0f678d64"
+      "dist/FileInput/FileInput.js": "50c0bc31855e81c03c1bfb9228acad9df9519fa0edd99a04bf3e09a048f1adbf",
+      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
+      "src/i18n/useListFormatter.ts": "496935def0603872d4ea71dff10f0fce98b361d44e2dbf3785bb0465d0f17698",
+      "src/hooks/useBusyAnnouncement.ts": "3a2539c4fc41f8821bae43753a1f45f65d4c702d07b99df26d3f1fe3fd5c6cf0"
     },
     "styles": {
       "file": "src/forks/FileInput/FileInput.styles.ts",
@@ -147,53 +162,6 @@
         {
           "file": "dist/FileInput/FileInput.js",
           "consts": ["styles", "statusBorderStyles"]
-        }
-      ]
-    }
-  },
-  "SegmentedControl": {
-    "package": "@astryxdesign/core",
-    "version": "0.7.3",
-    "upstream": null,
-    "wrappedBy": "SegmentedControl",
-    "files": {
-      "src/SegmentedControl/SegmentedControl.tsx": "84a68d1f297fadc6db77dc3932afd99aa8174810a8eb12d3187bf1c56fcabff0",
-      "src/SegmentedControl/SegmentedControlContext.ts": "7d8f142a0f016ddc9a44859f881d4485ce5ddc5a74916a91e89aed5d9a2a28ed",
-      "src/SegmentedControl/index.ts": "38e55c0151872a87e37e4d0be8408f2c02b68d26ecfc7ea89312330c9321d636",
-      "src/SegmentedControl/SegmentedControl.test.tsx": "067812b2e7f4780080c0834bb4f181f499050865ef48e8809be3b6ea56e4a317",
-      "dist/SegmentedControl/SegmentedControl.js": "1498559f5e9bd4e6c989b9ee5aea78c96fa3fe1f414d86b2f5fba829268ba362"
-    },
-    "styles": {
-      "file": "src/forks/SegmentedControl/SegmentedControl.styles.ts",
-      "from": [
-        {
-          "file": "dist/SegmentedControl/SegmentedControl.js",
-          "consts": ["styles", "sizeStyles"]
-        }
-      ]
-    }
-  },
-  "SegmentedControlItem": {
-    "package": "@astryxdesign/core",
-    "version": "0.7.3",
-    "upstream": null,
-    "wrappedBy": "SegmentedControl",
-    "notes": "Unchanged; forked with SegmentedControl, whose context it reads. Its compiled styles share names with SegmentedControl's, so they get their own file.",
-    "files": {
-      "src/SegmentedControl/SegmentedControlItem.tsx": "4066978b3a6beb8ab74f2bf84822bc42f6f00c68b27ff49c97d487acfb0622c3",
-      "dist/SegmentedControl/SegmentedControlItem.js": "3e38c3adc5610529a536ead94930f7cb36a5d90453b4c814b1119dd96eae2167",
-      "dist/utils/interactionOverlay.stylex.js": "fe329e435783b0909490b49044f64b8af0157b4bb8f42bbd5051ae5941109581"
-    },
-    "styles": {
-      "file": "src/forks/SegmentedControl/SegmentedControlItem.styles.ts",
-      "from": [
-        {
-          "file": "dist/SegmentedControl/SegmentedControlItem.js",
-          "consts": ["styles", "sizeStyles", "iconSizeStyles"]
-        },
-        {
-          "file": "dist/utils/interactionOverlay.stylex.js",
-          "consts": ["interactionOverlayStyles"]
         }
       ]
     }

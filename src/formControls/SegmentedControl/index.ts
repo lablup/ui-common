@@ -1,14 +1,9 @@
 /**
- * `@lablup/ui-common/SegmentedControl`: ui-common's `Form.Item` wrapper
- * (src/formControls) over its SegmentedControl fork, with the fork's
- * `SegmentedControlItem`, which reads the fork's context. Astryx's is
- * excluded (exports.exclude.json).
+ * `@lablup/ui-common/SegmentedControl`: Astryx's SegmentedControl subpath,
+ * with `SegmentedControl` and its props type replaced by ui-common's
+ * `Form.Item` wrapper (src/formControls). Astryx's is excluded
+ * (exports.exclude.json).
  */
-export {
-  SegmentedControlItem,
-  type SegmentedControlItemProps,
-  type SegmentedControlLayout,
-  type SegmentedControlSize,
-} from "../../forks/SegmentedControl";
+export * from "@astryxdesign/core/SegmentedControl";
 export { SegmentedControl } from "./SegmentedControl";
 export type { SegmentedControlProps } from "./SegmentedControl";
