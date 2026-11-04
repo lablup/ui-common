@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./react-BZJXY1be.js";import{n,r}from"./layerScopedContext-Cb8LRv30.js";function i(e,t=`md`){let n=(0,a.use)(o);return e??n??t}var a,o,s;function c(){return(c=e((()=>{a=t(),r(),o=n(null),o.displayName=`SizeContext`,s=o.Provider})))()}export{c as n,i as r,s as t};

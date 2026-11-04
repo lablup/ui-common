@@ -1,0 +1,1 @@
+@layer ui-common{.uic-smooth-height--active{transition:height var(--duration-fast-max) var(--ease-standard);overflow:hidden}.uic-smooth-height__content{display:flow-root}@media (prefers-reduced-motion:reduce){.uic-smooth-height--active{transition:none}}}

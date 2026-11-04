@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./react-BZJXY1be.js";import{n}from"./mergeRefs-DPsLhf5p.js";function r(e,t,r,a,o,s){return(0,i.useMemo)(()=>n(e,t,r,a,o,s),[e,t,r,a,o,s])}var i;function a(){return(a=e((()=>{i=t()})))()}export{r as n,a as t};
