@@ -85,7 +85,11 @@ describe("ConfirmPopover", () => {
     );
     await closeWith();
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    expect(screen.getByRole("button", { name: "Leave" })).toHaveFocus();
+    // Focus is handed back in an effect after the close, which can land after
+    // the dialog has gone.
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Leave" })).toHaveFocus(),
+    );
   });
 
   it("styles and disables the action as asked", async () => {

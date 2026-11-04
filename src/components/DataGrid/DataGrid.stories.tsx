@@ -264,6 +264,19 @@ export const ServerPagination: Story = {
   },
 };
 
+/** In a narrow, clipping container the bottom bar wraps instead of being cut off. */
+export const NarrowContainer: Story = {
+  args: {
+    data: MANY_RESOURCES,
+    columnSettings: { onOverridesChange: fn() },
+  },
+  render: (args) => (
+    <div style={{ width: 360, overflow: "hidden" }}>
+      <DataGrid<Resource> {...args} />
+    </div>
+  ),
+};
+
 export const WithoutPagination: Story = {
   args: { data: RESOURCES.slice(0, 5), pagination: false },
 };
