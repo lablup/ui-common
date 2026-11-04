@@ -718,6 +718,38 @@ export function Board<D = unknown>({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isPointerDrag]);
 
+  // The handle's own pointerup ends a drag. When the handle never sees it
+  // (its capture lost, the release landing elsewhere), the release reaching
+  // the window does, so the board never stays in the drag's preview.
+  useEffect(() => {
+    if (!isPointerDrag) return;
+    const onPointerUp = (event: globalThis.PointerEvent) => {
+      const tr = transitionRef.current;
+      if (tr?.pointer?.id === event.pointerId) commitRef.current();
+    };
+    const onPointerCancel = (event: globalThis.PointerEvent) => {
+      const tr = transitionRef.current;
+      if (tr?.pointer?.id === event.pointerId) discardRef.current();
+    };
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerCancel);
+    return () => {
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerCancel);
+    };
+  }, [isPointerDrag]);
+
+  // Turning moving or resizing off removes that handle, and with it the only
+  // ways to end its operation: discard one that is still on.
+  useEffect(() => {
+    const disabled = (operation: BoardOperation) =>
+      operation === "move" ? !isMovable : !isResizable;
+    if (pendingRef.current && disabled(pendingRef.current.operation))
+      pendingRef.current = null;
+    const tr = transitionRef.current;
+    if (tr && disabled(tr.operation)) discardRef.current();
+  }, [isMovable, isResizable]);
+
   /** One keyboard or direction-button step of the active transition. */
   const stepBy = (tr: Transition, direction: Direction) => {
     const dx = direction === "left" ? -1 : direction === "right" ? 1 : 0;
@@ -939,6 +971,16 @@ export function Board<D = unknown>({
     discard();
   };
 
+  // A handle loses its capture right after its pointerup. A press or drag
+  // still on by then missed that pointerup: the press is dropped, so a later
+  // hover cannot start a drag, and the drag commits as a release would.
+  const onHandleLostPointerCapture = (event: PointerEvent<HTMLButtonElement>) => {
+    if (pendingRef.current?.pointerId === event.pointerId) pendingRef.current = null;
+    const tr = transitionRef.current;
+    if (!tr?.pointer || tr.pointer.id !== event.pointerId) return;
+    commit();
+  };
+
   const onHandleKeyDown =
     (operation: BoardOperation, itemId: string) =>
     (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -1117,6 +1159,7 @@ export function Board<D = unknown>({
                   onPointerMove={onHandlePointerMove}
                   onPointerUp={onHandlePointerUp}
                   onPointerCancel={onHandlePointerCancel}
+                  onLostPointerCapture={onHandleLostPointerCapture}
                   onKeyDown={onHandleKeyDown("move", item.id)}
                   onBlur={onHandleBlur}
                 />
@@ -1163,6 +1206,7 @@ export function Board<D = unknown>({
                       onPointerMove={onHandlePointerMove}
                       onPointerUp={onHandlePointerUp}
                       onPointerCancel={onHandlePointerCancel}
+                      onLostPointerCapture={onHandleLostPointerCapture}
                       onKeyDown={onHandleKeyDown("resize", item.id)}
                       onBlur={onHandleBlur}
                     />
