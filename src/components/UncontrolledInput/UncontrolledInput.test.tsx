@@ -63,7 +63,12 @@ describe("UncontrolledInput", () => {
 
   it("disables the field", () => {
     render(<UncontrolledInput label="Name" isDisabled />);
-    expect(screen.getByRole("textbox", { name: "Name" })).toBeDisabled();
+    // Astryx 0.7.5: a disabled text field is aria-disabled and keeps its Tab
+    // stop, not natively disabled.
+    expect(screen.getByRole("textbox", { name: "Name" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
   });
 
   it("falls back to a hidden catalog name, translated", () => {

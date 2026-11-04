@@ -105,15 +105,14 @@ under Astryx's own name and import path until Astryx ships the fix. It exists
 because a product's pnpm `patchedDependencies` never reach that product's
 consumers, and ui-common's consumers import Astryx through ui-common.
 
-| Fork               | Where                                      | Fix                                                                                                                                         | Upstream                                                             |
-| ------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `ComplexSelector`  | `@lablup/ui-common/ComplexSelector`        | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
-| `Switch`           | inside `src/formControls/Switch`           | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
-| `FileInput`        | inside `src/formControls/FileInput`        | `aria-*`, `onFocus` and `onBlur` reach the trigger button, not the hidden native input                                                      | not filed                                                            |
-| `SegmentedControl` | inside `src/formControls/SegmentedControl` | a passed `aria-describedby` is merged into the radiogroup's own, not overwritten (`SegmentedControlItem` is copied for the context)         | not filed                                                            |
-| `Drawer`           | `@lablup/ui-common/Drawer`                 | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
-| `Tour`             | `@lablup/ui-common/lab`                    | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
-| `Stat`             | `@lablup/ui-common/lab`                    | `deltaTooltip`: a tooltip anchored to the delta, which takes keyboard focus for it, with `media` outside it (see below)                     | not filed                                                            |
+| Fork              | Where                               | Fix                                                                                                                                         | Upstream                                                             |
+| ----------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `ComplexSelector` | `@lablup/ui-common/ComplexSelector` | `hasClear` / `onClear`                                                                                                                      | [facebook/astryx#6362](https://github.com/facebook/astryx/pull/6362) |
+| `Switch`          | inside `src/formControls/Switch`    | a passed `id` reaches the native checkbox                                                                                                   | not filed                                                            |
+| `FileInput`       | inside `src/formControls/FileInput` | `aria-*`, `onFocus` and `onBlur` reach the trigger button, not the hidden native input                                                      | not filed                                                            |
+| `Drawer`          | `@lablup/ui-common/Drawer`          | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
+| `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
+| `Stat`            | `@lablup/ui-common/lab`             | `deltaTooltip`: a tooltip anchored to the delta, which takes keyboard focus for it, with `media` outside it (see below)                     | not filed                                                            |
 
 `Drawer`'s other changes are ui-common's own, not upstream fixes. Astryx (lab
 from 0.6.5, core since 0.7.2) opens a scrimless drawer as a manual popover,
@@ -138,7 +137,11 @@ How one is put together:
 - **Source** is in `src/forks/<Name>/`, lab's too: upstream's
   source (`astryx swizzle <Name>` rewrites its imports to public subpaths),
   the fix, and a header saying what changed. An internal Astryx does not
-  export is inlined from the same version.
+  export is inlined from the same version. One that holds module-level state
+  core shares with other components (the announcement channel, the toast
+  outlet, the gesture and motion runtime) cannot be copied without forking
+  that state, so the fork leaves the feature out, says so in its header and
+  in `provenance.json`'s `notes`, and keeps upstream's CSS.
 - **Styles** are not compiled here. `<Name>.styles.ts` holds the StyleX
   objects Astryx's own build compiled for the pinned version, copied from its
   `dist/` by `pnpm run sync:forks`, so the fork renders upstream's atomic class

@@ -61,11 +61,15 @@ const FOUR: PagedSelectorOption[] = [...OPTIONS, { value: "d", label: "delta" }]
 
 const h = { hidden: true } as const;
 
-const trigger = () => screen.getAllByRole("button")[0]!;
+// Astryx 0.7.6 gives ComplexSelector's trigger the combobox role, as the
+// panel's search input has.
+const trigger = () =>
+  screen.getAllByRole("combobox", h).find((el) => el.tagName === "BUTTON")!;
 const triggerText = () => trigger().textContent?.trim() ?? "";
 const listbox = () => screen.getByRole("listbox", h);
 const optionRows = () => screen.getAllByRole("option", h);
-const searchBox = () => screen.getByRole("combobox", h);
+const searchBox = () =>
+  screen.getAllByRole("combobox", h).find((el) => el.tagName === "INPUT")!;
 const highlightedLabels = () =>
   optionRows()
     .filter((row) => row.getAttribute("data-highlighted") === "true")
@@ -216,7 +220,7 @@ describe("PagedSelector popup: keyboard", () => {
 
     await user.click(trigger());
     expect(listbox()).toHaveAttribute("tabindex", "0");
-    expect(screen.queryByRole("combobox", h)).not.toBeInTheDocument();
+    expect(searchBox()).toBeUndefined();
 
     listbox().focus();
     await user.keyboard("{ArrowDown}");

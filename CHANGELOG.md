@@ -5,7 +5,40 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.21]
+
+Astryx 0.7.3 → 0.7.7 (`@astryxdesign/lab` 0.7.7-canary.273ec43). Astryx's
+own release notes:
+https://github.com/facebook/astryx/releases/tag/v0.7.4,
+https://github.com/facebook/astryx/releases/tag/v0.7.5,
+https://github.com/facebook/astryx/releases/tag/v0.7.6,
+https://github.com/facebook/astryx/releases/tag/v0.7.7
+(`InfoTip` promoted to core, `CodeBlock` languages, stacking bottom sheets,
+`Popover` `presentation`, touch presentations for `Switch` and
+`SegmentedControl`, no backdrop blur behind modals, derived status colour
+roles). `ui-common upgrade --from 0.2.0-alpha.20` runs Astryx's one codemod
+for the span, `migrate-codeblock-tokenizer-to-language` (0.7.5), and moves the
+lab pin and its core override.
+
 ### Added
+
+- New root names: `InfoTip`, `InfoTipProps`, `InfoTipSize`,
+  `AnimatedLayout`, `useAnimatedLayout`, `UseAnimatedLayoutOptions`,
+  `createCodeLanguage`, `CodeLanguage`, `CodeLanguageToken`,
+  `CodeLanguageTokenize`, `CreateCodeLanguageOptions`, `compactDefinition`,
+  `CompactDefinition`, `DEFAULT_COMPACT_DEFINITION`, `AutoCapitalize`,
+  `EnterKeyHint`, `InputMode`, `FieldStatusPlacement`, `IconEntry`,
+  `IconRequest`, `IconVariant`, `IconVariantMap`, `MotionCharacter`,
+  `ThemeMotionConfig`, `ThemeMotionKnobs`, `PopoverPresentation`,
+  `SearchContext` and `UseAnnounceOptions`. New mirrored subpaths: `InfoTip`
+  and `CodeBlock/languages/{dockerfile,graphql,java,lua,objective-c,powershell,ruby,thrift,toml}`.
+  New in `@lablup/ui-common/lab`: `MobilePowerSearch`, `MobilePowerSearchProps`.
+  No subpath or name was removed. `lab`'s `InfoTip` is now Astryx's deprecated
+  re-export of core's and leaves lab in Astryx's next minor: import it from
+  `@lablup/ui-common/InfoTip` or the root.
+- `SegmentedControl` / `SegmentedControlItem` are Astryx's again under
+  ui-common's `Form.Item` wrapper: the fork that merged a caller's
+  `aria-describedby` is deleted, since Astryx keeps it since 0.7.5.
 
 - **An option can say why it is disabled** (#106). `Selector` and
   `MultiSelector` option data take `disabled: boolean | { reason: string }`,
@@ -46,6 +79,38 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   content can drop its own inset when the board pads it.
 
 ### Changed
+
+- **`ComplexSelector`'s trigger is a `combobox`, not a `button`** (Astryx
+  0.7.6), so `PagedSelector`'s is too. Tests that find it with
+  `getByRole('button')` should use `getByRole('combobox')`; inside an open
+  `PagedSelector` the search input is a combobox as well.
+- **A disabled `TextInput`, `TextArea` or `NumberInput` keeps its Tab stop**
+  (Astryx 0.7.5): it is `aria-disabled="true"`, not natively disabled, as the
+  other controls became in 0.2.0-alpha.20. `toBeDisabled()` on one becomes
+  `toHaveAttribute('aria-disabled', 'true')` (so does `UncontrolledInput`'s).
+- **Status colours:** Astryx 0.7.5 derives the text, icon and border roles of
+  each status (`--color-text-success`, `--color-icon-error`,
+  `--color-border-warning`, …) from the theme's status fills, and the Lablup
+  theme, rebuilt, now declares them. Status text, icons and borders take the
+  derived shades.
+- `Dialog` (so `Modal`), the `Drawer` scrim and `CommandPalette` no longer
+  blur the page behind them, and close on a backdrop press only when the press
+  starts and ends on the backdrop (Astryx 0.7.7).
+- The forks follow Astryx 0.7.7 (re-taken by a three-way merge,
+  `sync-forks --accept`): `ComplexSelector` (status info-tip with
+  `statusVariant="tooltip"`, the combobox trigger), `Drawer` (`overflow: clip`,
+  the backdrop-press rule, no blur), `FileInput` (all rejected files in one
+  message, `FormLayout` required default, busy announcement), `Switch`,
+  `Tour` and `Stat`. What they leave out of upstream, because it runs on
+  core's private modules, is written in each fork's header: `Switch` keeps
+  Astryx's CSS but not 0.7.7's touch presentation (the iOS-style lift,
+  drag-to-flip and the 44 px hit area under a finger); a modal `Drawer` does
+  not host Astryx's toast viewport or speak `useAnnounce` from inside itself;
+  a busy `ComplexSelector` / `FileInput` announces through the page's live
+  region even inside a modal.
+- The `internal/touch` and `internal/touch-sheet` subpaths Astryx core 0.7.7
+  exports for its own packages are not mirrored (`exports.exclude.json`):
+  Astryx keeps them outside its public API.
 
 - **`BoardItemTitle` is a `Board` item's `title` node**, no longer a
   self-padded, sticky row: the board pads and places it.

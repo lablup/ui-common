@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.3, src/Switch/Switch.test.tsx
+// Forked from @astryxdesign/core 0.7.7, src/Switch/Switch.test.tsx
 // (MIT; see NOTICE). Upstream's tests, run against the fork; ui-common's own tests are
 // in the *.fork.test.tsx beside it.
 // Left out: the blocks that read the CSS the StyleX dev runtime injects (pressed
@@ -37,7 +37,7 @@
 
 import { StrictMode } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Switch } from "./Switch";
 import { InternationalizationProvider } from "@astryxdesign/core/i18n";
@@ -78,6 +78,98 @@ describe("Switch", () => {
       <Switch label="Medium switch" value={false} size="md" onChange={() => {}} />,
     );
     expect(screen.getByRole("switch")).toBeInTheDocument();
+  });
+
+  // ui-common: skipped. The pen press it cancels is tracked by the touch
+  // presentation the fork leaves out (Switch.tsx header).
+  it.skip("toggles nothing for a pen press that a window blur cancels, at its later lift or its click (spec:AST-094 FR44)", async () => {
+    const onChange = vi.fn();
+    render(<Switch label="Wi-Fi" value={false} onChange={onChange} />);
+    const input = screen.getByRole("switch");
+    const pen = (type: "pointerdown" | "pointerup", time: number) => {
+      const event = new Event(type, {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      });
+      Object.defineProperties(event, {
+        pointerId: { value: 7 },
+        pointerType: { value: "pen" },
+        isPrimary: { value: true },
+        clientX: { value: 10 },
+        clientY: { value: 10 },
+        button: { value: 0 },
+        buttons: { value: type === "pointerup" ? 0 : 1 },
+        timeStamp: { value: time },
+      });
+      act(() => {
+        input.dispatchEvent(event);
+      });
+    };
+    pen("pointerdown", 1000);
+    act(() => {
+      window.dispatchEvent(new Event("blur"));
+    });
+    // The microtask after the blur, where an armed press's page listeners go.
+    await act(async () => {
+      await Promise.resolve();
+    });
+    pen("pointerup", 1080);
+    // The pen's own click: a pointer's, detail 1.
+    fireEvent.click(input, { detail: 1 });
+    expect(onChange).not.toHaveBeenCalled();
+    expect(input).not.toBeChecked();
+  });
+
+  // ui-common: skipped. The pen press it cancels is tracked by the touch
+  // presentation the fork leaves out (Switch.tsx header).
+  it.skip("toggles nothing for a pen press that a window blur cancels under a coarse primary pointer too (spec:AST-094 FR44)", () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) => ({
+      matches: query === "(pointer: coarse)",
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    });
+    try {
+      const onChange = vi.fn();
+      render(<Switch label="Wi-Fi" value={false} onChange={onChange} />);
+      const input = screen.getByRole("switch");
+      const pen = (type: "pointerdown" | "pointerup", time: number) => {
+        const event = new Event(type, {
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+        });
+        Object.defineProperties(event, {
+          pointerId: { value: 7 },
+          pointerType: { value: "pen" },
+          isPrimary: { value: true },
+          clientX: { value: 10 },
+          clientY: { value: 10 },
+          button: { value: 0 },
+          buttons: { value: type === "pointerup" ? 0 : 1 },
+          timeStamp: { value: time },
+        });
+        act(() => {
+          input.dispatchEvent(event);
+        });
+      };
+      pen("pointerdown", 1000);
+      act(() => {
+        window.dispatchEvent(new Event("blur"));
+      });
+      pen("pointerup", 1080);
+      fireEvent.click(input, { detail: 1 });
+      expect(onChange).not.toHaveBeenCalled();
+      expect(input).not.toBeChecked();
+    } finally {
+      window.matchMedia = original;
+    }
   });
 
   it("calls onChange with new checked state when clicked", async () => {
@@ -258,6 +350,27 @@ describe("Switch", () => {
     const children = Array.from(containerDiv.children);
     // First child should be switch wrapper, second should be label wrapper
     expect(children.length).toBe(2);
+  });
+
+  it("keeps its input when labelPosition changes, so what is attached to it stays attached", () => {
+    const view = render(
+      <Switch
+        label="Enable notifications"
+        value={false}
+        onChange={() => {}}
+        labelPosition="start"
+      />,
+    );
+    const input = screen.getByRole("switch");
+    view.rerender(
+      <Switch
+        label="Enable notifications"
+        value={false}
+        onChange={() => {}}
+        labelPosition="end"
+      />,
+    );
+    expect(screen.getByRole("switch")).toBe(input);
   });
 
   // Retained on purpose: the shared switch contract encodes no busy expectation
@@ -480,6 +593,24 @@ describe("Switch", () => {
     expect(screen.getByRole("switch")).toBeRequired();
   });
 
+  it("keeps a required switch valid until status shows an error", () => {
+    const { rerender } = render(
+      <Switch label="Accept" value={false} onChange={() => {}} isRequired />,
+    );
+    // Native required alone makes Chromium report the switch invalid.
+    expect(screen.getByRole("switch")).toHaveAttribute("aria-invalid", "false");
+    rerender(
+      <Switch
+        label="Accept"
+        value={false}
+        onChange={() => {}}
+        isRequired
+        status={{ type: "error", message: "Required" }}
+      />,
+    );
+    expect(screen.getByRole("switch")).toHaveAttribute("aria-invalid", "true");
+  });
+
   describe("disabledMessage", () => {
     const h = { hidden: true } as const;
 
@@ -593,6 +724,51 @@ describe("Switch", () => {
       );
       await user.click(screen.getByRole("switch", h));
       expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it("does not run caller key handlers while disabled", async () => {
+      const user = userEvent.setup();
+      const onKeyDown = vi.fn();
+      const onKeyUp = vi.fn();
+      render(
+        <Switch
+          label="Enable notifications"
+          value={false}
+          onChange={() => {}}
+          onKeyDown={onKeyDown}
+          onKeyUp={onKeyUp}
+          isDisabled
+        />,
+      );
+      await user.tab();
+      expect(screen.getByRole("switch")).toHaveFocus();
+      await user.keyboard("{Enter}");
+      await user.keyboard(" ");
+      expect(onKeyDown).not.toHaveBeenCalled();
+      expect(onKeyUp).not.toHaveBeenCalled();
+    });
+
+    it("still runs caller key handlers on an enabled switch", async () => {
+      const user = userEvent.setup();
+      const onKeyDown = vi.fn();
+      const onKeyUp = vi.fn();
+      render(
+        <Switch
+          label="Enable notifications"
+          value={false}
+          onChange={() => {}}
+          onKeyDown={onKeyDown}
+          onKeyUp={onKeyUp}
+        />,
+      );
+      await user.tab();
+      // Releasing Tab lands a keyup on the newly focused switch; count only
+      // the key pressed after it.
+      onKeyDown.mockClear();
+      onKeyUp.mockClear();
+      await user.keyboard("{Enter}");
+      expect(onKeyDown).toHaveBeenCalledTimes(1);
+      expect(onKeyUp).toHaveBeenCalledTimes(1);
     });
 
     it("stays focusable via aria-disabled when disabled without a reason", async () => {
@@ -803,6 +979,12 @@ describe("Switch", () => {
       expect(root).not.toHaveAttribute("aria-labelledby");
     });
   });
+
+  // ui-common: upstream 0.7.7's "pressed state" tests are not copied. They
+  // read the injected stylesheet and the press controller through core's
+  // private test helpers (__tests__/pressState, utils/pressFeedback), and the
+  // touch press they check belongs to the touch presentation the fork leaves
+  // out (Switch.tsx header).
 });
 
 describe("label theme target", () => {

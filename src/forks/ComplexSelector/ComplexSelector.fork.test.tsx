@@ -78,7 +78,7 @@ describe("ComplexSelector fork: hasClear", () => {
     expect(onClear).toHaveBeenCalledTimes(1);
     expect(onChange).not.toHaveBeenCalled();
     expect(onOpenChange).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Fruit" })).toHaveAttribute(
+    expect(screen.getByRole("combobox", { name: "Fruit" })).toHaveAttribute(
       "aria-expanded",
       "false",
     );

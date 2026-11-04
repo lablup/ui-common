@@ -5,14 +5,14 @@
 # packages have a postinstall that only prints an `astryx init` nudge, and
 # pnpm refuses to install (ERR_PNPM_IGNORED_BUILDS) until each one is either
 # allowed or declined. Nothing needs to run, so both are declined.
-# Astryx 0.7.3, which @lablup/ui-common pins, was published the day before
+# Astryx 0.7.7, which @lablup/ui-common pins, was published the day before
 # the pin moved, inside pnpm's default release-age window. Drop these once it
 # has aged out. (No ui-common template needs the @astryxdesign/lab canary any
 # more: the Drawer is core's since Astryx 0.7.2.)
 minimumReleaseAgeExclude:
-  - "@astryxdesign/core@0.7.3"
-  - "@astryxdesign/theme-neutral@0.7.3"
-  - "@astryxdesign/cli@0.7.3"
+  - "@astryxdesign/core@0.7.7"
+  - "@astryxdesign/theme-neutral@0.7.7"
+  - "@astryxdesign/cli@0.7.7"
 
 allowBuilds:
   # A dependency of @lablup/ui-common.

@@ -392,7 +392,13 @@ describe("upgrade registry", () => {
       "0.2.0-alpha.20: Drawer moves from /lab to /Drawer; form controls leave their field chrome to Form.Item",
       expect.stringContaining("Astryx"),
     ]);
-    expect(await stepsBetween("0.2.0-alpha.20", "0.2.0")).toHaveLength(0);
+  });
+
+  it("registers the Astryx 0.7.7 codemods under 0.2.0-alpha.21", async () => {
+    expect(registeredVersions()).toContain("0.2.0-alpha.21");
+    const steps = await stepsBetween("0.2.0-alpha.20", "0.2.0-alpha.21");
+    expect(steps.map((s) => s.step.title)).toEqual([expect.stringContaining("Astryx")]);
+    expect(await stepsBetween("0.2.0-alpha.21", "0.2.0")).toHaveLength(0);
   });
 
   it("maps every removed export onto something the installed Astryx exports", () => {

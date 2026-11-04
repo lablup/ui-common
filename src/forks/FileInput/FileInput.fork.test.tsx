@@ -163,15 +163,19 @@ describe("FileInput fork: parity with Astryx", () => {
 
   // When this fails, Astryx has shipped the fix: delete the fork and its
   // provenance.json entry (CONTRIBUTING, "Forks of Astryx components").
-  it("still differs from Astryx's, which puts aria-describedby on the hidden input", () => {
+  it("still differs from Astryx's, which leaves onFocus on the hidden input", () => {
+    const onFocus = vi.fn();
     render(
       <UpstreamFileInput
         label="Upload"
         value={null}
         onChange={() => {}}
-        aria-describedby="hint"
+        onFocus={onFocus}
       />,
     );
-    expect(trigger()).not.toHaveAttribute("aria-describedby", "hint");
+    act(() => {
+      trigger().focus();
+    });
+    expect(onFocus).not.toHaveBeenCalled();
   });
 });

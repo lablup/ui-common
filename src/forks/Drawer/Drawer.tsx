@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.3, src/Drawer/Drawer.tsx
+// Forked from @astryxdesign/core 0.7.7, src/Drawer/Drawer.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -34,6 +34,13 @@
  * (src/forks/compiled.ts), and the content is not wrapped in core's private
  * `LayerContentBoundary`, which resets the contexts core registers in its
  * own module (SizeContext, TabList's and others), as lab's Drawer never did.
+ * Since 0.7.7 two more of core's private, module-scoped parts are left out:
+ * `useModalOutlet` (an open modal drawer hosts Astryx's toast viewport) and
+ * `ModalAnnounceProvider` (`useAnnounce` inside a modal drawer speaks from a
+ * region inside it). ui-common's notification stack is not Astryx's toast
+ * viewport. The stateless internals 0.7.7 added (`useIsHydrating`,
+ * `useSettledOpen`, `useBackdropPress`, `chainEventHandlers`,
+ * `layerClickBoundary`) are inlined below the styles.
  *
  * Delete this fork, and its exports.exclude.json entry, once ui-common's
  * `Modal` and notification stack are top layer themselves and Astryx passes
@@ -88,13 +95,22 @@
  * SYNC: When modified, update these files to stay in sync:
  * - /packages/core/src/Drawer/Drawer.doc.mjs (props table, features, usage)
  * - /packages/core/src/Drawer/Drawer.test.tsx (tests for new/changed behavior)
- * - /packages/core/src/Drawer/Drawer.spec.md (component contract)
+ * - /packages/core/src/Drawer/__tests__/DrawerNonModalPageScroll.a11y.chromium.spec.ts (the page beside a non-modal drawer scrolls)
+ * - /docs/specs/components/Drawer/Drawer.spec.md (component contract)
  * - /packages/core/src/Drawer/index.ts (exports if types change)
  * - /packages/cli/assets/templates/blocks/components/Drawer/ (showcase blocks)
  * - /apps/storybook/stories/Drawer.stories.tsx (examples and visual coverage)
  */
 
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { StyleXStyles } from "@stylexjs/stylex";
 import type { BaseProps } from "@astryxdesign/core";
@@ -118,6 +134,8 @@ import * as compiled from "./Drawer.styles";
 import { NoFormItemContext } from "../../components/Form/context";
 import { ModalPortalContext, modalZIndexBase } from "../../components/Modal/modalStack";
 import { useDrawerDialogPresence } from "./useDrawerDialogPresence";
+
+type PointerHandler = (event: React.PointerEvent<HTMLDialogElement>) => void;
 
 // =============================================================================
 // Styles
@@ -155,6 +173,129 @@ function registerNonModalDrawer(id: string): number {
 
 function unregisterNonModalDrawer(id: string): void {
   openNonModalDrawers.delete(id);
+}
+// @astryxdesign/core 0.7.7 src/hooks/useIsHydrating.ts, which core does not
+// export: true during server render and the hydrating client render.
+const subscribeNever = () => () => {};
+function useIsHydrating(): boolean {
+  return useSyncExternalStore(
+    subscribeNever,
+    () => false,
+    () => true,
+  );
+}
+
+// @astryxdesign/core 0.7.7 src/hooks/useSettledOpen.ts, which core does not
+// export: the open state as the server rendered it, until it first changes.
+function useSettledOpen<T>(
+  requested: T,
+  current: T,
+  none: T,
+): [settled: T, release: () => void] {
+  const isHydrating = useIsHydrating();
+  const [settled, setSettled] = useState<T>(() => (isHydrating ? requested : none));
+  if (settled !== none && !isHydrating && current !== settled) {
+    setSettled(none);
+  }
+  const release = useCallback(() => setSettled(none), [none]);
+  return [settled, release];
+}
+
+// @astryxdesign/core 0.7.7 src/Layer/useBackdropPress.ts, which core does not
+// export: a backdrop press dismisses only when it starts and ends there.
+function useBackdropPress(onBackdropPress: () => void, isEnabled: boolean) {
+  const startedOnBackdropRef = useRef(false);
+  const endedOnBackdropRef = useRef(false);
+  const onPointerDownCapture = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    startedOnBackdropRef.current = event.target === event.currentTarget;
+    endedOnBackdropRef.current = false;
+  }, []);
+  const onPointerUpCapture = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    endedOnBackdropRef.current =
+      startedOnBackdropRef.current && event.target === event.currentTarget;
+    startedOnBackdropRef.current = false;
+  }, []);
+  const onPointerCancelCapture = useCallback(() => {
+    startedOnBackdropRef.current = false;
+    endedOnBackdropRef.current = false;
+  }, []);
+  const onClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      const pressWasOnBackdrop = endedOnBackdropRef.current;
+      startedOnBackdropRef.current = false;
+      endedOnBackdropRef.current = false;
+      if (isEnabled && pressWasOnBackdrop && event.target === event.currentTarget) {
+        onBackdropPress();
+      }
+    },
+    [isEnabled, onBackdropPress],
+  );
+  return { onPointerDownCapture, onPointerUpCapture, onPointerCancelCapture, onClick };
+}
+
+// @astryxdesign/core 0.7.7 src/utils/chainEventHandlers.ts, which core does
+// not export: every handler runs, in argument order.
+function chainEventHandlers<E extends React.SyntheticEvent>(
+  ...handlers: (((event: E) => void) | undefined)[]
+): (event: E) => void {
+  return (event: E) => {
+    for (const handler of handlers) {
+      handler?.(event);
+    }
+  };
+}
+
+// @astryxdesign/core 0.7.7 src/Layer/layerClickBoundary.ts and
+// src/privateAttributes/layerRoot.stylex.ts, which core does not export: a
+// press inside the drawer runs the drawer's handlers, then stops in the React
+// tree (never natively), and the root carries the layer-root mark.
+const BOUNDARY_EVENTS = [
+  "onClick",
+  "onAuxClick",
+  "onDoubleClick",
+  "onContextMenu",
+  "onMouseDown",
+  "onMouseUp",
+  "onMouseMove",
+  "onMouseOver",
+  "onMouseOut",
+  "onPointerDown",
+  "onPointerUp",
+  "onPointerMove",
+  "onPointerOver",
+  "onPointerOut",
+  "onPointerCancel",
+  "onGotPointerCapture",
+  "onLostPointerCapture",
+  "onTouchStart",
+  "onTouchMove",
+  "onTouchEnd",
+  "onTouchCancel",
+] as const;
+type BoundaryEvent = (typeof BOUNDARY_EVENTS)[number];
+type BoundaryHandler = (event: React.SyntheticEvent) => void;
+const returnTrue = () => true;
+function stopInReactTree(event: React.SyntheticEvent): void {
+  event.isPropagationStopped = returnTrue;
+}
+function layerClickBoundary(
+  own: Readonly<Record<string, unknown>> = {},
+): Record<BoundaryEvent, BoundaryHandler> & Readonly<Record<`data-${string}`, string>> {
+  const props: Partial<Record<BoundaryEvent, BoundaryHandler>> = {};
+  for (const name of BOUNDARY_EVENTS) {
+    const handler = own[name];
+    props[name] =
+      typeof handler === "function"
+        ? (event) => {
+            (handler as BoundaryHandler)(event);
+            stopInReactTree(event);
+          }
+        : stopInReactTree;
+  }
+  return {
+    ...(props as Record<BoundaryEvent, BoundaryHandler>),
+    "data-astryx-layer-root": "",
+  };
 }
 
 // =============================================================================
@@ -305,7 +446,7 @@ export interface DrawerProps extends BaseProps<HTMLDialogElement> {
  * ```
  */
 export function Drawer({
-  isOpen,
+  isOpen: isOpenProp,
   onOpenChange,
   side = "end",
   width = 400,
@@ -323,6 +464,17 @@ export function Drawer({
   ref,
   ...props
 }: DrawerProps) {
+  // A drawer open on the server renders closed until hydration, and opens in
+  // the render after it, the first one that can enter its native host: a
+  // <dialog> painted open with aria-modal before it is modal claims a state it
+  // does not have (FR17).
+  const isHydrating = useIsHydrating();
+  const isOpen = isOpenProp && !isHydrating;
+  // A drawer open on the server was present on page load, so it opens settled,
+  // with no slide-in; its later opens and closes animate as usual
+  // (spec:AST-013 FR13).
+  const [settledOpen] = useSettledOpen(isOpenProp, isOpen, false);
+  const opensSettled = settledOpen && isOpen;
   const dialogRef = useRef<HTMLDialogElement>(null);
   const { containerRef: focusTrapRef } = useFocusTrap<HTMLDialogElement>({
     isActive: isOpen && hasScrim,
@@ -401,6 +553,11 @@ export function Drawer({
   // same top-most/IME rules as the shared Escape listener.
   const handleCancel = useCallback(
     (event: React.SyntheticEvent<HTMLDialogElement>) => {
+      // A cancel that bubbles up from inside (a dismissed file picker) is not
+      // a close request; the platform's is fired at the dialog itself.
+      if (event.target !== event.currentTarget) {
+        return;
+      }
       event.preventDefault();
       if (shouldDismissOnCloseRequest() && allowEscape) {
         handleDismiss();
@@ -409,16 +566,12 @@ export function Drawer({
     [allowEscape, handleDismiss, shouldDismissOnCloseRequest],
   );
 
-  // Clicks on the ::backdrop target the <dialog> element itself; clicks on
-  // drawer content always target a child (the content area fills the panel).
-  const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLDialogElement>) => {
-      if (event.target === event.currentTarget && hasScrim && allowScrimClick) {
-        onOpenChange(false);
-      }
-    },
-    [allowScrimClick, hasScrim, onOpenChange],
-  );
+  // A press on the ::backdrop targets the <dialog> itself (the content area
+  // fills the panel). The press must start and end there.
+  const handleScrimPress = useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
+  const scrimPress = useBackdropPress(handleScrimPress, hasScrim && allowScrimClick);
 
   const widthValue = typeof width === "number" ? `${width}px` : width;
   const isFullWidthOnMobile = experimental?.isFullWidthOnMobile ?? false;
@@ -460,6 +613,7 @@ export function Drawer({
           isOpen && sideOpenStyle,
           hasScrim && styles.scrim,
           hasScrim && isOpen && styles.scrimOpen,
+          opensSettled && styles.openSettled,
           xstyle,
         ),
         className,
@@ -473,10 +627,29 @@ export function Drawer({
       // focus trap) must be able to say so.
       aria-modal={
         (safeProps["aria-modal"] as React.AriaAttributes["aria-modal"]) ??
-        (hasScrim ? "true" : undefined)
+        (hasScrim && !isHydrating ? "true" : undefined)
       }
       {...(purpose === "required" && hasScrim ? { role: "alertdialog" } : undefined)}
-      onClick={composeEventHandlers(onClickProp, handleClick)}
+      // Presses inside the drawer do not reach handlers around where it is
+      // written.
+      {...layerClickBoundary({
+        ...safeProps,
+        onClick: composeEventHandlers(onClickProp, scrimPress.onClick),
+      })}
+      // The hook records where the press started first. The caller's capture
+      // handler then runs, also when a child prevented default.
+      onPointerDownCapture={chainEventHandlers(
+        scrimPress.onPointerDownCapture,
+        safeProps.onPointerDownCapture as PointerHandler | undefined,
+      )}
+      onPointerUpCapture={chainEventHandlers(
+        scrimPress.onPointerUpCapture,
+        safeProps.onPointerUpCapture as PointerHandler | undefined,
+      )}
+      onPointerCancelCapture={chainEventHandlers(
+        scrimPress.onPointerCancelCapture,
+        safeProps.onPointerCancelCapture as PointerHandler | undefined,
+      )}
       onKeyDown={onKeyDownProp}
       onCancel={handleCancel}
     >
