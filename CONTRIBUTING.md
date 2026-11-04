@@ -633,8 +633,8 @@ the step against it.
 4. The workflow runs in the `release` environment with `packages: write` and
    the built-in `GITHUB_TOKEN` for GitHub Packages, and npm trusted
    publishing (OIDC) for npmjs: each package's npmjs settings trust
-   `lablup/ui-common`, workflow `publish.yml`, environment `release`. No npm
-   token is stored.
+   `lablup/ui-common`, workflow `publish.yml`, environment `release`.
+   `release/0.1`'s own workflow still publishes with the `NPM_TOKEN` secret.
 
 ### Patching an older line
 

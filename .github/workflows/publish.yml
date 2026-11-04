@@ -44,8 +44,8 @@ on:
         default: true
 
 # Least privilege, declared per job: the build job has no credential at all,
-# GitHub Packages needs packages: write, npmjs needs id-token: write for
-# provenance, and neither registry job needs the other's.
+# GitHub Packages needs packages: write, npmjs needs id-token: write (its
+# publish credential and provenance), and neither needs the other's.
 permissions:
   contents: read
 
@@ -268,9 +268,9 @@ jobs:
     environment: release
     permissions:
       contents: read
-      # Provenance: npm records which repository, workflow and commit produced
-      # the tarball, and shows a verified badge on the package page. It costs
-      # one permission and is worth it for a package strangers install.
+      # The npmjs credential: trusted publishing exchanges this OIDC token for
+      # a short-lived publish token (no NPM_TOKEN), and provenance signs with it.
+      # Without it npm publish fails with a 404/401 that says nothing about auth.
       id-token: write
     steps:
       - uses: actions/setup-node@v7
@@ -285,15 +285,16 @@ jobs:
           path: packed
 
       # npmjs trusts this workflow (OIDC trusted publishing, configured on each
-      # package's npmjs settings), so no token is stored. Needs npm >= 11.5.1.
-      - name: Use an npm with trusted publishing
-        run: npm install -g npm@11.16.0
+      # package's npmjs settings). Node 26 bundles npm >= 11.12.1.
+      - name: Check npm supports trusted publishing
+        run: |
+          node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); if (a<11||(a==11&&(b<5||(b==5&&c<1)))) { console.error("npm "+process.argv[1]+" < 11.5.1: no trusted publishing"); process.exit(1) }' "$(npm --version)"
 
       # npm publishes the tarballs pnpm packed: provenance is an npm CLI
       # feature, and npm would leave the CLI's `workspace:*` peer unrewritten
       # if it packed the directory itself. Trusted publishing covers `npm
-      # publish` only, so a version that is already there (a re-run) is left
-      # alone; move its dist-tag by hand if needed.
+      # publish` only, so a version already there must already carry the tag;
+      # otherwise the step fails and the tag is moved by hand.
       - name: Publish
         if: >-
           github.event_name == 'release' || github.event_name == 'push' ||
@@ -301,7 +302,11 @@ jobs:
         run: |
           for NAME in ui-common ui-common-cli; do
             if npm view "@lablup/$NAME@$VERSION" version --registry "$REGISTRY" > /dev/null 2>&1; then
-              echo "::warning::@lablup/$NAME@$VERSION is already on npmjs; not republished. To move the tag: npm dist-tag add @lablup/$NAME@$VERSION $TAG"
+              CURRENT=$(npm view "@lablup/$NAME" "dist-tags.$TAG" --registry "$REGISTRY")
+              if [ "$CURRENT" != "$VERSION" ]; then
+                echo "::error::@lablup/$NAME@$VERSION is already published but $TAG is $CURRENT. Move it by hand: npm dist-tag add @lablup/$NAME@$VERSION $TAG"
+                exit 1
+              fi
             else
               npm publish "./packed/lablup-$NAME-$VERSION.tgz" --provenance --access public --tag "$TAG" --registry "$REGISTRY"
             fi
