@@ -288,30 +288,35 @@ jobs:
       # package's npmjs settings). Node 26 bundles npm >= 11.12.1.
       - name: Check npm supports trusted publishing
         run: |
-          node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); if (a<11||(a==11&&(b<5||(b==5&&c<1)))) { console.error("npm "+process.argv[1]+" < 11.5.1: no trusted publishing"); process.exit(1) }' "$(npm --version)"
+          NPM=$(npm --version)
+          printf '%s\n' 11.5.1 "$NPM" | sort -V -C || { echo "::error::npm $NPM is older than 11.5.1 and has no trusted publishing"; exit 1; }
 
       # npm publishes the tarballs pnpm packed: provenance is an npm CLI
       # feature, and npm would leave the CLI's `workspace:*` peer unrewritten
       # if it packed the directory itself. Trusted publishing covers `npm
-      # publish` only, so a version already there must already carry the tag;
-      # otherwise the step fails and the tag is moved by hand.
+      # publish` only, so a version already there keeps whatever its tag is: a
+      # newer release may own it legitimately. Only a PR preview, whose pr-<N>
+      # must name this head, fails on a mismatch, after both packages ran.
       - name: Publish
         if: >-
           github.event_name == 'release' || github.event_name == 'push' ||
           github.event_name == 'pull_request' || inputs.dry_run == false
         run: |
+          STALE=0
           for NAME in ui-common ui-common-cli; do
             if npm view "@lablup/$NAME@$VERSION" version --registry "$REGISTRY" > /dev/null 2>&1; then
-              CURRENT=$(npm view "@lablup/$NAME" "dist-tags.$TAG" --registry "$REGISTRY")
+              CURRENT=$(npm view "@lablup/$NAME" "dist-tags.$TAG" --registry "$REGISTRY" || true)
               if [ "$CURRENT" != "$VERSION" ]; then
-                echo "::error::@lablup/$NAME@$VERSION is already published but $TAG is $CURRENT. Move it by hand: npm dist-tag add @lablup/$NAME@$VERSION $TAG"
-                exit 1
+                MSG="@lablup/$NAME@$VERSION is already published; $TAG is ${CURRENT:-unset}. To point it here: npm dist-tag add @lablup/$NAME@$VERSION $TAG"
+                if [ "$EVENT" = pull_request ]; then echo "::error::$MSG"; STALE=1; else echo "::warning::$MSG"; fi
               fi
             else
               npm publish "./packed/lablup-$NAME-$VERSION.tgz" --provenance --access public --tag "$TAG" --registry "$REGISTRY"
             fi
           done
+          exit $STALE
         env:
+          EVENT: ${{ github.event_name }}
           REGISTRY: https://registry.npmjs.org
           VERSION: ${{ needs.build.outputs.version }}
           TAG: ${{ needs.build.outputs.tag }}
