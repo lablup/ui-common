@@ -1,0 +1,1 @@
+@layer ui-common{.uic-page-layout{flex-direction:column;width:100%;min-height:100%;margin:0 auto;display:flex}.uic-page-layout--standard{max-width:900px}.uic-page-layout--wide{max-width:1400px}.uic-page-layout--full{max-width:none}@media (width<=767px){.uic-page-layout:not(.uic-page-layout--full){padding:0 var(--spacing-2)}}}
