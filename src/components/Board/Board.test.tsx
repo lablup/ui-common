@@ -4,7 +4,12 @@ import userEvent from "@testing-library/user-event";
 import { StrictMode, useEffect, type ComponentProps } from "react";
 
 import { BoardItemTitle } from "../BoardItemTitle";
-import { Board, columnsForWidth, type BoardItemsChangeDetail } from "./Board";
+import {
+  Board,
+  columnsForWidth,
+  DEFAULT_BOARD_COLUMN_BREAKPOINTS,
+  type BoardItemsChangeDetail,
+} from "./Board";
 import { useIsInBoardItem } from "./BoardItemContext";
 import type { BoardItem } from "./layout";
 
@@ -71,6 +76,40 @@ describe("Board", () => {
     expect(columnsForWidth(912, bps)).toBe(4);
     expect(columnsForWidth(2100, bps)).toBe(6);
     expect(columnsForWidth(100, [{ minWidth: 300, columns: 2 }])).toBe(0);
+  });
+
+  it("keeps adding columns past 6 on wider boards by default", () => {
+    const at = (width: number) =>
+      columnsForWidth(width, DEFAULT_BOARD_COLUMN_BREAKPOINTS);
+    expect(at(687)).toBe(1);
+    expect(at(911)).toBe(2);
+    expect(at(2099)).toBe(4);
+    expect(at(2799)).toBe(6);
+    expect(at(2800)).toBe(8);
+    expect(at(3499)).toBe(8);
+    expect(at(3500)).toBe(10);
+    expect(at(4199)).toBe(10);
+    expect(at(4200)).toBe(12);
+    expect(at(10000)).toBe(12);
+  });
+
+  it("puts eight one-column items on one row of a wide board", () => {
+    containerWidth = 3000;
+    // Offsets stored for 6 and 4 columns only, as a layout persisted before
+    // the wider breakpoints: at 8 columns the items are packed in order.
+    const items: BoardItem<Data>[] = Array.from({ length: 8 }, (_, i) => ({
+      id: `i${i}`,
+      columnSpan: 1,
+      columnOffset: { 6: i % 6, 4: i % 4 },
+      title: `Item ${i}`,
+      data: null,
+    }));
+    const { container } = renderBoard({ items });
+    const grid = container.querySelector(".uic-board__grid") as HTMLElement;
+    expect(grid.style.gridTemplateColumns).toBe("repeat(8, minmax(0, 1fr))");
+    expect(items.map((_, i) => placement(`Item ${i}`))).toEqual(
+      items.map((_, i) => `${i + 1} / span 1 | 1 / span 2`),
+    );
   });
 
   it("lays the items out on the grid for the measured width", () => {

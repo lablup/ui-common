@@ -121,12 +121,19 @@ export interface BoardColumnBreakpoint {
   columns: number;
 }
 
-/** Cloudscape's: 1 column under 688px, 2 under 912px, 4 under 2100px, else 6. */
+/**
+ * Cloudscape's up to 6 columns: 1 under 688px, 2 under 912px, 4 under 2100px.
+ * Wider boards keep adding two columns for every 700px, so a cell stays about
+ * 350px as at 6: 6 under 2800px, 8 under 3500px, 10 under 4200px, else 12.
+ */
 export const DEFAULT_BOARD_COLUMN_BREAKPOINTS: ReadonlyArray<BoardColumnBreakpoint> = [
   { minWidth: 0, columns: 1 },
   { minWidth: 688, columns: 2 },
   { minWidth: 912, columns: 4 },
   { minWidth: 2100, columns: 6 },
+  { minWidth: 2800, columns: 8 },
+  { minWidth: 3500, columns: 10 },
+  { minWidth: 4200, columns: 12 },
 ];
 
 /** How far a pointer travels before a press on a handle is a drag, not a click. */

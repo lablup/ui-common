@@ -71,7 +71,8 @@ export default {
       name: "columnBreakpoints",
       type: "ReadonlyArray<{ minWidth: number; columns: number }>",
       description: "Content width (px) to column count.",
-      default: "1 under 688px, 2 under 912px, 4 under 2100px, else 6",
+      default:
+        "1 under 688px, 2 under 912px, 4 under 2100px, 6 under 2800px, 8 under 3500px, 10 under 4200px, else 12",
     },
     {
       name: "itemClassName",
