@@ -79,6 +79,7 @@ export const docs = {
             "`NotificationItem`: the title, description, actions and footer of one notice.",
             "`UnitGrid`: groups of unit squares packed on one lattice, each group a tinted plate with a hover card and an optional palette picker; `UnitGridSkeleton` is its loading stand-in.",
             "`ColorPicker`: a hex colour field on the platform colour input, reporting the settled colour.",
+            "`DateTimeRangeInput`: a start and an end, each a date and a time, with presets, `min` / `max` and a `maxDuration` cap; a range that breaks them is never reported. Astryx's DateRangeInput has dates only.",
             "`Form` (`@lablup/ui-common/Form`): a form engine with antd's form API (Form.Item, Form.List, Form.useForm, Form.useWatch, rules), its messages from the catalog, its item shell on Astryx tokens. `BulkEditFormItem`: a Form.Item that edits one field across many records (keep / edit / clear).",
             "`DataGrid`: Astryx Table with a page bar, client or server sorting, row selection, resizable and pinnable columns, expandable rows, per-user column settings and a CSV export picker; `DataGridSettingsModal` and `DataGridExportModal` are its dialogs.",
             "`BulkErrorModal`: the failed items of a bulk operation in a DataGrid, under an optional error banner.",

@@ -5,6 +5,30 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`DateTimeRangeInput`**: a range whose start and end each carry a date and
+  a time, to the minute. Astryx's `DateRangeInput` picks dates only and
+  `DateTimeInput` one date and time. The value is
+  `{ start, end } | null` of local `YYYY-MM-DDTHH:MM` strings (Astryx's
+  `ISODateTimeString`); the trigger shows it compactly
+  (`Nov 5, 09:00 - Nov 5, 18:30`, the year only when it is not this year).
+  The popover holds Astryx's range `Calendar`, a `TimeInput` for each end,
+  optional `presets` beside them as in `DateRangeInput`, and Cancel / Apply.
+  `min`, `max` and `maxDuration` (milliseconds) bound it: a draft that breaks
+  them, or ends before it starts, says why in the popover and cannot be
+  applied, so `onChange` never reports it, and a preset that breaks them is
+  disabled. It sits in a `Form.Item` like the form-control wrappers (value,
+  id, `disabled`, border status, label), or stands alone named by
+  `aria-label`. Exported from the root and
+  `@lablup/ui-common/components/DateTimeRangeInput`, with
+  `DateTimeRangeInputProps`, `DateTimeRangeInputValue`,
+  `DateTimeRangeInputPreset` and `DateTimeRangeInputSize`.
+- Catalog keys `uic.DateTimeRangeInput.placeholder`, `.dialogLabel`,
+  `.presets`, `.startTime`, `.endTime`, `.endBeforeStart`, `.beforeMin`
+  (ICU `{min}`), `.afterMax` (`{max}`) and `.tooLong` (`{duration}`),
+  translated in every shipped locale.
+
 ### Changed
 
 - **`Board` keeps adding columns past 6 on very wide boards.**

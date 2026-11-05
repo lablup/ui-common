@@ -382,5 +382,41 @@
   "uic.TagsInput.create": {
     "defaultMessage": "Buat \"{value}\"",
     "description": "Label of the row in a tag input's list that adds the typed text as a new tag"
+  },
+  "uic.DateTimeRangeInput.placeholder": {
+    "defaultMessage": "Pilih rentang tanggal dan waktu",
+    "description": "Shown on a date-time range field's trigger when no range is set"
+  },
+  "uic.DateTimeRangeInput.dialogLabel": {
+    "defaultMessage": "Pilih rentang tanggal dan waktu",
+    "description": "Accessible name of the popover that picks a start and an end date and time"
+  },
+  "uic.DateTimeRangeInput.presets": {
+    "defaultMessage": "Rentang prasetel",
+    "description": "Accessible name of the group of quick-pick ranges, such as Last 24 hours"
+  },
+  "uic.DateTimeRangeInput.startTime": {
+    "defaultMessage": "Waktu mulai",
+    "description": "Label of the time field for the start of the range"
+  },
+  "uic.DateTimeRangeInput.endTime": {
+    "defaultMessage": "Waktu selesai",
+    "description": "Label of the time field for the end of the range"
+  },
+  "uic.DateTimeRangeInput.endBeforeStart": {
+    "defaultMessage": "Akhir harus setelah awal.",
+    "description": "Error when the picked end date and time is not later than the start"
+  },
+  "uic.DateTimeRangeInput.beforeMin": {
+    "defaultMessage": "Rentang tidak boleh dimulai sebelum {min}.",
+    "description": "Error when the range starts too early; {min} is the earliest allowed date and time"
+  },
+  "uic.DateTimeRangeInput.afterMax": {
+    "defaultMessage": "Rentang tidak boleh berakhir setelah {max}.",
+    "description": "Error when the range ends too late; {max} is the latest allowed date and time"
+  },
+  "uic.DateTimeRangeInput.tooLong": {
+    "defaultMessage": "Rentang paling lama {duration}.",
+    "description": "Error when the range is longer than allowed; {duration} is a length such as \"7 days\""
   }
 }

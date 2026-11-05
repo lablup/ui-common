@@ -382,5 +382,41 @@
   "uic.TagsInput.create": {
     "defaultMessage": "建立「{value}」",
     "description": "Label of the row in a tag input's list that adds the typed text as a new tag"
+  },
+  "uic.DateTimeRangeInput.placeholder": {
+    "defaultMessage": "選擇日期與時間範圍",
+    "description": "Shown on a date-time range field's trigger when no range is set"
+  },
+  "uic.DateTimeRangeInput.dialogLabel": {
+    "defaultMessage": "選擇日期與時間範圍",
+    "description": "Accessible name of the popover that picks a start and an end date and time"
+  },
+  "uic.DateTimeRangeInput.presets": {
+    "defaultMessage": "預設範圍",
+    "description": "Accessible name of the group of quick-pick ranges, such as Last 24 hours"
+  },
+  "uic.DateTimeRangeInput.startTime": {
+    "defaultMessage": "開始時間",
+    "description": "Label of the time field for the start of the range"
+  },
+  "uic.DateTimeRangeInput.endTime": {
+    "defaultMessage": "結束時間",
+    "description": "Label of the time field for the end of the range"
+  },
+  "uic.DateTimeRangeInput.endBeforeStart": {
+    "defaultMessage": "結束時間必須晚於開始時間。",
+    "description": "Error when the picked end date and time is not later than the start"
+  },
+  "uic.DateTimeRangeInput.beforeMin": {
+    "defaultMessage": "範圍不能早於 {min} 開始。",
+    "description": "Error when the range starts too early; {min} is the earliest allowed date and time"
+  },
+  "uic.DateTimeRangeInput.afterMax": {
+    "defaultMessage": "範圍不能晚於 {max} 結束。",
+    "description": "Error when the range ends too late; {max} is the latest allowed date and time"
+  },
+  "uic.DateTimeRangeInput.tooLong": {
+    "defaultMessage": "範圍最長為 {duration}。",
+    "description": "Error when the range is longer than allowed; {duration} is a length such as \"7 days\""
   }
 }

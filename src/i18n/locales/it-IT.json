@@ -382,5 +382,41 @@
   "uic.TagsInput.create": {
     "defaultMessage": "Crea \"{value}\"",
     "description": "Label of the row in a tag input's list that adds the typed text as a new tag"
+  },
+  "uic.DateTimeRangeInput.placeholder": {
+    "defaultMessage": "Seleziona intervallo di data e ora",
+    "description": "Shown on a date-time range field's trigger when no range is set"
+  },
+  "uic.DateTimeRangeInput.dialogLabel": {
+    "defaultMessage": "Scegli intervallo di data e ora",
+    "description": "Accessible name of the popover that picks a start and an end date and time"
+  },
+  "uic.DateTimeRangeInput.presets": {
+    "defaultMessage": "Intervalli predefiniti",
+    "description": "Accessible name of the group of quick-pick ranges, such as Last 24 hours"
+  },
+  "uic.DateTimeRangeInput.startTime": {
+    "defaultMessage": "Ora di inizio",
+    "description": "Label of the time field for the start of the range"
+  },
+  "uic.DateTimeRangeInput.endTime": {
+    "defaultMessage": "Ora di fine",
+    "description": "Label of the time field for the end of the range"
+  },
+  "uic.DateTimeRangeInput.endBeforeStart": {
+    "defaultMessage": "La fine deve essere successiva all’inizio.",
+    "description": "Error when the picked end date and time is not later than the start"
+  },
+  "uic.DateTimeRangeInput.beforeMin": {
+    "defaultMessage": "L’intervallo non può iniziare prima di {min}.",
+    "description": "Error when the range starts too early; {min} is the earliest allowed date and time"
+  },
+  "uic.DateTimeRangeInput.afterMax": {
+    "defaultMessage": "L’intervallo non può terminare dopo {max}.",
+    "description": "Error when the range ends too late; {max} is the latest allowed date and time"
+  },
+  "uic.DateTimeRangeInput.tooLong": {
+    "defaultMessage": "L’intervallo può durare al massimo {duration}.",
+    "description": "Error when the range is longer than allowed; {duration} is a length such as \"7 days\""
   }
 }
