@@ -10,9 +10,9 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 - **`Board` keeps adding columns past 6 on very wide boards.**
   `DEFAULT_BOARD_COLUMN_BREAKPOINTS` stopped at 6 columns from 2100px, so a
   wider board only stretched its cells. It now adds two columns for every
-  700px, so a cell stays about 350px wide: 8 columns from 2800px, 10 from
-  3500px and 12 from 4200px. Boards narrower than 2800px render as before.
-  **Breaking for a board 2800px or wider:** it lays out on more
+  600px, so a cell stays about 300px wide: 8 columns from 2400px, 10 from
+  3000px and 12 from 3600px. Boards narrower than 2400px render as before.
+  **Breaking for a board 2400px or wider:** it lays out on more
   columns. Items without a `columnOffset` for the new count are packed in
   order, and one that moves there gets an offset for it in `onItemsChange`.
   Pass `columnBreakpoints` to keep 6 as the limit.

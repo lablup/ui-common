@@ -84,17 +84,17 @@ describe("Board", () => {
     expect(at(687)).toBe(1);
     expect(at(911)).toBe(2);
     expect(at(2099)).toBe(4);
-    expect(at(2799)).toBe(6);
-    expect(at(2800)).toBe(8);
-    expect(at(3499)).toBe(8);
-    expect(at(3500)).toBe(10);
-    expect(at(4199)).toBe(10);
-    expect(at(4200)).toBe(12);
+    expect(at(2399)).toBe(6);
+    expect(at(2400)).toBe(8);
+    expect(at(2999)).toBe(8);
+    expect(at(3000)).toBe(10);
+    expect(at(3599)).toBe(10);
+    expect(at(3600)).toBe(12);
     expect(at(10000)).toBe(12);
   });
 
   it("puts eight one-column items on one row of a wide board", () => {
-    containerWidth = 3000;
+    containerWidth = 2600;
     // Offsets stored for 6 and 4 columns only, as a layout persisted before
     // the wider breakpoints: at 8 columns the items are packed in order.
     const items: BoardItem<Data>[] = Array.from({ length: 8 }, (_, i) => ({
