@@ -20,7 +20,7 @@ export default {
     "layout",
   ],
   description:
-    "A dashboard grid of items the user can move and resize, by pointer or keyboard. The column count follows the board's width (1, 2, 4 or 6 columns by default); each item persists as its spans plus a column offset per column count, the model of @cloudscape-design/board-components, so a layout stored by that board renders the same here. Controlled: onItemsChange reports the whole board in its new order and the parent passes it back.",
+    "A dashboard grid of items the user can move and resize, by pointer or keyboard. The column count follows the board's width (1, 2, 4 or 6 columns by default, and 8, 10 or 12 on boards 2400px or wider); each item persists as its spans plus a column offset per column count, the model of @cloudscape-design/board-components, so a layout stored by that board renders the same here. Controlled: onItemsChange reports the whole board in its new order and the parent passes it back.",
   props: [
     {
       name: "items",
@@ -71,7 +71,8 @@ export default {
       name: "columnBreakpoints",
       type: "ReadonlyArray<{ minWidth: number; columns: number }>",
       description: "Content width (px) to column count.",
-      default: "1 under 688px, 2 under 912px, 4 under 2100px, else 6",
+      default:
+        "1 under 688px, 2 under 912px, 4 under 2100px, 6 under 2400px, 8 under 3000px, 10 under 3600px, else 12",
     },
     {
       name: "itemClassName",
