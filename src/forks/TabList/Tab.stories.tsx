@@ -12,7 +12,6 @@ const meta = {
   component: Tab,
   args: { value: "general", label: "General" },
   argTypes: {
-    actions: { control: false },
     endContent: { control: false },
   },
   render: (args) => <Strip {...args} role={undefined} />,
@@ -35,7 +34,7 @@ function Strip({
       <Tab
         value="scheduler"
         label="Scheduler"
-        actions={
+        endContent={
           <IconWithTooltip
             icon={<CircleHelp />}
             content="How sessions are queued and placed."
@@ -51,34 +50,29 @@ function Strip({
 export const Default: Story = {};
 
 /**
- * An `IconWithTooltip` in `actions`, beside the tab's button: hover or Tab to
- * it to see the tooltip; clicking it does not select the tab, and the arrow
- * keys still move between tabs only.
+ * An `IconWithTooltip` in `endContent`, beside the tab's button: hover or Tab
+ * to it to see the tooltip; clicking it does not select the tab, and the
+ * arrow keys still move between tabs only.
  */
-export const WithActions: Story = {
+export const WithTooltipEndContent: Story = {
   args: {
-    actions: (
+    endContent: (
       <IconWithTooltip icon={<CircleHelp />} content="Counts only running sessions." />
     ),
   },
 };
 
 /** The same, in a `role="tablist"` strip that controls panels. */
-export const WithActionsInATablist: Story = {
+export const WithTooltipEndContentInATablist: Story = {
   args: {
-    actions: (
+    endContent: (
       <IconWithTooltip icon={<CircleHelp />} content="Counts only running sessions." />
     ),
   },
   render: (args) => <Strip {...args} role="tablist" />,
 };
 
-/** `endContent` stays inside the button, for non-interactive content. */
-export const WithEndContentAndActions: Story = {
-  args: {
-    endContent: <Badge label="12" />,
-    actions: (
-      <IconWithTooltip icon={<CircleHelp />} content="Counts only running sessions." />
-    ),
-  },
+/** A count: clicking it selects the tab, and it describes the tab. */
+export const WithBadgeEndContent: Story = {
+  args: { endContent: <Badge label="12" /> },
 };

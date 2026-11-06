@@ -124,7 +124,7 @@
   {
     "name": "TabList",
     "replacedBy": "TabList",
-    "reason": "Tab adds actions: interactive controls (an IconWithTooltip, a menu) rendered beside the tab's button or link, not inside it, with the tab's hover, indicator and focus ring around both. TabList, TabMenu and useTabListContext are Astryx's, re-exported unchanged."
+    "reason": "Tab renders endContent beside the tab's button or link, not inside it, so an IconWithTooltip there no longer nests a button in a button; the end content describes the tab (aria-describedby), and the tab's hover, indicator and focus ring span both. TabList, TabMenu and useTabListContext are Astryx's, re-exported unchanged."
   },
   {
     "name": "TextArea",

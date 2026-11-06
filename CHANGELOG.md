@@ -5,25 +5,32 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
-### Added
-
-- **`Tab` takes `actions`: controls beside the tab's button, not inside
-  it** (#143). Astryx's `Tab` renders `endContent` inside its `<button>` /
-  `<a>`, so an `IconWithTooltip` there nested a button in a button. `actions`
-  renders beside the tab's button or link, in a non-interactive `<span>` that
-  paints the tab's hover, selected indicator and focus ring around both.
-  Clicking an action does not select the tab, the arrow keys still move
-  between tabs only, and each action is its own Tab stop. With `actions`,
-  `className`, `style` and `xstyle` style that span; `ref` and the other
-  props stay on the tab's control. In a `role="tablist"` strip an action is a
-  child of the tablist that is not a tab, which axe reports
-  (`aria-required-children`) and `TabList` warns about in development; the
-  navigation pattern has neither. `@lablup/ui-common/TabList` now exports
-  ui-common's copy of `Tab` (src/forks/TabList); `TabList`, `TabMenu` and
-  `useTabListContext` are still Astryx's. Without `actions` a tab renders
-  exactly as before.
-
 ### Changed
+
+- **`Tab` renders `endContent` beside its button, not inside it** (#143).
+  Astryx's `Tab` renders `endContent` inside its `<button>` / `<a>`, so an
+  `IconWithTooltip` there nested a button in a button. ui-common's `Tab`
+  (`@lablup/ui-common/TabList`, a fork in src/forks/TabList) now renders a
+  tab that has `endContent` as a non-interactive `<span>` holding the tab's
+  button or link and, beside it, the end content. The span paints the tab
+  (hover, press, selected indicator, focus ring), so the tab looks as before.
+  What changes for a tab with `endContent`:
+  - The end content no longer adds to the tab's accessible name. It
+    describes the tab instead: the control's `aria-describedby` names it
+    (after any `aria-describedby` passed in).
+  - A click on it still selects the tab, except inside an interactive
+    element there (a button, a link, anything focusable), which owns its
+    click. Such an element is its own Tab stop, outside the strip's
+    arrow-key navigation.
+  - `className`, `style` and `xstyle` style the span; `ref` and the other
+    props stay on the button or link.
+  - In a `role="tablist"` strip the span is a child of the tablist that is
+    not a tab, so `TabList` warns in development; axe accepts a
+    non-interactive end content there, but reports an interactive one
+    (`aria-required-children`). The navigation pattern has neither.
+
+  A tab without `endContent` renders exactly as before. `TabList`, `TabMenu`
+  and `useTabListContext` are still Astryx's.
 
 - **`Board` keeps adding columns past 6 on very wide boards.**
   `DEFAULT_BOARD_COLUMN_BREAKPOINTS` stopped at 6 columns from 2100px, so a

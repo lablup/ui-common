@@ -170,7 +170,7 @@
     "package": "@astryxdesign/core",
     "version": "0.7.7",
     "upstream": null,
-    "notes": "An addition, not a fix: actions, interactive controls rendered beside the tab's button or link inside a non-interactive span that paints the tab (hover, press, indicator, focus ring). Without actions the markup is upstream's. TabList, TabMenu and useTabListContext are core's, re-exported. On an Astryx bump, keep it until core's Tab can hold an interactive trailing control.",
+    "notes": "A behaviour change: endContent renders beside the tab's button or link, inside a non-interactive span that paints the tab (hover, press, indicator, focus ring), and describes the control through aria-describedby instead of adding to its name. Without endContent the markup is upstream's. TabList, TabMenu and useTabListContext are core's, re-exported. On an Astryx bump, keep it until core's Tab keeps interactive end content out of the tab's control.",
     "files": {
       "src/TabList/Tab.tsx": "e27652c8e96a35d760cd28630aac7055c6907a4896db501a804f27aea1d24a7f",
       "src/TabList/index.ts": "901dcfbdc2998f3ba3515838db3f45eeefa78083cf862e338297f9c9013eb5ec",

@@ -7,27 +7,29 @@
 "use client";
 
 /**
- * Tab, ui-common's copy of Astryx's, with one addition (not yet upstream):
- * `actions`, interactive controls at the tab's trailing edge (an
- * `IconWithTooltip` explaining the tab, a menu). Upstream renders `label`
- * and `endContent` inside the tab's `<button>` / `<a>`, so a control there
- * nests one interactive element in another. With `actions` the tab renders
- * as a non-interactive `<span>` that paints the tab (hover, press, selected
- * indicator, focus ring), holding the tab's button or link and, beside it,
- * the actions: clicking an action does not select the tab, arrow keys still
- * move between tabs only, and each action is its own Tab stop. Arrow keys
- * pressed on an action stay with it. `className`, `style` and `xstyle` style
- * that span; `ref` and every other prop stay on the button or link. The
- * pattern is SideNavItem's `actions`. Without `actions` the markup is
- * upstream's.
+ * Tab, ui-common's copy of Astryx's, with one change (not yet upstream):
+ * `endContent` renders beside the tab's `<button>` / `<a>`, not inside it.
+ * Upstream renders it inside, so an interactive control there (an
+ * `IconWithTooltip` explaining the tab) nests one interactive element in
+ * another. With `endContent` the tab renders as a non-interactive `<span>`
+ * that paints the tab (hover, press, selected indicator, focus ring) and
+ * holds the tab's control and, beside it, the end content, which describes
+ * the control (`aria-describedby`) rather than adding to its name. A click
+ * on the end content selects the tab, unless it lands in an interactive
+ * element there; arrow keys still move between tabs only, and an
+ * interactive element in the end content is its own Tab stop. `className`,
+ * `style` and `xstyle` style that span; `ref` and every other prop stay on
+ * the control. The layout is the one SideNavItem uses for its trailing
+ * controls. Without `endContent`
+ * the markup is upstream's.
  *
  * Everything else is upstream's. Its style namespaces are Astryx's compiled
- * output (src/forks/compiled.ts); the two inline paddings the actions layout
- * needs are the only styles of its own.
+ * output (src/forks/compiled.ts); the two inline paddings the end-content
+ * layout needs are the only styles of its own.
  *
- * Delete this fork, and its exports.exclude.json entry, once Astryx's Tab can
- * hold an interactive trailing control (CONTRIBUTING, "Forks of Astryx
- * components").
+ * Delete this fork, and its exports.exclude.json entry, once Astryx's Tab
+ * keeps interactive end content out of the tab's control (CONTRIBUTING,
+ * "Forks of Astryx components").
  */
 
 /*
@@ -41,7 +43,7 @@
  *   pattern it is a button with role="tab".
  */
 
-import { useCallback, useRef, type ReactNode } from "react";
+import { useCallback, useId, useRef, type ReactNode } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { BaseProps } from "@astryxdesign/core/BaseProps";
 import {
@@ -111,22 +113,17 @@ export interface TabProps extends BaseProps<HTMLButtonElement> {
    */
   selectedIcon?: ReactNode;
   /**
-   * Content rendered after the label (e.g. a badge or status dot). Rendered
-   * inside the tab's button or link, so it must not be interactive: put
-   * controls in `actions`.
+   * Content rendered after the label (e.g. a badge, a status dot, or an
+   * `IconWithTooltip` explaining the tab).
+   *
+   * ui-common: rendered beside the tab's button or link, not inside it, so it
+   * may hold interactive controls; it describes the tab (`aria-describedby`)
+   * instead of adding to its accessible name. A click on it selects the tab,
+   * except inside an interactive element there, and such an element is its
+   * own Tab stop, outside the strip's arrow-key navigation. With it,
+   * `className`, `style` and `xstyle` style the wrapper around both.
    */
   endContent?: ReactNode;
-  /**
-   * ui-common: interactive controls (an `IconWithTooltip`, an icon button, a
-   * menu) at the tab's trailing edge, after `endContent`. Rendered beside
-   * the tab's button or link, never inside it, in a non-interactive wrapper
-   * that paints the tab's hover, selected indicator and focus ring around
-   * both. Clicking an action does not select the tab; each action is its
-   * own Tab stop, outside the strip's arrow-key navigation. Content is
-   * passthrough: each control owns its accessible name and keyboard
-   * behaviour. With it, `className`, `style` and `xstyle` style the wrapper.
-   */
-  actions?: ReactNode;
 }
 
 // =============================================================================
@@ -157,12 +154,31 @@ const CLASS_NAME = {
   endContentWrapper: "x3nfvp2 x6s0dn4 x2lah0s",
 };
 
-// ui-common: with `actions`, the wrapper supplies the trailing inline
-// padding and the button the leading one, so the hit area of the tab's own
-// control starts at the tab's edge and the actions sit `--spacing-1` after
-// its content, as `endContent` does.
-const ACTIONS_WRAPPER_STYLE = { paddingInlineStart: 0 } as const;
-const ACTIONS_CONTROL_STYLE = { paddingInlineEnd: 0 } as const;
+// ui-common: with `endContent`, the wrapper supplies the trailing inline
+// padding and the control the leading one, so the control's hit area starts
+// at the tab's edge and the end content sits `--spacing-1` after the label,
+// as it does inside upstream's button.
+const END_WRAPPER_STYLE = { paddingInlineStart: 0 } as const;
+const END_CONTROL_STYLE = { paddingInlineEnd: 0 } as const;
+// What counts as interactive inside the end content: a click there is the
+// control's own, not a press on the tab.
+const INTERACTIVE_SELECTOR = [
+  "a[href]",
+  "button",
+  "input",
+  "select",
+  "textarea",
+  "summary",
+  "label",
+  "[tabindex]",
+  '[contenteditable]:not([contenteditable="false"])',
+  '[role="button"]',
+  '[role="link"]',
+  '[role="checkbox"]',
+  '[role="switch"]',
+  '[role="menuitem"]',
+  '[role="option"]',
+].join(",");
 const NAVIGATION_KEYS = new Set([
   "ArrowLeft",
   "ArrowRight",
@@ -197,7 +213,6 @@ export function Tab({
   icon,
   selectedIcon,
   endContent,
-  actions,
   xstyle,
   className,
   style,
@@ -208,6 +223,7 @@ export function Tab({
   const tabListCtx = useTabListContext();
   const LinkComponent = useLinkComponent(as);
   const controlRef = useRef<HTMLElement | null>(null);
+  const endContentId = useId();
   const mergedRef = useMergedRefs<HTMLElement>(
     ref as React.Ref<HTMLElement> | undefined,
     controlRef,
@@ -221,7 +237,7 @@ export function Tab({
   const isTabRole = isTabsPattern && !isLink;
   const displayIcon = isSelected && isRenderable(selectedIcon) ? selectedIcon : icon;
   const hasVisibleLabel = !isLabelHidden && label !== "";
-  const hasActions = isRenderable(actions);
+  const hasEndContent = isRenderable(endContent);
 
   const isDisabled =
     restProps["aria-disabled"] === true || restProps["aria-disabled"] === "true";
@@ -301,7 +317,7 @@ export function Tab({
   };
 
   // ui-common: the classes that paint the tab. On the button or link itself,
-  // or, with `actions`, on the wrapper around it.
+  // or, with `endContent`, on the wrapper around it.
   const surfaceStyles = [
     styles.base,
     sizeStyles[size],
@@ -359,23 +375,23 @@ export function Tab({
     </span>
   ) : null;
 
-  const endContentElement = isRenderable(endContent) ? (
-    <span className={CLASS_NAME.endContentWrapper}>{endContent}</span>
-  ) : null;
-
   // A disabled link tab must not reach a router component: some routers reject
   // a missing destination, while others treat it as the current route. A
   // plain anchor without href preserves the element shape but cannot navigate.
   const LinkRoot = isDisabled ? "a" : LinkComponent;
 
-  if (hasActions) {
-    // ui-common: the tab's button or link and its actions are siblings in a
+  if (hasEndContent) {
+    // ui-common: the tab's control and its end content are siblings in a
     // non-interactive span that paints the tab. The span rings while its first
-    // child, the tab's control, is focus-visible (SideNavItem's pattern), so
-    // the control suppresses its own ring.
+    // child, the control, is focus-visible (SideNavItem's pattern), so the
+    // control suppresses its own ring.
+    const describedBy = [restProps["aria-describedby"], endContentId]
+      .filter(Boolean)
+      .join(" ");
     const control = {
       ...restProps,
       ...(isLabelHidden ? { "aria-label": label } : {}),
+      "aria-describedby": describedBy,
       ...semantics,
       ...mergeProps(
         focusOutlineProps.suppressed(
@@ -385,31 +401,35 @@ export function Tab({
           layoutStyles.hug,
         ),
         undefined,
-        ACTIONS_CONTROL_STYLE,
+        END_CONTROL_STYLE,
       ),
     };
     const content = (
       <>
         {iconElement}
         {labelElement}
-        {endContentElement}
       </>
     );
     return (
       <span
         {...pressable}
         {...{ [EDGE_COMP_ATTR]: "" }}
-        data-tab-actions=""
-        // A press in the wrapper's own padding, outside both the control and
-        // the actions, selects the tab as a press anywhere on a tab does.
+        data-tab-end-content=""
+        // A press anywhere on the tab selects it, as on upstream's, except in
+        // an interactive element of the end content, which owns its click.
         onClick={(event) => {
-          if (event.target === event.currentTarget) controlRef.current?.click();
+          const control = controlRef.current;
+          const target = event.target as Element;
+          if (!control || control.contains(target)) return;
+          const interactive = target.closest(INTERACTIVE_SELECTOR);
+          if (interactive && event.currentTarget.contains(interactive)) return;
+          control.click();
         }}
         {...mergeProps(
           surfaceThemeProps,
           focusOutlineProps.focusWithinFirstChild(...surfaceStyles),
           className,
-          { ...ACTIONS_WRAPPER_STYLE, ...style },
+          { ...END_WRAPPER_STYLE, ...style },
         )}
       >
         {isLink ? (
@@ -432,14 +452,16 @@ export function Tab({
           </button>
         )}
         <span
+          id={endContentId}
           className={CLASS_NAME.endContentWrapper}
-          // The strip's arrow keys move between tabs; on an action they would
-          // jump to the first or last tab, so they stay with the action.
+          // The strip's arrow keys move between tabs; on a control in the end
+          // content they would jump to the first or last tab, so they stay
+          // with it.
           onKeyDown={(event) => {
             if (NAVIGATION_KEYS.has(event.key)) event.stopPropagation();
           }}
         >
-          {actions}
+          {endContent}
         </span>
         {hoverBgElement}
         {indicatorElement}
@@ -458,7 +480,6 @@ export function Tab({
         {hoverBgElement}
         {iconElement}
         {labelElement}
-        {endContentElement}
         {indicatorElement}
       </LinkRoot>
     );
@@ -469,7 +490,6 @@ export function Tab({
       {hoverBgElement}
       {iconElement}
       {labelElement}
-      {endContentElement}
       {indicatorElement}
     </button>
   );
