@@ -1,1 +1,0 @@
-import{t as e}from"./iframe-BbtypSF0.js";e();
