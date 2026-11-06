@@ -113,6 +113,7 @@ consumers, and ui-common's consumers import Astryx through ui-common.
 | `Drawer`          | `@lablup/ui-common/Drawer`          | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
 | `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
 | `Stat`            | `@lablup/ui-common/lab`             | `deltaTooltip`: a tooltip anchored to the delta, which takes keyboard focus for it, with `media` outside it (see below)                     | not filed                                                            |
+| `TabList`         | `@lablup/ui-common/TabList`         | `endContent` renders beside the tab's button/link, not inside it (no nested interactive content); described via `aria-describedby`          | not filed                                                            |
 
 `Drawer`'s other changes are ui-common's own, not upstream fixes. Astryx (lab
 from 0.6.5, core since 0.7.2) opens a scrimless drawer as a manual popover,
@@ -131,6 +132,17 @@ string, so a wrapper cannot anchor a tooltip to the delta: wrapping the whole
 `Stat` opens it away from the change it explains and nests a `media`
 sparkline's own tooltip inside it. Without `deltaTooltip` the fork renders
 lab's markup. Keep it on a bump until lab has a way to explain the delta.
+
+`TabList`'s fork copies only `Tab`. Astryx renders `label` and `endContent`
+inside the tab's `<button>` / `<a>`, so a control in `endContent` (an
+`IconWithTooltip` explaining the tab) nests one interactive element in
+another. The fork renders a tab with `endContent` as a non-interactive
+`<span>` that paints the tab and holds the control and the end content side
+by side, the layout `SideNavItem` uses for its trailing controls; the end
+content describes the control through `aria-describedby`. `TabList`, `TabMenu`
+and `useTabListContext` are Astryx's, re-exported from the fork's subpath.
+Without `endContent` the fork renders Astryx's markup. Keep it on a bump
+until Astryx's Tab keeps interactive end content out of the tab's control.
 
 How one is put together:
 

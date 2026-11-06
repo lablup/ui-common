@@ -56,6 +56,35 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Changed
 
+- **`Tab` renders `endContent` beside its button, not inside it** (#143).
+  Astryx's `Tab` renders `endContent` inside its `<button>` / `<a>`, so an
+  `IconWithTooltip` there nested a button in a button. ui-common's `Tab`
+  (`@lablup/ui-common/TabList`, a fork in src/forks/TabList) now renders a
+  tab that has `endContent` as a non-interactive `<span>` holding the tab's
+  button or link and, beside it, the end content. The span paints the tab
+  (hover, press, selected indicator, focus ring), so the tab looks as before.
+  What changes for a tab with `endContent`:
+  - The end content no longer adds to the tab's accessible name. It
+    describes the tab instead: the control's `aria-describedby` names it
+    (after any `aria-describedby` passed in).
+    A tab with an empty `label` is named by its end content instead.
+  - A click on it still selects the tab, except inside an interactive
+    element there (a button, a link, anything focusable), which owns its
+    click. The forwarded click keeps its modifier keys; a middle click on
+    the end content of a link tab does nothing (on the link it opens a new
+    tab). Such an element is its own Tab stop, outside the strip's
+    arrow-key navigation, and focus stays on the tab when `endContent`
+    comes or goes.
+  - `className`, `style` and `xstyle` style the span; `ref` and the other
+    props stay on the button or link.
+  - In a `role="tablist"` strip the span is a child of the tablist that is
+    not a tab, so `TabList` warns in development; axe accepts a
+    non-interactive end content there, but reports an interactive one
+    (`aria-required-children`). The navigation pattern has neither.
+
+  A tab without `endContent` renders exactly as before. `TabList`, `TabMenu`
+  and `useTabListContext` are still Astryx's.
+
 - **`Board` keeps adding columns past 6 on very wide boards.**
   `DEFAULT_BOARD_COLUMN_BREAKPOINTS` stopped at 6 columns from 2100px, so a
   wider board only stretched its cells. It now adds two columns for every

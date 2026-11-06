@@ -152,6 +152,12 @@
     "wraps": "@astryxdesign/core/Switch"
   },
   {
+    "name": "TabList",
+    "source": "forks/TabList/index.ts",
+    "subpath": "TabList",
+    "fork": "@astryxdesign/core/TabList"
+  },
+  {
     "name": "TagsInput",
     "source": "formControls/TagsInput/index.ts",
     "subpath": "TagsInput"

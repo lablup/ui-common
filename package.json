@@ -429,10 +429,6 @@
       "types": "./dist/astryx/Stepper.d.ts",
       "import": "./dist/astryx/Stepper.js"
     },
-    "./TabList": {
-      "types": "./dist/astryx/TabList.d.ts",
-      "import": "./dist/astryx/TabList.js"
-    },
     "./Table": {
       "types": "./dist/astryx/Table.d.ts",
       "import": "./dist/astryx/Table.js"
@@ -679,6 +675,10 @@
     "./Switch": {
       "types": "./dist/formControls/Switch/index.d.ts",
       "import": "./dist/formControls/Switch/index.js"
+    },
+    "./TabList": {
+      "types": "./dist/forks/TabList/index.d.ts",
+      "import": "./dist/forks/TabList/index.js"
     },
     "./TagsInput": {
       "types": "./dist/formControls/TagsInput/index.d.ts",

@@ -165,5 +165,36 @@
         }
       ]
     }
+  },
+  "TabList": {
+    "package": "@astryxdesign/core",
+    "version": "0.7.7",
+    "upstream": null,
+    "notes": "A behaviour change: endContent renders beside the tab's button or link, inside a non-interactive span that paints the tab (hover, press, indicator, focus ring), and describes the control through aria-describedby instead of adding to its name. Without endContent the markup is upstream's. TabList, TabMenu and useTabListContext are core's, re-exported. On an Astryx bump, keep it until core's Tab keeps interactive end content out of the tab's control.",
+    "files": {
+      "src/TabList/Tab.tsx": "e27652c8e96a35d760cd28630aac7055c6907a4896db501a804f27aea1d24a7f",
+      "src/TabList/index.ts": "901dcfbdc2998f3ba3515838db3f45eeefa78083cf862e338297f9c9013eb5ec",
+      "dist/TabList/Tab.js": "56ad2e11300b66cc260da923dbd87377d41b865b378837a4ecbc89f979d6a3e2",
+      "dist/TabList/tab.markers.stylex.js": "1fb96bd48bf2308e6573d8866a9d8f65005886f7e2f5afd4b461eaadae6ce98b"
+    },
+    "styles": {
+      "file": "src/forks/TabList/Tab.styles.ts",
+      "from": [
+        {
+          "file": "dist/TabList/Tab.js",
+          "consts": [
+            "styles",
+            "sizeStyles",
+            "hoverSizeStyles",
+            "layoutStyles",
+            "iconSizeStyles"
+          ]
+        },
+        {
+          "file": "dist/TabList/tab.markers.stylex.js",
+          "consts": ["tabScope"]
+        }
+      ]
+    }
   }
 }
