@@ -382,5 +382,45 @@
   "uic.TagsInput.create": {
     "defaultMessage": "Δημιουργία \"{value}\"",
     "description": "Label of the row in a tag input's list that adds the typed text as a new tag"
+  },
+  "uic.DateTimeRangeInput.startPlaceholder": {
+    "defaultMessage": "Ημερομηνία έναρξης",
+    "description": "Shown in the start half of a date range field while it has no start; also names that half"
+  },
+  "uic.DateTimeRangeInput.endPlaceholder": {
+    "defaultMessage": "Ημερομηνία λήξης",
+    "description": "Shown in the end half of a date range field while it has no end; also names that half"
+  },
+  "uic.DateTimeRangeInput.dialogLabel": {
+    "defaultMessage": "Επιλέξτε εύρος ημερομηνίας και ώρας",
+    "description": "Accessible name of the popover that picks a start and an end date and time"
+  },
+  "uic.DateTimeRangeInput.presets": {
+    "defaultMessage": "Προκαθορισμένα εύρη",
+    "description": "Accessible name of the group of quick-pick ranges, such as Last 24 hours"
+  },
+  "uic.DateTimeRangeInput.startTime": {
+    "defaultMessage": "Ώρα έναρξης",
+    "description": "Label of the hour and minute columns while they edit the start of the range"
+  },
+  "uic.DateTimeRangeInput.endTime": {
+    "defaultMessage": "Ώρα λήξης",
+    "description": "Label of the hour and minute columns while they edit the end of the range"
+  },
+  "uic.DateTimeRangeInput.hour": {
+    "defaultMessage": "Ώρα",
+    "description": "Accessible name of the column of hours (00 to 23) in a time picker"
+  },
+  "uic.DateTimeRangeInput.minute": {
+    "defaultMessage": "Λεπτό",
+    "description": "Accessible name of the column of minutes (00 to 59) in a time picker"
+  },
+  "uic.TimeRangeInput.dialogLabel": {
+    "defaultMessage": "Επιλέξτε εύρος ώρας",
+    "description": "Accessible name of the popover that picks a start and an end time of day"
+  },
+  "uic.TimeRangeInput.period": {
+    "defaultMessage": "π.μ./μ.μ.",
+    "description": "Accessible name of the column that picks AM or PM in a 12-hour time picker"
   }
 }

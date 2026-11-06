@@ -382,5 +382,45 @@
   "uic.TagsInput.create": {
     "defaultMessage": "สร้าง \"{value}\"",
     "description": "Label of the row in a tag input's list that adds the typed text as a new tag"
+  },
+  "uic.DateTimeRangeInput.startPlaceholder": {
+    "defaultMessage": "วันที่เริ่มต้น",
+    "description": "Shown in the start half of a date range field while it has no start; also names that half"
+  },
+  "uic.DateTimeRangeInput.endPlaceholder": {
+    "defaultMessage": "วันที่สิ้นสุด",
+    "description": "Shown in the end half of a date range field while it has no end; also names that half"
+  },
+  "uic.DateTimeRangeInput.dialogLabel": {
+    "defaultMessage": "เลือกช่วงวันที่และเวลา",
+    "description": "Accessible name of the popover that picks a start and an end date and time"
+  },
+  "uic.DateTimeRangeInput.presets": {
+    "defaultMessage": "ช่วงที่กำหนดไว้",
+    "description": "Accessible name of the group of quick-pick ranges, such as Last 24 hours"
+  },
+  "uic.DateTimeRangeInput.startTime": {
+    "defaultMessage": "เวลาเริ่มต้น",
+    "description": "Label of the hour and minute columns while they edit the start of the range"
+  },
+  "uic.DateTimeRangeInput.endTime": {
+    "defaultMessage": "เวลาสิ้นสุด",
+    "description": "Label of the hour and minute columns while they edit the end of the range"
+  },
+  "uic.DateTimeRangeInput.hour": {
+    "defaultMessage": "ชั่วโมง",
+    "description": "Accessible name of the column of hours (00 to 23) in a time picker"
+  },
+  "uic.DateTimeRangeInput.minute": {
+    "defaultMessage": "นาที",
+    "description": "Accessible name of the column of minutes (00 to 59) in a time picker"
+  },
+  "uic.TimeRangeInput.dialogLabel": {
+    "defaultMessage": "เลือกช่วงเวลา",
+    "description": "Accessible name of the popover that picks a start and an end time of day"
+  },
+  "uic.TimeRangeInput.period": {
+    "defaultMessage": "ก่อนเที่ยง/หลังเที่ยง",
+    "description": "Accessible name of the column that picks AM or PM in a 12-hour time picker"
   }
 }

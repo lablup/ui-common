@@ -39,6 +39,14 @@
   { "name": "CountdownBorder", "source": "components/CountdownBorder/index.ts" },
   { "name": "DataGrid", "source": "components/DataGrid/index.ts" },
   {
+    "name": "DateTimeRangeInput",
+    "source": "components/DateTimeRangeInput/index.ts"
+  },
+  {
+    "name": "TimeRangeInput",
+    "source": "components/DateTimeRangeInput/TimeRangeInput.tsx"
+  },
+  {
     "name": "DateInput",
     "source": "formControls/DateInput/index.ts",
     "subpath": "DateInput",

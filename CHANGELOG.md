@@ -5,6 +5,55 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`DateTimeRangeInput`**: a start and an end, each a date and (with
+  `showTime`) a time to the minute, modeled on Ant Design's `RangePicker`.
+  Astryx's `DateRangeInput` picks dates only and `DateTimeInput` one date and
+  time. The value is `{ start, end } | null` of local `YYYY-MM-DDTHH:MM`
+  strings (Astryx's `ISODateTimeString`). The box holds one part per end
+  (`2026-11-05 09:00 → 2026-11-06 14:00`); clicking a part opens the popover
+  on that end and underlines it. The popover holds optional `presets`,
+  Astryx's range `Calendar` over two months and, with `showTime`, hour and
+  minute columns and a confirm button: a day click sets the end being edited
+  (the start at 00:00, the end at 23:59 or now on today), confirm moves from
+  the start to the end and then commits both; without `showTime` the second
+  day click commits. As in antd, the parts show the draft while the popover
+  is open, the time columns are fixed-height and scroll on their own with the
+  selected value at the top, and hours and minutes the bounds rule out are
+  greyed and cannot be picked (a new hour moves the minute to the nearest
+  allowed one). With `showTime` a picked start stays a single day until
+  confirm (no hover preview yet), an end that still fits a moved start is
+  kept, and an end's time can be picked before its day (on the start's day).
+  Days after `max`, before the start and beyond
+  `maxDuration` (milliseconds) from it are disabled, and a draft that is not
+  after its start, ends after `max` or is too long keeps confirm disabled, so
+  `onChange` never reports it. A preset commits at once and is passed to
+  `onChange`; one longer than `maxDuration` is disabled (`min` / `max` are
+  not checked, as a relative preset ends at its own now); one marked
+  `isRelative` shows its label in an `isCompactLabel`
+  box. Sizes `sm` and `md`. It sits in a `Form.Item` like the form-control
+  wrappers (value, id, `disabled`, border status, label), or stands alone
+  named by `aria-label`. Exported from the root and
+  `@lablup/ui-common/components/DateTimeRangeInput`, with
+  `DateTimeRangeInputProps`, `DateTimeRangeInputValue`,
+  `DateTimeRangeInputPreset` and `DateTimeRangeInputSize`.
+- **`TimeRangeInput`**: `DateTimeRangeInput`'s time-only sibling, modeled on
+  Ant Design's `TimePicker.RangePicker`. The value is `{ start, end } | null`
+  of local `HH:MM` strings (Astryx's `ISOTimeString`); the same box with one
+  part per end (`09:00 → 18:00`), hour and minute columns and a confirm
+  button that moves from the start to the end, then commits both. The end
+  must be after the start: earlier times are greyed while it is edited.
+  `hourFormat="12h"` shows `9:00 AM` and adds an AM / PM column (antd's
+  `use12Hours`). As in antd, the panel sits under the end part while the end
+  is edited. Same `Form.Item` contract, sizes and clear button. Exported
+  from the root, with
+  `TimeRangeInputProps`, `TimeRangeInputValue` and `TimeRangeInputSize`.
+- Catalog keys `uic.DateTimeRangeInput.startPlaceholder`, `.endPlaceholder`,
+  `.dialogLabel`, `.presets`, `.startTime`, `.endTime`, `.hour` and
+  `.minute`, and `uic.TimeRangeInput.dialogLabel` and `.period`, translated
+  in every shipped locale.
+
 ### Changed
 
 - **`Board` keeps adding columns past 6 on very wide boards.**

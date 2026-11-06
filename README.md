@@ -312,6 +312,7 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `NotificationItem`                                             | The title, description, actions and footer of one notice    | `/components/NotificationItem`   |
 | `UnitGrid`, `UnitGridSkeleton`                                 | Groups of unit squares on one lattice, with a hover card    | `/components/UnitGrid`           |
 | `ColorPicker`                                                  | A hex colour field on the platform colour input             | `/components/ColorPicker`        |
+| `DateTimeRangeInput`, `TimeRangeInput`                         | A start and an end, each a date and a time, with presets    | `/components/DateTimeRangeInput` |
 | `Form` and its hooks                                           | A form engine with antd's form API. See below.              | `/Form`                          |
 | `BulkEditFormItem`                                             | A form item that edits one field across many records        | `/components/BulkEditFormItem`   |
 | `DataGrid`, `DataGridSettingsModal`, `DataGridExportModal`     | A table with paging, sorting, selection and column settings | `/components/DataGrid`           |
