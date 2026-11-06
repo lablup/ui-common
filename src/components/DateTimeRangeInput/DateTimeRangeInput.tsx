@@ -388,9 +388,23 @@ export function DateTimeRangeInput({
       if (min && toDate(min)!.getTime() > toDate(start)!.getTime() && day === minDay) {
         start = min;
       }
-      setDraft({ start, end: null });
-      if (!showTime) setPart("end");
-      syncAnchor(day, day);
+      if (!showTime) {
+        // Dates only: the calendar holds the start as the anchor of a
+        // half-made range, and the next click ends it.
+        setDraft({ start, end: null });
+        setPart("end");
+        syncAnchor(day, day);
+        return;
+      }
+      // With times, the start is a single day until confirm: no anchor, so
+      // hovering does not preview a range yet. An end that still fits the
+      // new start is kept, as antd keeps it.
+      const end =
+        draft.end && rangeProblem({ start, end: draft.end }, bounds) === null
+          ? draft.end
+          : null;
+      setDraft({ start, end });
+      syncAnchor(null, day);
       return;
     }
     const next = {
@@ -466,21 +480,27 @@ export function DateTimeRangeInput({
       hi: hi.length ? Math.min(...hi) : Infinity,
     };
   })();
-  const editingDay = editing ? datePart(editing) : null;
+  // What the time columns edit. An end with no day yet takes the start's day,
+  // at its default end time, so its time can be picked before a day is.
+  const timeBase =
+    editing ??
+    (part === "end" && draft.start
+      ? defaultEnd(datePart(draft.start), draft.start, bounds, new Date())
+      : null);
   const at = (hour: number, minute: number) =>
-    toDate(withTime(editing!, hour, minute))!.getTime();
+    toDate(withTime(timeBase!, hour, minute))!.getTime();
   const isHourDisabled = (hour: number) =>
-    !editingDay || at(hour, 59) < timeWindow.lo || at(hour, 0) > timeWindow.hi;
+    !timeBase || at(hour, 59) < timeWindow.lo || at(hour, 0) > timeWindow.hi;
   const isMinuteDisabled = (minute: number) => {
-    if (!editing) return true;
-    const t = at(hourMinute(editing)[0], minute);
+    if (!timeBase) return true;
+    const t = at(hourMinute(timeBase)[0], minute);
     return t < timeWindow.lo || t > timeWindow.hi;
   };
 
   const setTime = (hour: number | null, minute: number | null) => {
-    if (!editing) return;
-    const [h, m] = hourMinute(editing);
-    let next = withTime(editing, hour ?? h, minute ?? m);
+    if (!timeBase) return;
+    const [h, m] = hourMinute(timeBase);
+    let next = withTime(timeBase, hour ?? h, minute ?? m);
     // A new hour keeps the minute when it can, and otherwise takes the
     // nearest one the window allows on that hour.
     const t = toDate(next)!.getTime();
@@ -707,7 +727,7 @@ export function DateTimeRangeInput({
                       value={editing ? hourMinute(editing)[0] : null}
                       onChange={(hour) => setTime(hour, null)}
                       isValueDisabled={isHourDisabled}
-                      isDisabled={!editing}
+                      isDisabled={!timeBase}
                       data-testid={testPart("hour")}
                     />
                     <TimeColumn
@@ -716,7 +736,7 @@ export function DateTimeRangeInput({
                       value={editing ? hourMinute(editing)[1] : null}
                       onChange={(minute) => setTime(null, minute)}
                       isValueDisabled={isMinuteDisabled}
-                      isDisabled={!editing}
+                      isDisabled={!timeBase}
                       data-testid={testPart("minute")}
                     />
                   </div>

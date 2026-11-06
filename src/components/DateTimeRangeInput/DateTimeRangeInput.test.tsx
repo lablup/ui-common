@@ -195,6 +195,55 @@ describe("DateTimeRangeInput", () => {
     );
   });
 
+  it("holds a picked start as one day, with no range in progress, until confirm", async () => {
+    render(<DateTimeRangeInput aria-label="Period" showTime />);
+    const dialog = await open();
+    await userEvent.click(day(dialog, "November 3"));
+    // An in-progress range (which previews on hover) names its first day
+    // "range start"; a settled single day does not.
+    expect(day(dialog, "November 3")).not.toHaveAccessibleName(/range start$/);
+    await userEvent.click(confirm(dialog));
+    expect(day(dialog, "November 3")).toHaveAccessibleName(/range start$/);
+  });
+
+  it("keeps an end that still fits when the start moves", async () => {
+    const onChange = vi.fn();
+    render(
+      <DateTimeRangeInput
+        aria-label="Period"
+        value={NOV_5}
+        onChange={onChange}
+        showTime
+      />,
+    );
+    const dialog = await open();
+    await userEvent.click(day(dialog, "November 4"));
+    expect(endButton()).toHaveTextContent("2026-11-05 18:30");
+    await userEvent.click(confirm(dialog));
+    expect(option(dialog, "Hour", "18")).toHaveAttribute("aria-selected", "true");
+    await userEvent.click(confirm(dialog));
+    expect(onChange).toHaveBeenCalledWith(
+      range("2026-11-04T00:00", "2026-11-05T18:30"),
+    );
+  });
+
+  it("lets the end's time be picked before its day, on the start's day", async () => {
+    const onChange = vi.fn();
+    render(<DateTimeRangeInput aria-label="Period" onChange={onChange} showTime />);
+    const dialog = await open();
+    await userEvent.click(day(dialog, "November 3"));
+    await userEvent.click(option(dialog, "Hour", "09"));
+    await userEvent.click(confirm(dialog));
+    const hours = within(dialog).getByRole("listbox", { name: "Hour" });
+    expect(hours).not.toHaveAttribute("aria-disabled");
+    expect(option(dialog, "Hour", "08")).toHaveAttribute("aria-disabled", "true");
+    await userEvent.click(option(dialog, "Hour", "17"));
+    await userEvent.click(confirm(dialog));
+    expect(onChange).toHaveBeenCalledWith(
+      range("2026-11-03T09:00", "2026-11-03T17:59"),
+    );
+  });
+
   it("ends today at now", async () => {
     const onChange = vi.fn();
     render(<DateTimeRangeInput aria-label="Period" onChange={onChange} showTime />);
@@ -319,7 +368,8 @@ describe("DateTimeRangeInput", () => {
     const dialog = await open();
     await userEvent.click(day(dialog, "November 2"));
     expect(startButton()).toHaveTextContent("2026-11-02 00:00");
-    expect(endButton()).toHaveTextContent("End date");
+    // The end still fits the new start, so it stays.
+    expect(endButton()).toHaveTextContent("2026-11-05 18:30");
     await userEvent.click(option(dialog, "Hour", "07"));
     expect(startButton()).toHaveTextContent("2026-11-02 07:00");
   });

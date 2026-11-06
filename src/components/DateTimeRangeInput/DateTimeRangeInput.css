@@ -132,6 +132,8 @@
     font-variant-numeric: tabular-nums;
     text-align: center;
     cursor: pointer;
+    /* A press that slides across values does not select their text. */
+    user-select: none;
   }
 
   .uic-date-time-range-input__time-option:hover {

@@ -22,7 +22,10 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   is open, the time columns are fixed-height and scroll on their own with the
   selected value at the top, and hours and minutes the bounds rule out are
   greyed and cannot be picked (a new hour moves the minute to the nearest
-  allowed one). Days after `max`, before the start and beyond
+  allowed one). With `showTime` a picked start stays a single day until
+  confirm (no hover preview yet), an end that still fits a moved start is
+  kept, and an end's time can be picked before its day (on the start's day).
+  Days after `max`, before the start and beyond
   `maxDuration` (milliseconds) from it are disabled, and a draft that is not
   after its start, ends after `max` or is too long keeps confirm disabled, so
   `onChange` never reports it. A preset commits at once and is passed to
