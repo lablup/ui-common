@@ -52,7 +52,7 @@ export default {
       name: "presets",
       type: "ReadonlyArray<{ label: string; getRange: () => DateTimeRangeInputValue; isRelative?: boolean }>",
       description:
-        'Quick picks beside the calendar ("Last 24 hours"); getRange runs when the popover renders and on the click. A preset commits at once and closes the popover; one that breaks min, max or maxDuration is disabled; the one equal to the value is marked current. isRelative marks a range relative to now, whose label a trigger with isCompactLabel shows.',
+        'Quick picks beside the calendar ("Last 24 hours"); getRange runs when the popover renders and on the click. A preset commits at once and closes the popover; one longer than maxDuration is disabled (min and max are not checked, since a relative preset ends at its own now); the one equal to the value is marked current. isRelative marks a range relative to now, whose label a trigger with isCompactLabel shows.',
     },
     {
       name: "min",

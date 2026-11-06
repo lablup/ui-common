@@ -346,6 +346,29 @@ describe("DateTimeRangeInput", () => {
       expect(screen.queryByRole("dialog")).toBeNull();
     });
 
+    it("keeps a relative preset clickable when it ends after a max taken earlier", async () => {
+      const onChange = vi.fn();
+      render(
+        <DateTimeRangeInput
+          aria-label="Period"
+          onChange={onChange}
+          showTime
+          // "now" as the caller took it a few minutes before the preset runs.
+          max={"2026-11-05T11:57" as never}
+          maxDuration={7 * DAY_MS}
+          presets={[LAST_HOUR]}
+        />,
+      );
+      const dialog = await open();
+      const preset = within(dialog).getByRole("button", { name: "Last 1 hour" });
+      expect(preset).toBeEnabled();
+      await userEvent.click(preset);
+      expect(onChange).toHaveBeenCalledWith(
+        range("2026-11-05T11:00", "2026-11-05T12:00"),
+        LAST_HOUR,
+      );
+    });
+
     it("marks the preset that matches the value and disables one that breaks the bounds", async () => {
       const onChange = vi.fn();
       render(

@@ -126,7 +126,11 @@ export interface DateTimeRangeInputProps {
    * @default false
    */
   showTime?: boolean;
-  /** Quick picks beside the calendar. One that breaks the bounds is disabled. */
+  /**
+   * Quick picks beside the calendar. One longer than `maxDuration` is
+   * disabled; `min` and `max` are not checked, so a relative preset ending at
+   * its own "now" stays clickable after a `max` taken as "now" earlier.
+   */
   presets?: ReadonlyArray<DateTimeRangeInputPreset>;
   /** The earliest start allowed, `YYYY-MM-DDTHH:MM`. */
   min?: ISODateTimeString;
@@ -595,7 +599,11 @@ export function DateTimeRangeInput({
                 {presets.map((preset) => {
                   const presetRange = preset.getRange();
                   const isActive = sameRange(presetRange, current);
-                  const isPresetDisabled = rangeProblem(presetRange, bounds) !== null;
+                  // Only the length is checked, not `min` / `max`: a relative
+                  // preset ends at its own "now", which is later than a `max`
+                  // the caller took as "now" when it rendered.
+                  const isPresetDisabled =
+                    rangeProblem(presetRange, { maxDuration }) !== null;
                   return (
                     <Button
                       key={preset.label}

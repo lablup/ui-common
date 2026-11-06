@@ -22,7 +22,9 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `maxDuration` (milliseconds) from it are disabled, and a draft that is not
   after its start, ends after `max` or is too long keeps confirm disabled, so
   `onChange` never reports it. A preset commits at once and is passed to
-  `onChange`; one marked `isRelative` shows its label in an `isCompactLabel`
+  `onChange`; one longer than `maxDuration` is disabled (`min` / `max` are
+  not checked, as a relative preset ends at its own now); one marked
+  `isRelative` shows its label in an `isCompactLabel`
   box. Sizes `sm` and `md`. It sits in a `Form.Item` like the form-control
   wrappers (value, id, `disabled`, border status, label), or stands alone
   named by `aria-label`. Exported from the root and
