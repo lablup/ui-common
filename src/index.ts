@@ -1483,6 +1483,15 @@ export type {
   DataGridSortDirection,
 } from "./components/DataGrid";
 
+// DateTimeRangeInput
+export { DateTimeRangeInput } from "./components/DateTimeRangeInput";
+export type {
+  DateTimeRangeInputPreset,
+  DateTimeRangeInputProps,
+  DateTimeRangeInputSize,
+  DateTimeRangeInputValue,
+} from "./components/DateTimeRangeInput";
+
 // DateInput: ui-common's Form.Item wrapper, in place of Astryx's.
 export { DateInput } from "./formControls/DateInput";
 export type {

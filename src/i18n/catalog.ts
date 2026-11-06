@@ -31,6 +31,7 @@ import { bulkEditFormItemMessages } from "../components/BulkEditFormItem/BulkEdi
 import { bulkErrorModalMessages } from "../components/BulkErrorModal/BulkErrorModal.messages";
 import { colorPickerMessages } from "../components/ColorPicker/ColorPicker.messages";
 import { dataGridMessages } from "../components/DataGrid/DataGrid.messages";
+import { dateTimeRangeInputMessages } from "../components/DateTimeRangeInput/DateTimeRangeInput.messages";
 import { deleteConfirmModalMessages } from "../components/DeleteConfirmModal/DeleteConfirmModal.messages";
 import { formMessages } from "../components/Form/Form.messages";
 import { notificationStackMessages } from "../components/NotificationStack/NotificationStack.messages";
@@ -56,6 +57,7 @@ export const uiCommonCatalog: Catalog = {
   ...bulkErrorModalMessages,
   ...colorPickerMessages,
   ...dataGridMessages,
+  ...dateTimeRangeInputMessages,
   ...deleteConfirmModalMessages,
   ...formMessages,
   ...notificationStackMessages,

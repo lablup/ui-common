@@ -5,6 +5,34 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`DateTimeRangeInput`**: a start and an end, each a date and (with
+  `showTime`) a time to the minute, modeled on Ant Design's `RangePicker`.
+  Astryx's `DateRangeInput` picks dates only and `DateTimeInput` one date and
+  time. The value is `{ start, end } | null` of local `YYYY-MM-DDTHH:MM`
+  strings (Astryx's `ISODateTimeString`). The box holds one part per end
+  (`2026-11-05 09:00 → 2026-11-06 14:00`); clicking a part opens the popover
+  on that end and underlines it. The popover holds optional `presets`,
+  Astryx's range `Calendar` over two months and, with `showTime`, hour and
+  minute columns and a confirm button: a day click sets the end being edited
+  (the start at 00:00, the end at 23:59 or now on today), confirm moves from
+  the start to the end and then commits both; without `showTime` the second
+  day click commits. Days after `max`, before the start and beyond
+  `maxDuration` (milliseconds) from it are disabled, and a draft that is not
+  after its start, ends after `max` or is too long keeps confirm disabled, so
+  `onChange` never reports it. A preset commits at once and is passed to
+  `onChange`; one marked `isRelative` shows its label in an `isCompactLabel`
+  box. Sizes `sm` and `md`. It sits in a `Form.Item` like the form-control
+  wrappers (value, id, `disabled`, border status, label), or stands alone
+  named by `aria-label`. Exported from the root and
+  `@lablup/ui-common/components/DateTimeRangeInput`, with
+  `DateTimeRangeInputProps`, `DateTimeRangeInputValue`,
+  `DateTimeRangeInputPreset` and `DateTimeRangeInputSize`.
+- Catalog keys `uic.DateTimeRangeInput.startPlaceholder`, `.endPlaceholder`,
+  `.dialogLabel`, `.presets`, `.startTime`, `.endTime`, `.hour` and
+  `.minute`, translated in every shipped locale.
+
 ### Changed
 
 - **`Board` keeps adding columns past 6 on very wide boards.**

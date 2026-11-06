@@ -1,0 +1,153 @@
+/*
+ * DateTimeRangeInput. The box around the ends is Astryx's input wrapper (its
+ * compiled classes); this sheet adds the height per size, the two end
+ * buttons, and the popover's layout: presets, the two-month calendar, the
+ * hour and minute columns, the footer. The end buttons and the time options
+ * are plain elements, so the browser draws their focus indicator, inside
+ * Astryx's focus-within ring.
+ */
+@layer ui-common {
+  .uic-date-time-range-input {
+    box-sizing: border-box;
+    gap: var(--spacing-2);
+  }
+
+  /* Room for both ends with their times; Astryx has no token for a field's
+     minimum width. */
+  .uic-date-time-range-input--sm {
+    height: var(--size-element-sm);
+    min-width: 240px;
+  }
+
+  .uic-date-time-range-input--md {
+    height: var(--size-element-md);
+    min-width: 240px;
+  }
+
+  .uic-date-time-range-input__end {
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+    border: none;
+    border-block-end: var(--border-width) solid transparent;
+    background-color: transparent;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-body);
+    font-size: var(--text-body-size);
+    line-height: var(--text-body-leading);
+    text-align: start;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .uic-date-time-range-input--sm .uic-date-time-range-input__end {
+    font-size: var(--font-size-sm);
+  }
+
+  .uic-date-time-range-input__end--placeholder {
+    color: var(--color-text-secondary);
+  }
+
+  /* The end the open popover edits. */
+  .uic-date-time-range-input__end--active {
+    border-block-end-color: var(--color-accent);
+  }
+
+  .uic-date-time-range-input__end[aria-disabled="true"] {
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
+
+  .uic-date-time-range-input__separator {
+    flex: none;
+    color: var(--color-text-secondary);
+  }
+
+  .uic-date-time-range-input__panel {
+    display: flex;
+  }
+
+  .uic-date-time-range-input__presets {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding: var(--spacing-3);
+    border-inline-end: var(--border-width) solid var(--color-border-emphasized);
+  }
+
+  .uic-date-time-range-input__preset {
+    justify-content: flex-start;
+  }
+
+  .uic-date-time-range-input__preset--active {
+    background-color: var(--color-accent-muted);
+    color: var(--color-accent);
+  }
+
+  .uic-date-time-range-input__body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .uic-date-time-range-input__pickers {
+    display: flex;
+    padding: var(--spacing-3);
+    gap: var(--spacing-3);
+  }
+
+  .uic-date-time-range-input__time {
+    display: flex;
+    padding-inline-start: var(--spacing-3);
+    border-inline-start: var(--border-width) solid var(--color-border-emphasized);
+  }
+
+  /* As tall as the calendar beside it, scrolling within. */
+  .uic-date-time-range-input__time-column {
+    flex: none;
+    height: 0;
+    min-height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    padding-inline: var(--spacing-1);
+  }
+
+  .uic-date-time-range-input__time-option {
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-element);
+    color: var(--color-text-primary);
+    font-family: var(--font-family-body);
+    font-size: var(--text-body-size);
+    line-height: var(--text-body-leading);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .uic-date-time-range-input__time-option:hover {
+    background-color: var(--color-background-muted);
+  }
+
+  .uic-date-time-range-input__time-option[aria-selected="true"] {
+    background-color: var(--color-accent-muted);
+    color: var(--color-accent);
+  }
+
+  .uic-date-time-range-input__time-option[aria-disabled="true"] {
+    color: var(--color-text-disabled);
+    cursor: default;
+  }
+
+  .uic-date-time-range-input__time-option[aria-disabled="true"]:hover {
+    background-color: transparent;
+  }
+
+  .uic-date-time-range-input__footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--spacing-2) var(--spacing-3);
+    border-block-start: var(--border-width) solid var(--color-border-emphasized);
+  }
+}

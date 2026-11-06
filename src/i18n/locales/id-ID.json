@@ -382,5 +382,37 @@
   "uic.TagsInput.create": {
     "defaultMessage": "Buat \"{value}\"",
     "description": "Label of the row in a tag input's list that adds the typed text as a new tag"
+  },
+  "uic.DateTimeRangeInput.startPlaceholder": {
+    "defaultMessage": "Tanggal mulai",
+    "description": "Shown in the start half of a date range field while it has no start; also names that half"
+  },
+  "uic.DateTimeRangeInput.endPlaceholder": {
+    "defaultMessage": "Tanggal selesai",
+    "description": "Shown in the end half of a date range field while it has no end; also names that half"
+  },
+  "uic.DateTimeRangeInput.dialogLabel": {
+    "defaultMessage": "Pilih rentang tanggal dan waktu",
+    "description": "Accessible name of the popover that picks a start and an end date and time"
+  },
+  "uic.DateTimeRangeInput.presets": {
+    "defaultMessage": "Rentang prasetel",
+    "description": "Accessible name of the group of quick-pick ranges, such as Last 24 hours"
+  },
+  "uic.DateTimeRangeInput.startTime": {
+    "defaultMessage": "Waktu mulai",
+    "description": "Label of the hour and minute columns while they edit the start of the range"
+  },
+  "uic.DateTimeRangeInput.endTime": {
+    "defaultMessage": "Waktu selesai",
+    "description": "Label of the hour and minute columns while they edit the end of the range"
+  },
+  "uic.DateTimeRangeInput.hour": {
+    "defaultMessage": "Jam",
+    "description": "Accessible name of the column of hours (00 to 23) in a time picker"
+  },
+  "uic.DateTimeRangeInput.minute": {
+    "defaultMessage": "Menit",
+    "description": "Accessible name of the column of minutes (00 to 59) in a time picker"
   }
 }

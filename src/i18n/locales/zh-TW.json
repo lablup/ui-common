@@ -382,5 +382,37 @@
   "uic.TagsInput.create": {
     "defaultMessage": "建立「{value}」",
     "description": "Label of the row in a tag input's list that adds the typed text as a new tag"
+  },
+  "uic.DateTimeRangeInput.startPlaceholder": {
+    "defaultMessage": "開始日期",
+    "description": "Shown in the start half of a date range field while it has no start; also names that half"
+  },
+  "uic.DateTimeRangeInput.endPlaceholder": {
+    "defaultMessage": "結束日期",
+    "description": "Shown in the end half of a date range field while it has no end; also names that half"
+  },
+  "uic.DateTimeRangeInput.dialogLabel": {
+    "defaultMessage": "選擇日期與時間範圍",
+    "description": "Accessible name of the popover that picks a start and an end date and time"
+  },
+  "uic.DateTimeRangeInput.presets": {
+    "defaultMessage": "預設範圍",
+    "description": "Accessible name of the group of quick-pick ranges, such as Last 24 hours"
+  },
+  "uic.DateTimeRangeInput.startTime": {
+    "defaultMessage": "開始時間",
+    "description": "Label of the hour and minute columns while they edit the start of the range"
+  },
+  "uic.DateTimeRangeInput.endTime": {
+    "defaultMessage": "結束時間",
+    "description": "Label of the hour and minute columns while they edit the end of the range"
+  },
+  "uic.DateTimeRangeInput.hour": {
+    "defaultMessage": "時",
+    "description": "Accessible name of the column of hours (00 to 23) in a time picker"
+  },
+  "uic.DateTimeRangeInput.minute": {
+    "defaultMessage": "分",
+    "description": "Accessible name of the column of minutes (00 to 59) in a time picker"
   }
 }
