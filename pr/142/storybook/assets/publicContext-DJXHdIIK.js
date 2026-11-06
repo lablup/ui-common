@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{n as t,t as n}from"./fullEnglishFallback-DuGPYrub.js";import{J as r,q as i}from"./iframe-he0cZKxC.js";var a;function o(){return(o=e((()=>{r(),n(),t(),a=i})))()}export{o as n,a as t};
