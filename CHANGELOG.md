@@ -18,10 +18,14 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   - The end content no longer adds to the tab's accessible name. It
     describes the tab instead: the control's `aria-describedby` names it
     (after any `aria-describedby` passed in).
+    A tab with an empty `label` is named by its end content instead.
   - A click on it still selects the tab, except inside an interactive
     element there (a button, a link, anything focusable), which owns its
-    click. Such an element is its own Tab stop, outside the strip's
-    arrow-key navigation.
+    click. The forwarded click keeps its modifier keys; a middle click on
+    the end content of a link tab does nothing (on the link it opens a new
+    tab). Such an element is its own Tab stop, outside the strip's
+    arrow-key navigation, and focus stays on the tab when `endContent`
+    comes or goes.
   - `className`, `style` and `xstyle` style the span; `ref` and the other
     props stay on the button or link.
   - In a `role="tablist"` strip the span is a child of the tablist that is

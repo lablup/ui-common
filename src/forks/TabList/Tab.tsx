@@ -19,13 +19,15 @@
  * element there; arrow keys still move between tabs only, and an
  * interactive element in the end content is its own Tab stop. `className`,
  * `style` and `xstyle` style that span; `ref` and every other prop stay on
- * the control. The layout is the one SideNavItem uses for its trailing
- * controls. Without `endContent`
+ * the control (a label-less tab is named by it instead). Keeping focus when
+ * `endContent` comes or goes, and revealing the whole wrapper in a scrolling
+ * strip, follow from the swap. The layout is the one SideNavItem uses for its
+ * trailing controls. Without `endContent`
  * the markup is upstream's.
  *
  * Everything else is upstream's. Its style namespaces are Astryx's compiled
- * output (src/forks/compiled.ts); the two inline paddings the end-content
- * layout needs are the only styles of its own.
+ * output (src/forks/compiled.ts); its only style of its own is the control's
+ * inline style with end content (no padding; colour and font inherited).
  *
  * Delete this fork, and its exports.exclude.json entry, once Astryx's Tab
  * keeps interactive end content out of the tab's control (CONTRIBUTING,
@@ -43,10 +45,19 @@
  *   pattern it is a button with role="tab".
  */
 
-import { useCallback, useId, useRef, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  type ReactNode,
+} from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { BaseProps } from "@astryxdesign/core/BaseProps";
 import {
+  hasInteractiveAncestor,
+  hasTextSelection,
   useDevWarning,
   useMergedRefs,
   usePressFeedback,
@@ -154,31 +165,18 @@ const CLASS_NAME = {
   endContentWrapper: "x3nfvp2 x6s0dn4 x2lah0s",
 };
 
-// ui-common: with `endContent`, the wrapper supplies the trailing inline
-// padding and the control the leading one, so the control's hit area starts
-// at the tab's edge and the end content sits `--spacing-1` after the label,
-// as it does inside upstream's button.
-const END_WRAPPER_STYLE = { paddingInlineStart: 0 } as const;
-const END_CONTROL_STYLE = { paddingInlineEnd: 0 } as const;
-// What counts as interactive inside the end content: a click there is the
-// control's own, not a press on the tab.
-const INTERACTIVE_SELECTOR = [
-  "a[href]",
-  "button",
-  "input",
-  "select",
-  "textarea",
-  "summary",
-  "label",
-  "[tabindex]",
-  '[contenteditable]:not([contenteditable="false"])',
-  '[role="button"]',
-  '[role="link"]',
-  '[role="checkbox"]',
-  '[role="switch"]',
-  '[role="menuitem"]',
-  '[role="option"]',
-].join(",");
+// ui-common: with `endContent`, the wrapper is the tab's box (its padding,
+// colour and font, the consumer's `className`, `style` and `xstyle`); the
+// control inside takes upstream's layout classes but inherits those, so the
+// wrapper's styling and theme selectors on `.astryx-tab` reach the label.
+const END_CONTROL_STYLE = {
+  paddingInline: 0,
+  color: "inherit",
+  fontSize: "inherit",
+  lineHeight: "inherit",
+  fontWeight: "inherit",
+} as const;
+// The keys TabList's roving focus handles (useListFocus: arrows, Home, End).
 const NAVIGATION_KEYS = new Set([
   "ArrowLeft",
   "ArrowRight",
@@ -186,9 +184,36 @@ const NAVIGATION_KEYS = new Set([
   "ArrowDown",
   "Home",
   "End",
-  "PageUp",
-  "PageDown",
 ]);
+const CONTROL_SELECTOR = ":scope > [data-tab-value]";
+
+/**
+ * Scrolls the strip so the whole wrapper (control and end content) is in
+ * view. TabList's own reveal measures the `[data-tab-value]` control only; it
+ * runs after this one and then has nothing left to do. Same arithmetic as
+ * TabList's `revealStop`.
+ */
+function revealInStrip(wrapper: HTMLElement | null) {
+  const strip = wrapper?.closest<HTMLElement>(".astryx-tab-strip");
+  if (!wrapper || !strip || strip.scrollWidth <= strip.clientWidth) return;
+  const stripBox = strip.getBoundingClientRect();
+  const box = wrapper.getBoundingClientRect();
+  const inset = parseFloat(getComputedStyle(strip).scrollPaddingLeft) || 0;
+  const pastEnd = box.right - (stripBox.right - inset);
+  const pastStart = box.left - (stripBox.left + inset);
+  const tooWide = box.width > stripBox.width - 2 * inset;
+  const isRtl = getComputedStyle(strip).direction === "rtl";
+  const delta = tooWide
+    ? isRtl
+      ? pastEnd
+      : pastStart
+    : pastEnd > 0
+      ? pastEnd
+      : pastStart < 0
+        ? pastStart
+        : 0;
+  if (delta !== 0) strip.scrollBy({ left: delta, behavior: "instant" });
+}
 
 /**
  * Tab item component. Renders as an anchor when `href` is provided,
@@ -217,12 +242,16 @@ export function Tab({
   className,
   style,
   onClick,
+  onFocus,
+  onBlur,
   ...restProps
 }: TabProps) {
   const pressable = usePressFeedback();
   const tabListCtx = useTabListContext();
   const LinkComponent = useLinkComponent(as);
   const controlRef = useRef<HTMLElement | null>(null);
+  const wrapperRef = useRef<HTMLSpanElement | null>(null);
+  const isFocusedRef = useRef(false);
   const endContentId = useId();
   const mergedRef = useMergedRefs<HTMLElement>(
     ref as React.Ref<HTMLElement> | undefined,
@@ -255,6 +284,36 @@ export function Tab({
     },
     [isDisabled, onClick, tabListCtx, value],
   );
+
+  // ui-common: whether the control holds focus, read when `endContent` comes
+  // or goes. That swaps the root element (button or link vs wrapper), which
+  // remounts the control; a removed node's blur never reaches React, so this
+  // stays true across the swap and the new control takes focus back.
+  const handleFocus = (event: React.FocusEvent<HTMLButtonElement>) => {
+    isFocusedRef.current = true;
+    onFocus?.(event);
+    if (hasEndContent) revealInStrip(wrapperRef.current);
+  };
+  const handleBlur = (event: React.FocusEvent<HTMLButtonElement>) => {
+    isFocusedRef.current = false;
+    onBlur?.(event);
+  };
+  const hadEndContentRef = useRef(hasEndContent);
+  useLayoutEffect(() => {
+    if (hadEndContentRef.current === hasEndContent) return;
+    hadEndContentRef.current = hasEndContent;
+    const control = hasEndContent
+      ? (wrapperRef.current?.querySelector<HTMLElement>(CONTROL_SELECTOR) ?? null)
+      : controlRef.current;
+    if (isFocusedRef.current && control && document.activeElement !== control) {
+      control.focus({ preventScroll: true });
+    }
+  }, [hasEndContent]);
+
+  // ui-common: the selected tab is revealed whole, end content included.
+  useEffect(() => {
+    if (hasEndContent && isSelected) revealInStrip(wrapperRef.current);
+  }, [hasEndContent, isSelected]);
 
   useDevWarning(
     "Tab",
@@ -339,6 +398,8 @@ export function Tab({
     ...(isLabelHidden ? { "aria-label": label } : {}),
     [EDGE_COMP_ATTR]: "",
     ...semantics,
+    onFocus: handleFocus,
+    onBlur: handleBlur,
     ...mergeProps(
       surfaceThemeProps,
       focusOutlineProps.focusVisible(...surfaceStyles),
@@ -384,22 +445,26 @@ export function Tab({
     // ui-common: the tab's control and its end content are siblings in a
     // non-interactive span that paints the tab. The span rings while its first
     // child, the control, is focus-visible (SideNavItem's pattern), so the
-    // control suppresses its own ring.
-    const describedBy = [restProps["aria-describedby"], endContentId]
-      .filter(Boolean)
-      .join(" ");
-    const control = {
+    // control suppresses its own ring. The end content describes the control,
+    // or names it when the tab has no label.
+    const isNamedByEndContent =
+      label === "" &&
+      restProps["aria-label"] == null &&
+      restProps["aria-labelledby"] == null;
+    const describedBy =
+      [restProps["aria-describedby"], isNamedByEndContent ? null : endContentId]
+        .filter(Boolean)
+        .join(" ") || undefined;
+    const controlProps = {
       ...restProps,
       ...(isLabelHidden ? { "aria-label": label } : {}),
+      ...(isNamedByEndContent ? { "aria-labelledby": endContentId } : {}),
       "aria-describedby": describedBy,
       ...semantics,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
       ...mergeProps(
-        focusOutlineProps.suppressed(
-          styles.base,
-          sizeStyles[size],
-          isSelected && styles.selected,
-          layoutStyles.hug,
-        ),
+        focusOutlineProps.suppressed(styles.base, sizeStyles[size], layoutStyles.hug),
         undefined,
         END_CONTROL_STYLE,
       ),
@@ -410,26 +475,49 @@ export function Tab({
         {labelElement}
       </>
     );
+    // A press anywhere on the tab selects it, as on upstream's: a click in the
+    // span outside the control is re-dispatched on the control, with its
+    // modifier keys and button (useClickableContainer's rule), unless it
+    // belongs to an interactive element or layer surface in the end content,
+    // came through a portal, or ends a text selection. A middle click there
+    // does nothing (no click event fires); on the link itself it opens a tab.
+    const handleWrapperClick = (event: React.MouseEvent<HTMLSpanElement>) => {
+      const wrapper = event.currentTarget;
+      const target = event.target;
+      if (!(target instanceof Element) || !wrapper.contains(target)) return;
+      if (target !== wrapper && hasInteractiveAncestor(target, wrapper)) return;
+      if (hasTextSelection(wrapper)) return;
+      const control = wrapper.querySelector<HTMLElement>(CONTROL_SELECTOR);
+      if (!control) return;
+      event.stopPropagation();
+      if (isDisabled) return;
+      control.focus({ preventScroll: true });
+      control.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+          ctrlKey: event.ctrlKey,
+          metaKey: event.metaKey,
+          shiftKey: event.shiftKey,
+          altKey: event.altKey,
+          button: event.button,
+          detail: event.detail,
+        }),
+      );
+    };
     return (
       <span
+        ref={wrapperRef}
         {...pressable}
         {...{ [EDGE_COMP_ATTR]: "" }}
         data-tab-end-content=""
-        // A press anywhere on the tab selects it, as on upstream's, except in
-        // an interactive element of the end content, which owns its click.
-        onClick={(event) => {
-          const control = controlRef.current;
-          const target = event.target as Element;
-          if (!control || control.contains(target)) return;
-          const interactive = target.closest(INTERACTIVE_SELECTOR);
-          if (interactive && event.currentTarget.contains(interactive)) return;
-          control.click();
-        }}
+        aria-disabled={isDisabled ? "true" : undefined}
+        onClick={handleWrapperClick}
         {...mergeProps(
           surfaceThemeProps,
           focusOutlineProps.focusWithinFirstChild(...surfaceStyles),
           className,
-          { ...END_WRAPPER_STYLE, ...style },
+          style,
         )}
       >
         {isLink ? (
@@ -437,7 +525,7 @@ export function Tab({
             ref={mergedRef as React.Ref<HTMLAnchorElement>}
             href={isDisabled ? undefined : href}
             onClick={handleSelect}
-            {...control}
+            {...controlProps}
           >
             {content}
           </LinkRoot>
@@ -446,7 +534,7 @@ export function Tab({
             ref={mergedRef as React.Ref<HTMLButtonElement>}
             type="button"
             onClick={handleSelect}
-            {...control}
+            {...controlProps}
           >
             {content}
           </button>
@@ -456,7 +544,7 @@ export function Tab({
           className={CLASS_NAME.endContentWrapper}
           // The strip's arrow keys move between tabs; on a control in the end
           // content they would jump to the first or last tab, so they stay
-          // with it.
+          // with it. Every other key goes on to TabList and the page.
           onKeyDown={(event) => {
             if (NAVIGATION_KEYS.has(event.key)) event.stopPropagation();
           }}
@@ -472,7 +560,7 @@ export function Tab({
   if (isLink) {
     return (
       <LinkRoot
-        ref={ref}
+        ref={mergedRef as React.Ref<HTMLAnchorElement>}
         href={isDisabled ? undefined : href}
         onClick={handleSelect}
         {...sharedProps}
@@ -486,7 +574,12 @@ export function Tab({
   }
 
   return (
-    <button ref={ref} type="button" onClick={handleSelect} {...sharedProps}>
+    <button
+      ref={mergedRef as React.Ref<HTMLButtonElement>}
+      type="button"
+      onClick={handleSelect}
+      {...sharedProps}
+    >
       {hoverBgElement}
       {iconElement}
       {labelElement}
