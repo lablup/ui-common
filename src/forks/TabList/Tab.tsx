@@ -59,7 +59,6 @@ import {
   hasInteractiveAncestor,
   hasTextSelection,
   useDevWarning,
-  useMergedRefs,
   usePressFeedback,
 } from "@astryxdesign/core/hooks";
 import { EDGE_COMP_ATTR } from "@astryxdesign/core/Layout";
@@ -186,6 +185,20 @@ const NAVIGATION_KEYS = new Set([
   "End",
 ]);
 const CONTROL_SELECTOR = ":scope > [data-tab-value]";
+// Elements in the end content that own their click besides core's
+// INTERACTIVE_SELECTORS (hasInteractiveAncestor): anything focusable, a label,
+// a disclosure summary, an editor.
+const OWNS_CLICK_SELECTOR =
+  'label, summary, [tabindex], [contenteditable]:not([contenteditable="false"])';
+
+/** The control for `value` among `container`'s descendants, either shape. */
+function findControl(container: Element | null, value: string) {
+  if (!container) return null;
+  for (const el of container.querySelectorAll<HTMLElement>("[data-tab-value]")) {
+    if (el.dataset.tabValue === value) return el;
+  }
+  return null;
+}
 
 /**
  * Scrolls the strip so the whole wrapper (control and end content) is in
@@ -249,14 +262,14 @@ export function Tab({
   const pressable = usePressFeedback();
   const tabListCtx = useTabListContext();
   const LinkComponent = useLinkComponent(as);
-  const controlRef = useRef<HTMLElement | null>(null);
   const wrapperRef = useRef<HTMLSpanElement | null>(null);
-  const isFocusedRef = useRef(false);
-  const endContentId = useId();
-  const mergedRef = useMergedRefs<HTMLElement>(
-    ref as React.Ref<HTMLElement> | undefined,
-    controlRef,
+  // The focused control and the element holding it (the strip), set on focus
+  // and cleared on blur; see the restore below.
+  const focusedRef = useRef<{ control: HTMLElement; container: Element | null } | null>(
+    null,
   );
+  const isRestoringFocusRef = useRef(false);
+  const endContentId = useId();
 
   const isSelected = tabListCtx.value === value;
   const size: TabListSize = tabListCtx.size;
@@ -285,34 +298,67 @@ export function Tab({
     [isDisabled, onClick, tabListCtx, value],
   );
 
-  // ui-common: whether the control holds focus, read when `endContent` comes
-  // or goes. That swaps the root element (button or link vs wrapper), which
-  // remounts the control; a removed node's blur never reaches React, so this
-  // stays true across the swap and the new control takes focus back.
+  // ui-common: `endContent` coming or going swaps the root element (button or
+  // link vs wrapper), which remounts the control. A removed node's blur never
+  // reaches React, so the record of the focused control survives the swap,
+  // and the new control takes focus back, if focus fell to the document
+  // meanwhile. The consumer's onFocus is not called again for that, since
+  // its onBlur was not called for the removal.
   const handleFocus = (event: React.FocusEvent<HTMLButtonElement>) => {
-    isFocusedRef.current = true;
-    onFocus?.(event);
+    const control = event.currentTarget;
+    focusedRef.current = {
+      control,
+      container:
+        (hasEndContent
+          ? control.parentElement?.parentElement
+          : control.parentElement) ?? null,
+    };
+    if (!isRestoringFocusRef.current) onFocus?.(event);
     if (hasEndContent) revealInStrip(wrapperRef.current);
   };
   const handleBlur = (event: React.FocusEvent<HTMLButtonElement>) => {
-    isFocusedRef.current = false;
+    focusedRef.current = null;
     onBlur?.(event);
   };
   const hadEndContentRef = useRef(hasEndContent);
   useLayoutEffect(() => {
-    if (hadEndContentRef.current === hasEndContent) return;
+    const isSwap = hadEndContentRef.current !== hasEndContent;
     hadEndContentRef.current = hasEndContent;
-    const control = hasEndContent
-      ? (wrapperRef.current?.querySelector<HTMLElement>(CONTROL_SELECTOR) ?? null)
-      : controlRef.current;
-    if (isFocusedRef.current && control && document.activeElement !== control) {
+    const focused = focusedRef.current;
+    if (!focused || focused.control.isConnected) return;
+    // The focused control is gone: restore it only across this swap, and
+    // only while nothing else has focus. Any other remount forgets it.
+    focusedRef.current = null;
+    const active = document.activeElement;
+    if (!isSwap || (active != null && active !== document.body)) return;
+    const control = findControl(focused.container, value);
+    if (!control) return;
+    isRestoringFocusRef.current = true;
+    try {
       control.focus({ preventScroll: true });
+    } finally {
+      isRestoringFocusRef.current = false;
     }
-  }, [hasEndContent]);
+  });
 
-  // ui-common: the selected tab is revealed whole, end content included.
+  // ui-common: the selected tab is revealed whole, end content included: in
+  // the next frame, as TabList does after a press, so a selection does not
+  // force layout before it paints; and again when the strip resizes, which
+  // TabList re-reveals the control alone for.
   useEffect(() => {
-    if (hasEndContent && isSelected) revealInStrip(wrapperRef.current);
+    const wrapper = wrapperRef.current;
+    if (!hasEndContent || !isSelected || !wrapper) return;
+    const frame = requestAnimationFrame(() => revealInStrip(wrapper));
+    const strip = wrapper.closest(".astryx-tab-strip");
+    const observer =
+      strip && typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => revealInStrip(wrapper))
+        : null;
+    if (strip) observer?.observe(strip);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+    };
   }, [hasEndContent, isSelected]);
 
   useDevWarning(
@@ -485,12 +531,18 @@ export function Tab({
       const wrapper = event.currentTarget;
       const target = event.target;
       if (!(target instanceof Element) || !wrapper.contains(target)) return;
-      if (target !== wrapper && hasInteractiveAncestor(target, wrapper)) return;
+      if (target !== wrapper) {
+        if (hasInteractiveAncestor(target, wrapper)) return;
+        const owner = target.closest(OWNS_CLICK_SELECTOR);
+        if (owner && owner !== wrapper && wrapper.contains(owner)) return;
+      }
       if (hasTextSelection(wrapper)) return;
       const control = wrapper.querySelector<HTMLElement>(CONTROL_SELECTOR);
       if (!control) return;
-      event.stopPropagation();
+      // A disabled tab selects nothing, and the click goes on as it would from
+      // the control.
       if (isDisabled) return;
+      event.stopPropagation();
       control.focus({ preventScroll: true });
       control.dispatchEvent(
         new MouseEvent("click", {
@@ -508,21 +560,23 @@ export function Tab({
     return (
       <span
         ref={wrapperRef}
-        {...pressable}
+        // A disabled wrapper is no press surface and shows the default cursor;
+        // aria-disabled stays on the control, a generic span cannot carry it.
+        {...(isDisabled ? {} : pressable)}
         {...{ [EDGE_COMP_ATTR]: "" }}
         data-tab-end-content=""
-        aria-disabled={isDisabled ? "true" : undefined}
+        data-disabled={isDisabled ? "" : undefined}
         onClick={handleWrapperClick}
         {...mergeProps(
           surfaceThemeProps,
           focusOutlineProps.focusWithinFirstChild(...surfaceStyles),
           className,
-          style,
+          isDisabled ? { cursor: "default", ...style } : style,
         )}
       >
         {isLink ? (
           <LinkRoot
-            ref={mergedRef as React.Ref<HTMLAnchorElement>}
+            ref={ref as React.Ref<HTMLAnchorElement>}
             href={isDisabled ? undefined : href}
             onClick={handleSelect}
             {...controlProps}
@@ -530,12 +584,7 @@ export function Tab({
             {content}
           </LinkRoot>
         ) : (
-          <button
-            ref={mergedRef as React.Ref<HTMLButtonElement>}
-            type="button"
-            onClick={handleSelect}
-            {...controlProps}
-          >
+          <button ref={ref} type="button" onClick={handleSelect} {...controlProps}>
             {content}
           </button>
         )}
@@ -560,7 +609,7 @@ export function Tab({
   if (isLink) {
     return (
       <LinkRoot
-        ref={mergedRef as React.Ref<HTMLAnchorElement>}
+        ref={ref as React.Ref<HTMLAnchorElement>}
         href={isDisabled ? undefined : href}
         onClick={handleSelect}
         {...sharedProps}
@@ -574,12 +623,7 @@ export function Tab({
   }
 
   return (
-    <button
-      ref={mergedRef as React.Ref<HTMLButtonElement>}
-      type="button"
-      onClick={handleSelect}
-      {...sharedProps}
-    >
+    <button ref={ref} type="button" onClick={handleSelect} {...sharedProps}>
       {hoverBgElement}
       {iconElement}
       {labelElement}

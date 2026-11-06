@@ -21,6 +21,7 @@ import {
 import { comparableMarkup } from "../../test/forkParity";
 import { IconWithTooltip } from "../../components/IconWithTooltip";
 import { Tab } from "./Tab";
+import * as compiled from "./Tab.styles";
 
 const INTERACTIVE = "button, a[href], input, select, textarea, [tabindex]";
 
@@ -37,6 +38,105 @@ function strip(
       {children}
     </TabList>
   );
+}
+
+/** The atomic classes of one compiled StyleX entry (src/forks/compiled.ts). */
+function classesOf(entry: Record<string, unknown>): string[] {
+  return Object.values(entry)
+    .filter((v): v is string => typeof v === "string")
+    .flatMap((v) => v.split(" "));
+}
+
+/**
+ * A strip 300px wide scrolling 600px, a tab control at 220–280 and its
+ * end-content wrapper at 220–340, with requestAnimationFrame and
+ * ResizeObserver under the test's control.
+ */
+function withScrollingStrip(
+  test: (tools: {
+    scrollBy: ReturnType<typeof vi.fn>;
+    flushFrames: () => void;
+    resize: () => void;
+    observing: () => boolean;
+  }) => void,
+) {
+  const scrollBy = vi.fn();
+  const frames: FrameRequestCallback[] = [];
+  const observers = new Set<{ cb: ResizeObserverCallback; targets: Set<Element> }>();
+  const restore: Array<() => void> = [];
+  const patch = <T extends object, K extends keyof T>(obj: T, key: K, value: T[K]) => {
+    const desc = Object.getOwnPropertyDescriptor(obj, key);
+    Object.defineProperty(obj, key, { configurable: true, writable: true, value });
+    restore.push(() =>
+      desc
+        ? Object.defineProperty(obj, key, desc)
+        : delete (obj as Record<K, unknown>)[key],
+    );
+  };
+  const getter = (key: "scrollWidth" | "clientWidth", value: number) => {
+    const desc = Object.getOwnPropertyDescriptor(Element.prototype, key);
+    Object.defineProperty(Element.prototype, key, {
+      configurable: true,
+      get: () => value,
+    });
+    restore.push(() => desc && Object.defineProperty(Element.prototype, key, desc));
+  };
+  patch(Element.prototype, "scrollBy", scrollBy as unknown as Element["scrollBy"]);
+  patch(Element.prototype, "getBoundingClientRect", function (this: Element) {
+    const box = (l: number, w: number) =>
+      ({ left: l, right: l + w, width: w, top: 0, bottom: 32, height: 32 }) as DOMRect;
+    if (this.classList.contains("astryx-tab-strip")) return box(0, 300);
+    if (this.hasAttribute("data-tab-end-content")) return box(220, 120);
+    if (this.hasAttribute("data-tab-value")) return box(220, 60);
+    return box(0, 0);
+  });
+  getter("scrollWidth", 600);
+  getter("clientWidth", 300);
+  patch(window, "requestAnimationFrame", ((cb: FrameRequestCallback) => {
+    frames.push(cb);
+    return frames.length;
+  }) as typeof requestAnimationFrame);
+  patch(window, "cancelAnimationFrame", ((id: number) => {
+    frames[id - 1] = () => {};
+  }) as typeof cancelAnimationFrame);
+  patch(
+    globalThis,
+    "ResizeObserver",
+    class {
+      entry: { cb: ResizeObserverCallback; targets: Set<Element> };
+      constructor(cb: ResizeObserverCallback) {
+        this.entry = { cb, targets: new Set() };
+        observers.add(this.entry);
+      }
+      observe(el: Element) {
+        this.entry.targets.add(el);
+      }
+      unobserve(el: Element) {
+        this.entry.targets.delete(el);
+      }
+      disconnect() {
+        observers.delete(this.entry);
+      }
+    } as unknown as typeof ResizeObserver,
+  );
+  const strip = () => document.querySelector(".astryx-tab-strip");
+  try {
+    test({
+      scrollBy,
+      flushFrames: () => frames.splice(0).forEach((cb) => cb(0)),
+      resize: () => {
+        for (const o of [...observers]) {
+          if (o.targets.has(strip()!)) o.cb([], {} as ResizeObserver);
+        }
+      },
+      observing: () =>
+        [...observers].some((o) =>
+          [...o.targets].some((t) => t.classList.contains("astryx-tab-strip")),
+        ),
+    });
+  } finally {
+    restore.reverse().forEach((r) => r());
+  }
 }
 
 describe("Tab fork: endContent beside the control", () => {
@@ -513,6 +613,128 @@ describe("Tab fork: endContent clicks, focus and layout", () => {
     expect(screen.getByRole("button", { name: "Advanced" })).toHaveFocus();
   });
 
+  it("treats a label, a summary and anything focusable in endContent as their own", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      strip({ onChange }, [
+        <Tab key="g" value="general" label="General" />,
+        <Tab
+          key="a"
+          value="advanced"
+          label="Advanced"
+          endContent={
+            <>
+              <label>
+                <input type="checkbox" /> Option
+              </label>
+              <details>
+                <summary>More</summary>
+              </details>
+              <span tabIndex={0}>Focusable</span>
+              <span contentEditable suppressContentEditableWarning>
+                Editable
+              </span>
+            </>
+          }
+        />,
+      ]),
+    );
+    for (const text of ["Option", "More", "Focusable", "Editable"]) {
+      await user.click(screen.getByText(text));
+    }
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  /** A strip whose first tab's endContent and href the test sets. */
+  function Toggling({
+    hooks,
+    href,
+    disabled,
+    onFocus,
+    onBlur,
+  }: {
+    hooks: {
+      setCount?: (n: number | null) => void;
+      setDisabled?: (d: boolean) => void;
+    };
+    href?: string;
+    disabled?: boolean;
+    onFocus?: () => void;
+    onBlur?: () => void;
+  }) {
+    const [count, setCount] = useState<number | null>(null);
+    const [isDisabled, setDisabled] = useState(disabled ?? false);
+    hooks.setCount = setCount;
+    hooks.setDisabled = setDisabled;
+    return (
+      <>
+        {strip({}, [
+          <Tab
+            key="g"
+            value="general"
+            label="General"
+            href={href}
+            aria-disabled={isDisabled ? "true" : undefined}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            endContent={count == null ? null : <Badge label={String(count)} />}
+          />,
+          <Tab key="a" value="advanced" label="Advanced" />,
+        ])}
+        <input aria-label="Elsewhere" />
+      </>
+    );
+  }
+
+  it("does not take focus back from where the user moved it", async () => {
+    const user = userEvent.setup();
+    const hooks: Parameters<typeof Toggling>[0]["hooks"] = {};
+    render(<Toggling hooks={hooks} href="#general" />);
+    await user.tab();
+    expect(screen.getByRole("link", { name: "General" })).toHaveFocus();
+    // Disabling a link tab swaps the router link for a plain anchor: a
+    // remount with no blur, after which focus is on the document.
+    act(() => hooks.setDisabled!(true));
+    screen.getByRole("textbox", { name: "Elsewhere" }).focus();
+    act(() => hooks.setCount!(3));
+    expect(screen.getByRole("textbox", { name: "Elsewhere" })).toHaveFocus();
+  });
+
+  it("restores focus across the swap for a link component that drops its ref", async () => {
+    const user = userEvent.setup();
+    const hooks: Parameters<typeof Toggling>[0]["hooks"] = {};
+    function NoRefLink(props: React.ComponentPropsWithoutRef<"a">) {
+      return <a {...props} />;
+    }
+    render(
+      <LinkProvider component={NoRefLink}>
+        <Toggling hooks={hooks} href="#general" />
+      </LinkProvider>,
+    );
+    act(() => hooks.setCount!(3));
+    await user.tab();
+    expect(screen.getByRole("link", { name: "General" })).toHaveFocus();
+    act(() => hooks.setCount!(null));
+    expect(screen.getByRole("link", { name: "General" })).toHaveFocus();
+  });
+
+  it("does not call the consumer's onFocus again for the restore", async () => {
+    const user = userEvent.setup();
+    const hooks: Parameters<typeof Toggling>[0]["hooks"] = {};
+    const onFocus = vi.fn();
+    const onBlur = vi.fn();
+    render(<Toggling hooks={hooks} onFocus={onFocus} onBlur={onBlur} />);
+    await user.tab();
+    act(() => hooks.setCount!(3));
+    act(() => hooks.setCount!(null));
+    expect(screen.getByRole("button", { name: "General" })).toHaveFocus();
+    expect(onFocus).toHaveBeenCalledTimes(1);
+    expect(onBlur).toHaveBeenCalledTimes(0);
+    await user.tab();
+    expect(onBlur).toHaveBeenCalledTimes(1);
+  });
+
   it("lets the wrapper's colour and font reach the label", () => {
     render(
       strip(
@@ -525,8 +747,7 @@ describe("Tab fork: endContent clicks, focus and layout", () => {
     expect(control.style.fontWeight).toBe("inherit");
     expect(control.style.fontSize).toBe("inherit");
     // The selected colour and weight classes sit on the wrapper only.
-    const selectedClasses = ["x1tgivj0", "x2mo6ok"];
-    for (const c of selectedClasses) {
+    for (const c of classesOf(compiled.styles.selected)) {
       expect(wrapperOf("general")).toHaveClass(c);
       expect(control).not.toHaveClass(c);
     }
@@ -575,25 +796,39 @@ describe("Tab fork: endContent clicks, focus and layout", () => {
     expect(control).not.toHaveAttribute("aria-describedby");
   });
 
-  it("marks the wrapper disabled for a disabled tab, and selects nothing", async () => {
+  it("marks a disabled tab's wrapper with data-disabled, not aria-disabled", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
+    const onOuterClick = vi.fn();
     render(
-      strip({ onChange }, [
-        <Tab key="g" value="general" label="General" />,
-        <Tab
-          key="a"
-          value="advanced"
-          label="Advanced"
-          aria-disabled="true"
-          endContent={<Badge label="3" />}
-        />,
-      ]),
+      <div onClick={onOuterClick}>
+        {strip({ onChange }, [
+          <Tab key="g" value="general" label="General" />,
+          <Tab
+            key="a"
+            value="advanced"
+            label="Advanced"
+            aria-disabled="true"
+            endContent={<Badge label="3" />}
+          />,
+        ])}
+      </div>,
     );
-    expect(wrapperOf("advanced")).toHaveAttribute("aria-disabled", "true");
-    expect(wrapperOf("advanced")).not.toHaveClass("x1u3b27q");
+    const wrapper = wrapperOf("advanced");
+    expect(wrapper).toHaveAttribute("data-disabled");
+    expect(wrapper).not.toHaveAttribute("aria-disabled");
+    expect(screen.getByRole("button", { name: "Advanced" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+    // No press surface, no hover marker, the default cursor.
+    expect(wrapper).not.toHaveAttribute("data-astryx-pressable");
+    for (const c of classesOf(compiled.tabScope)) expect(wrapper).not.toHaveClass(c);
+    expect(wrapper.style.cursor).toBe("default");
+    // The click selects nothing and still bubbles, as from the control.
     await user.click(screen.getByText("3"));
     expect(onChange).not.toHaveBeenCalled();
+    expect(onOuterClick).toHaveBeenCalledTimes(1);
   });
 
   it("lets keys TabList does not handle through from endContent", async () => {
@@ -610,52 +845,38 @@ describe("Tab fork: endContent clicks, focus and layout", () => {
     expect(onKeyDown.mock.calls.map(([e]) => e.key)).toEqual(["PageDown", "Escape"]);
   });
 
-  it("reveals the whole wrapper of the selected tab in a scrolling strip", () => {
-    const scrollBy = vi.fn();
-    const originalScrollBy = Element.prototype.scrollBy;
-    const originalRect = Element.prototype.getBoundingClientRect;
-    Element.prototype.scrollBy = scrollBy;
-    Element.prototype.getBoundingClientRect = function (this: Element) {
-      const box = (l: number, w: number) =>
-        ({
-          left: l,
-          right: l + w,
-          width: w,
-          top: 0,
-          bottom: 32,
-          height: 32,
-        }) as DOMRect;
-      if (this.classList.contains("astryx-tab-strip")) return box(0, 300);
-      if (this.hasAttribute("data-tab-end-content")) return box(220, 120);
-      if (this.hasAttribute("data-tab-value")) return box(220, 60);
-      return box(0, 0);
-    };
-    const sw = Object.getOwnPropertyDescriptor(Element.prototype, "scrollWidth");
-    const cw = Object.getOwnPropertyDescriptor(Element.prototype, "clientWidth");
-    Object.defineProperty(Element.prototype, "scrollWidth", {
-      configurable: true,
-      get: () => 600,
-    });
-    Object.defineProperty(Element.prototype, "clientWidth", {
-      configurable: true,
-      get: () => 300,
-    });
-    try {
+  it("reveals the whole wrapper of the selected tab in the next frame", () => {
+    withScrollingStrip(({ scrollBy, flushFrames }) => {
       render(
         strip(
           {},
           <Tab value="general" label="General" endContent={<Badge label="3" />} />,
         ),
       );
+      // Not measured inside the commit, as TabList defers after a press.
+      expect(scrollBy).not.toHaveBeenCalled();
+      flushFrames();
       // The wrapper's right edge (340) past the strip's (300); the button's
       // alone (280) would not have scrolled.
       expect(scrollBy).toHaveBeenCalledWith({ left: 40, behavior: "instant" });
-    } finally {
-      Element.prototype.scrollBy = originalScrollBy;
-      Element.prototype.getBoundingClientRect = originalRect;
-      if (sw) Object.defineProperty(Element.prototype, "scrollWidth", sw);
-      if (cw) Object.defineProperty(Element.prototype, "clientWidth", cw);
-    }
+    });
+  });
+
+  it("reveals the wrapper again when the strip resizes, and stops on unmount", () => {
+    withScrollingStrip(({ scrollBy, flushFrames, resize, observing }) => {
+      const { unmount } = render(
+        strip(
+          {},
+          <Tab value="general" label="General" endContent={<Badge label="3" />} />,
+        ),
+      );
+      flushFrames();
+      scrollBy.mockClear();
+      resize();
+      expect(scrollBy).toHaveBeenCalledWith({ left: 40, behavior: "instant" });
+      unmount();
+      expect(observing()).toBe(false);
+    });
   });
 });
 
