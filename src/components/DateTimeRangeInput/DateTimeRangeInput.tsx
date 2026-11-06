@@ -71,6 +71,7 @@ import {
 import { TimeColumn } from "./TimeColumn";
 import {
   DAY_START,
+  MINUTE_MS,
   combine,
   datePart,
   defaultEnd,
@@ -443,10 +444,51 @@ export function DateTimeRangeInput({
     close("end");
   };
 
+  // The times the end being edited may take, as antd's `disabledTime` would
+  // rule them: the start within `min` and before `max`; the end after the
+  // start, by `max` and within `maxDuration` of the start.
+  const timeWindow = (() => {
+    const lo: number[] = [];
+    const hi: number[] = [];
+    const minAt = toDate(min)?.getTime();
+    const maxAt = toDate(max)?.getTime();
+    if (part === "start") {
+      if (minAt !== undefined) lo.push(minAt);
+      if (maxAt !== undefined) hi.push(maxAt - MINUTE_MS);
+    } else if (draft.start) {
+      const startAt = toDate(draft.start)!.getTime();
+      lo.push(startAt + MINUTE_MS);
+      if (maxAt !== undefined) hi.push(maxAt);
+      if (maxDuration != null) hi.push(startAt + maxDuration);
+    }
+    return {
+      lo: lo.length ? Math.max(...lo) : -Infinity,
+      hi: hi.length ? Math.min(...hi) : Infinity,
+    };
+  })();
+  const editingDay = editing ? datePart(editing) : null;
+  const at = (hour: number, minute: number) =>
+    toDate(withTime(editing!, hour, minute))!.getTime();
+  const isHourDisabled = (hour: number) =>
+    !editingDay || at(hour, 59) < timeWindow.lo || at(hour, 0) > timeWindow.hi;
+  const isMinuteDisabled = (minute: number) => {
+    if (!editing) return true;
+    const t = at(hourMinute(editing)[0], minute);
+    return t < timeWindow.lo || t > timeWindow.hi;
+  };
+
   const setTime = (hour: number | null, minute: number | null) => {
     if (!editing) return;
     const [h, m] = hourMinute(editing);
-    const next = withTime(editing, hour ?? h, minute ?? m);
+    let next = withTime(editing, hour ?? h, minute ?? m);
+    // A new hour keeps the minute when it can, and otherwise takes the
+    // nearest one the window allows on that hour.
+    const t = toDate(next)!.getTime();
+    const clamped = Math.min(Math.max(t, timeWindow.lo), timeWindow.hi);
+    if (clamped !== t) {
+      const moved = fromDate(new Date(clamped));
+      if (datePart(moved) === datePart(next)) next = moved;
+    }
     setDraft((d) => ({ ...d, [part]: next }));
   };
 
@@ -479,7 +521,10 @@ export function DateTimeRangeInput({
     undefined;
 
   const endButton = (which: Part) => {
-    const shown = current ? formatValue(current[which], showTime) : "";
+    // While the popover is open the part shows the draft, as antd's inputs
+    // do; closing without committing puts the value back.
+    const source = popover.isOpen ? draft[which] : (current?.[which] ?? null);
+    const shown = source ? formatValue(source, showTime) : "";
     const placeholder = which === "start" ? startText : endText;
     const isActive = popover.isOpen && part === which;
     return (
@@ -661,6 +706,7 @@ export function DateTimeRangeInput({
                       count={24}
                       value={editing ? hourMinute(editing)[0] : null}
                       onChange={(hour) => setTime(hour, null)}
+                      isValueDisabled={isHourDisabled}
                       isDisabled={!editing}
                       data-testid={testPart("hour")}
                     />
@@ -669,6 +715,7 @@ export function DateTimeRangeInput({
                       count={60}
                       value={editing ? hourMinute(editing)[1] : null}
                       onChange={(minute) => setTime(null, minute)}
+                      isValueDisabled={isMinuteDisabled}
                       isDisabled={!editing}
                       data-testid={testPart("minute")}
                     />

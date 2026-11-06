@@ -1,7 +1,10 @@
 /**
- * One column of the time picker, hours or minutes: a listbox whose options
- * take focus themselves (roving tabindex). Arrow keys, Home and End move the
- * selection; a click picks. The selected option scrolls into view.
+ * One column of the time picker, hours or minutes, as in Ant Design's time
+ * panel: a fixed-height column that scrolls freely (wheel, scrollbar, touch),
+ * with the selected value scrolled to its top. A listbox whose options take
+ * focus themselves (roving tabindex): arrow keys, Home and End move the
+ * selection, skipping disabled values; a click picks. A disabled value (one
+ * the bounds rule out) is greyed and cannot be picked.
  */
 import { useLayoutEffect, useRef, type KeyboardEvent } from "react";
 
@@ -14,7 +17,10 @@ export interface TimeColumnProps {
   /** The selected value, or null when the column has nothing to edit yet. */
   value: number | null;
   onChange: (value: number) => void;
+  /** The whole column is off (nothing to edit yet). */
   isDisabled?: boolean;
+  /** Values the bounds rule out. */
+  isValueDisabled?: (value: number) => boolean;
   "data-testid"?: string;
 }
 
@@ -24,19 +30,37 @@ export function TimeColumn({
   value,
   onChange,
   isDisabled,
+  isValueDisabled,
   "data-testid": testId,
 }: TimeColumnProps) {
   const listRef = useRef<HTMLDivElement>(null);
+  const hasScrolled = useRef(false);
 
   useLayoutEffect(() => {
     const list = listRef.current;
     const option = list?.querySelector<HTMLElement>('[aria-selected="true"]');
-    if (list && option) list.scrollTop = option.offsetTop - list.offsetTop;
+    if (!list || !option) return;
+    const top = option.offsetTop - list.offsetTop;
+    // Opening jumps there; a pick glides, as antd's columns do.
+    if (hasScrolled.current && typeof list.scrollTo === "function") {
+      list.scrollTo({ top, behavior: "smooth" });
+    } else {
+      list.scrollTop = top;
+    }
+    hasScrolled.current = true;
   }, [value]);
+
+  const isOff = (n: number) => !!isDisabled || !!isValueDisabled?.(n);
 
   const select = (next: number) => {
     onChange(next);
     listRef.current?.querySelector<HTMLElement>(`[data-value="${next}"]`)?.focus();
+  };
+
+  /** The nearest enabled value from `from`, stepping by `step`. */
+  const seek = (from: number, step: 1 | -1) => {
+    for (let n = from; n >= 0 && n < count; n += step) if (!isOff(n)) return n;
+    return null;
   };
 
   const onKeyDown = (e: KeyboardEvent) => {
@@ -44,17 +68,17 @@ export function TimeColumn({
     const current = value ?? 0;
     const next =
       e.key === "ArrowDown"
-        ? Math.min(count - 1, current + 1)
+        ? seek(current + 1, 1)
         : e.key === "ArrowUp"
-          ? Math.max(0, current - 1)
+          ? seek(current - 1, -1)
           : e.key === "Home"
-            ? 0
+            ? seek(0, 1)
             : e.key === "End"
-              ? count - 1
-              : null;
-    if (next === null) return;
+              ? seek(count - 1, -1)
+              : undefined;
+    if (next === undefined) return;
     e.preventDefault();
-    select(next);
+    if (next !== null) select(next);
   };
 
   return (
@@ -72,12 +96,12 @@ export function TimeColumn({
           key={n}
           role="option"
           aria-selected={n === value}
-          aria-disabled={isDisabled || undefined}
+          aria-disabled={isOff(n) || undefined}
           tabIndex={isDisabled ? undefined : n === (value ?? 0) ? 0 : -1}
           data-value={n}
           className="uic-date-time-range-input__time-option"
           onClick={() => {
-            if (!isDisabled) select(n);
+            if (!isOff(n)) select(n);
           }}
         >
           {pad(n)}

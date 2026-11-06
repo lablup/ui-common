@@ -262,11 +262,13 @@ describe("DateTimeRangeInput", () => {
     await userEvent.click(day(dialog, "November 5"));
     // The default end is pulled back to the cap: 09:00 the next day.
     expect(selected(dialog, "Hour")).toBe("09");
-    await userEvent.click(option(dialog, "Hour", "10"));
-    expect(confirm(dialog)).toBeDisabled();
-    await userEvent.click(option(dialog, "Hour", "13"));
-    expect(confirm(dialog)).toBeDisabled();
-    await userEvent.click(confirm(dialog));
+    // Hours past the cap are off, as antd's disabledTime greys them.
+    for (const hour of ["10", "13"]) {
+      expect(option(dialog, "Hour", hour)).toHaveAttribute("aria-disabled", "true");
+      await userEvent.click(option(dialog, "Hour", hour));
+    }
+    expect(selected(dialog, "Hour")).toBe("09");
+    expect(option(dialog, "Minute", "01")).toHaveAttribute("aria-disabled", "true");
     expect(onChange).not.toHaveBeenCalled();
     await userEvent.click(option(dialog, "Hour", "08"));
     await userEvent.click(confirm(dialog));
@@ -283,8 +285,43 @@ describe("DateTimeRangeInput", () => {
     await userEvent.click(option(dialog, "Hour", "18"));
     await userEvent.click(confirm(dialog));
     await userEvent.click(day(dialog, "November 3"));
-    await userEvent.click(option(dialog, "Hour", "09"));
-    expect(confirm(dialog)).toBeDisabled();
+    // Same day: hours before the start are off, and on the start's hour so
+    // are its minute and the ones before it.
+    expect(option(dialog, "Hour", "09")).toHaveAttribute("aria-disabled", "true");
+    expect(option(dialog, "Hour", "18")).not.toHaveAttribute("aria-disabled");
+    await userEvent.click(option(dialog, "Hour", "18"));
+    expect(selected(dialog, "Minute")).toBe("59");
+    expect(option(dialog, "Minute", "00")).toHaveAttribute("aria-disabled", "true");
+    expect(option(dialog, "Minute", "01")).not.toHaveAttribute("aria-disabled");
+    await userEvent.click(option(dialog, "Minute", "01"));
+    await userEvent.click(confirm(dialog));
+    expect(onChange).toHaveBeenCalledWith(
+      range("2026-11-03T18:00", "2026-11-03T18:01"),
+    );
+  });
+
+  it("moves to the nearest allowed minute when a new hour rules the old one out", async () => {
+    const onChange = vi.fn();
+    render(<DateTimeRangeInput aria-label="Period" onChange={onChange} showTime />);
+    const dialog = await open();
+    await userEvent.click(day(dialog, "November 3"));
+    await userEvent.click(option(dialog, "Hour", "18"));
+    await userEvent.click(option(dialog, "Minute", "30"));
+    await userEvent.click(confirm(dialog));
+    await userEvent.click(day(dialog, "November 3"));
+    await userEvent.click(option(dialog, "Minute", "10"));
+    await userEvent.click(option(dialog, "Hour", "18"));
+    expect(selected(dialog, "Minute")).toBe("31");
+  });
+
+  it("shows the draft in the parts while the popover is open, as antd's inputs do", async () => {
+    render(<DateTimeRangeInput aria-label="Period" value={NOV_5} showTime />);
+    const dialog = await open();
+    await userEvent.click(day(dialog, "November 2"));
+    expect(startButton()).toHaveTextContent("2026-11-02 00:00");
+    expect(endButton()).toHaveTextContent("End date");
+    await userEvent.click(option(dialog, "Hour", "07"));
+    expect(startButton()).toHaveTextContent("2026-11-02 07:00");
   });
 
   it("moves the time with the arrow keys", async () => {

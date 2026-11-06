@@ -18,7 +18,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   minute columns and a confirm button: a day click sets the end being edited
   (the start at 00:00, the end at 23:59 or now on today), confirm moves from
   the start to the end and then commits both; without `showTime` the second
-  day click commits. Days after `max`, before the start and beyond
+  day click commits. As in antd, the parts show the draft while the popover
+  is open, the time columns are fixed-height and scroll on their own with the
+  selected value at the top, and hours and minutes the bounds rule out are
+  greyed and cannot be picked (a new hour moves the minute to the nearest
+  allowed one). Days after `max`, before the start and beyond
   `maxDuration` (milliseconds) from it are disabled, and a draft that is not
   after its start, ends after `max` or is too long keeps confirm disabled, so
   `onChange` never reports it. A preset commits at once and is passed to
