@@ -81,6 +81,25 @@ describe("TimeRangeInput", () => {
     expect(selected(dialog, "Minute")).toBe("30");
   });
 
+  it("moves the panel under the end part while the end is edited", async () => {
+    render(<TimeRangeInput aria-label="Hours" value={WORK} />);
+    // jsdom has no layout: put the end part 96px into the box.
+    const box = startButton().parentElement!;
+    box.getBoundingClientRect = () => ({ left: 100, right: 300 }) as DOMRect;
+    endButton().getBoundingClientRect = () => ({ left: 196, right: 240 }) as DOMRect;
+    const dialog = await open(endButton());
+    const layer = (el: HTMLElement): HTMLElement =>
+      el.parentElement && !el.style.marginInlineStart ? layer(el.parentElement) : el;
+    expect(layer(dialog).style.marginInlineStart).toBe("96px");
+    await userEvent.click(startButton());
+    expect(screen.queryByRole("dialog")).not.toBeNull();
+    expect(
+      within(document.body)
+        .getByRole("dialog")
+        .closest("[style*='margin-inline-start']"),
+    ).toBeNull();
+  });
+
   it("drops the draft on Escape", async () => {
     const onChange = vi.fn();
     render(<TimeRangeInput aria-label="Hours" value={WORK} onChange={onChange} />);

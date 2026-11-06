@@ -26,7 +26,9 @@
 
   .uic-date-time-range-input__end {
     display: block;
-    flex: 1 1 0;
+    /* Sized by its text, so a box that sizes to its content shows both ends
+       whole; it shrinks (and ellipsizes) only in a box set narrower. */
+    flex: 1 1 auto;
     min-width: 0;
     padding: 0;
     border: none;

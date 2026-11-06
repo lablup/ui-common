@@ -17,7 +17,9 @@
  * <TimeRangeInput aria-label="Working hours" value={hours} onChange={setHours} />
  */
 import {
+  useCallback,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -217,6 +219,32 @@ export function TimeRangeInput({
   const startText = startPlaceholder ?? t("uic.DateTimeRangeInput.startTime");
   const endText = endPlaceholder ?? t("uic.DateTimeRangeInput.endTime");
 
+  // As antd's does, the panel sits under the part being edited: while the
+  // end is edited it moves along the box by how far in the end part starts.
+  const boxRef = useRef<HTMLDivElement | null>(null);
+  const [panelShift, setPanelShift] = useState(0);
+  // Stable, so the popover's anchor is not detached and reattached each render.
+  const popoverTriggerRef = popover.triggerRef;
+  const boxTriggerRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      boxRef.current = el;
+      popoverTriggerRef(el);
+    },
+    [popoverTriggerRef],
+  );
+  useLayoutEffect(() => {
+    const box = boxRef.current;
+    const end = endRef.current;
+    if (!popover.isOpen || part !== "end" || !box || !end) {
+      setPanelShift(0);
+      return;
+    }
+    const isRtl = getComputedStyle(box).direction === "rtl";
+    const b = box.getBoundingClientRect();
+    const e = end.getBoundingClientRect();
+    setPanelShift(Math.max(0, Math.round(isRtl ? b.right - e.right : e.left - b.left)));
+  }, [popover.isOpen, part]);
+
   const close = (focus: Part = part) => {
     popover.hide();
     (focus === "end" ? endRef : startRef).current?.focus();
@@ -364,7 +392,7 @@ export function TimeRangeInput({
   return (
     <FormControlScope required={required}>
       <div
-        ref={popover.triggerRef}
+        ref={boxTriggerRef}
         className={[
           wrapper.className,
           "uic-date-time-range-input",
@@ -479,7 +507,11 @@ export function TimeRangeInput({
             </div>
           </div>
         </NoFormItemContext>,
-        { placement: "below", alignment: "start" },
+        {
+          placement: "below",
+          alignment: "start",
+          style: panelShift ? { marginInlineStart: panelShift } : undefined,
+        },
       )}
     </FormControlScope>
   );

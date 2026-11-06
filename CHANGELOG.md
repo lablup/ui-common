@@ -45,7 +45,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   button that moves from the start to the end, then commits both. The end
   must be after the start: earlier times are greyed while it is edited.
   `hourFormat="12h"` shows `9:00 AM` and adds an AM / PM column (antd's
-  `use12Hours`). Same `Form.Item` contract, sizes and clear button. Exported
+  `use12Hours`). As in antd, the panel sits under the end part while the end
+  is edited. Same `Form.Item` contract, sizes and clear button. Exported
   from the root, with
   `TimeRangeInputProps`, `TimeRangeInputValue` and `TimeRangeInputSize`.
 - Catalog keys `uic.DateTimeRangeInput.startPlaceholder`, `.endPlaceholder`,
