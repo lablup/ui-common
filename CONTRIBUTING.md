@@ -266,7 +266,7 @@ ui-common's own components keep importing Astryx's controls from
 | `NotificationItem`                                             | `src/components/NotificationItem/`   | `Stack`, `Text`                                     |
 | `UnitGrid`, `UnitGridSkeleton`                                 | `src/components/UnitGrid/`           | `Stack`, `Text`, `VisuallyHidden`, `Skeleton`       |
 | `ColorPicker`                                                  | `src/components/ColorPicker/`        | `Popover`, `TextInput`, `Button`                    |
-| `DateTimeRangeInput`                                           | `src/components/DateTimeRangeInput/` | `usePopover`, `Calendar`, `Button`, plain CSS       |
+| `DateTimeRangeInput`, `TimeRangeInput`                         | `src/components/DateTimeRangeInput/` | `usePopover`, `Calendar`, `Button`, plain CSS       |
 | `Form` (engine, `Form.Item` shell, hooks)                      | `src/components/Form/`               | `Tooltip`, plain CSS                                |
 | `BulkEditFormItem`                                             | `src/components/BulkEditFormItem/`   | `Form.Item`, `TextInput`, `Link`, `HStack`          |
 | `DataGrid`, `DataGridSettingsModal`, `DataGridExportModal`     | `src/components/DataGrid/`           | `Table` + plugins, `Pagination`, `Modal`, dnd-kit   |

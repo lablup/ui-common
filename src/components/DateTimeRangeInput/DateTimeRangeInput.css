@@ -154,6 +154,18 @@
     background-color: transparent;
   }
 
+  /* TimeRangeInput: the columns alone, with no calendar to set them off. */
+  .uic-date-time-range-input__time--alone {
+    padding-inline-start: 0;
+    border-inline-start: none;
+  }
+
+  /* Two times fit in less room than two dates; Astryx has no token for a
+     field's minimum width. */
+  .uic-date-time-range-input--time-only {
+    min-width: 160px;
+  }
+
   .uic-date-time-range-input__footer {
     display: flex;
     justify-content: flex-end;

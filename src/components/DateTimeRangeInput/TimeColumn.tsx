@@ -21,6 +21,8 @@ export interface TimeColumnProps {
   isDisabled?: boolean;
   /** Values the bounds rule out. */
   isValueDisabled?: (value: number) => boolean;
+  /** How a value reads. @default two digits, `07` */
+  formatValue?: (value: number) => string;
   "data-testid"?: string;
 }
 
@@ -31,6 +33,7 @@ export function TimeColumn({
   onChange,
   isDisabled,
   isValueDisabled,
+  formatValue = pad,
   "data-testid": testId,
 }: TimeColumnProps) {
   const listRef = useRef<HTMLDivElement>(null);
@@ -104,7 +107,7 @@ export function TimeColumn({
             if (!isOff(n)) select(n);
           }}
         >
-          {pad(n)}
+          {formatValue(n)}
         </div>
       ))}
     </div>

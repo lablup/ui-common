@@ -38,9 +38,20 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `@lablup/ui-common/components/DateTimeRangeInput`, with
   `DateTimeRangeInputProps`, `DateTimeRangeInputValue`,
   `DateTimeRangeInputPreset` and `DateTimeRangeInputSize`.
+- **`TimeRangeInput`**: `DateTimeRangeInput`'s time-only sibling, modeled on
+  Ant Design's `TimePicker.RangePicker`. The value is `{ start, end } | null`
+  of local `HH:MM` strings (Astryx's `ISOTimeString`); the same box with one
+  part per end (`09:00 → 18:00`), hour and minute columns and a confirm
+  button that moves from the start to the end, then commits both. The end
+  must be after the start: earlier times are greyed while it is edited.
+  `hourFormat="12h"` shows `9:00 AM` and adds an AM / PM column (antd's
+  `use12Hours`). Same `Form.Item` contract, sizes and clear button. Exported
+  from the root, with
+  `TimeRangeInputProps`, `TimeRangeInputValue` and `TimeRangeInputSize`.
 - Catalog keys `uic.DateTimeRangeInput.startPlaceholder`, `.endPlaceholder`,
   `.dialogLabel`, `.presets`, `.startTime`, `.endTime`, `.hour` and
-  `.minute`, translated in every shipped locale.
+  `.minute`, and `uic.TimeRangeInput.dialogLabel` and `.period`, translated
+  in every shipped locale.
 
 ### Changed
 

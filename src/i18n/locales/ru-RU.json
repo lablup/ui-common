@@ -414,5 +414,13 @@
   "uic.DateTimeRangeInput.minute": {
     "defaultMessage": "Минута",
     "description": "Accessible name of the column of minutes (00 to 59) in a time picker"
+  },
+  "uic.TimeRangeInput.dialogLabel": {
+    "defaultMessage": "Выбор диапазона времени",
+    "description": "Accessible name of the popover that picks a start and an end time of day"
+  },
+  "uic.TimeRangeInput.period": {
+    "defaultMessage": "AM/PM",
+    "description": "Accessible name of the column that picks AM or PM in a 12-hour time picker"
   }
 }

@@ -1,6 +1,16 @@
 import { defineMessages } from "../../i18n/defineMessages";
 
 export const dateTimeRangeInputMessages = defineMessages({
+  "uic.TimeRangeInput.dialogLabel": {
+    defaultMessage: "Choose time range",
+    description:
+      "Accessible name of the popover that picks a start and an end time of day",
+  },
+  "uic.TimeRangeInput.period": {
+    defaultMessage: "AM/PM",
+    description:
+      "Accessible name of the column that picks AM or PM in a 12-hour time picker",
+  },
   "uic.DateTimeRangeInput.startPlaceholder": {
     defaultMessage: "Start date",
     description:

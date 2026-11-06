@@ -13,6 +13,7 @@ import {
   ValueReadout,
 } from "../../stories/formControlStories";
 import { overlayDocs, useArgState } from "../../stories/helpers";
+import { TimeRangeInput, type TimeRangeInputValue } from "./TimeRangeInput";
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
@@ -66,6 +67,7 @@ function ControlledRange(args: DateTimeRangeInputProps) {
 const meta = {
   title: "Components/DateTimeRangeInput",
   component: DateTimeRangeInput,
+  subcomponents: { TimeRangeInput },
   args: { "aria-label": "Period", onChange: fn() },
   argTypes: {
     size: { control: "inline-radio", options: ["sm", "md"] },
@@ -178,6 +180,47 @@ export const FormDisabled: Story = {
   render: () => (
     <FormItemDemo label="Period" disabled initialValue={last(DAY)}>
       <DateTimeRangeInput showTime />
+    </FormItemDemo>
+  ),
+};
+
+const WORKING_HOURS = { start: "09:00", end: "18:00" } as TimeRangeInputValue;
+
+/** Holds a time range in state, as a caller does. */
+function ControlledTimeRange({ hourFormat }: { hourFormat?: "12h" | "24h" }) {
+  const [value, setValue] = useArgState<TimeRangeInputValue | null>(WORKING_HOURS);
+  return (
+    <>
+      <TimeRangeInput
+        aria-label="Working hours"
+        hourFormat={hourFormat}
+        value={value}
+        onChange={setValue}
+      />
+      <ValueReadout value={value} />
+    </>
+  );
+}
+
+/**
+ * `TimeRangeInput`, the time-only sibling (antd's `TimePicker.RangePicker`):
+ * hour and minute columns and a confirm button, no calendar. While the end
+ * is edited, times not after the start are greyed.
+ */
+export const TimeRange: Story = {
+  render: () => <ControlledTimeRange />,
+};
+
+/** `TimeRangeInput` on a 12-hour clock, with an AM / PM column. */
+export const TimeRange12Hour: Story = {
+  render: () => <ControlledTimeRange hourFormat="12h" />,
+};
+
+/** `TimeRangeInput` inside a `Form.Item`. */
+export const TimeRangeInFormItem: Story = {
+  render: () => (
+    <FormItemDemo label="Working hours">
+      <TimeRangeInput />
     </FormItemDemo>
   ),
 };

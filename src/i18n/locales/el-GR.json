@@ -414,5 +414,13 @@
   "uic.DateTimeRangeInput.minute": {
     "defaultMessage": "Λεπτό",
     "description": "Accessible name of the column of minutes (00 to 59) in a time picker"
+  },
+  "uic.TimeRangeInput.dialogLabel": {
+    "defaultMessage": "Επιλέξτε εύρος ώρας",
+    "description": "Accessible name of the popover that picks a start and an end time of day"
+  },
+  "uic.TimeRangeInput.period": {
+    "defaultMessage": "π.μ./μ.μ.",
+    "description": "Accessible name of the column that picks AM or PM in a 12-hour time picker"
   }
 }

@@ -43,6 +43,10 @@
     "source": "components/DateTimeRangeInput/index.ts"
   },
   {
+    "name": "TimeRangeInput",
+    "source": "components/DateTimeRangeInput/TimeRangeInput.tsx"
+  },
+  {
     "name": "DateInput",
     "source": "formControls/DateInput/index.ts",
     "subpath": "DateInput",

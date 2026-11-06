@@ -434,5 +434,13 @@
   "uic.DateTimeRangeInput.minute": {
     "defaultMessage": "분",
     "description": "Accessible name of the column of minutes (00 to 59) in a time picker"
+  },
+  "uic.TimeRangeInput.dialogLabel": {
+    "defaultMessage": "시간 범위 지정",
+    "description": "Accessible name of the popover that picks a start and an end time of day"
+  },
+  "uic.TimeRangeInput.period": {
+    "defaultMessage": "오전/오후",
+    "description": "Accessible name of the column that picks AM or PM in a 12-hour time picker"
   }
 }
