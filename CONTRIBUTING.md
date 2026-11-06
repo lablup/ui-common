@@ -113,6 +113,7 @@ consumers, and ui-common's consumers import Astryx through ui-common.
 | `Drawer`          | `@lablup/ui-common/Drawer`          | stays out of the top layer (`show()` + z-index); `aria-modal` passes through; a `Modal` inside a scrimmed drawer opens above it (see below) | not filed                                                            |
 | `Tour`            | `@lablup/ui-common/lab`             | a step's highlight is promoted once (StrictMode)                                                                                            | not filed                                                            |
 | `Stat`            | `@lablup/ui-common/lab`             | `deltaTooltip`: a tooltip anchored to the delta, which takes keyboard focus for it, with `media` outside it (see below)                     | not filed                                                            |
+| `RadialChart`     | `@lablup/ui-common/lab`             | measures its container before the first paint and commits each resize in the same frame (see below)                                         | not filed                                                            |
 
 `Drawer`'s other changes are ui-common's own, not upstream fixes. Astryx (lab
 from 0.6.5, core since 0.7.2) opens a scrimless drawer as a manual popover,
@@ -131,6 +132,11 @@ string, so a wrapper cannot anchor a tooltip to the delta: wrapping the whole
 `Stat` opens it away from the change it explains and nests a `media`
 sparkline's own tooltip inside it. Without `deltaTooltip` the fork renders
 lab's markup. Keep it on a bump until lab has a way to explain the delta.
+
+`RadialChart` brings the rest of lab's Radial family with it, unchanged:
+`RadialGrid`, `RadialArea`, `RadialAxis`, `RadialSlice`, `RadialTooltip` and
+`useRadial` read the context `RadialChart` provides, which lab does not
+export, so lab's own would not see the fork's chart.
 
 How one is put together:
 

@@ -17,6 +17,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   order, and one that moves there gets an offset for it in `onItemsChange`.
   Pass `columnBreakpoints` to keep 6 as the limit.
 
+### Fixed
+
+- **`RadialChart` (`@lablup/ui-common/lab`) no longer paints a blank or stale
+  frame.** Lab's chart started at width 0 and took each container resize one
+  frame late, so a donut flashed empty when it mounted and trailed its
+  container (and flickered) while a resizable card was dragged. ui-common now
+  ships a fork that measures the container before the first paint and commits
+  each observed width in the same frame. `RadialGrid`, `RadialArea`,
+  `RadialAxis`, `RadialSlice`, `RadialTooltip` and `useRadial` come from the
+  fork too, unchanged, since they read its context. Imports stay the same.
+
 ## [0.2.0-alpha.21]
 
 Astryx 0.7.3 → 0.7.7 (`@astryxdesign/lab` 0.7.7-canary.273ec43). Astryx's

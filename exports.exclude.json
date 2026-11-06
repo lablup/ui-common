@@ -47,6 +47,29 @@
     "reason": "Adds deltaTooltip, a tooltip that explains the delta, anchored to it and reachable by keyboard, with media outside it."
   },
   {
+    "name": "lab",
+    "exports": [
+      "RadialChart",
+      "RadialChartProps",
+      "RadialGrid",
+      "RadialGridProps",
+      "RadialArea",
+      "RadialAreaProps",
+      "RadialAxis",
+      "RadialAxisProps",
+      "RadialSlice",
+      "RadialSliceProps",
+      "RadialTooltip",
+      "RadialTooltipProps",
+      "RadialTooltipDatum",
+      "useRadial",
+      "RadialContext",
+      "RadialMode"
+    ],
+    "replacedBy": "RadialChart",
+    "reason": "RadialChart measures its container before the first paint and commits each resize in the same frame, so it never paints empty on mount or a frame behind its container. The rest of the Radial family reads its context, so it comes along unchanged."
+  },
+  {
     "name": "Dialog",
     "replacedBy": "Modal",
     "reason": "ui-common ships Modal as the one dialog surface. Hiding Dialog keeps consumers from building a second, differently behaved dialog."

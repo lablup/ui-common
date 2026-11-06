@@ -181,6 +181,11 @@
     "fork": "@astryxdesign/lab"
   },
   {
+    "name": "RadialChart",
+    "source": "forks/Radial/index.ts",
+    "fork": "@astryxdesign/lab"
+  },
+  {
     "name": "Tour",
     "source": "forks/Tour/index.ts",
     "fork": "@astryxdesign/lab"

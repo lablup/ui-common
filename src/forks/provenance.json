@@ -100,6 +100,23 @@
       ]
     }
   },
+  "RadialChart": {
+    "package": "@astryxdesign/lab",
+    "version": "0.7.7-canary.273ec43",
+    "upstream": null,
+    "notes": "RadialGrid, RadialArea, RadialAxis, RadialSlice, RadialTooltip, useRadial and the context are copied unchanged: they read the context RadialChart provides, which lab does not export. On an Astryx bump, re-take all of them together.",
+    "files": {
+      "src/Radial/RadialChart.tsx": "8831403adf2194ab324cc8199def2be4e68c5344e7010fa29818fa839b9ca24e",
+      "src/Radial/RadialContext.ts": "80470822479683f6c91810e270d386a2ac7bb4969316367e3dfdf2307b3ec15a",
+      "src/Radial/types.ts": "78acce4ae3069fdfb7942667be35c840cd8065d728bd004e132d433839767d98",
+      "src/Radial/RadialGrid.tsx": "b4bc901b2417165817912f77d13976ce503cbfb926ecacf6e73a0d6594455d86",
+      "src/Radial/RadialArea.tsx": "ea9aa1293a31876d5884994af76d469fd0e5a8d654e171566962291f3f6b22f5",
+      "src/Radial/RadialAxis.tsx": "7daed6011086db67e0e80a595e1ed0d70d84bd6b21c0da2b9c24d5db2b936c55",
+      "src/Radial/RadialSlice.tsx": "07d2b5ed1261e73b7f96fc1b01b8ed2c950d8da7f0288f8410a0e7235509de71",
+      "src/Radial/RadialTooltip.tsx": "7b2316b7dbaf109b27c49b9467d1d6634f7c123e9921974c2da4a10d2c2703f6",
+      "src/Radial/index.ts": "3ef05981def6e069878fd97709904b666ddd7bdfe5bb396c96f3ddc3faf04854"
+    }
+  },
   "Switch": {
     "package": "@astryxdesign/core",
     "version": "0.7.7",
