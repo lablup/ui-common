@@ -5,6 +5,24 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`Tab` takes `actions`: controls beside the tab's button, not inside
+  it** (#143). Astryx's `Tab` renders `endContent` inside its `<button>` /
+  `<a>`, so an `IconWithTooltip` there nested a button in a button. `actions`
+  renders beside the tab's button or link, in a non-interactive `<span>` that
+  paints the tab's hover, selected indicator and focus ring around both.
+  Clicking an action does not select the tab, the arrow keys still move
+  between tabs only, and each action is its own Tab stop. With `actions`,
+  `className`, `style` and `xstyle` style that span; `ref` and the other
+  props stay on the tab's control. In a `role="tablist"` strip an action is a
+  child of the tablist that is not a tab, which axe reports
+  (`aria-required-children`) and `TabList` warns about in development; the
+  navigation pattern has neither. `@lablup/ui-common/TabList` now exports
+  ui-common's copy of `Tab` (src/forks/TabList); `TabList`, `TabMenu` and
+  `useTabListContext` are still Astryx's. Without `actions` a tab renders
+  exactly as before.
+
 ### Changed
 
 - **`Board` keeps adding columns past 6 on very wide boards.**

@@ -36,19 +36,21 @@
  * SegmentedControlSize, SelectorDivider, SelectorOption, SelectorPresentation,
  * SelectorSize, SelectorStatus, SelectorStatusType, SheetConfirmation,
  * SheetConfirmationProps, SheetDraftChange, SwitchLabelPosition,
- * SwitchLabelSpacing, TapGestureRecognizer, TextAreaSize, TextAreaStatus,
- * TextAreaStatusType, TextInputSize, TextInputStatus, TextInputStatusType,
- * TextInputType, TimeInputHourFormat, TimeInputNativePicker,
- * TimeInputPresentation, TimeInputSize, TimeInputStatus, TimeInputStatusType,
- * TokenizerChange, TokenizerHandle, TokenizerOverflowBehavior, TokenizerSize,
- * TokenizerStatus, TokenizerStatusType, TypeaheadItem, TypeaheadItemProps,
- * TypeaheadSize, TypeaheadStatus, TypeaheadStatusType, UsePopoverOptions,
- * UsePopoverReturn, angleBetween, browserClock, centroid, createStaticSource,
- * distance, hasSameSelection, isActive, isTerminal, isTransitionAllowed,
+ * SwitchLabelSpacing, TabList, TabListLayout, TabListOverflow, TabListPattern,
+ * TabListProps, TabListSize, TabMenu, TabMenuOption, TabMenuProps,
+ * TapGestureRecognizer, TextAreaSize, TextAreaStatus, TextAreaStatusType,
+ * TextInputSize, TextInputStatus, TextInputStatusType, TextInputType,
+ * TimeInputHourFormat, TimeInputNativePicker, TimeInputPresentation,
+ * TimeInputSize, TimeInputStatus, TimeInputStatusType, TokenizerChange,
+ * TokenizerHandle, TokenizerOverflowBehavior, TokenizerSize, TokenizerStatus,
+ * TokenizerStatusType, TypeaheadItem, TypeaheadItemProps, TypeaheadSize,
+ * TypeaheadStatus, TypeaheadStatusType, UsePopoverOptions, UsePopoverReturn,
+ * angleBetween, browserClock, centroid, createStaticSource, distance,
+ * hasSameSelection, isActive, isTerminal, isTransitionAllowed,
  * nameSheetDraftChange, travel, unwrapAngle, useCombobox,
  * useCommandPaletteContext, useDismissSearchOnTouchDrag,
  * useImperativeAlertDialog, useImperativeDialog, useMultiCombobox, usePopover,
- * useSelectedItemOffset.
+ * useSelectedItemOffset, useTabListContext.
  *
  * Excluded Astryx names re-exported unchanged by their replacement:
  * CheckboxInputSize, CheckboxListItem, CheckboxListItemProps,
@@ -77,7 +79,9 @@
  * SegmentedControlItem, SegmentedControlItemProps, SegmentedControlLayout,
  * SegmentedControlSize, SelectorOption, useCombobox, useSelectedItemOffset,
  * SelectorDivider, SelectorPresentation, SelectorSize, SelectorStatus,
- * SelectorStatusType, SwitchLabelPosition, SwitchLabelSpacing, TextAreaSize,
+ * SelectorStatusType, SwitchLabelPosition, SwitchLabelSpacing, TabList,
+ * TabMenu, useTabListContext, TabListLayout, TabListOverflow, TabListPattern,
+ * TabListProps, TabListSize, TabMenuOption, TabMenuProps, TextAreaSize,
  * TextAreaStatus, TextAreaStatusType, TextInputSize, TextInputStatus,
  * TextInputStatusType, TextInputType, ISOTimeString, TimeInputHourFormat,
  * TimeInputNativePicker, TimeInputPresentation, TimeInputSize, TimeInputStatus,
@@ -100,8 +104,8 @@
  * NumberInput, NumberInputProps, Popover, RadioList, RadioListProps,
  * SegmentedControl, SegmentedControlProps, Selector, SelectorOptionData,
  * SelectorOptionType, SelectorProps, SelectorSection, Slider, SliderBaseProps,
- * SliderProps, SliderRangeProps, SliderSingleProps, Switch, SwitchProps,
- * TextArea, TextAreaProps, TextInput, TextInputProps, TimeInput,
+ * SliderProps, SliderRangeProps, SliderSingleProps, Switch, SwitchProps, Tab,
+ * TabProps, TextArea, TextAreaProps, TextInput, TextInputProps, TimeInput,
  * TimeInputProps, Tokenizer, TokenizerProps, Typeahead, TypeaheadProps.
  */
 
@@ -268,9 +272,6 @@ export {
   Stepper,
   SyntaxTheme,
   TOKEN_TYPES,
-  Tab,
-  TabList,
-  TabMenu,
   Table,
   TableBody,
   TableCell,
@@ -551,7 +552,6 @@ export {
   useStepperContext,
   useStreamingText,
   useSyntaxTheme,
-  useTabListContext,
   useTableColumnResize,
   useTableColumnSettings,
   useTableColumnSettingsState,
@@ -1130,14 +1130,6 @@ export type {
   SyntaxToken,
   SyntaxTokenName,
   SyntaxTokenValue,
-  TabListLayout,
-  TabListOverflow,
-  TabListPattern,
-  TabListProps,
-  TabListSize,
-  TabMenuOption,
-  TabMenuProps,
-  TabProps,
   TableAlignment,
   TableBodyProps,
   TableCellNode,
@@ -1836,6 +1828,19 @@ export type {
   SwitchLabelSpacing,
   SwitchProps,
 } from "./formControls/Switch";
+
+// TabList: ui-common's own copy, in place of Astryx's.
+export { Tab, TabList, TabMenu, useTabListContext } from "./forks/TabList";
+export type {
+  TabListLayout,
+  TabListOverflow,
+  TabListPattern,
+  TabListProps,
+  TabListSize,
+  TabMenuOption,
+  TabMenuProps,
+  TabProps,
+} from "./forks/TabList";
 
 // TagsInput
 export { TagsInput } from "./formControls/TagsInput";

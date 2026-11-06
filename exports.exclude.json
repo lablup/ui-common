@@ -122,6 +122,11 @@
     "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."
   },
   {
+    "name": "TabList",
+    "replacedBy": "TabList",
+    "reason": "Tab adds actions: interactive controls (an IconWithTooltip, a menu) rendered beside the tab's button or link, not inside it, with the tab's hover, indicator and focus ring around both. TabList, TabMenu and useTabListContext are Astryx's, re-exported unchanged."
+  },
+  {
     "name": "TextArea",
     "replacedBy": "TextArea",
     "reason": "Form.Item owns the label, description, required mark and status message, as in antd: ui-common's wrapper takes none of them, paints the item's status on its border, and honours the item's id, disabled and aria-*."

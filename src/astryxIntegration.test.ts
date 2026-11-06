@@ -59,14 +59,14 @@ describe("astryx.integration.mjs", () => {
         .filter((f) => f.endsWith(".doc.mjs"))
         .map((f) => f.replace(/\.doc\.mjs$/, "")),
     );
-    // ComplexSelector and Drawer (core's since Astryx 0.7.2) share their names
-    // with Astryx core components. A doc of that name makes `astryx component
+    // ComplexSelector, Drawer (core's since Astryx 0.7.2) and TabList share
+    // their names with Astryx core components. A doc of that name makes `astryx component
     // ComplexSelector` fail as provided by multiple packages (and warns in
     // `doctor integration components`) unless the doc sets `replaces`.
     // Astryx's own doc already describes the same API, as it does for a
     // same-API wrapper (Popover). The Form.Item wrappers change the API, so
     // their docs set `replaces` (scripts/gen-wrapper-docs.mjs).
-    const undocumented = new Set(["ComplexSelector", "Drawer"]);
+    const undocumented = new Set(["ComplexSelector", "Drawer", "TabList"]);
     const sameApiWrapper = (c: { source: string; wraps?: string }) =>
       c.wraps !== undefined && !c.source.startsWith("formControls/");
     const missing = customs
