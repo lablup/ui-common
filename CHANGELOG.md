@@ -5,6 +5,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`BoardItemTitle`: a long title no longer overflows a narrow row.** The
+  title group did not shrink (`flex-shrink: 0`), so it stayed as wide as its
+  text: a title wider than the item spilled past its edge and was clipped,
+  and a heading's `maxLines` never got to ellipsize. The title group now
+  shrinks to the row, so the title wraps at word boundaries (or ellipsizes
+  with `maxLines`); the end-content group keeps its width.
+
 ### Added
 
 - **`Selector`**: `onOpenChange(isOpen)`, as `MultiSelector` takes it, called
