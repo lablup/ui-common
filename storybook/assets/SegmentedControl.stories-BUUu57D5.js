@@ -1,0 +1,37 @@
+import{n as e}from"./rolldown-runtime-sJBDdmOt.js";import{t}from"./react-DlPsW1c0.js";import{t as n}from"./jsx-runtime-MKhVqBIO.js";import{i as r,n as i,r as a,t as o}from"./SegmentedControlItem-CqV_mTso.js";import{a as s,t as c}from"./helpers-lClMJovx.js";import{a as l,i as u,n as d,r as f}from"./formControl-CXHfoZO_.js";import{i as p,r as m,t as h}from"./formControlStories-nV93DaVY.js";function g({value:e,defaultValue:t,onChange:n,status:r,disabled:i,...o}){let{required:s,field:c}=u({component:`SegmentedControl`,caller:o,status:r,disabled:i,ariaRequired:o[`aria-required`],ariaLabel:o[`aria-label`],namesItself:!0}),[f,p]=l(e,t,n,``);return(0,_.jsx)(d,{required:s,children:(0,_.jsx)(a,{...o,label:c.label,isDisabled:c.isDisabled,"aria-invalid":o[`aria-invalid`]??(c.status?.type===`error`||void 0),value:f??``,onChange:p})})}var _;function v(){return(v=e((()=>{r(),f(),_=n();try{g.displayName=`SegmentedControl`,g.__docgenInfo={description:``,displayName:`SegmentedControl`,filePath:`/home/runner/work/ui-common/ui-common/src/formControls/SegmentedControl/SegmentedControl.tsx`,methods:[],props:{status:{defaultValue:null,declarations:[{fileName:`ui-common/src/formControls/formControl.tsx`,name:`FormControlProps`}],description:"The border state. Inside a `Form.Item` it follows the item's validation\nunless set here.",name:`status`,parent:{fileName:`ui-common/src/formControls/formControl.tsx`,name:`FormControlProps`},required:!1,tags:{},type:{name:`enum`,raw:`FormControlStatus`,value:[{value:`""`},{value:`"warning"`},{value:`"error"`}]}},disabled:{defaultValue:null,declarations:[{fileName:`ui-common/src/formControls/formControl.tsx`,name:`FormControlProps`}],description:"Set by `<Form disabled>` through `Form.Item`.",name:`disabled`,parent:{fileName:`ui-common/src/formControls/formControl.tsx`,name:`FormControlProps`},required:!1,tags:{},type:{name:`boolean`}},value:{defaultValue:null,declarations:[{fileName:`ui-common/src/formControls/SegmentedControl/SegmentedControl.tsx`,name:`TypeLiteral`}],description:``,name:`value`,required:!1,tags:{},type:{name:`string`}},defaultValue:{defaultValue:null,declarations:[{fileName:`ui-common/src/formControls/SegmentedControl/SegmentedControl.tsx`,name:`TypeLiteral`}],description:"The starting value when `value` is not set (uncontrolled), as in antd.",name:`defaultValue`,required:!1,tags:{},type:{name:`string`}},onChange:{defaultValue:null,declarations:[{fileName:`ui-common/src/formControls/SegmentedControl/SegmentedControl.tsx`,name:`TypeLiteral`}],description:``,name:`onChange`,required:!1,tags:{},type:{name:`((value: string) => void)`}}},tags:{}}}catch{}})))()}var y,b,x,S,C,w,T,E,D,O,k;function A(){return(A=e((()=>{y=t(),v(),i(),p(),c(),b=n(),{fn:x}=__STORYBOOK_MODULE_TEST__,S={title:`Form Controls/SegmentedControl`,component:g,args:{"aria-label":`View`,children:(0,b.jsxs)(b.Fragment,{children:[(0,b.jsx)(o,{value:`grid`,label:`Grid`}),(0,b.jsx)(o,{value:`list`,label:`List`}),(0,b.jsx)(o,{value:`table`,label:`Table`})]}),onChange:x()},argTypes:{status:{control:`inline-radio`,options:[``,`warning`,`error`]},children:{control:!1}},decorators:[s(400)],parameters:{docs:{description:{component:"SegmentedControl on its own and inside `Form.Item`. On its own it is named by\n`aria-label` and, without `value`, keeps its own state, as antd's\ncontrols do. Inside an item, the item owns the label, the help text and the\nmessage, and supplies the value (src/formControls).\n\nIt draws no border for `status`, as antd's checkbox, radio and switch draw\nnone: an error shows as the item's message, and as `aria-invalid`."}}}},C={},w={render:function(e){let[t,n]=(0,y.useState)(`list`);return(0,b.jsxs)(b.Fragment,{children:[(0,b.jsx)(g,{...e,value:t,onChange:e=>n(e)}),(0,b.jsx)(m,{value:t})]})}},T={args:{disabled:!0}},E={render:()=>(0,b.jsx)(h,{label:`View`,children:(0,b.jsxs)(g,{children:[(0,b.jsx)(o,{value:`grid`,label:`Grid`}),(0,b.jsx)(o,{value:`list`,label:`List`}),(0,b.jsx)(o,{value:`table`,label:`Table`})]})})},D={render:()=>(0,b.jsx)(h,{label:`View`,initialValue:`list`,children:(0,b.jsxs)(g,{children:[(0,b.jsx)(o,{value:`grid`,label:`Grid`}),(0,b.jsx)(o,{value:`list`,label:`List`}),(0,b.jsx)(o,{value:`table`,label:`Table`})]})})},O={render:()=>(0,b.jsx)(h,{label:`View`,disabled:!0,initialValue:`list`,children:(0,b.jsxs)(g,{children:[(0,b.jsx)(o,{value:`grid`,label:`Grid`}),(0,b.jsx)(o,{value:`list`,label:`List`}),(0,b.jsx)(o,{value:`table`,label:`Table`})]})})},k=[`Default`,`Controlled`,`Disabled`,`InFormItem`,`InFormItemWithValue`,`FormDisabled`],C.parameters={...C.parameters,docs:{...C.parameters?.docs,source:{originalSource:`{}`,...C.parameters?.docs?.source},description:{story:"On its own and uncontrolled: no `value`, so it keeps what the user enters.",...C.parameters?.docs?.description}}},w.parameters={...w.parameters,docs:{...w.parameters?.docs,source:{originalSource:`{
+  render: function Render(args) {
+    const [value, setValue] = useState<string | undefined>("list");
+    return <>
+        <SegmentedControl {...args} value={value} onChange={next => setValue(next)} />
+        <ValueReadout value={value} />
+      </>;
+  }
+}`,...w.parameters?.docs?.source},description:{story:"On its own and controlled, through `value` and `onChange`.",...w.parameters?.docs?.description}}},T.parameters={...T.parameters,docs:{...T.parameters?.docs,source:{originalSource:`{
+  args: {
+    disabled: true
+  }
+}`,...T.parameters?.docs?.source},description:{story:`On its own, disabled.`,...T.parameters?.docs?.description}}},E.parameters={...E.parameters,docs:{...E.parameters?.docs,source:{originalSource:`{
+  render: () => <FormItemDemo label="View">
+      <SegmentedControl>
+        <SegmentedControlItem value="grid" label="Grid" />
+        <SegmentedControlItem value="list" label="List" />
+        <SegmentedControlItem value="table" label="Table" />
+      </SegmentedControl>
+    </FormItemDemo>
+}`,...E.parameters?.docs?.source},description:{story:"Inside a `Form.Item`: the item's label names the control, and a required\nrule shows its one message when the form is submitted empty.",...E.parameters?.docs?.description}}},D.parameters={...D.parameters,docs:{...D.parameters?.docs,source:{originalSource:`{
+  render: () => <FormItemDemo label="View" initialValue={"list"}>
+      <SegmentedControl>
+        <SegmentedControlItem value="grid" label="Grid" />
+        <SegmentedControlItem value="list" label="List" />
+        <SegmentedControlItem value="table" label="Table" />
+      </SegmentedControl>
+    </FormItemDemo>
+}`,...D.parameters?.docs?.source},description:{story:"Inside a `Form.Item`, starting from the form's `initialValues`. Reset puts\nthe value back.",...D.parameters?.docs?.description}}},O.parameters={...O.parameters,docs:{...O.parameters?.docs,source:{originalSource:`{
+  render: () => <FormItemDemo label="View" disabled initialValue={"list"}>
+      <SegmentedControl>
+        <SegmentedControlItem value="grid" label="Grid" />
+        <SegmentedControlItem value="list" label="List" />
+        <SegmentedControlItem value="table" label="Table" />
+      </SegmentedControl>
+    </FormItemDemo>
+}`,...O.parameters?.docs?.source},description:{story:"Inside a disabled form: `<Form disabled>` disables the control.",...O.parameters?.docs?.description}}}})))()}A();export{w as Controlled,C as Default,T as Disabled,O as FormDisabled,E as InFormItem,D as InFormItemWithValue,k as __namedExportsOrder,S as default};
