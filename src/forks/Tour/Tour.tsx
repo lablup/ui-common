@@ -1,6 +1,6 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 //
-// Forked from @astryxdesign/lab 0.7.7-canary.273ec43, src/Tour/Tour.tsx
+// Forked from @astryxdesign/lab 0.7.11-canary.d810271, src/Tour/Tour.tsx
 // (MIT; see NOTICE). Unchanged: forked with TourStep, whose context it provides.
 // Provenance and the drift guard: src/forks/provenance.json.
 

@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Adapted from @astryxdesign/core 0.7.7, src/hooks/useBusyAnnouncement.ts
+// Adapted from @astryxdesign/core 0.7.11, src/hooks/useBusyAnnouncement.ts
 // (MIT; see NOTICE), which core does not export. Used by the ComplexSelector
 // and FileInput forks.
 

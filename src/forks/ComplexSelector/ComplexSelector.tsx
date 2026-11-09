@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.7, src/ComplexSelector/ComplexSelector.tsx
+// Forked from @astryxdesign/core 0.7.11, src/ComplexSelector/ComplexSelector.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -66,6 +66,7 @@ import { spacingVars } from "@astryxdesign/core/theme/tokens.stylex";
 import {
   composeEventHandlers,
   focusOutlineStyles,
+  isFocusDetached,
   isRenderable,
   mergeProps,
   mergeRefs,
@@ -82,7 +83,17 @@ import { useBusyAnnouncement } from "../useBusyAnnouncement";
 const styles = compiledStyles(compiled.styles);
 const interactionOverlayStyles = compiledStyles(compiled.interactionOverlayStyles);
 
-// @astryxdesign/core 0.7.7 src/hooks/useResolvedRequired.ts, which core does
+// @astryxdesign/core 0.7.11 src/utils/focusReturn.ts `isFocusLost`, which core
+// does not export (`isFocusDetached`, which it uses, is public).
+function isFocusLost(surface: Element | null, doc?: Document): boolean {
+  const ownerDocument = doc ?? surface?.ownerDocument ?? document;
+  return (
+    isFocusDetached(ownerDocument) ||
+    (surface != null && surface.contains(ownerDocument.activeElement))
+  );
+}
+
+// @astryxdesign/core 0.7.11 src/hooks/useResolvedRequired.ts, which core does
 // not export: a field under `FormLayout defaultOptionality="required"` is
 // required unless it opts out.
 function useResolvedRequired({
@@ -105,7 +116,7 @@ const CONTAINER_WITHOUT_FIELD_MESSAGE =
   "`containerXstyle`/`containerClassName`/`containerStyle` have no effect here because no Field box renders " +
   "(inside InputGroup or a `horizontal-labels` FormLayout). Inside InputGroup, style the InputGroup.";
 
-// @astryxdesign/core 0.7.7 src/Field/fieldParts.ts `useFieldInputStyling`,
+// @astryxdesign/core 0.7.11 src/Field/fieldParts.ts `useFieldInputStyling`,
 // which core does not export.
 function useFieldInputStyling<R extends object>(
   component: string,
@@ -243,7 +254,10 @@ export interface ComplexSelectorRenderState {
 export interface ComplexSelectorHandle {
   /** Open the selector surface. No-op when disabled or already open. */
   open(): void;
-  /** Close the selector surface. Restores focus to the trigger. */
+  /**
+   * Close the selector surface. Focus returns to the trigger only when it
+   * would otherwise be lost; a caller-rendered trigger always gets it back.
+   */
   close(): void;
   /** Toggle the selector surface open or closed. */
   toggle(): void;
@@ -498,13 +512,12 @@ export function ComplexSelector<Value>({
   const contentId = useId();
   const descriptionId = useId();
   const statusMessageId = useId();
-  // With `tooltip` placement Field renders no message box, so the status
-  // lives in an info-tip button on the trigger row (family:input-fields FR8).
-  // Only that placement renders an on-field status affordance here.
+  // With `tooltip` placement, Field renders no message box. The info-tip
+  // holds the message and describes the trigger.
   const isTooltipStatus = effectiveStatusVariant === "tooltip";
   const { statusIcon: statusTip, describedBy: statusTipDescribedBy } =
     useInputStatusIcon({
-      status: isTooltipStatus ? status : undefined,
+      status,
       statusVariant: effectiveStatusVariant,
       size: "sm",
     });
@@ -530,12 +543,22 @@ export function ComplexSelector<Value>({
     onOpenChange?.(true);
   }, [onOpenChange]);
 
+  // The popup's content element, read when it closes.
+  const popupContentRef = useRef<HTMLElement | null>(null);
+  const hasCallerTrigger = renderTrigger != null;
   const handlePopoverHide = useCallback(() => {
-    // Focus is restored first so a consumer that moves focus elsewhere from
-    // the callback wins, instead of being overwritten a line later.
-    triggerRef.current?.focus();
+    const trigger = triggerRef.current;
+    // A press that moved focus to another control keeps it there. A caller's
+    // control always gets focus back. Focus moves before the callback, so a
+    // consumer that moves it from the callback wins.
+    if (
+      hasCallerTrigger ||
+      isFocusLost(popupContentRef.current, trigger?.ownerDocument)
+    ) {
+      trigger?.focus();
+    }
     onOpenChange?.(false);
-  }, [onOpenChange]);
+  }, [hasCallerTrigger, onOpenChange]);
 
   const popover = usePopover({
     dialogLabel: label,
@@ -545,6 +568,7 @@ export function ComplexSelector<Value>({
     onShow: handlePopoverShow,
     onHide: handlePopoverHide,
   });
+  popupContentRef.current = popover.contentRef.current;
 
   const isOpen = popover.isOpen;
 
@@ -811,14 +835,6 @@ export function ComplexSelector<Value>({
         >
           <span {...stylex.props(styles.triggerText)}>{triggerContent}</span>
         </button>
-        {isRenderable(statusTip) && (
-          // The info-tip is its own control: a press on it, or on its message
-          // bubble (portaled, so outside this span in the DOM but inside it in
-          // React), shows the message without opening the popup.
-          <span onClick={stopPropagation} {...stylex.props(styles.statusTip)}>
-            {statusTip}
-          </span>
-        )}
         {isBusy && <Spinner size="sm" aria-hidden="true" />}
         {/* ui-common: the clear button (facebook/astryx#6362). */}
         {hasClear && triggerLabel != null && !isDisabled && (
@@ -836,23 +852,41 @@ export function ComplexSelector<Value>({
             }}
           />
         )}
-        <Icon
-          icon="chevronDown"
-          size="sm"
-          color="secondary"
-          // No wrapper: Icon's own span already provides the 16px box (`sm`)
-          // and the secondary icon color the wrapper used to set, so the glyph
-          // IS the trigger's icon element — one node carrying the box, the
-          // color, the rotation, and the theme target.
-          xstyle={[
-            styles.triggerIcon,
-            styles.triggerIconRotation,
-            isOpen && styles.triggerIconOpen,
-          ]}
-          {...themeProps("complex-selector-indicator-icon", {
-            state: isOpen ? "expanded" : "collapsed",
-          })}
-        />
+        {isRenderable(statusTip) &&
+          (isTooltipStatus ? (
+            // The info-tip is its own control: a press on it, or on its
+            // message bubble (portaled, so outside this span in the DOM but
+            // inside it in React), shows the message without opening the
+            // popup.
+            <span onClick={stopPropagation} {...stylex.props(styles.statusTip)}>
+              {statusTip}
+            </span>
+          ) : (
+            // The plain icon is part of the field: a press on it opens the
+            // popup, as a press on the trigger does.
+            <span {...stylex.props(styles.statusTip)}>{statusTip}</span>
+          ))}
+        {/* A status icon or info-tip takes the chevron's place, as in
+            Selector. */}
+        {!isRenderable(statusTip) && (
+          <Icon
+            icon="chevronDown"
+            size="sm"
+            color="secondary"
+            // No wrapper: Icon's own span already provides the 16px box (`sm`)
+            // and the secondary icon color the wrapper used to set, so the glyph
+            // IS the trigger's icon element — one node carrying the box, the
+            // color, the rotation, and the theme target.
+            xstyle={[
+              styles.triggerIcon,
+              styles.triggerIconRotation,
+              isOpen && styles.triggerIconOpen,
+            ]}
+            {...themeProps("complex-selector-indicator-icon", {
+              state: isOpen ? "expanded" : "collapsed",
+            })}
+          />
+        )}
       </div>
 
       {popup}

@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.7, src/Drawer/Drawer.tsx
+// Forked from @astryxdesign/core 0.7.11, src/Drawer/Drawer.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -40,7 +40,11 @@
  * region inside it). ui-common's notification stack is not Astryx's toast
  * viewport. The stateless internals 0.7.7 added (`useIsHydrating`,
  * `useSettledOpen`, `useBackdropPress`, `chainEventHandlers`,
- * `layerClickBoundary`) are inlined below the styles.
+ * `layerClickBoundary`) are inlined below the styles. Between 0.7.8 and 0.7.11 a third appeared and is
+ * left out: the touch entrance's input hold (`holdEntranceInput`, 800 lines of
+ * module state in core's `inputHold`), so a finger's tap during the slide-in
+ * reaches the drawer as it did before; and `useBackdropPress` keeps only
+ * the part of upstream's 0.7.8 backdrop rule that reads the DOM.
  *
  * Delete this fork, and its exports.exclude.json entry, once ui-common's
  * `Modal` and notification stack are top layer themselves and Astryx passes
@@ -174,7 +178,7 @@ function registerNonModalDrawer(id: string): number {
 function unregisterNonModalDrawer(id: string): void {
   openNonModalDrawers.delete(id);
 }
-// @astryxdesign/core 0.7.7 src/hooks/useIsHydrating.ts, which core does not
+// @astryxdesign/core 0.7.11 src/hooks/useIsHydrating.ts, which core does not
 // export: true during server render and the hydrating client render.
 const subscribeNever = () => () => {};
 function useIsHydrating(): boolean {
@@ -185,7 +189,7 @@ function useIsHydrating(): boolean {
   );
 }
 
-// @astryxdesign/core 0.7.7 src/hooks/useSettledOpen.ts, which core does not
+// @astryxdesign/core 0.7.11 src/hooks/useSettledOpen.ts, which core does not
 // export: the open state as the server rendered it, until it first changes.
 function useSettledOpen<T>(
   requested: T,
@@ -201,14 +205,39 @@ function useSettledOpen<T>(
   return [settled, release];
 }
 
-// @astryxdesign/core 0.7.7 src/Layer/useBackdropPress.ts, which core does not
-// export: a backdrop press dismisses only when it starts and ends there.
+// @astryxdesign/core 0.7.11 src/Layer/useBackdropPress.ts, which core does not
+// export: a backdrop press dismisses only when it starts and ends there, and
+// not when it light-dismissed a `popover="auto"` layer open above the drawer
+// (a menu in it), which keeps the press as its own. Left out: upstream's
+// second signal for the same case, `outsideDismissalCount`, a per-document
+// counter shared with core's own popovers through module state that a copy
+// cannot join.
+function isPopoverShowing(element: Element): boolean {
+  try {
+    return element.matches(":popover-open");
+  } catch {
+    // jsdom and pre-Popover browsers do not recognize :popover-open.
+    return false;
+  }
+}
+
+function showingAutoPopovers(host: HTMLElement): ReadonlyArray<Element> {
+  return Array.from(
+    host.ownerDocument.querySelectorAll('[popover="auto"], [popover=""]'),
+  ).filter((element) => !element.contains(host) && isPopoverShowing(element));
+}
+
 function useBackdropPress(onBackdropPress: () => void, isEnabled: boolean) {
   const startedOnBackdropRef = useRef(false);
   const endedOnBackdropRef = useRef(false);
+  const autoPopoversRef = useRef<ReadonlyArray<Element>>([]);
   const onPointerDownCapture = useCallback((event: React.PointerEvent<HTMLElement>) => {
-    startedOnBackdropRef.current = event.target === event.currentTarget;
+    const isOnBackdrop = event.target === event.currentTarget;
+    startedOnBackdropRef.current = isOnBackdrop;
     endedOnBackdropRef.current = false;
+    autoPopoversRef.current = isOnBackdrop
+      ? showingAutoPopovers(event.currentTarget)
+      : [];
   }, []);
   const onPointerUpCapture = useCallback((event: React.PointerEvent<HTMLElement>) => {
     endedOnBackdropRef.current =
@@ -218,13 +247,23 @@ function useBackdropPress(onBackdropPress: () => void, isEnabled: boolean) {
   const onPointerCancelCapture = useCallback(() => {
     startedOnBackdropRef.current = false;
     endedOnBackdropRef.current = false;
+    autoPopoversRef.current = [];
   }, []);
   const onClick = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       const pressWasOnBackdrop = endedOnBackdropRef.current;
+      const dismissedALayerAbove = autoPopoversRef.current.some(
+        (layer) => !isPopoverShowing(layer),
+      );
       startedOnBackdropRef.current = false;
       endedOnBackdropRef.current = false;
-      if (isEnabled && pressWasOnBackdrop && event.target === event.currentTarget) {
+      autoPopoversRef.current = [];
+      if (
+        isEnabled &&
+        pressWasOnBackdrop &&
+        !dismissedALayerAbove &&
+        event.target === event.currentTarget
+      ) {
         onBackdropPress();
       }
     },
@@ -233,7 +272,7 @@ function useBackdropPress(onBackdropPress: () => void, isEnabled: boolean) {
   return { onPointerDownCapture, onPointerUpCapture, onPointerCancelCapture, onClick };
 }
 
-// @astryxdesign/core 0.7.7 src/utils/chainEventHandlers.ts, which core does
+// @astryxdesign/core 0.7.11 src/utils/chainEventHandlers.ts, which core does
 // not export: every handler runs, in argument order.
 function chainEventHandlers<E extends React.SyntheticEvent>(
   ...handlers: (((event: E) => void) | undefined)[]
@@ -245,7 +284,7 @@ function chainEventHandlers<E extends React.SyntheticEvent>(
   };
 }
 
-// @astryxdesign/core 0.7.7 src/Layer/layerClickBoundary.ts and
+// @astryxdesign/core 0.7.11 src/Layer/layerClickBoundary.ts and
 // src/privateAttributes/layerRoot.stylex.ts, which core does not export: a
 // press inside the drawer runs the drawer's handlers, then stops in the React
 // tree (never natively), and the root carries the layer-root mark.

@@ -5,7 +5,99 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+## [0.2.0-alpha.21]
+
+Astryx 0.7.3 → 0.7.11 (`@astryxdesign/lab` 0.7.11-canary.d810271). Astryx's
+own release notes:
+https://github.com/facebook/astryx/releases/tag/v0.7.4,
+https://github.com/facebook/astryx/releases/tag/v0.7.5,
+https://github.com/facebook/astryx/releases/tag/v0.7.6,
+https://github.com/facebook/astryx/releases/tag/v0.7.7,
+https://github.com/facebook/astryx/releases/tag/v0.7.8,
+https://github.com/facebook/astryx/releases/tag/v0.7.9,
+https://github.com/facebook/astryx/releases/tag/v0.7.10,
+https://github.com/facebook/astryx/releases/tag/v0.7.11
+(`InfoTip` promoted to core, `CodeBlock` languages, stacking bottom sheets,
+`Popover` `presentation`, touch presentations for `Switch` and
+`SegmentedControl`, no backdrop blur behind modals, derived status colour
+roles; touch sheets for `Tokenizer` and `PowerSearch`, `usePanGesture`,
+`useSnapPaging`). `ui-common upgrade --from 0.2.0-alpha.20` runs Astryx's two
+codemods for the span, `migrate-codeblock-tokenizer-to-language` (0.7.5) and
+`promote-tokenizer-presentation` (0.7.8), and moves the lab pin and its core
+override. **Breaking:** Astryx 0.7.8 removes the lab `MobileTokenizer` and
+`MobilePowerSearch` (see Removed), and consumers set the `@astryxdesign/lab`
+core override to `0.7.11`.
+
 ### Added
+
+- New root names: `InfoTip`, `InfoTipProps`, `InfoTipSize`,
+  `AnimatedLayout`, `useAnimatedLayout`, `UseAnimatedLayoutOptions`,
+  `createCodeLanguage`, `CodeLanguage`, `CodeLanguageToken`,
+  `CodeLanguageTokenize`, `CreateCodeLanguageOptions`, `compactDefinition`,
+  `CompactDefinition`, `DEFAULT_COMPACT_DEFINITION`, `AutoCapitalize`,
+  `EnterKeyHint`, `InputMode`, `FieldStatusPlacement`, `IconEntry`,
+  `IconRequest`, `IconVariant`, `IconVariantMap`, `MotionCharacter`,
+  `ThemeMotionConfig`, `ThemeMotionKnobs`, `PopoverPresentation`,
+  `SearchContext` and `UseAnnounceOptions`. New mirrored subpaths: `InfoTip`
+  and `CodeBlock/languages/{dockerfile,graphql,java,lua,objective-c,powershell,ruby,thrift,toml}`.
+  From Astryx 0.7.8 to 0.7.11, new root names `createAnimator`,
+  `useAnimator`, `Animator`, `AnimatorAnimateOptions`, `AnimatorChannel`,
+  `AnimatorDecayVelocity`, `AnimatorHandle`, `AnimatorSnapshot`,
+  `AnimatorValues`, `createPanGesture`, `usePanGesture`, `PanGesture`,
+  `PanGestureEvent`, `PanGestureOptions`, `PanGestureState`,
+  `createDragToSnapPoints`, `useDragToSnapPoints`, `DragToSnapPoints`,
+  `DragToSnapPointsOptions`, `UseDragToSnapPointsResult`, `useSnapPaging`,
+  `SnapPaging`, `SnapPagingOptions`, `CalendarSystem`, `ComponentIconMap`,
+  `ComponentIconRequest`, `ComponentIconSlotMap`, `ComponentIconSlotName`,
+  `ComponentIconStaticMap`, `ComponentIconValue`, `PowerSearchPresentation`
+  and `TokenizerPresentation`, and the subpath `SnapPaging`. New in
+  `@lablup/ui-common/lab`: `CircleCheckIndicator`, `NavigationScreen`,
+  `NavigationStack`, `PageControl`, `SelectableCardGroup`,
+  `SelectableCardGroupItem`, `useNavigationStack`, `useRefreshControl`,
+  `REFRESH_REVEAL_VAR` and their props types. `lab`'s `InfoTip` is now Astryx's deprecated
+  re-export of core's and leaves lab in Astryx's next minor: import it from
+  `@lablup/ui-common/InfoTip` or the root.
+- `SegmentedControl` / `SegmentedControlItem` are Astryx's again under
+  ui-common's `Form.Item` wrapper: the fork that merged a caller's
+  `aria-describedby` is deleted, since Astryx keeps it since 0.7.5.
+
+- **An option can say why it is disabled** (#106). `Selector` and
+  `MultiSelector` option data take `disabled: boolean | { reason: string }`,
+  `PagedSelectorOption` takes `isDisabled: boolean | { reason: string }`. The
+  object form disables the option, and hovering anywhere on its row, padding
+  and check mark included, shows the reason in a tooltip (#122), as does a tap
+  on touch. The reason is part of the option's accessible name, and
+  the row draws nothing extra: a caller's `renderOption` is kept as is. The
+  `SelectorOptionData` / `MultiSelectorOptionData` types (and their section
+  and option-type unions) are widened to match; `renderOption` and
+  `renderValue` still receive a boolean `disabled`.
+- **`Board` draws an item's title row and description.** `BoardItem` takes `title`
+  and `description`, each a string or a node: a string title renders as a
+  level-5 heading, a string description as text, a node (a `BoardItemTitle`
+  with a tooltip and actions, say) as is. The drag handle sits in the inline
+  padding on the title row's first line, where it stays when the title wraps
+  or grows; without a title there is no header row and the description takes
+  the whole item. `itemPadding` sets every item's padding, a number (px) or
+  a CSS length for every side or one per side (default `--spacing-5` top
+  and bottom, `--spacing-8` left and right); the CSS knobs behind it are
+  `--board-item-padding-top` / `-right` / `-bottom` / `-left`.
+- **Lab `Stat` explains its delta** (#110). `deltaTooltip` takes a node,
+  shown in a tooltip anchored to the delta on hover, keyboard focus and tap;
+  the delta becomes focusable and is described by it, and `media` stays
+  outside it, so a sparkline keeps its own tooltip. A consumer no longer
+  wraps the whole `Stat` in a `Tooltip`. `@lablup/ui-common/lab` now exports
+  ui-common's copy of `Stat` (a fork, `src/forks/Stat`) in place of lab's,
+  with the same names; without `deltaTooltip` it renders lab's markup.
+- **A `BoardItemTitle` inside an untitled `Board` item's description renders
+  in the item's header row** (#108), with the same layout and drag-handle
+  alignment as a `title` node, so content that draws its own title row needs
+  no `title` and no placeholder. Only the first one moves; `inline` keeps a
+  `BoardItemTitle` in the body (a second section title, say). An item with
+  neither a `title` nor such a title still has no header row. The row stays
+  in its item when the item moves or resizes, and the board does not put it
+  in the items it reports.
+- **`useIsInBoardItem()`**, true inside a `Board` item's description, so
+  content can drop its own inset when the board pads it.
 
 - **`Selector`**: `onOpenChange(isOpen)`, as `MultiSelector` takes it, called
   whenever the panel opens or closes, however it happened (the trigger, the
@@ -58,91 +150,6 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `.dialogLabel`, `.presets`, `.startTime`, `.endTime`, `.hour` and
   `.minute`, and `uic.TimeRangeInput.dialogLabel` and `.period`, translated
   in every shipped locale.
-
-### Changed
-
-- **`Board` keeps adding columns past 6 on very wide boards.**
-  `DEFAULT_BOARD_COLUMN_BREAKPOINTS` stopped at 6 columns from 2100px, so a
-  wider board only stretched its cells. It now adds two columns for every
-  600px, so a cell stays about 300px wide: 8 columns from 2400px, 10 from
-  3000px and 12 from 3600px. Boards narrower than 2400px render as before.
-  **Breaking for a board 2400px or wider:** it lays out on more
-  columns. Items without a `columnOffset` for the new count are packed in
-  order, and one that moves there gets an offset for it in `onItemsChange`.
-  Pass `columnBreakpoints` to keep 6 as the limit.
-
-## [0.2.0-alpha.21]
-
-Astryx 0.7.3 → 0.7.7 (`@astryxdesign/lab` 0.7.7-canary.273ec43). Astryx's
-own release notes:
-https://github.com/facebook/astryx/releases/tag/v0.7.4,
-https://github.com/facebook/astryx/releases/tag/v0.7.5,
-https://github.com/facebook/astryx/releases/tag/v0.7.6,
-https://github.com/facebook/astryx/releases/tag/v0.7.7
-(`InfoTip` promoted to core, `CodeBlock` languages, stacking bottom sheets,
-`Popover` `presentation`, touch presentations for `Switch` and
-`SegmentedControl`, no backdrop blur behind modals, derived status colour
-roles). `ui-common upgrade --from 0.2.0-alpha.20` runs Astryx's one codemod
-for the span, `migrate-codeblock-tokenizer-to-language` (0.7.5), and moves the
-lab pin and its core override.
-
-### Added
-
-- New root names: `InfoTip`, `InfoTipProps`, `InfoTipSize`,
-  `AnimatedLayout`, `useAnimatedLayout`, `UseAnimatedLayoutOptions`,
-  `createCodeLanguage`, `CodeLanguage`, `CodeLanguageToken`,
-  `CodeLanguageTokenize`, `CreateCodeLanguageOptions`, `compactDefinition`,
-  `CompactDefinition`, `DEFAULT_COMPACT_DEFINITION`, `AutoCapitalize`,
-  `EnterKeyHint`, `InputMode`, `FieldStatusPlacement`, `IconEntry`,
-  `IconRequest`, `IconVariant`, `IconVariantMap`, `MotionCharacter`,
-  `ThemeMotionConfig`, `ThemeMotionKnobs`, `PopoverPresentation`,
-  `SearchContext` and `UseAnnounceOptions`. New mirrored subpaths: `InfoTip`
-  and `CodeBlock/languages/{dockerfile,graphql,java,lua,objective-c,powershell,ruby,thrift,toml}`.
-  New in `@lablup/ui-common/lab`: `MobilePowerSearch`, `MobilePowerSearchProps`.
-  No subpath or name was removed. `lab`'s `InfoTip` is now Astryx's deprecated
-  re-export of core's and leaves lab in Astryx's next minor: import it from
-  `@lablup/ui-common/InfoTip` or the root.
-- `SegmentedControl` / `SegmentedControlItem` are Astryx's again under
-  ui-common's `Form.Item` wrapper: the fork that merged a caller's
-  `aria-describedby` is deleted, since Astryx keeps it since 0.7.5.
-
-- **An option can say why it is disabled** (#106). `Selector` and
-  `MultiSelector` option data take `disabled: boolean | { reason: string }`,
-  `PagedSelectorOption` takes `isDisabled: boolean | { reason: string }`. The
-  object form disables the option, and hovering anywhere on its row, padding
-  and check mark included, shows the reason in a tooltip (#122), as does a tap
-  on touch. The reason is part of the option's accessible name, and
-  the row draws nothing extra: a caller's `renderOption` is kept as is. The
-  `SelectorOptionData` / `MultiSelectorOptionData` types (and their section
-  and option-type unions) are widened to match; `renderOption` and
-  `renderValue` still receive a boolean `disabled`.
-- **`Board` draws an item's title row and description.** `BoardItem` takes `title`
-  and `description`, each a string or a node: a string title renders as a
-  level-5 heading, a string description as text, a node (a `BoardItemTitle`
-  with a tooltip and actions, say) as is. The drag handle sits in the inline
-  padding on the title row's first line, where it stays when the title wraps
-  or grows; without a title there is no header row and the description takes
-  the whole item. `itemPadding` sets every item's padding, a number (px) or
-  a CSS length for every side or one per side (default `--spacing-5` top
-  and bottom, `--spacing-8` left and right); the CSS knobs behind it are
-  `--board-item-padding-top` / `-right` / `-bottom` / `-left`.
-- **Lab `Stat` explains its delta** (#110). `deltaTooltip` takes a node,
-  shown in a tooltip anchored to the delta on hover, keyboard focus and tap;
-  the delta becomes focusable and is described by it, and `media` stays
-  outside it, so a sparkline keeps its own tooltip. A consumer no longer
-  wraps the whole `Stat` in a `Tooltip`. `@lablup/ui-common/lab` now exports
-  ui-common's copy of `Stat` (a fork, `src/forks/Stat`) in place of lab's,
-  with the same names; without `deltaTooltip` it renders lab's markup.
-- **A `BoardItemTitle` inside an untitled `Board` item's description renders
-  in the item's header row** (#108), with the same layout and drag-handle
-  alignment as a `title` node, so content that draws its own title row needs
-  no `title` and no placeholder. Only the first one moves; `inline` keeps a
-  `BoardItemTitle` in the body (a second section title, say). An item with
-  neither a `title` nor such a title still has no header row. The row stays
-  in its item when the item moves or resizes, and the board does not put it
-  in the items it reports.
-- **`useIsInBoardItem()`**, true inside a `Board` item's description, so
-  content can drop its own inset when the board pads it.
 
 ### Changed
 
@@ -224,8 +231,75 @@ lab pin and its core override.
   templates set `aspectRatio`. `pnpm run check:integration` (and `verify`)
   now fails on any Astryx doc warning, not only on errors.
 
+- **`Board` keeps adding columns past 6 on very wide boards.**
+  `DEFAULT_BOARD_COLUMN_BREAKPOINTS` stopped at 6 columns from 2100px, so a
+  wider board only stretched its cells. It now adds two columns for every
+  600px, so a cell stays about 300px wide: 8 columns from 2400px, 10 from
+  3000px and 12 from 3600px. Boards narrower than 2400px render as before.
+  **Breaking for a board 2400px or wider:** it lays out on more
+  columns. Items without a `columnOffset` for the new count are packed in
+  order, and one that moves there gets an offset for it in `onItemsChange`.
+  Pass `columnBreakpoints` to keep 6 as the limit.
+
+- **Astryx 0.7.8 to 0.7.11** (see the heading above for the notes). What a
+  consumer can see:
+  - `Tokenizer` and `PowerSearch` take `presentation` (`'popover'`,
+    `'bottom-sheet'` or `'adaptive'`, the default `'adaptive'`), stable and
+    typed `TokenizerPresentation` and `PowerSearchPresentation`. On a compact
+    coarse-pointer screen (a phone) the default now opens a bottom sheet
+    where it opened the popover; pass `presentation="popover"` to keep that.
+    The 0.7.7 spelling `experimental={{ presentation }}` on `Tokenizer` is no
+    longer read: `ui-common upgrade` rewrites it (`promote-tokenizer-presentation`)
+    and leaves a `TODO(ui-common-upgrade)` where it cannot prove the rewrite,
+    for example a Tokenizer that spreads props.
+  - `Calendar` weekday headers show abbreviated names where all seven fit in
+    four characters: English reads `Sun Mon Tue`, not `Su Mo Tu` (and the
+    date popovers that render `Calendar` follow). A test that reads the
+    headers needs the new text.
+  - `Banner` puts `role="alert"` on its title and description, not on the
+    whole banner, so `NotificationStack` marks an error or warning notice
+    there; other roles stay on the banner. A test that finds the alert as the
+    notice's direct child looks one level down.
+  - `CheckboxInput` and `Switch` no longer announce a required state from a
+    form default (`FormLayout defaultOptionality="required"`): an unchecked box
+    or an off switch is an answer. Only their own `isRequired` sets
+    `aria-required`, and with it the native `required`. A `Form.Item` with a
+    required rule around a `CheckboxInput` therefore no longer carries
+    `aria-required` on the control; set `isRequired` on it where the
+    announcement matters.
+  - A labelled `Icon` is exposed as an image with its `label`; drop the label
+    when a parent already names the icon. A press's release fades on the
+    theme's exit motion tokens, and a finger gets larger hit areas for
+    buttons, checkboxes, radios, switches and list rows.
+  - The forks follow: `ComplexSelector` returns focus to its trigger only when
+    it would otherwise be lost and puts a status icon where the chevron was,
+    `FileInput` shows the no-drop cursor while disabled, `Drawer`'s backdrop
+    press leaves a menu open above it to that menu, `Stat` and `Tour` are
+    upstream's files unchanged. The `Drawer` fork leaves out upstream's touch
+    entrance input hold (module state in core's `inputHold`), so a tap during
+    the slide-in reaches the drawer as before.
+- **Dependency refresh (development tooling and patch levels).** No
+  React or StyleX peer range moved, and the `@astryxdesign/lab` peer is the
+  exact canary `0.7.11-canary.d810271`. Runtime
+  dependencies: `lucide-react` ^1.18.0 to ^1.70.0 and `intl-messageformat`
+  ^11.2.9 to ^11.2.15 (still 11.x). `@stylexjs/stylex` 0.19.1 is the version
+  the library is built and tested against. Development only: `vitest` 5,
+  `globals` 17, Storybook 10.6.6, `vite` 8.3, `typescript-eslint` 8.72,
+  `prettier` 3.9, `sass`, `react` and `react-dom` 19.3.1 and the matching
+  `@types`. The development tooling needs Node 22 or later (`vitest` 5);
+  the published packages still run on Node 20. Held back: `typescript` 7, `eslint` 10,
+  `jsdom` 31, `vite-plugin-dts` 5, `@testing-library/jest-dom` 7,
+  `@types/node` 26 and `intl-messageformat` 12 (it needs TypeScript 5.4 in
+  the consumer).
+
 ### Removed
 
+- **`MobileTokenizer`, `MobileTokenizerProps`, `MobileTokenizerChange`,
+  `MobilePowerSearch` and `MobilePowerSearchProps` from
+  `@lablup/ui-common/lab`**, because Astryx 0.7.8 removes them from
+  `@astryxdesign/lab`. Their touch flows are core's `Tokenizer` and
+  `PowerSearch` `presentation` sheets (`'adaptive'` by default); import those
+  from the root. `ui-common upgrade` does not rewrite these imports.
 - **`Board`'s `renderItem`**, with `BoardItemActions`, `removeItem`,
   `removedItem`, `liveAnnouncementItemRemoved` and the `uic.Board.itemRemoved`
   catalog key. An item is its `title` and `description`; removing one is the
