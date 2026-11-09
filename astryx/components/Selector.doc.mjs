@@ -467,5 +467,11 @@ export default {
       description:
         "The starting value when value is not set (uncontrolled), as in antd.",
     },
+    {
+      name: "onOpenChange",
+      type: "(isOpen: boolean) => void",
+      description:
+        "Called whenever the panel opens or closes, however it happened: the trigger, the keyboard, a light dismiss or Escape. As MultiSelector's.",
+    },
   ],
 };

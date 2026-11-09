@@ -138,6 +138,14 @@ const WRAPPERS = {
         note: "An option's disabled also takes { reason: string }: the option is disabled, hovering its row shows the reason in a tooltip, and the reason is part of the option's accessible name. renderOption still receives a boolean disabled.",
       },
     },
+    add: [
+      {
+        name: "onOpenChange",
+        type: "(isOpen: boolean) => void",
+        description:
+          "Called whenever the panel opens or closes, however it happened: the trigger, the keyboard, a light dismiss or Escape. As MultiSelector's.",
+      },
+    ],
     example:
       '<Form.Item name="region" label="Region" rules={[{ required: true }]}>\n  <Selector\n    options={[\n      { value: "kr", label: "Korea" },\n      { value: "us", label: "United States" },\n    ]}\n  />\n</Form.Item>',
     standalone:

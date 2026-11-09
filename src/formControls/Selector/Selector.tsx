@@ -5,7 +5,14 @@
  *
  * An option's `disabled` also takes `{ reason }`: the option is disabled and
  * hovering its row says why (../optionDisabledReason.tsx).
+ *
+ * `onOpenChange` is MultiSelector's, which Astryx's Selector lacks: the
+ * wrapper watches the trigger's `aria-expanded`, which follows the panel
+ * however it opens or closes, and calls it on each change.
  */
+import { useEffect, useRef, type Ref } from "react";
+
+import { useMergedRefs } from "@astryxdesign/core/hooks";
 import {
   Selector as AstryxSelector,
   SelectorOption,
@@ -43,7 +50,40 @@ export type SelectorProps<T extends SelectorOptionType = SelectorOptionType> =
     "options"
   > & {
     options: T[];
+    /**
+     * Called whenever the panel opens or closes, however it happened: the
+     * trigger, the keyboard, a light dismiss or Escape. As MultiSelector's.
+     */
+    onOpenChange?: (isOpen: boolean) => void;
   };
+
+/** Calls `onOpenChange` when the trigger's `aria-expanded` changes. */
+function useOpenChange(
+  onOpenChange: ((isOpen: boolean) => void) | undefined,
+): Ref<HTMLButtonElement> {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const onOpenChangeRef = useRef(onOpenChange);
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange;
+  });
+  useEffect(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    // The panel starts closed; `isDefaultOpen` may have opened it already.
+    let isOpen = false;
+    const sync = () => {
+      const next = trigger.getAttribute("aria-expanded") === "true";
+      if (next === isOpen) return;
+      isOpen = next;
+      onOpenChangeRef.current?.(next);
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(trigger, { attributeFilter: ["aria-expanded"] });
+    return () => observer.disconnect();
+  }, []);
+  return triggerRef;
+}
 
 export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   value,
@@ -52,8 +92,14 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   status,
   disabled,
   options,
+  onOpenChange,
   ...rest
 }: SelectorProps<T>) {
+  const openChangeRef = useOpenChange(onOpenChange);
+  const triggerRef = useMergedRefs<HTMLButtonElement>(
+    rest.ref as Ref<HTMLButtonElement> | undefined,
+    openChangeRef,
+  );
   const { required, field, width } = useFormControl({
     component: "Selector",
     caller: rest,
@@ -93,6 +139,7 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
     value: mergedValue,
     onChange: handleChange,
     renderOption: reasoned.renderOption,
+    ref: triggerRef,
   } as unknown as AstryxSelectorProps<AstryxSelectorOptionType>;
   return (
     <FormControlScope required={required}>
