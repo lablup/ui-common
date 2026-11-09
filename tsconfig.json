@@ -33,6 +33,13 @@
       "@lablup/ui-common/lab": ["./src/astryx/lab.ts"]
     }
   },
-  "include": ["src", "vite.config.ts", ".storybook", "astryx/templates"],
+  "include": [
+    "src",
+    "vite.config.ts",
+    "vitest.visual.config.ts",
+    "test/visual",
+    ".storybook",
+    "astryx/templates"
+  ],
   "exclude": ["dist", "node_modules", "fixture"]
 }

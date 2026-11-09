@@ -18,6 +18,10 @@ const config: StorybookConfig = {
       builder: { viteConfigPath: ".storybook/vite.config.ts" },
     },
   },
+  // The visual tests must not depend on what a CDN serves today, so they
+  // render with the pinned container's own fonts.
+  previewHead: (head) =>
+    process.env.UI_COMMON_VISUAL_TEST ? head.replace(/<link\b[^>]*>/g, "") : head,
   docs: {
     defaultName: "Documentation",
   },

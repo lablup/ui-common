@@ -11,3 +11,6 @@ fixture/pnpm-lock.yaml
 storybook-static/
 *storybook.log
 fixture/src/templates/
+
+# Visual test output; the baselines under test/visual/__screenshots__ are committed.
+.vitest-attachments/
