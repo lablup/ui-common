@@ -112,6 +112,26 @@ describe("IconWithTooltip", () => {
     await userEvent.hover(screen.getByRole("button", { name: "Hint text" }));
     expect(await screen.findByRole("tooltip")).toHaveTextContent("Hint text");
   });
+
+  it("shows the tooltip on hover when not focusable", async () => {
+    render(
+      <IconWithTooltip icon={glyph} content="Hint text" delay={0} focusable={false} />,
+    );
+    await userEvent.hover(screen.getByTestId("glyph"));
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Hint text");
+  });
+
+  it("keeps a non-focusable trigger's tooltip outside its aria-hidden span, so assistive tech can reach it", async () => {
+    // Fails if Astryx ever renders the popover inside the trigger.
+    const { container } = render(
+      <IconWithTooltip icon={glyph} content="Hint text" delay={0} focusable={false} />,
+    );
+    const trigger = container.querySelector(".uic-icon-with-tooltip");
+    await userEvent.hover(screen.getByTestId("glyph"));
+    const tooltip = await screen.findByRole("tooltip", { hidden: true });
+    expect(trigger?.contains(tooltip)).toBe(false);
+    expect(tooltip.closest('[aria-hidden="true"]')).toBeNull();
+  });
 });
 
 describe("nodeToAccessibleLabel", () => {
