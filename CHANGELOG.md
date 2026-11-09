@@ -71,6 +71,17 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   order, and one that moves there gets an offset for it in `onItemsChange`.
   Pass `columnBreakpoints` to keep 6 as the limit.
 
+### Fixed
+
+- **`IconWithTooltip` with `focusable={false}` no longer renames the control
+  it sits in** (#154). The trigger was a `<span aria-label>` holding the
+  tooltip's text, so a button, radio or option around it took that text into
+  its name (`Serving Deployments with…` instead of `Serving`); `aria-label` on
+  a span with no role is also not allowed by ARIA. The span is now
+  `aria-hidden`, and the enclosing control owns the name. To have the hint
+  announced, point the control's `aria-describedby` at your own text. The
+  focusable trigger is unchanged: a button named by the tooltip's text.
+
 ## [0.2.0-alpha.21]
 
 Astryx 0.7.3 → 0.7.7 (`@astryxdesign/lab` 0.7.7-canary.273ec43). Astryx's

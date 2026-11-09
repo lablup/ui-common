@@ -45,8 +45,52 @@ describe("IconWithTooltip", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
     const trigger = container.querySelector(".uic-icon-with-tooltip");
     expect(trigger?.tagName).toBe("SPAN");
-    expect(trigger).toHaveAttribute("aria-label", "Hint");
+    expect(trigger).toHaveAttribute("aria-hidden", "true");
+    expect(trigger).not.toHaveAttribute("aria-label");
     expect(trigger).not.toHaveClass("uic-icon-with-tooltip--button");
+  });
+
+  it("leaves the name of an enclosing control to that control when not focusable", () => {
+    render(
+      <>
+        <button type="button">
+          Serving{" "}
+          <IconWithTooltip
+            icon={glyph}
+            content="Deployments with Desired Replicas set to 1 or more"
+            focusable={false}
+          />
+        </button>
+        <label>
+          <input type="radio" name="status" />
+          Stopped{" "}
+          <IconWithTooltip
+            icon={glyph}
+            content="No replicas wanted"
+            focusable={false}
+          />
+        </label>
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "Serving" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Stopped" })).toBeInTheDocument();
+  });
+
+  it("names a focusable trigger by the tooltip text, apart from its neighbour", () => {
+    render(
+      <>
+        <span>Serving</span>
+        <IconWithTooltip
+          icon={glyph}
+          content="Deployments with Desired Replicas set to 1 or more"
+        />
+      </>,
+    );
+    expect(
+      screen.getByRole("button", {
+        name: "Deployments with Desired Replicas set to 1 or more",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("puts className and style on the trigger", () => {

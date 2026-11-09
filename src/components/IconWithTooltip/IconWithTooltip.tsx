@@ -7,7 +7,9 @@
  *
  * `focusable={false}` renders a plain `<span>` instead (hover only), for use
  * inside another interactive element such as a link or an option, where a
- * nested button is invalid.
+ * nested button is invalid. That span is `aria-hidden`: the enclosing control
+ * owns the accessible name, so the hint never joins it. A consumer that needs
+ * the hint announced wires its own `aria-describedby`.
  *
  * @example
  * <IconWithTooltip icon={<CircleHelp />} content="Counts only running sessions." />
@@ -27,7 +29,9 @@ export interface IconWithTooltipProps extends Omit<
   icon: ReactNode;
   /**
    * `false` renders the trigger as a plain `<span>` (hover only) instead of a
-   * focusable `<button>`. @default true
+   * focusable `<button>`, hidden from assistive tech so the enclosing control
+   * keeps its own name; wire your own `aria-describedby` to announce the hint.
+   * @default true
    */
   focusable?: boolean;
   /** Extra class names on the trigger. */
@@ -43,7 +47,6 @@ export function IconWithTooltip({
   className,
   ...tooltipProps
 }: IconWithTooltipProps) {
-  const label = nodeToAccessibleLabel(tooltipProps.content) || undefined;
   const iconNode = (
     <Text color="placeholder" className="uic-icon-with-tooltip__icon">
       {icon}
@@ -57,14 +60,14 @@ export function IconWithTooltip({
       {focusable ? (
         <button
           type="button"
-          aria-label={label}
+          aria-label={nodeToAccessibleLabel(tooltipProps.content) || undefined}
           className={triggerClassName("uic-icon-with-tooltip--button")}
           style={style}
         >
           {iconNode}
         </button>
       ) : (
-        <span aria-label={label} className={triggerClassName("")} style={style}>
+        <span aria-hidden="true" className={triggerClassName("")} style={style}>
           {iconNode}
         </span>
       )}

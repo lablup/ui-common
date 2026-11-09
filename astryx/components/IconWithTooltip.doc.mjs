@@ -24,7 +24,7 @@ export default {
       name: "focusable",
       type: "boolean",
       description:
-        "false renders a plain span (hover only), for use inside a link or an option.",
+        "false renders a plain span (hover only), for use inside a link, a button or an option. The span is aria-hidden: the enclosing control owns the accessible name; wire your own aria-describedby to announce the hint.",
       default: "true",
     },
     {
