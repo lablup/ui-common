@@ -40,6 +40,20 @@ export const NotFocusable: Story = {
   args: { focusable: false },
 };
 
+export const DescribesEnclosingButton: Story = {
+  render: (args) => (
+    <button type="button">
+      Serving{" "}
+      <IconWithTooltip
+        {...args}
+        content="Deployments with Desired Replicas set to 1 or more"
+        focusable={false}
+        announceAs="description"
+      />
+    </button>
+  ),
+};
+
 export const RichContent: Story = {
   args: {
     icon: <Info size={16} />,

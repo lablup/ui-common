@@ -8,15 +8,21 @@
  * `focusable={false}` renders a plain `<span>` instead (hover only), for use
  * inside another interactive element such as a link or an option, where a
  * nested button is invalid. That span is `aria-hidden`: the enclosing control
- * owns the accessible name, so the hint never joins it. A consumer that needs
- * the hint announced wires its own `aria-describedby`. When the icon carries
- * information rather than a hint (a role mark in an option), `isContentInName`
- * adds the tooltip's text, visually hidden, to the enclosing control's name.
+ * owns the accessible name, so the hint never joins it. `announceAs`
+ * hands the tooltip's text to that control instead: as its description (a
+ * help icon) or as part of its name (a role mark).
  *
  * @example
  * <IconWithTooltip icon={<CircleHelp />} content="Counts only running sessions." />
  */
-import type { CSSProperties, ReactNode } from "react";
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { Text } from "@astryxdesign/core/Text";
 import { Tooltip, type TooltipProps } from "@astryxdesign/core/Tooltip";
 import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden";
@@ -33,45 +39,164 @@ export interface IconWithTooltipProps extends Omit<
   /**
    * `false` renders the trigger as a plain `<span>` (hover only) instead of a
    * focusable `<button>`, hidden from assistive tech so the enclosing control
-   * keeps its own name; wire your own `aria-describedby` to announce the hint.
+   * keeps its own name; `announceAs` says where the tooltip's text goes.
    * @default true
    */
   focusable?: boolean;
   /**
-   * With `focusable={false}`, adds the tooltip's text as visually hidden text
-   * beside the trigger, so it joins the enclosing control's accessible name
-   * (an option named `frontend-default Project Admin`). For an icon that
-   * carries information, not a hint. No effect on a focusable trigger, which
-   * the tooltip's text already names.
-   * @default false
+   * Where a `focusable={false}` trigger's tooltip text reaches assistive tech:
+   *
+   * - `'none'`: nowhere; the text is shown on hover only.
+   * - `'description'`: wires the text into the `aria-describedby` of the
+   *   nearest enclosing control (a button, link, input, or an element with a
+   *   widget role or `tabindex`), so it becomes that control's accessible
+   *   description. For a help icon: a
+   *   segment `Serving` with
+   *   `<IconWithTooltip icon={<CircleHelp />} content="Desired Replicas ≥ 1" focusable={false} announceAs="description" />`
+   *   is named "Serving" and described "Desired Replicas ≥ 1". With no
+   *   enclosing control it does nothing.
+   * - `'name'`: adds the text, visually hidden, to the enclosing control's
+   *   accessible name.
+   *   For an icon that carries information: an option holding
+   *   `<IconWithTooltip icon={<Shield />} content="Project Admin" focusable={false} announceAs="name" />`
+   *   is named "frontend-default Project Admin".
+   *
+   * No effect on a focusable trigger, which the tooltip's text already names.
+   * @default 'none'
    */
-  isContentInName?: boolean;
+  announceAs?: "none" | "name" | "description";
   /** Extra class names on the trigger. */
   className?: string;
   /** Inline styles on the trigger. */
   style?: CSSProperties;
 }
 
+/** What `announceAs="description"` looks for around the trigger. */
+const ENCLOSING_CONTROL = [
+  "button",
+  "a[href]",
+  "input",
+  "select",
+  "textarea",
+  "summary",
+  // A focus-managed container (a dialog, a scroller) carries tabindex="-1".
+  '[tabindex]:not([tabindex="-1"])',
+  ...[
+    "button",
+    "link",
+    "radio",
+    "option",
+    "tab",
+    "menuitem",
+    "menuitemradio",
+    "menuitemcheckbox",
+    "checkbox",
+    "switch",
+    "treeitem",
+  ].map((role) => `[role="${role}"]`),
+].join(", ");
+
+function hasToken(el: Element, id: string) {
+  return (el.getAttribute("aria-describedby") ?? "").split(/\s+/).includes(id);
+}
+
+function addToken(el: Element, id: string) {
+  if (hasToken(el, id)) return;
+  const existing = el.getAttribute("aria-describedby");
+  el.setAttribute("aria-describedby", [existing, id].filter(Boolean).join(" "));
+}
+
+function removeToken(el: Element, id: string) {
+  const rest = (el.getAttribute("aria-describedby") ?? "")
+    .split(/\s+/)
+    .filter((token) => token && token !== id);
+  if (rest.length) el.setAttribute("aria-describedby", rest.join(" "));
+  else el.removeAttribute("aria-describedby");
+}
+
+interface DescribedLink {
+  target: Element;
+  observer: MutationObserver;
+}
+
+function attach(target: Element, id: string): DescribedLink {
+  addToken(target, id);
+  // React rewrites the attribute when the control's own aria-describedby
+  // prop changes; put the id back.
+  const observer = new MutationObserver(() => addToken(target, id));
+  observer.observe(target, { attributes: true, attributeFilter: ["aria-describedby"] });
+  return { target, observer };
+}
+
+function detach(link: DescribedLink | null, id: string) {
+  if (!link) return;
+  link.observer.disconnect();
+  removeToken(link.target, id);
+}
+
+/**
+ * Adds `id` to the `aria-describedby` of the control enclosing `triggerRef`
+ * while `isActive`, and keeps it there.
+ */
+function useDescribeEnclosingControl(
+  triggerRef: RefObject<HTMLElement | null>,
+  id: string,
+  isActive: boolean,
+) {
+  const linkRef = useRef<DescribedLink | null>(null);
+  // Every render: the control may have moved, or React may have just
+  // rewritten its aria-describedby.
+  useLayoutEffect(() => {
+    const target =
+      (isActive && triggerRef.current?.parentElement?.closest(ENCLOSING_CONTROL)) ||
+      null;
+    const link = linkRef.current;
+    if (link?.target === target) {
+      if (target) addToken(target, id);
+      return;
+    }
+    detach(link, id);
+    linkRef.current = target ? attach(target, id) : null;
+  });
+  useLayoutEffect(
+    () => () => {
+      detach(linkRef.current, id);
+      linkRef.current = null;
+    },
+    [id],
+  );
+}
+
 export function IconWithTooltip({
   icon,
   focusable = true,
-  isContentInName = false,
+  announceAs = "none",
   style,
   className,
   ...tooltipProps
 }: IconWithTooltipProps) {
+  const descriptionId = useId();
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const mode = focusable ? "none" : announceAs;
+  const contentText =
+    mode === "none" ? "" : nodeToAccessibleLabel(tooltipProps.content);
+  useDescribeEnclosingControl(
+    triggerRef,
+    descriptionId,
+    mode === "description" && contentText !== "",
+  );
+
   const iconNode = (
     <Text color="placeholder" className="uic-icon-with-tooltip__icon">
       {icon}
     </Text>
   );
-  const nameText =
-    !focusable && isContentInName ? nodeToAccessibleLabel(tooltipProps.content) : "";
   const triggerClassName = (base: string) =>
     ["uic-icon-with-tooltip", base, className].filter(Boolean).join(" ");
 
-  // The hidden text sits outside the Tooltip: its wrapper anchors on its first
-  // child, and the popover is a sibling of that wrapper.
+  // The text sits outside the Tooltip: its wrapper anchors on its first child,
+  // and the popover is a sibling of that wrapper. `hidden` keeps the
+  // description out of the control's name; aria-describedby still reads it.
   return (
     <>
       <Tooltip {...tooltipProps}>
@@ -85,12 +210,24 @@ export function IconWithTooltip({
             {iconNode}
           </button>
         ) : (
-          <span aria-hidden="true" className={triggerClassName("")} style={style}>
+          <span
+            ref={triggerRef}
+            aria-hidden="true"
+            className={triggerClassName("")}
+            style={style}
+          >
             {iconNode}
           </span>
         )}
       </Tooltip>
-      {nameText ? <VisuallyHidden>{nameText}</VisuallyHidden> : null}
+      {contentText && mode === "name" ? (
+        <VisuallyHidden>{contentText}</VisuallyHidden>
+      ) : null}
+      {contentText && mode === "description" ? (
+        <span id={descriptionId} hidden>
+          {contentText}
+        </span>
+      ) : null}
     </>
   );
 }

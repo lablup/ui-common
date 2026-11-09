@@ -24,15 +24,15 @@ export default {
       name: "focusable",
       type: "boolean",
       description:
-        "false renders a plain span (hover only), for use inside a link, a button or an option. The span is aria-hidden: the enclosing control owns the accessible name; wire your own aria-describedby to announce the hint.",
+        "false renders a plain span (hover only), for use inside a link, a button or an option. The span is aria-hidden: the enclosing control owns the accessible name; announceAs says where the tooltip's text goes.",
       default: "true",
     },
     {
-      name: "isContentInName",
-      type: "boolean",
+      name: "announceAs",
+      type: "'none' | 'name' | 'description'",
       description:
-        "With focusable={false}, adds the tooltip's text as visually hidden text beside the trigger, so it joins the enclosing control's name (an option named \"frontend-default Project Admin\"). For an icon that carries information, not a hint. No effect on a focusable trigger.",
-      default: "false",
+        "Where a focusable={false} trigger's tooltip text reaches assistive tech. 'none': nowhere. 'description': wires the text into the aria-describedby of the nearest enclosing control (a button, link, input, or an element with a widget role or tabindex), so it becomes that control's accessible description, for a help icon in a segment or a button; nothing happens with no enclosing control. 'name': adds the text, visually hidden, to the enclosing control's accessible name, for an icon that carries information (an option named \"frontend-default Project Admin\"). No effect on a focusable trigger, which the tooltip's text already names.",
+      default: "'none'",
     },
     {
       name: "className",
@@ -61,8 +61,12 @@ export default {
       code: '<IconWithTooltip icon={<CircleHelp />} content="Counts running sessions only." />',
     },
     {
-      label: "Role mark inside an option",
-      code: '<IconWithTooltip icon={<Shield />} content="Project Admin" focusable={false} isContentInName />',
+      label: "Help icon inside a segment, read as its description",
+      code: '<SegmentedControlItem value="serving" label={<>Serving <IconWithTooltip icon={<CircleHelp />} content="Desired Replicas set to 1 or more" focusable={false} announceAs="description" /></>} />',
+    },
+    {
+      label: "Role mark inside an option, read as part of its name",
+      code: '<IconWithTooltip icon={<Shield />} content="Project Admin" focusable={false} announceAs="name" />',
     },
   ],
 };

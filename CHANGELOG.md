@@ -7,12 +7,16 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
-- **`IconWithTooltip`**: `isContentInName`, for a `focusable={false}` icon
-  that carries information rather than a hint (a role mark in an option).
-  It adds the tooltip's text, visually hidden, beside the `aria-hidden`
-  trigger, so the enclosing control is named `frontend-default Project Admin`
-  without the consumer adding its own hidden text. Off by default; no effect
-  on a focusable trigger, which the tooltip's text already names.
+- **`IconWithTooltip`**: `announceAs`, default `'none'`, says where a
+  `focusable={false}` trigger's tooltip text reaches assistive tech.
+  `'description'` wires it into the `aria-describedby` of the nearest
+  enclosing control (a button, link, input, or an element with a widget role
+  or `tabindex`), keeping that control's own tokens and putting the id back
+  when React rewrites the attribute, so a segment reads "Serving" described
+  by its help text. `'name'` adds it, visually hidden, to the enclosing
+  control's accessible name, for an icon that carries information (an option
+  named `frontend-default Project Admin`). No effect on a focusable trigger,
+  which the tooltip's text already names.
 - **`Selector`**: `onOpenChange(isOpen)`, as `MultiSelector` takes it, called
   whenever the panel opens or closes, however it happened (the trigger, the
   keyboard, a light dismiss, Escape, choosing an option). Astryx's `Selector`
@@ -85,7 +89,7 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   its name (`Serving Deployments with…` instead of `Serving`); `aria-label` on
   a span with no role is also not allowed by ARIA. The span is now
   `aria-hidden`, and the enclosing control owns the name. To have the hint
-  announced, point the control's `aria-describedby` at your own text. The
+  announced, pass `announceAs="description"` (Added, above). The
   focusable trigger is unchanged: a button named by the tooltip's text.
 
 ## [0.2.0-alpha.21]
