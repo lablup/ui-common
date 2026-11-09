@@ -7,6 +7,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
+- **`Selector`**: `onOpenChange(isOpen)`, as `MultiSelector` takes it, called
+  whenever the panel opens or closes, however it happened (the trigger, the
+  keyboard, a light dismiss, Escape, choosing an option). Astryx's `Selector`
+  has no such prop; the `Form.Item` wrapper follows the trigger's
+  `aria-expanded`, so no fork of Astryx's component is needed.
 - **`DateTimeRangeInput`**: a start and an end, each a date and (with
   `showTime`) a time to the minute, modeled on Ant Design's `RangePicker`.
   Astryx's `DateRangeInput` picks dates only and `DateTimeInput` one date and
