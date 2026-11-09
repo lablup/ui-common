@@ -7,6 +7,12 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
+- **`IconWithTooltip`**: `isContentInName`, for a `focusable={false}` icon
+  that carries information rather than a hint (a role mark in an option).
+  It adds the tooltip's text, visually hidden, beside the `aria-hidden`
+  trigger, so the enclosing control is named `frontend-default Project Admin`
+  without the consumer adding its own hidden text. Off by default; no effect
+  on a focusable trigger, which the tooltip's text already names.
 - **`Selector`**: `onOpenChange(isOpen)`, as `MultiSelector` takes it, called
   whenever the panel opens or closes, however it happened (the trigger, the
   keyboard, a light dismiss, Escape, choosing an option). Astryx's `Selector`

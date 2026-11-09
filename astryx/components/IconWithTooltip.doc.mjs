@@ -28,6 +28,13 @@ export default {
       default: "true",
     },
     {
+      name: "isContentInName",
+      type: "boolean",
+      description:
+        "With focusable={false}, adds the tooltip's text as visually hidden text beside the trigger, so it joins the enclosing control's name (an option named \"frontend-default Project Admin\"). For an icon that carries information, not a hint. No effect on a focusable trigger.",
+      default: "false",
+    },
+    {
       name: "className",
       type: "string",
       description: "Extra class names on the trigger.",
@@ -52,6 +59,10 @@ export default {
     {
       label: "Help glyph",
       code: '<IconWithTooltip icon={<CircleHelp />} content="Counts running sessions only." />',
+    },
+    {
+      label: "Role mark inside an option",
+      code: '<IconWithTooltip icon={<Shield />} content="Project Admin" focusable={false} isContentInName />',
     },
   ],
 };

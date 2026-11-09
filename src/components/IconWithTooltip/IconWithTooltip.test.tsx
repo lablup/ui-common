@@ -76,6 +76,69 @@ describe("IconWithTooltip", () => {
     expect(screen.getByRole("radio", { name: "Stopped" })).toBeInTheDocument();
   });
 
+  it("adds the tooltip text to the enclosing control's name with isContentInName", async () => {
+    const { container } = render(
+      <div role="listbox" aria-label="Projects">
+        <div role="option" aria-selected="false">
+          frontend-default{" "}
+          <IconWithTooltip
+            icon={glyph}
+            content="Project Admin"
+            delay={0}
+            focusable={false}
+            isContentInName
+          />
+        </div>
+      </div>,
+    );
+    const option = screen.getByRole("option", {
+      name: "frontend-default Project Admin",
+    });
+    expect(option).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+
+    const trigger = container.querySelector(".uic-icon-with-tooltip");
+    expect(trigger).toHaveAttribute("aria-hidden", "true");
+    expect(trigger).not.toHaveAttribute("aria-label");
+
+    await userEvent.hover(screen.getByTestId("glyph"));
+    const tooltip = await screen.findByRole("tooltip");
+    expect(tooltip).toHaveTextContent("Project Admin");
+    expect(trigger?.contains(tooltip)).toBe(false);
+    // The tooltip stays anchored on the icon, not on the hidden text.
+    expect(trigger).toHaveAttribute("aria-describedby", tooltip.id);
+  });
+
+  it("names a button around a non-focusable trigger with isContentInName", () => {
+    render(
+      <button type="button">
+        Name{" "}
+        <IconWithTooltip
+          icon={glyph}
+          content={
+            <>
+              Project <strong>Admin</strong>
+            </>
+          }
+          focusable={false}
+          isContentInName
+        />
+      </button>,
+    );
+    expect(
+      screen.getByRole("button", { name: "Name Project Admin" }),
+    ).toBeInTheDocument();
+  });
+
+  it("ignores isContentInName on a focusable trigger", () => {
+    render(<IconWithTooltip icon={glyph} content="Hint" isContentInName />);
+    expect(screen.getByRole("button", { name: "Hint" })).toBeInTheDocument();
+    // The only "Hint" text is the tooltip's own; no hidden copy is added.
+    const texts = screen.getAllByText("Hint");
+    expect(texts).toHaveLength(1);
+    expect(texts[0]?.closest('[role="tooltip"]')).not.toBeNull();
+  });
+
   it("names a focusable trigger by the tooltip text, apart from its neighbour", () => {
     render(
       <>

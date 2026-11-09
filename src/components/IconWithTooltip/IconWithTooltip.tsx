@@ -9,7 +9,9 @@
  * inside another interactive element such as a link or an option, where a
  * nested button is invalid. That span is `aria-hidden`: the enclosing control
  * owns the accessible name, so the hint never joins it. A consumer that needs
- * the hint announced wires its own `aria-describedby`.
+ * the hint announced wires its own `aria-describedby`. When the icon carries
+ * information rather than a hint (a role mark in an option), `isContentInName`
+ * adds the tooltip's text, visually hidden, to the enclosing control's name.
  *
  * @example
  * <IconWithTooltip icon={<CircleHelp />} content="Counts only running sessions." />
@@ -17,6 +19,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Text } from "@astryxdesign/core/Text";
 import { Tooltip, type TooltipProps } from "@astryxdesign/core/Tooltip";
+import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden";
 
 import { nodeToAccessibleLabel } from "./accessibleLabel";
 import "./IconWithTooltip.css";
@@ -34,6 +37,15 @@ export interface IconWithTooltipProps extends Omit<
    * @default true
    */
   focusable?: boolean;
+  /**
+   * With `focusable={false}`, adds the tooltip's text as visually hidden text
+   * beside the trigger, so it joins the enclosing control's accessible name
+   * (an option named `frontend-default Project Admin`). For an icon that
+   * carries information, not a hint. No effect on a focusable trigger, which
+   * the tooltip's text already names.
+   * @default false
+   */
+  isContentInName?: boolean;
   /** Extra class names on the trigger. */
   className?: string;
   /** Inline styles on the trigger. */
@@ -43,6 +55,7 @@ export interface IconWithTooltipProps extends Omit<
 export function IconWithTooltip({
   icon,
   focusable = true,
+  isContentInName = false,
   style,
   className,
   ...tooltipProps
@@ -52,26 +65,33 @@ export function IconWithTooltip({
       {icon}
     </Text>
   );
+  const nameText =
+    !focusable && isContentInName ? nodeToAccessibleLabel(tooltipProps.content) : "";
   const triggerClassName = (base: string) =>
     ["uic-icon-with-tooltip", base, className].filter(Boolean).join(" ");
 
+  // The hidden text sits outside the Tooltip: its wrapper anchors on its first
+  // child, and the popover is a sibling of that wrapper.
   return (
-    <Tooltip {...tooltipProps}>
-      {focusable ? (
-        <button
-          type="button"
-          aria-label={nodeToAccessibleLabel(tooltipProps.content) || undefined}
-          className={triggerClassName("uic-icon-with-tooltip--button")}
-          style={style}
-        >
-          {iconNode}
-        </button>
-      ) : (
-        <span aria-hidden="true" className={triggerClassName("")} style={style}>
-          {iconNode}
-        </span>
-      )}
-    </Tooltip>
+    <>
+      <Tooltip {...tooltipProps}>
+        {focusable ? (
+          <button
+            type="button"
+            aria-label={nodeToAccessibleLabel(tooltipProps.content) || undefined}
+            className={triggerClassName("uic-icon-with-tooltip--button")}
+            style={style}
+          >
+            {iconNode}
+          </button>
+        ) : (
+          <span aria-hidden="true" className={triggerClassName("")} style={style}>
+            {iconNode}
+          </span>
+        )}
+      </Tooltip>
+      {nameText ? <VisuallyHidden>{nameText}</VisuallyHidden> : null}
+    </>
   );
 }
 
