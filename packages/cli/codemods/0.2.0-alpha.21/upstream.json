@@ -2,17 +2,22 @@
   "$comment": "Written by `ui-common sync-astryx`. Astryx codemods consumers need when they upgrade across this ui-common version; `ui-common upgrade` runs them with @lablup/ui-common specifiers swapped for Astryx's, and moves the consumer's lab pin and core override.",
   "astryx": {
     "from": "0.7.3",
-    "to": "0.7.7"
+    "to": "0.7.11"
   },
   "lab": {
     "from": "0.7.3-canary.cac3d8d",
-    "to": "0.7.7-canary.273ec43"
+    "to": "0.7.11-canary.d810271"
   },
   "codemods": [
     {
       "id": "migrate-codeblock-tokenizer-to-language",
       "version": "0.7.5",
       "title": "Migrate CodeBlock tokenizer to a custom language"
+    },
+    {
+      "id": "promote-tokenizer-presentation",
+      "version": "0.7.8",
+      "title": "Move Tokenizer's removed experimental presentation to presentation"
     }
   ],
   "optional": []

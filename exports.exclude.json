@@ -160,10 +160,5 @@
     "name": "internal/touch",
     "replacedBy": null,
     "reason": "Astryx's internal entry for its own packages (lab imports it), outside Astryx's public API and compatibility promise; consumers never import it."
-  },
-  {
-    "name": "internal/touch-sheet",
-    "replacedBy": null,
-    "reason": "Astryx's internal entry for its own packages (lab imports it), outside Astryx's public API and compatibility promise; consumers never import it."
   }
 ]

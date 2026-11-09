@@ -131,7 +131,7 @@ function renderItem(
   return render(<Harness />);
 }
 
-describe.each(CASES)("%s in Form.Item", (_, control, selector) => {
+describe.each(CASES)("%s in Form.Item", (name, control, selector) => {
   const find = (container: HTMLElement) =>
     container.querySelector<HTMLElement>(selector)!;
 
@@ -154,23 +154,29 @@ describe.each(CASES)("%s in Form.Item", (_, control, selector) => {
     expect(invalid).not.toBeNull();
   });
 
-  it("announces required without Astryx's Required marker", () => {
-    const { container } = renderItem(control, { required: true });
-    // A button (FileInput's and DateRangeInput's triggers) cannot carry
-    // aria-required, so Astryx describes it with a visually hidden "Required"
-    // instead; that one stays.
-    const announced =
-      container.querySelector('[aria-required="true"], [required]') !== null ||
-      /Required/.test(
-        (find(container).getAttribute("aria-describedby") ?? "")
-          .split(" ")
-          .map((id) => document.getElementById(id)?.textContent ?? "")
-          .join(" "),
-      );
-    expect(announced).toBe(true);
-    // Astryx's marker is "∙ Required" in the label.
-    expect(screen.queryByText("∙", { exact: false })).toBeNull();
-  });
+  // Astryx 0.7.8 and later: a form's required default sets nothing on a
+  // CheckboxInput: an unchecked box is an answer. Only its own `isRequired`
+  // does, which also switches on the browser's native validation.
+  it.skipIf(name === "CheckboxInput")(
+    "announces required without Astryx's Required marker",
+    () => {
+      const { container } = renderItem(control, { required: true });
+      // A button (FileInput's and DateRangeInput's triggers) cannot carry
+      // aria-required, so Astryx describes it with a visually hidden "Required"
+      // instead; that one stays.
+      const announced =
+        container.querySelector('[aria-required="true"], [required]') !== null ||
+        /Required/.test(
+          (find(container).getAttribute("aria-describedby") ?? "")
+            .split(" ")
+            .map((id) => document.getElementById(id)?.textContent ?? "")
+            .join(" "),
+        );
+      expect(announced).toBe(true);
+      // Astryx's marker is "∙ Required" in the label.
+      expect(screen.queryByText("∙", { exact: false })).toBeNull();
+    },
+  );
 
   it("is disabled by <Form disabled>", () => {
     const { container } = renderItem(control, { disabled: true });

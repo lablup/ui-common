@@ -63,12 +63,18 @@ describe("NotificationStack", () => {
         ]}
       />,
     );
+    // Astryx 0.7.11 puts an alert's role on the Banner's message (title and
+    // description), not on its frame; another role stays on the frame.
     const roleOf = (key: string) =>
       document
         .querySelector(`[data-notification-key='${key}'] > [role]`)
         ?.getAttribute("role");
-    expect(roleOf("e")).toBe("alert");
-    expect(roleOf("w")).toBe("alert");
+    const hasAlert = (key: string) =>
+      document.querySelector(`[data-notification-key='${key}'] [role='alert']`) !==
+      null;
+    expect(hasAlert("e")).toBe(true);
+    expect(hasAlert("w")).toBe(true);
+    expect(roleOf("e")).toBeUndefined();
     expect(roleOf("s")).toBe("status");
     expect(roleOf("i")).toBe("status");
   });

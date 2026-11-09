@@ -1,24 +1,21 @@
 {
   "ComplexSelector": {
     "package": "@astryxdesign/core",
-    "version": "0.7.7",
+    "version": "0.7.11",
     "upstream": "https://github.com/facebook/astryx/pull/6362",
     "files": {
-      "src/ComplexSelector/ComplexSelector.tsx": "c6aef1a97e703e342ba29f855683ac0ed553437a96df5ad3571ca2b1c3c66371",
+      "src/ComplexSelector/ComplexSelector.tsx": "571b48604bb541b75be5c7c5977f3b6e02eed4cb0a75305ac46795603e6fe17b",
       "src/ComplexSelector/index.ts": "afba2b6a8d7b7e686cae84eb033c2ad4eafc8b48c8f30997022a1597d943b359",
-      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
-      "dist/ComplexSelector/ComplexSelector.js": "3fe03cc6b4d510ae66e39c465c3076d27836a65cd78e9139ce229e8a27863a50",
-      "dist/utils/interactionOverlay.stylex.js": "665bd08d1c2858df73257035bafbbaf45b03c74daf3ca2800c696046492f47d5",
+      "src/hooks/useResolvedRequired.ts": "626dce28ac1196af80121dd025837f75f53d6f1adaf1fa6e8206d17b536d3883",
+      "dist/ComplexSelector/ComplexSelector.js": "fca0d9a905a673cf8cd44fc9058db11b5d0b7dbb087b28700f25cee3a5e8091b",
+      "dist/utils/interactionOverlay.stylex.js": "e198c951ce6ecd01f304c1d67f3ea7493294faed7129db73da2566550f601d8b",
       "src/Field/fieldParts.ts": "67444f567388150535f53437f686d0c950a5360f2e9f15b0ff941f6f5ac74083",
-      "src/hooks/useBusyAnnouncement.ts": "3a2539c4fc41f8821bae43753a1f45f65d4c702d07b99df26d3f1fe3fd5c6cf0"
+      "src/hooks/useBusyAnnouncement.ts": "ad49bcccafe13863bbde5c936af92c4eee25d0c13491960bfb713c47d66e4af1"
     },
     "styles": {
       "file": "src/forks/ComplexSelector/ComplexSelector.styles.ts",
       "from": [
-        {
-          "file": "dist/ComplexSelector/ComplexSelector.js",
-          "consts": ["styles"]
-        },
+        { "file": "dist/ComplexSelector/ComplexSelector.js", "consts": ["styles"] },
         {
           "file": "dist/utils/interactionOverlay.stylex.js",
           "consts": ["interactionOverlayStyles"]
@@ -28,18 +25,18 @@
   },
   "Drawer": {
     "package": "@astryxdesign/core",
-    "version": "0.7.7",
+    "version": "0.7.11",
     "upstream": null,
     "notes": "Deliberate divergence beyond a fix: a scrimless drawer opens with show() and a z-index (base 1000, later drawers above) instead of upstream's manual popover (showPopover), because ui-common's Modal and notification stack are z-index surfaces a top-layer drawer would cover; aria-modal passes through; a scrimmed (modal) drawer provides its dialog through ModalPortalContext so ui-common's Modal opened inside renders there, in the top layer. Escape routing is upstream's. On an Astryx bump, keep these until ui-common's Modal and notification stack are top layer and Astryx passes aria-modal through. Since 0.7.7, core's private useModalOutlet (toast viewport hosted in an open modal drawer) and ModalAnnounceProvider (announcements from inside the modal drawer) are left out, as is LayerContentBoundary; the stateless helpers 0.7.7 added are inlined.",
     "files": {
-      "src/Drawer/Drawer.tsx": "33f0288d97a214b0597c0aebed2eef9f026877ca7afc453b5d6f60f8d612d03c",
-      "src/Drawer/useDrawerDialogPresence.ts": "7443cbd59d2e77e4599f60ca173425ea995d75d581e771eec4d206755d3aa567",
+      "src/Drawer/Drawer.tsx": "b0de61ae2337c7470793db5f5625b033b22a5e07382feddff8a140da33038083",
+      "src/Drawer/useDrawerDialogPresence.ts": "61bc2c3aae4d281c1a0a40def27314076fdabddf3abec8cb6bef9b7cdfbaebf4",
       "src/Drawer/index.ts": "9361a3abfdb99a10cae6473e3ad1095fb6845c695673d44ec4ac7f104d0533cd",
-      "dist/Drawer/Drawer.js": "f020f7b9a152b74f7a702a4b6958c6e2830648ec51964d754d8f5c896c561e71",
+      "dist/Drawer/Drawer.js": "bfdf06366c5a7d089ee6300702075a5328b1a893d778b79fcd371fba644f1c16",
       "dist/Layer/layerStructureReset.stylex.js": "c0699e4e2b709929d205dc171ff5d474b0b95865420f31c327855a993e277844",
       "src/hooks/useIsHydrating.ts": "61c0a3581a6fa2b8a40dc47e4b1343b4d75d54c854df27060e747662af7747c0",
       "src/hooks/useSettledOpen.ts": "d95838c17f12a86bec1090e2cc3cbd2bf8370d02a18a20ad5e49214b77bbf30c",
-      "src/Layer/useBackdropPress.ts": "9262ce43968c05be7b4609151f803252cd8532bb2d38692737ef392d0da532ec",
+      "src/Layer/useBackdropPress.ts": "16631bac61a53f9d01eca22f114be09966a86a41a0049dfd7475d9a8c3bb0c2a",
       "src/utils/chainEventHandlers.ts": "12375fe37071db75ab037fe6ed620b79a864553c8e452a3278bd7dfc14e41613",
       "src/Layer/layerClickBoundary.ts": "4cdce6e435c278b268fdd1870b57ab75d77db2249e0d6820108e5319a5f9ef28",
       "src/privateAttributes/layerRoot.stylex.ts": "3ae6eff027819e798e33ab3079928948866161b30489e512eacd5007aa52d13d"
@@ -60,7 +57,7 @@
   },
   "Tour": {
     "package": "@astryxdesign/lab",
-    "version": "0.7.7-canary.273ec43",
+    "version": "0.7.11-canary.d810271",
     "upstream": null,
     "files": {
       "src/Tour/Tour.tsx": "bc639d0d841ae518d00a871d1628f03c97e6813c08a625e4119e8068d7752d0c",
@@ -72,17 +69,12 @@
     },
     "styles": {
       "file": "src/forks/Tour/TourStep.styles.ts",
-      "from": [
-        {
-          "file": "dist/Tour/TourStep.js",
-          "consts": ["styles"]
-        }
-      ]
+      "from": [{ "file": "dist/Tour/TourStep.js", "consts": ["styles"] }]
     }
   },
   "Stat": {
     "package": "@astryxdesign/lab",
-    "version": "0.7.7-canary.273ec43",
+    "version": "0.7.11-canary.d810271",
     "upstream": null,
     "notes": "An addition, not a fix: deltaTooltip, a tooltip anchored to the delta that the delta takes keyboard focus for, with media outside it. Without deltaTooltip the markup is upstream's. On an Astryx bump, keep it until lab has a way to explain the delta.",
     "files": {
@@ -102,16 +94,15 @@
   },
   "Switch": {
     "package": "@astryxdesign/core",
-    "version": "0.7.7",
+    "version": "0.7.11",
     "upstream": null,
     "wrappedBy": "Switch",
     "files": {
-      "src/Switch/Switch.tsx": "2b75d518305559ca003b3cfabc7e1913f2a89bb3affd6558360f293e765c842e",
+      "src/Switch/Switch.tsx": "771925206b31f08dd068e08361a0f3da0b0d6c896cba63b2a87900d02162de6d",
       "src/Switch/index.ts": "b3e10a21443b08868eedcb4a26660145c16f7a06216e5e5bed85148c9d78168b",
-      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
-      "dist/Switch/Switch.js": "ef4fdeb4ff7c83eecea1812f1e884c1adcf4f0ce6d3b00c5afeb07543eaed9c8",
+      "dist/Switch/Switch.js": "3f4dc312267025e6391e20f045dbca67666c18471d85dfde0ab08fbd19cd8193",
       "dist/Switch/switch.markers.stylex.js": "46f763479368037c8da5ad3b5ec7fdc17d8e4414626b5d2e16220cd376fe9bba",
-      "dist/utils/interactionOverlay.stylex.js": "665bd08d1c2858df73257035bafbbaf45b03c74daf3ca2800c696046492f47d5",
+      "dist/utils/interactionOverlay.stylex.js": "e198c951ce6ecd01f304c1d67f3ea7493294faed7129db73da2566550f601d8b",
       "src/privateAttributes/pressHoldsDrag.stylex.ts": "7c2cfa1fe06a7f05f4136b1796355ac3bce483e5c7c2d7c7d8e1b3e73fcb5292"
     },
     "styles": {
@@ -144,17 +135,17 @@
   },
   "FileInput": {
     "package": "@astryxdesign/core",
-    "version": "0.7.7",
+    "version": "0.7.11",
     "upstream": null,
     "wrappedBy": "FileInput",
     "files": {
-      "src/FileInput/FileInput.tsx": "39858a1f20d744df8a3bb2fb4c5b024598457f4c2f2b85fa1f75f1c57da4155a",
+      "src/FileInput/FileInput.tsx": "d3799d45302ce73bd07767e23c9778b896d6512434ef6e6ecc01b059280be5cc",
       "src/FileInput/index.ts": "7b0a29d5e380a860c86919aa059e607e3bf3d36ebb67108670e8bf629145bedc",
       "src/Field/fieldParts.ts": "67444f567388150535f53437f686d0c950a5360f2e9f15b0ff941f6f5ac74083",
-      "dist/FileInput/FileInput.js": "50c0bc31855e81c03c1bfb9228acad9df9519fa0edd99a04bf3e09a048f1adbf",
-      "src/hooks/useResolvedRequired.ts": "1d66b83d89a343e57ad3d198f96b70ec64ba721503f0be2cdadecc7ec8b113c7",
+      "dist/FileInput/FileInput.js": "5ee1344b3619d2169f4fe6f70c29a63cdc644b64aae1ea88772e10543356dd18",
+      "src/hooks/useResolvedRequired.ts": "626dce28ac1196af80121dd025837f75f53d6f1adaf1fa6e8206d17b536d3883",
       "src/i18n/useListFormatter.ts": "496935def0603872d4ea71dff10f0fce98b361d44e2dbf3785bb0465d0f17698",
-      "src/hooks/useBusyAnnouncement.ts": "3a2539c4fc41f8821bae43753a1f45f65d4c702d07b99df26d3f1fe3fd5c6cf0"
+      "src/hooks/useBusyAnnouncement.ts": "ad49bcccafe13863bbde5c936af92c4eee25d0c13491960bfb713c47d66e4af1"
     },
     "styles": {
       "file": "src/forks/FileInput/FileInput.styles.ts",

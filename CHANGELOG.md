@@ -7,18 +7,26 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [0.2.0-alpha.21]
 
-Astryx 0.7.3 → 0.7.7 (`@astryxdesign/lab` 0.7.7-canary.273ec43). Astryx's
+Astryx 0.7.3 → 0.7.11 (`@astryxdesign/lab` 0.7.11-canary.d810271). Astryx's
 own release notes:
 https://github.com/facebook/astryx/releases/tag/v0.7.4,
 https://github.com/facebook/astryx/releases/tag/v0.7.5,
 https://github.com/facebook/astryx/releases/tag/v0.7.6,
-https://github.com/facebook/astryx/releases/tag/v0.7.7
+https://github.com/facebook/astryx/releases/tag/v0.7.7,
+https://github.com/facebook/astryx/releases/tag/v0.7.8,
+https://github.com/facebook/astryx/releases/tag/v0.7.9,
+https://github.com/facebook/astryx/releases/tag/v0.7.10,
+https://github.com/facebook/astryx/releases/tag/v0.7.11
 (`InfoTip` promoted to core, `CodeBlock` languages, stacking bottom sheets,
 `Popover` `presentation`, touch presentations for `Switch` and
 `SegmentedControl`, no backdrop blur behind modals, derived status colour
-roles). `ui-common upgrade --from 0.2.0-alpha.20` runs Astryx's one codemod
-for the span, `migrate-codeblock-tokenizer-to-language` (0.7.5), and moves the
-lab pin and its core override.
+roles; touch sheets for `Tokenizer` and `PowerSearch`, `usePanGesture`,
+`useSnapPaging`). `ui-common upgrade --from 0.2.0-alpha.20` runs Astryx's two
+codemods for the span, `migrate-codeblock-tokenizer-to-language` (0.7.5) and
+`promote-tokenizer-presentation` (0.7.8), and moves the lab pin and its core
+override. **Breaking:** Astryx 0.7.8 removes the lab `MobileTokenizer` and
+`MobilePowerSearch` (see Removed), and consumers set the `@astryxdesign/lab`
+core override to `0.7.11`.
 
 ### Added
 
@@ -32,8 +40,21 @@ lab pin and its core override.
   `ThemeMotionConfig`, `ThemeMotionKnobs`, `PopoverPresentation`,
   `SearchContext` and `UseAnnounceOptions`. New mirrored subpaths: `InfoTip`
   and `CodeBlock/languages/{dockerfile,graphql,java,lua,objective-c,powershell,ruby,thrift,toml}`.
-  New in `@lablup/ui-common/lab`: `MobilePowerSearch`, `MobilePowerSearchProps`.
-  No subpath or name was removed. `lab`'s `InfoTip` is now Astryx's deprecated
+  From Astryx 0.7.8 to 0.7.11, new root names `createAnimator`,
+  `useAnimator`, `Animator`, `AnimatorAnimateOptions`, `AnimatorChannel`,
+  `AnimatorDecayVelocity`, `AnimatorHandle`, `AnimatorSnapshot`,
+  `AnimatorValues`, `createPanGesture`, `usePanGesture`, `PanGesture`,
+  `PanGestureEvent`, `PanGestureOptions`, `PanGestureState`,
+  `createDragToSnapPoints`, `useDragToSnapPoints`, `DragToSnapPoints`,
+  `DragToSnapPointsOptions`, `UseDragToSnapPointsResult`, `useSnapPaging`,
+  `SnapPaging`, `SnapPagingOptions`, `CalendarSystem`, `ComponentIconMap`,
+  `ComponentIconRequest`, `ComponentIconSlotMap`, `ComponentIconSlotName`,
+  `ComponentIconStaticMap`, `ComponentIconValue`, `PowerSearchPresentation`
+  and `TokenizerPresentation`, and the subpath `SnapPaging`. New in
+  `@lablup/ui-common/lab`: `CircleCheckIndicator`, `NavigationScreen`,
+  `NavigationStack`, `PageControl`, `SelectableCardGroup`,
+  `SelectableCardGroupItem`, `useNavigationStack`, `useRefreshControl`,
+  `REFRESH_REVEAL_VAR` and their props types. `lab`'s `InfoTip` is now Astryx's deprecated
   re-export of core's and leaves lab in Astryx's next minor: import it from
   `@lablup/ui-common/InfoTip` or the root.
 - `SegmentedControl` / `SegmentedControlItem` are Astryx's again under
@@ -220,25 +241,65 @@ lab pin and its core override.
   order, and one that moves there gets an offset for it in `onItemsChange`.
   Pass `columnBreakpoints` to keep 6 as the limit.
 
+- **Astryx 0.7.8 to 0.7.11** (see the heading above for the notes). What a
+  consumer can see:
+  - `Tokenizer` and `PowerSearch` take `presentation` (`'popover'`,
+    `'bottom-sheet'` or `'adaptive'`, the default `'adaptive'`), stable and
+    typed `TokenizerPresentation` and `PowerSearchPresentation`. On a compact
+    coarse-pointer screen (a phone) the default now opens a bottom sheet
+    where it opened the popover; pass `presentation="popover"` to keep that.
+    The 0.7.7 spelling `experimental={{ presentation }}` on `Tokenizer` is no
+    longer read: `ui-common upgrade` rewrites it (`promote-tokenizer-presentation`)
+    and leaves a `TODO(ui-common-upgrade)` where it cannot prove the rewrite,
+    for example a Tokenizer that spreads props.
+  - `Calendar` weekday headers show abbreviated names where all seven fit in
+    four characters: English reads `Sun Mon Tue`, not `Su Mo Tu` (and the
+    date popovers that render `Calendar` follow). A test that reads the
+    headers needs the new text.
+  - `Banner` puts `role="alert"` on its title and description, not on the
+    whole banner, so `NotificationStack` marks an error or warning notice
+    there; other roles stay on the banner. A test that finds the alert as the
+    notice's direct child looks one level down.
+  - `CheckboxInput` and `Switch` no longer announce a required state from a
+    form default (`FormLayout defaultOptionality="required"`): an unchecked box
+    or an off switch is an answer. Only their own `isRequired` sets
+    `aria-required`, and with it the native `required`. A `Form.Item` with a
+    required rule around a `CheckboxInput` therefore no longer carries
+    `aria-required` on the control; set `isRequired` on it where the
+    announcement matters.
+  - A labelled `Icon` is exposed as an image with its `label`; drop the label
+    when a parent already names the icon. A press's release fades on the
+    theme's exit motion tokens, and a finger gets larger hit areas for
+    buttons, checkboxes, radios, switches and list rows.
+  - The forks follow: `ComplexSelector` returns focus to its trigger only when
+    it would otherwise be lost and puts a status icon where the chevron was,
+    `FileInput` shows the no-drop cursor while disabled, `Drawer`'s backdrop
+    press leaves a menu open above it to that menu, `Stat` and `Tour` are
+    upstream's files unchanged. The `Drawer` fork leaves out upstream's touch
+    entrance input hold (module state in core's `inputHold`), so a tap during
+    the slide-in reaches the drawer as before.
 - **Dependency refresh (development tooling and patch levels).** No
-  Astryx, React or StyleX peer range moved: Astryx stays on 0.7.7
-  (`@astryxdesign/lab` 0.7.7-canary.273ec43), the peers are unchanged, and
-  consumers override `@astryxdesign/core` to 0.7.7 as before. Runtime
+  React or StyleX peer range moved, and the `@astryxdesign/lab` peer is the
+  exact canary `0.7.11-canary.d810271`. Runtime
   dependencies: `lucide-react` ^1.18.0 to ^1.70.0 and `intl-messageformat`
   ^11.2.9 to ^11.2.15 (still 11.x). `@stylexjs/stylex` 0.19.1 is the version
   the library is built and tested against. Development only: `vitest` 5,
   `globals` 17, Storybook 10.6.6, `vite` 8.3, `typescript-eslint` 8.72,
   `prettier` 3.9, `sass`, `react` and `react-dom` 19.3.1 and the matching
   `@types`. The development tooling needs Node 22 or later (`vitest` 5);
-  the published packages still run on Node 20. Held back: Astryx 0.7.8 and
-  later (0.7.8 removes the lab `MobileTokenizer` and `MobilePowerSearch`,
-  which `@lablup/ui-common/lab` re-exports), `typescript` 7, `eslint` 10,
+  the published packages still run on Node 20. Held back: `typescript` 7, `eslint` 10,
   `jsdom` 31, `vite-plugin-dts` 5, `@testing-library/jest-dom` 7,
   `@types/node` 26 and `intl-messageformat` 12 (it needs TypeScript 5.4 in
   the consumer).
 
 ### Removed
 
+- **`MobileTokenizer`, `MobileTokenizerProps`, `MobileTokenizerChange`,
+  `MobilePowerSearch` and `MobilePowerSearchProps` from
+  `@lablup/ui-common/lab`**, because Astryx 0.7.8 removes them from
+  `@astryxdesign/lab`. Their touch flows are core's `Tokenizer` and
+  `PowerSearch` `presentation` sheets (`'adaptive'` by default); import those
+  from the root. `ui-common upgrade` does not rewrite these imports.
 - **`Board`'s `renderItem`**, with `BoardItemActions`, `removeItem`,
   `removedItem`, `liveAnnouncementItemRemoved` and the `uic.Board.itemRemoved`
   catalog key. An item is its `title` and `description`; removing one is the

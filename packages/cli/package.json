@@ -37,7 +37,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@astryxdesign/cli": "0.7.7",
+    "@astryxdesign/cli": "0.7.11",
     "jscodeshift": "^17.4.0",
     "postcss": "^8.5.32",
     "postcss-selector-parser": "^7.1.7"
