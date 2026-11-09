@@ -1,1 +1,0 @@
-import{n as e}from"./rolldown-runtime-DkW27tQK.js";import{t}from"./react-BZJXY1be.js";import{L as n,R as r}from"./iframe-BxooLIyH.js";function i(){return(0,a.use)(n).locale}var a;function o(){return(o=e((()=>{a=t(),r()})))()}export{i as n,o as t};
