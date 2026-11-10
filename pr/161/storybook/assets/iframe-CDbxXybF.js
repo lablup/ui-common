@@ -1,0 +1,1 @@
+import{t as e}from"./iframe-BoY8K-IZ.js";e();
