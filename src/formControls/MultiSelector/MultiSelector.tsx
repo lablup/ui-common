@@ -8,7 +8,7 @@
  *
  * `showTooltip` lists the selected labels in a tooltip on the trigger.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useState, type ReactNode } from "react";
 import {
   MultiSelector as AstryxMultiSelector,
   type MultiSelectorDivider,
@@ -110,41 +110,13 @@ export function MultiSelector<
     onChange,
     EMPTY_ARRAY,
   );
-  const triggerRef = useRef<HTMLElement | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      setIsOpen(open);
-      onOpenChange?.(open);
-    },
-    [onOpenChange],
-  );
-  // A disabled InputGroup disables the trigger through context Astryx does not
-  // export; the trigger's aria-disabled is where it shows (as Selector reads aria-expanded).
-  const [isTriggerDisabled, setIsTriggerDisabled] = useState(false);
-  useEffect(() => {
-    const trigger = triggerRef.current;
-    if (!showTooltip || !trigger) return;
-    const sync = () =>
-      setIsTriggerDisabled(trigger.getAttribute("aria-disabled") === "true");
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(trigger, { attributeFilter: ["aria-disabled"] });
-    return () => observer.disconnect();
-  }, [showTooltip]);
+  // Only with showTooltip: the trigger element (state, so the tooltip follows a
+  // replaced element) and the tooltip's id, which SelectionTooltip reports.
+  const [trigger, setTrigger] = useState<HTMLElement | null>(null);
+  const [tooltipId, setTooltipId] = useState<string>();
+  const triggerRefs = useMergedRefs<HTMLElement>(ref, setTrigger);
   const hasTooltip =
-    showTooltip &&
-    !!mergedValue?.length &&
-    !field.isDisabled &&
-    !isTriggerDisabled &&
-    !rest.renderTrigger;
-  // The hook, not <Tooltip anchorRef>: its id joins the trigger's
-  // aria-describedby prop instead of being written onto the element.
-  const tooltip = useTooltip({
-    isEnabled: hasTooltip,
-    isOpen: isOpen ? false : undefined,
-  });
-  const triggerRefs = useMergedRefs<HTMLElement>(ref, triggerRef, tooltip.ref);
+    showTooltip && !!mergedValue?.length && !field.isDisabled && !rest.renderTrigger;
   const reasoned = withOptionDisabledReason<T, AstryxMultiSelectorOptionData>({
     options,
     renderOption: rest.renderOption,
@@ -165,19 +137,80 @@ export function MultiSelector<
     value: mergedValue,
     onChange: handleChange,
     renderOption: reasoned.renderOption,
-    ref: triggerRefs,
-    onOpenChange: handleOpenChange,
-    "aria-describedby":
-      [rest["aria-describedby"], hasTooltip ? tooltip.describedBy : null]
+    ref: showTooltip ? triggerRefs : ref,
+    onOpenChange,
+    // React owns the attribute: the tooltip's id joins the caller's here.
+    ...(tooltipId && {
+      "aria-describedby": [rest["aria-describedby"], tooltipId]
         .filter(Boolean)
-        .join(" ") || undefined,
+        .join(" "),
+    }),
   } as unknown as AstryxProps;
   return (
     <FormControlScope required={required}>
       <AstryxMultiSelector {...props} />
-      {hasTooltip
-        ? tooltip.renderTooltip(selectedLabels(options, mergedValue ?? []))
-        : null}
+      {hasTooltip && trigger ? (
+        <SelectionTooltip
+          trigger={trigger}
+          content={selectedLabels(options, mergedValue ?? [])}
+          onDescribedBy={setTooltipId}
+        />
+      ) : null}
     </FormControlScope>
   );
+}
+
+/** What the tooltip needs from the trigger: disabled, and the listbox open. */
+const readTrigger = (trigger: HTMLElement) => ({
+  // A disabled InputGroup disables the trigger through context Astryx does not
+  // export; the trigger's aria-disabled is where it shows.
+  isDisabled: trigger.getAttribute("aria-disabled") === "true",
+  isExpanded: trigger.getAttribute("aria-expanded") === "true",
+});
+
+/**
+ * The selection tooltip, mounted only with `showTooltip`. It follows the
+ * trigger's own attributes, so it is held shut while the listbox is open and
+ * absent while the trigger is disabled, from the first commit on.
+ */
+function SelectionTooltip({
+  trigger,
+  content,
+  onDescribedBy,
+}: {
+  trigger: HTMLElement;
+  content: ReactNode;
+  onDescribedBy: (id: string | undefined) => void;
+}) {
+  const [state, setState] = useState(() => readTrigger(trigger));
+  useLayoutEffect(() => {
+    const sync = () =>
+      setState((prev) => {
+        const next = readTrigger(trigger);
+        return prev.isDisabled === next.isDisabled &&
+          prev.isExpanded === next.isExpanded
+          ? prev
+          : next;
+      });
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(trigger, { attributeFilter: ["aria-disabled", "aria-expanded"] });
+    return () => observer.disconnect();
+  }, [trigger]);
+  const isEnabled = !state.isDisabled;
+  const tooltip = useTooltip({
+    isEnabled,
+    isOpen: state.isExpanded ? false : undefined,
+  });
+  const attach = tooltip.ref;
+  useLayoutEffect(
+    () => (isEnabled ? attach(trigger) : undefined),
+    [attach, trigger, isEnabled],
+  );
+  const { describedBy } = tooltip;
+  useLayoutEffect(() => {
+    onDescribedBy(isEnabled ? describedBy : undefined);
+    return () => onDescribedBy(undefined);
+  }, [onDescribedBy, describedBy, isEnabled]);
+  return isEnabled ? tooltip.renderTooltip(content) : null;
 }

@@ -262,7 +262,14 @@ describe("MultiSelector showTooltip", () => {
     expect(ref).toHaveBeenCalledWith(trigger());
   });
 
-  it("renders no tooltip inside a disabled InputGroup", async () => {
+  it("renders no tooltip inside a disabled InputGroup, from the first commit", () => {
+    // Records every node and describedby written, even ones removed a render later.
+    const observer = new MutationObserver(() => {});
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributeFilter: ["aria-describedby"],
+    });
     render(
       <InputGroup label="Area" isDisabled>
         <MultiSelector
@@ -273,9 +280,27 @@ describe("MultiSelector showTooltip", () => {
         />
       </InputGroup>,
     );
+    const records = observer.takeRecords();
+    observer.disconnect();
     // In a group, the group's label names the trigger.
-    expect(screen.getByRole("combobox")).toHaveAttribute("aria-disabled", "true");
-    await waitFor(() => expect(tooltip()).toBeNull());
+    const combobox = screen.getByRole("combobox");
+    expect(combobox).toHaveAttribute("aria-disabled", "true");
+    expect(tooltip()).toBeNull();
+    expect(combobox).not.toHaveAttribute("aria-describedby");
+    const addedTooltip = records.some((record) =>
+      [...record.addedNodes].some(
+        (node) =>
+          node instanceof Element &&
+          (node.matches('[role="tooltip"]') ||
+            !!node.querySelector('[role="tooltip"]')),
+      ),
+    );
+    expect(addedTooltip).toBe(false);
+    expect(
+      records.some(
+        (record) => record.target === combobox && record.type === "attributes",
+      ),
+    ).toBe(false);
   });
 
   it("stays shut when showTooltip is turned on while the listbox is open", async () => {
@@ -298,5 +323,39 @@ describe("MultiSelector showTooltip", () => {
     await user.hover(trigger());
     await new Promise((resolve) => setTimeout(resolve, 300));
     expect(tooltip()).not.toHaveAttribute("popover-open");
+  });
+
+  it("follows a replaced trigger element's aria-disabled", async () => {
+    const props = {
+      "aria-label": "Regions",
+      options: OPTIONS,
+      defaultValue: ["north"],
+      showTooltip: true,
+    };
+    const { rerender } = render(
+      <InputGroup label="Area" isDisabled>
+        <MultiSelector {...props} renderTrigger={(p) => <button {...p}>Pick</button>} />
+      </InputGroup>,
+    );
+    expect(tooltip()).toBeNull();
+
+    // Dropping renderTrigger puts Astryx's own (disabled) trigger in its place.
+    rerender(
+      <InputGroup label="Area" isDisabled>
+        <MultiSelector {...props} />
+      </InputGroup>,
+    );
+    const combobox = screen.getByRole("combobox");
+    expect(combobox).toHaveAttribute("aria-disabled", "true");
+    expect(tooltip()).toBeNull();
+    expect(combobox).not.toHaveAttribute("aria-describedby");
+
+    rerender(
+      <InputGroup label="Area">
+        <MultiSelector {...props} />
+      </InputGroup>,
+    );
+    // A later change of the same element arrives through the MutationObserver.
+    await waitFor(() => expect(tooltip()).toHaveTextContent("North"));
   });
 });
