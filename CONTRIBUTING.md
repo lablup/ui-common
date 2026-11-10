@@ -579,6 +579,35 @@ Before 1.0, a breaking change bumps the minor version.
 An older line keeps getting patch releases from its `release/<line>` branch
 ([Patching an older line](#patching-an-older-line)).
 
+## Visual regression tests
+
+`pnpm run test:visual:docker` renders every story in Chromium and compares it
+with the screenshot committed under `test/visual/__screenshots__/`. Each
+screenshot covers only what the story painted (text, and boxes with a
+background, border or shadow, popovers included), not the empty page around it. CI runs the
+same check in the `visual` job and uploads the differences as the `visual-diffs`
+artifact when it fails.
+
+Screenshots differ between operating systems and CPU architectures, so only
+trust the container (Docker required; on Apple Silicon it runs emulated):
+
+```sh
+pnpm run test:visual:docker                          # compare
+pnpm run test:visual:docker src/components/Board     # compare one path
+pnpm run test:visual:docker -u                       # rewrite the baselines
+pnpm run test:visual:docker src/components/Board -u  # put -u after the path
+```
+
+A new story has no baseline and fails CI until you add one. When a change
+moves the painted area, the sizes differ and there is no diff image; compare
+the actual screenshot with the reference instead. When a visual change
+is intended, update the baselines and commit them with the change, so the
+review shows the picture changing. Give a story that cannot be stable (it
+animates on a timer, for example) `tags: ["no-vrt"]`.
+
+Bumping `playwright` in `package.json` also means changing the image tag in
+`.github/workflows/ci.yml` and regenerating the baselines.
+
 ## Pull requests
 
 Run `pnpm run verify` before pushing. It is what CI runs. CI also installs the

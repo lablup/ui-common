@@ -83,5 +83,7 @@ export const Inactive: Story = {
 };
 
 export const Streaming: Story = {
+  // The text grows on a timer, so no two screenshots match.
+  tags: ["no-vrt"],
   render: (args) => <StreamingContent {...args} />,
 };
