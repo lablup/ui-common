@@ -294,6 +294,7 @@ export function DateTimeRangeInput({
   const popover = usePopover({
     dialogLabel: t("uic.DateTimeRangeInput.dialogLabel"),
     closeButtonLabel: astryxT("@astryx.dateInput.closeCalendar"),
+    className: "uic-date-time-range-input__surface",
   });
 
   const bounds = { min, max, maxDuration };
@@ -757,7 +758,11 @@ export function DateTimeRangeInput({
             </div>
           </div>
         </NoFormItemContext>,
-        { placement: "below", alignment: "start" },
+        {
+          placement: "below",
+          alignment: "start",
+          className: "uic-date-time-range-input__layer",
+        },
       )}
     </FormControlScope>
   );

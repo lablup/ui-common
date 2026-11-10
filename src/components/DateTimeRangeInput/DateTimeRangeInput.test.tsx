@@ -149,6 +149,13 @@ describe("DateTimeRangeInput", () => {
     expect(selected(dialog, "Minute")).toBe("30");
   });
 
+  it("gives the popover the classes that keep it inside a narrow screen", async () => {
+    render(<DateTimeRangeInput aria-label="Period" showTime />);
+    const dialog = await open();
+    expect(dialog).toHaveClass("uic-date-time-range-input__surface");
+    expect(dialog.parentElement).toHaveClass("uic-date-time-range-input__layer");
+  });
+
   it("picks the start, confirms, picks the end, and commits both on confirm", async () => {
     const onChange = vi.fn();
     render(<DateTimeRangeInput aria-label="Period" onChange={onChange} showTime />);
