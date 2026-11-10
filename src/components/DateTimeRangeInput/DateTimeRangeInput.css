@@ -68,16 +68,35 @@
     color: var(--color-text-secondary);
   }
 
-  /* On a narrow or short screen the panel stays inside the viewport, with the
-     layer's gutter (--spacing-4) on each side: the presets, then the time
-     columns, move below what they sat beside, and what still does not fit
-     scrolls. */
+  /* The popover's layer. Its width is the panel's own, not the room between
+     the trigger and the viewport's edge (Astryx slides it to fit), so the
+     panel wraps only on a screen narrower than it; Astryx caps the width to
+     the viewport. Its height is capped to the room below the trigger, or
+     above it, whichever is larger (Astryx flips it there): a panel taller
+     than that room scrolls in the surface instead of running off the
+     screen. */
+  .uic-date-time-range-input__layer:popover-open {
+    display: flex;
+    flex-direction: column;
+    inline-size: max-content;
+    max-block-size: calc(100% - var(--spacing-4));
+    max-block-size: max(
+      calc(100% - var(--spacing-4)),
+      calc((100dvh - anchor-size(height)) / 2 - var(--spacing-4) - 1px)
+    );
+  }
+
+  .uic-date-time-range-input__surface {
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* On a screen narrower than the panel, the presets, then the time columns,
+     move below what they sat beside. */
   .uic-date-time-range-input__panel {
     display: flex;
     flex-wrap: wrap;
-    max-inline-size: calc(100vw - var(--spacing-4) * 2);
-    max-block-size: calc(100dvh - var(--spacing-4) * 2);
-    overflow: auto;
   }
 
   .uic-date-time-range-input__presets {
