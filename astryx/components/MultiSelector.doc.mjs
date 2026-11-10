@@ -494,6 +494,13 @@ export default {
           description:
             "The starting value when value is not set (uncontrolled), as in antd.",
         },
+        {
+          name: "showTooltip",
+          type: "boolean",
+          default: "false",
+          description:
+            "Lists every selected option's label, comma-separated, in a tooltip on the trigger, so the selections behind +N or an ellipsis can be read without opening the listbox. Held shut while the listbox is open; none while nothing is selected, while disabled (disabledMessage keeps the trigger), or with renderTrigger.",
+        },
       ],
     },
   ],

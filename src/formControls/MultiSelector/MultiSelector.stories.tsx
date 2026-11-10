@@ -85,6 +85,25 @@ export const DisabledOptionReason: Story = {
   },
 };
 
+/**
+ * `showTooltip`: hover or focus the trigger to read every selected label,
+ * including the ones behind `+N`. The tooltip stays shut while the listbox is
+ * open, and there is none while nothing is selected or the control is disabled.
+ */
+export const ShowTooltip: Story = {
+  args: {
+    showTooltip: true,
+    options: [
+      { value: "north", label: "North" },
+      { value: "south", label: "South" },
+      { value: "east", label: "East" },
+      { value: "west", label: "West" },
+      { value: "central", label: "Central" },
+    ],
+    defaultValue: ["north", "south", "east", "west", "central"],
+  },
+};
+
 /** On its own, disabled. */
 export const Disabled: Story = {
   args: { disabled: true },
