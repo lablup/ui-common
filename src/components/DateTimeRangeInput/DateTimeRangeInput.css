@@ -69,20 +69,14 @@
   }
 
   /* The popover's layer. Its width is the panel's own, not the room between
-     the trigger and the viewport's edge (Astryx slides it to fit); Astryx
-     caps the width to the viewport. Its height is capped to the room below the trigger, or
-     above it, whichever is larger (Astryx flips it there): a panel taller
-     than that room scrolls in the surface instead of running off the
-     screen. */
+     the trigger and the viewport's edge (Astryx slides it to fit). Astryx
+     caps its width and height to the viewport; the surface, a flex item,
+     shrinks to that cap and scrolls what does not fit: sideways on a
+     narrow screen, down only on one shorter than the panel. */
   .uic-date-time-range-input__layer:popover-open {
     display: flex;
     flex-direction: column;
     inline-size: max-content;
-    max-block-size: calc(100% - var(--spacing-4));
-    max-block-size: max(
-      calc(100% - var(--spacing-4)),
-      calc((100dvh - anchor-size(height)) / 2 - var(--spacing-4) - 1px)
-    );
   }
 
   .uic-date-time-range-input__surface {
