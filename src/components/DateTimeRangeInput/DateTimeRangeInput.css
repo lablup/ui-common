@@ -68,8 +68,16 @@
     color: var(--color-text-secondary);
   }
 
+  /* On a narrow or short screen the panel stays inside the viewport, with the
+     layer's gutter (--spacing-4) on each side: the presets, then the time
+     columns, move below what they sat beside, and what still does not fit
+     scrolls. */
   .uic-date-time-range-input__panel {
     display: flex;
+    flex-wrap: wrap;
+    max-inline-size: calc(100vw - var(--spacing-4) * 2);
+    max-block-size: calc(100dvh - var(--spacing-4) * 2);
+    overflow: auto;
   }
 
   .uic-date-time-range-input__presets {
@@ -96,6 +104,7 @@
 
   .uic-date-time-range-input__pickers {
     display: flex;
+    flex-wrap: wrap;
     padding: var(--spacing-3);
     gap: var(--spacing-3);
   }
