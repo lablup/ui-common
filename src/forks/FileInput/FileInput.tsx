@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.7, src/FileInput/FileInput.tsx
+// Forked from @astryxdesign/core 0.7.11, src/FileInput/FileInput.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -82,7 +82,7 @@ import { compiledStyles } from "../compiled";
 import * as compiled from "./FileInput.styles";
 import { useBusyAnnouncement } from "../useBusyAnnouncement";
 
-// @astryxdesign/core 0.7.7 src/i18n/useListFormatter.ts, which core does not
+// @astryxdesign/core 0.7.11 src/i18n/useListFormatter.ts, which core does not
 // export: joins items as a narrow conjunction in the active locale.
 function useListFormatter(): (items: ReadonlyArray<string>) => string {
   const ctx = use(InternationalizationContext);
@@ -95,7 +95,7 @@ function useListFormatter(): (items: ReadonlyArray<string>) => string {
   }, [ctx.locale]);
 }
 
-// @astryxdesign/core 0.7.7 src/hooks/useResolvedRequired.ts, which core does
+// @astryxdesign/core 0.7.11 src/hooks/useResolvedRequired.ts, which core does
 // not export: a field under `FormLayout defaultOptionality="required"` is
 // required unless it opts out.
 function useResolvedRequired({
@@ -208,7 +208,7 @@ const folded = {
   },
 };
 
-// @astryxdesign/core 0.7.7 src/Field/fieldParts.ts, which core does not
+// @astryxdesign/core 0.7.11 src/Field/fieldParts.ts, which core does not
 // export: drops root styling a Field-composed input does not accept, and
 // styles the Field box only where one renders.
 const ROOT_STYLING_MESSAGE =
@@ -716,7 +716,14 @@ export function FileInput({
     (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!isSelectionDisabled && mode === "dropzone") {
+      if (isSelectionDisabled) {
+        // A cancelled dragover with the default effect makes the zone a drop
+        // target.
+        // The 'none' effect shows the no-drop cursor and stops the drop.
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = "none";
+        }
+      } else if (mode === "dropzone") {
         setIsDragOver(true);
       }
     },
@@ -727,7 +734,14 @@ export function FileInput({
     (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      if (!isSelectionDisabled && mode === "dropzone") {
+      if (isSelectionDisabled) {
+        // A cancelled dragover with the default effect makes the zone a drop
+        // target.
+        // The 'none' effect shows the no-drop cursor and stops the drop.
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = "none";
+        }
+      } else if (mode === "dropzone") {
         setIsDragOver(true);
       }
     },

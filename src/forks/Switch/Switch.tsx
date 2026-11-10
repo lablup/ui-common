@@ -1,7 +1,7 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 // Modifications copyright (c) Lablup Inc.
 //
-// Forked from @astryxdesign/core 0.7.7, src/Switch/Switch.tsx
+// Forked from @astryxdesign/core 0.7.11, src/Switch/Switch.tsx
 // (MIT; see NOTICE). Provenance and the drift guard: src/forks/provenance.json.
 
 "use client";
@@ -16,8 +16,7 @@
  *
  * Everything else is upstream's, line for line. Two things differ in form
  * only: the style namespaces and the scope markers are Astryx's
- * compiled output (src/forks/compiled.ts), and `useResolvedRequired`, which
- * Astryx does not export, is inlined.
+ * compiled output (src/forks/compiled.ts).
  *
  * One part of upstream is left out: 0.7.7's touch presentation
  * (`useSwitchTouch`: the iOS-style lift, drag-to-flip and spring, and the
@@ -33,7 +32,6 @@
  */
 
 import {
-  use,
   Fragment,
   useId,
   useOptimistic,
@@ -47,7 +45,6 @@ import {
 import * as stylex from "@stylexjs/stylex";
 import { FieldLabel } from "@astryxdesign/core/Field";
 import { FieldStatus } from "@astryxdesign/core/FieldStatus";
-import { FormLayoutContext } from "@astryxdesign/core/FormLayout";
 import type { IconType } from "@astryxdesign/core/Icon";
 import type { InputStatus } from "@astryxdesign/core/Field";
 import { Spinner } from "@astryxdesign/core/Spinner";
@@ -87,16 +84,15 @@ export const TOUCH_ONLY_ATOMS: ReadonlySet<string> = new Set([
   "x1xdvw9q",
   "xrxqdxo",
   "xsmms64",
-  "xouc37c",
   "xowtp19",
   "xpxppvc",
   "x15cra4q",
   "x2huugr",
   "x1ccaw7f",
   "xxhzo2e",
-  "xvym4rz",
-  "xigdn9b",
-  "xgq6fxe",
+  "xs8z9ty",
+  "x1e7l4zx",
+  "x15baseh",
   "xq2jpp1",
   "x1ep27e9",
   "xqycr0j",
@@ -160,20 +156,6 @@ const switchScope = compiled.switchScope as unknown as stylex.StyleXStyles;
 const switchFocusInput = compiled.switchFocusInput as unknown as stylex.StyleXStyles;
 const pressOwnerStyles = compiledStyles(withoutTouchAtoms(compiled.pressOwnerStyles));
 const interactionOverlayStyles = compiledStyles(compiled.interactionOverlayStyles);
-
-// @astryxdesign/core 0.7.7 src/hooks/useResolvedRequired.ts, which core does
-// not export: a field under `FormLayout defaultOptionality="required"` is
-// required unless it opts out.
-function useResolvedRequired({
-  isRequired = false,
-  isOptional = false,
-}: {
-  isRequired?: boolean;
-  isOptional?: boolean;
-}): boolean {
-  const { defaultOptionality } = use(FormLayoutContext);
-  return !isOptional && (isRequired || defaultOptionality === "required");
-}
 
 export type SwitchLabelPosition = "start" | "end";
 
@@ -366,10 +348,6 @@ export function Switch({
   const pressable = usePressFeedback();
   const descriptionID = useId();
   const statusMessageID = useId();
-  // Announce the effective required state (form default included) while the
-  // native `required` stays bound to the explicit `isRequired` so a layout
-  // default never switches on browser validation.
-  const isEffectivelyRequired = useResolvedRequired({ isRequired, isOptional });
 
   const [, startTransition] = useTransition();
   const [optimisticValue, setOptimisticValue] = useOptimistic(value);
@@ -465,7 +443,8 @@ export function Switch({
         aria-disabled={isDisabled ? "true" : undefined}
         form={isDisabled ? "" : undefined}
         required={isRequired}
-        aria-required={isEffectivelyRequired ? "true" : undefined}
+        // A form's required default sets nothing here: an off switch is an answer.
+        aria-required={isRequired ? "true" : undefined}
         onChange={(e) => {
           if (isDisabled || isBusy) {
             return;
