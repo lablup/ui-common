@@ -100,18 +100,24 @@
     gap: var(--spacing-3);
   }
 
+  /* As tall as the calendar beside it, and at least 224px, antd's column
+     height (Astryx has no token for it). The row stretches it, so its height
+     is definite and the columns can fill it. */
   .uic-date-time-range-input__time {
     display: flex;
+    min-height: 224px;
     padding-inline-start: var(--spacing-3);
     border-inline-start: var(--border-width) solid var(--color-border-emphasized);
   }
 
-  /* A fixed-height column that scrolls on its own, as antd's time panel:
-     224px is antd's column height (Astryx has no token for it). The space
+  /* A column that scrolls on its own, as antd's time panel. It adds no
+     height of its own (height 0) and fills the time area (min-height), so
+     the calendar, not the 24 or 60 values, sets the row's height. The space
      after the last value lets it, too, scroll to the top. */
   .uic-date-time-range-input__time-column {
     flex: none;
-    height: 224px;
+    height: 0;
+    min-height: 100%;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;

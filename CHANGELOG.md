@@ -13,6 +13,12 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   and a heading's `maxLines` never got to ellipsize. The title group now
   shrinks to the row, so the title wraps at word boundaries (or ellipsizes
   with `maxLines`); the end-content group keeps its width.
+- **`DateTimeRangeInput`: the hour and minute columns fill the calendar's
+  height.** They were fixed at 224px (antd's column height), shorter than the
+  two-month calendar beside them, so they cut the list short and needed
+  scrolling with room to spare. They now stretch to the height of the
+  calendar row, 224px at the least, and scroll only past that.
+  `TimeRangeInput`, with no calendar, keeps its 224px columns.
 
 ## [0.2.0-alpha.21]
 

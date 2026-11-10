@@ -1,6 +1,7 @@
 /**
  * One column of the time picker, hours or minutes, as in Ant Design's time
- * panel: a fixed-height column that scrolls freely (wheel, scrollbar, touch),
+ * panel: a column as tall as the picker beside it (at least antd's 224px)
+ * that scrolls freely (wheel, scrollbar, touch),
  * with the selected value scrolled to its top. A listbox whose options take
  * focus themselves (roving tabindex): arrow keys, Home and End move the
  * selection, skipping disabled values; a click picks. A disabled value (one
