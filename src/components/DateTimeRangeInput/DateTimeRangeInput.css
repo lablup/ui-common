@@ -69,20 +69,18 @@
   }
 
   /* The popover's layer. Its width is the panel's own, not the room between
-     the trigger and the viewport's edge (Astryx slides it to fit). Astryx
-     caps its width and height to the viewport; the surface, a flex item,
-     shrinks to that cap and scrolls what does not fit: sideways on a
-     narrow screen, down only on one shorter than the panel. */
+     the trigger and the viewport's edge (Astryx slides it to fit), and
+     Astryx caps it to the viewport. */
   .uic-date-time-range-input__layer:popover-open {
-    display: flex;
-    flex-direction: column;
     inline-size: max-content;
   }
 
+  /* As tall as the panel, its sideways scrollbar included, so it scrolls
+     only sideways: on a screen narrower than the panel. */
   .uic-date-time-range-input__surface {
-    min-block-size: 0;
-    overflow: auto;
-    overscroll-behavior: contain;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
   }
 
   /* Never narrower than its content, so nothing in it is squeezed or moved:

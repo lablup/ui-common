@@ -149,7 +149,7 @@ describe("DateTimeRangeInput", () => {
     expect(selected(dialog, "Minute")).toBe("30");
   });
 
-  it("gives the popover the classes that keep it inside a narrow or short screen", async () => {
+  it("gives the popover the classes that keep it inside a narrow screen", async () => {
     render(<DateTimeRangeInput aria-label="Period" showTime />);
     const dialog = await open();
     expect(dialog).toHaveClass("uic-date-time-range-input__surface");
