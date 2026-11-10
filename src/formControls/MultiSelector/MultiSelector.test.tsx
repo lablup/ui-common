@@ -5,6 +5,7 @@
 import { createRef, useState } from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { InputGroup } from "@astryxdesign/core/InputGroup";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MultiSelector, type MultiSelectorOptionType } from "./MultiSelector";
@@ -198,5 +199,104 @@ describe("MultiSelector showTooltip", () => {
       .join(" ");
     expect(described).toContain("Pick a zone first");
     expect(described).not.toContain("North");
+  });
+
+  it("keeps the trigger's own description as it changes, and after the tooltip goes", () => {
+    const { rerender } = render(
+      <MultiSelector
+        aria-label="Regions"
+        options={OPTIONS}
+        value={["north"]}
+        showTooltip
+      />,
+    );
+    const ids = () => trigger().getAttribute("aria-describedby")?.split(" ") ?? [];
+    const tooltipId = tooltip()!.id;
+    expect(ids()).toContain(tooltipId);
+
+    rerender(
+      <MultiSelector
+        aria-label="Regions"
+        options={OPTIONS}
+        value={["north"]}
+        aria-describedby="err"
+        showTooltip
+      />,
+    );
+    expect(ids()).toEqual(expect.arrayContaining(["err", tooltipId]));
+
+    rerender(
+      <MultiSelector
+        aria-label="Regions"
+        options={OPTIONS}
+        value={[]}
+        aria-describedby="err"
+        showTooltip
+      />,
+    );
+    expect(tooltip()).toBeNull();
+    expect(ids()).toEqual(["err"]);
+  });
+
+  it("does not re-attach the caller's callback ref on re-render", () => {
+    const ref = vi.fn();
+    const { rerender } = render(
+      <MultiSelector
+        aria-label="Regions"
+        options={OPTIONS}
+        value={["north"]}
+        ref={ref}
+        showTooltip
+      />,
+    );
+    rerender(
+      <MultiSelector
+        aria-label="Regions"
+        options={OPTIONS}
+        value={["north", "south"]}
+        ref={ref}
+        showTooltip
+      />,
+    );
+    expect(ref).toHaveBeenCalledTimes(1);
+    expect(ref).toHaveBeenCalledWith(trigger());
+  });
+
+  it("renders no tooltip inside a disabled InputGroup", async () => {
+    render(
+      <InputGroup label="Area" isDisabled>
+        <MultiSelector
+          aria-label="Regions"
+          options={OPTIONS}
+          defaultValue={["north"]}
+          showTooltip
+        />
+      </InputGroup>,
+    );
+    // In a group, the group's label names the trigger.
+    expect(screen.getByRole("combobox")).toHaveAttribute("aria-disabled", "true");
+    await waitFor(() => expect(tooltip()).toBeNull());
+  });
+
+  it("stays shut when showTooltip is turned on while the listbox is open", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <MultiSelector aria-label="Regions" options={OPTIONS} defaultValue={["north"]} />,
+    );
+    await user.click(trigger());
+    await waitFor(() => expect(trigger()).toHaveAttribute("aria-expanded", "true"));
+
+    rerender(
+      <MultiSelector
+        aria-label="Regions"
+        options={OPTIONS}
+        defaultValue={["north"]}
+        showTooltip
+      />,
+    );
+    await user.unhover(trigger());
+    await user.hover(trigger());
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(tooltip()).not.toHaveAttribute("popover-open");
   });
 });

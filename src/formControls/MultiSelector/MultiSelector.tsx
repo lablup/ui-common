@@ -8,7 +8,7 @@
  *
  * `showTooltip` lists the selected labels in a tooltip on the trigger.
  */
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   MultiSelector as AstryxMultiSelector,
   type MultiSelectorDivider,
@@ -17,8 +17,8 @@ import {
   type MultiSelectorProps as AstryxMultiSelectorProps,
   type MultiSelectorSection as AstryxMultiSelectorSection,
 } from "@astryxdesign/core/MultiSelector";
-import { Tooltip } from "@astryxdesign/core/Tooltip";
-import { mergeRefs } from "@astryxdesign/core/utils";
+import { useMergedRefs } from "@astryxdesign/core/hooks";
+import { useTooltip } from "@astryxdesign/core/Tooltip";
 
 import {
   EMPTY_ARRAY,
@@ -112,8 +112,39 @@ export function MultiSelector<
   );
   const triggerRef = useRef<HTMLElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      setIsOpen(open);
+      onOpenChange?.(open);
+    },
+    [onOpenChange],
+  );
+  // A disabled InputGroup disables the trigger through context Astryx does not
+  // export; the trigger's aria-disabled is where it shows (as Selector reads aria-expanded).
+  const [isTriggerDisabled, setIsTriggerDisabled] = useState(false);
+  useEffect(() => {
+    const trigger = triggerRef.current;
+    if (!showTooltip || !trigger) return;
+    const sync = () =>
+      setIsTriggerDisabled(trigger.getAttribute("aria-disabled") === "true");
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(trigger, { attributeFilter: ["aria-disabled"] });
+    return () => observer.disconnect();
+  }, [showTooltip]);
   const hasTooltip =
-    showTooltip && !!mergedValue?.length && !field.isDisabled && !rest.renderTrigger;
+    showTooltip &&
+    !!mergedValue?.length &&
+    !field.isDisabled &&
+    !isTriggerDisabled &&
+    !rest.renderTrigger;
+  // The hook, not <Tooltip anchorRef>: its id joins the trigger's
+  // aria-describedby prop instead of being written onto the element.
+  const tooltip = useTooltip({
+    isEnabled: hasTooltip,
+    isOpen: isOpen ? false : undefined,
+  });
+  const triggerRefs = useMergedRefs<HTMLElement>(ref, triggerRef, tooltip.ref);
   const reasoned = withOptionDisabledReason<T, AstryxMultiSelectorOptionData>({
     options,
     renderOption: rest.renderOption,
@@ -134,24 +165,19 @@ export function MultiSelector<
     value: mergedValue,
     onChange: handleChange,
     renderOption: reasoned.renderOption,
-    ref: showTooltip ? mergeRefs<HTMLElement>(ref, triggerRef) : ref,
-    onOpenChange: showTooltip
-      ? (open: boolean) => {
-          setIsOpen(open);
-          onOpenChange?.(open);
-        }
-      : onOpenChange,
+    ref: triggerRefs,
+    onOpenChange: handleOpenChange,
+    "aria-describedby":
+      [rest["aria-describedby"], hasTooltip ? tooltip.describedBy : null]
+        .filter(Boolean)
+        .join(" ") || undefined,
   } as unknown as AstryxProps;
   return (
     <FormControlScope required={required}>
       <AstryxMultiSelector {...props} />
-      {hasTooltip ? (
-        <Tooltip
-          anchorRef={triggerRef}
-          content={selectedLabels(options, mergedValue ?? [])}
-          isOpen={isOpen ? false : undefined}
-        />
-      ) : null}
+      {hasTooltip
+        ? tooltip.renderTooltip(selectedLabels(options, mergedValue ?? []))
+        : null}
     </FormControlScope>
   );
 }
