@@ -12,5 +12,8 @@ storybook-static/
 *storybook.log
 fixture/src/templates/
 
-# Visual test output; the baselines under test/visual/__screenshots__ are committed.
+# Visual test output. Only the container's (linux) baselines are committed; a
+# run on the host writes its own platform's, which are not trusted.
 .vitest-attachments/
+test/visual/__screenshots__/**/*.png
+!test/visual/__screenshots__/**/*-linux.png

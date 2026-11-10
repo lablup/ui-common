@@ -8,6 +8,14 @@ import { buildDefines } from "./scripts/build-defines.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 
+// Read by .storybook/main.ts to drop the CDN fonts. Set here rather than in the
+// npm script, so every way of running this config gets it.
+process.env.UI_COMMON_VISUAL_TEST = "1";
+
+// The test frame and the page around it must be the same size: a frame larger
+// than the page is shrunk, and the screenshots come out blurred at 80%.
+const VIEWPORT = { width: 1200, height: 900 };
+
 interface ShotData {
   arg: string;
   browserName: string;
@@ -19,13 +27,12 @@ interface ShotData {
 
 // Keyed by directory as well as story file: Switch and FileInput each have two
 // story files with the same name.
-function shotPath(base: string, data: ShotData) {
+function shotPath(data: ShotData) {
   const story = data.testFileName.replace(/\.stories\.tsx?$/, "");
-  const directory = relative("src", data.testFileDirectory);
   return resolve(
     root,
-    base,
-    directory,
+    "test/visual/__screenshots__",
+    relative("src", data.testFileDirectory),
     story,
     `${data.arg}-${data.browserName}-${data.platform}${data.ext}`,
   );
@@ -54,23 +61,16 @@ export default defineConfig({
       enabled: true,
       headless: true,
       provider: playwright({
-        contextOptions: {
-          reducedMotion: "reduce",
-          // Larger than the page, Vitest shrinks the test frame and the
-          // screenshots come out blurred at 80%.
-          viewport: { width: 1200, height: 900 },
-        },
+        contextOptions: { reducedMotion: "reduce", viewport: VIEWPORT },
       }),
       instances: [{ browser: "chromium" }],
-      viewport: { width: 1200, height: 900 },
+      viewport: VIEWPORT,
       screenshotFailures: false,
       expect: {
         toMatchScreenshot: {
-          comparatorName: "pixelmatch",
-          comparatorOptions: { threshold: 0.1, allowedMismatchedPixelRatio: 0 },
-          resolveScreenshotPath: (data) =>
-            shotPath("test/visual/__screenshots__", data),
-          resolveDiffPath: (data) => shotPath(data.attachmentsDir, data),
+          // Vitest's defaults otherwise: pixelmatch, no mismatched pixels
+          // allowed, diffs under .vitest-attachments.
+          resolveScreenshotPath: shotPath,
         },
       },
     },

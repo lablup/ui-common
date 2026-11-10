@@ -582,7 +582,9 @@ An older line keeps getting patch releases from its `release/<line>` branch
 ## Visual regression tests
 
 `pnpm run test:visual:docker` renders every story in Chromium and compares it
-with the screenshot committed under `test/visual/__screenshots__/`. CI runs the
+with the screenshot committed under `test/visual/__screenshots__/`. Each
+screenshot covers only what the story painted (text, and boxes with a
+background, border or shadow, popovers included), not the empty page around it. CI runs the
 same check in the `visual` job and uploads the differences as the `visual-diffs`
 artifact when it fails.
 

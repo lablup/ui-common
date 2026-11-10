@@ -43,13 +43,13 @@ importers:
         specifier: ^9.39.0
         version: 9.39.5
       '@storybook/addon-docs':
-        specifier: ^10.6.1
+        specifier: 10.6.1
         version: 10.6.1(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(storybook@10.6.1(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))
       '@storybook/addon-vitest':
         specifier: 10.6.1
         version: 10.6.1(@vitest/browser-playwright@4.1.10)(@vitest/browser@4.1.10(vite@8.2.0(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0))(vitest@4.1.10))(@vitest/runner@4.1.10)(react@19.2.8)(storybook@10.6.1(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))(vitest@4.1.10)
       '@storybook/react-vite':
-        specifier: ^10.6.1
+        specifier: 10.6.1
         version: 10.6.1(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(storybook@10.6.1(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8))(supports-color@8.1.1)(typescript@5.9.3)(vite@8.2.0(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0))
       '@stylexjs/stylex':
         specifier: 0.19.0
@@ -115,7 +115,7 @@ importers:
         specifier: ^1.105.0
         version: 1.105.0
       storybook:
-        specifier: ^10.6.1
+        specifier: 10.6.1
         version: 10.6.1(@types/react@19.2.18)(prettier@3.9.6)(react@19.2.8)
       tinyglobby:
         specifier: ^0.2.15
@@ -133,7 +133,7 @@ importers:
         specifier: ^4.5.4
         version: 4.5.4(@types/node@22.20.1)(supports-color@8.1.1)(typescript@5.9.3)(vite@8.2.0(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0))
       vitest:
-        specifier: ^4.1.8
+        specifier: 4.1.10
         version: 4.1.10(@types/node@22.20.1)(@vitest/browser-playwright@4.1.10)(jsdom@29.1.1)(vite@8.2.0(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.105.0))
 
   packages/cli:

@@ -16,13 +16,26 @@ version=$(node -p "require('$root/package.json').devDependencies.playwright")
 pnpm_spec=$(node -p "require('$root/package.json').packageManager")
 
 # Volumes keep the host's node_modules (built for the host) out of the
-# container and make repeat runs fast.
+# container and make repeat runs fast. Named per checkout, so worktrees on
+# different lockfiles do not install over each other.
+id=$(printf %s "$root" | cksum | cut -d " " -f 1)
+
+# The container runs as root; hand what it wrote back to the caller, or a
+# Linux host is left with root-owned baselines.
 exec docker run --rm --init --platform linux/amd64 \
   -v "$root:/work" \
-  -v ui-common-visual-root-modules:/work/node_modules \
-  -v ui-common-visual-cli-modules:/work/packages/cli/node_modules \
+  -v "ui-common-visual-$id-root-modules:/work/node_modules" \
+  -v "ui-common-visual-$id-cli-modules:/work/packages/cli/node_modules" \
   -v ui-common-visual-pnpm-store:/pnpm-store \
   -w /work \
   -e CI=true \
+  -e HOST_OWNER="$(id -u):$(id -g)" \
   "mcr.microsoft.com/playwright:v$version-noble" \
-  sh -c 'npx --yes "$0" install --frozen-lockfile --prefer-offline --store-dir /pnpm-store >/dev/null && exec npx --yes "$0" run test:visual "$@"' "$pnpm_spec" "$@"
+  sh -c '
+    pnpm="npx --yes $0"
+    $pnpm install --frozen-lockfile --prefer-offline --store-dir /pnpm-store --reporter=append-only || exit
+    status=0
+    $pnpm run test:visual "$@" || status=$?
+    chown -R "$HOST_OWNER" test/visual/__screenshots__ .vitest-attachments 2>/dev/null
+    exit $status
+  ' "$pnpm_spec" "$@"
