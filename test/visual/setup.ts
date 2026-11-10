@@ -104,6 +104,21 @@ function paintsItself(element: Element, style: CSSStyleDeclaration) {
   );
 }
 
+/**
+ * Whether the element is hidden from sight but kept for screen readers, like
+ * VisuallyHidden and live-region announcers: clipped, or shrunk to a pixel
+ * with its overflow cut off. Its text still measures full width, and an
+ * announcement left over from the previous story in the file would otherwise
+ * stretch the area (DataGrid's Export Modal did, on CI only).
+ */
+function isVisuallyHidden(element: Element) {
+  const style = getComputedStyle(element);
+  if (style.clip !== "auto" && style.clip !== "") return true;
+  if (style.overflow === "visible") return false;
+  const rect = element.getBoundingClientRect();
+  return rect.width <= 1 || rect.height <= 1;
+}
+
 const MARGIN = 8; // room for shadows and focus rings outside the boxes
 
 /**
@@ -135,6 +150,7 @@ function paintedBounds() {
             return NodeFilter.FILTER_REJECT;
           // An svg paints as a whole; its shapes add nothing.
           if (node.parentElement?.closest("svg")) return NodeFilter.FILTER_REJECT;
+          if (isVisuallyHidden(node)) return NodeFilter.FILTER_REJECT;
         }
         return NodeFilter.FILTER_ACCEPT;
       },
