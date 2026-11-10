@@ -20,11 +20,11 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   calendar row, 224px at the least, and scroll only past that.
   `TimeRangeInput`, with no calendar, keeps its 224px columns.
 - **`DateTimeRangeInput`: the popover is no longer cut off on a narrow or
-  short screen.** The panel kept its full size past the viewport's edge. On
-  a screen narrower than the panel, the presets and then the time columns
-  now move below what they sat beside. The popover is no taller than the
-  room below the trigger, or above it when that room is larger. Whatever
-  still does not fit scrolls inside the popover.
+  short screen.** The panel kept its full size past the viewport's edge. The
+  popover is now no wider than the viewport and no taller than the room
+  below the trigger, or above it when that room is larger. The panel keeps
+  its minimum width (its content's), so on a smaller screen it scrolls
+  inside the popover instead of being cut off.
 
 ## [0.2.0-alpha.21]
 
