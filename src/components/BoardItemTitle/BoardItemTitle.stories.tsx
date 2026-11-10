@@ -46,3 +46,12 @@ export const Narrow: Story = {
   },
   decorators: [withMaxWidth(260)],
 };
+
+/** A title wider than the row wraps at word boundaries instead of overflowing. */
+export const LongTitle: Story = {
+  args: {
+    title: "Create a new storage folder for this project",
+    tooltip: "Updated every minute.",
+  },
+  decorators: [withMaxWidth(160)],
+};

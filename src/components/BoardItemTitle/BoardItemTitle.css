@@ -5,13 +5,16 @@
     min-width: 0;
   }
 
+  /* The title group shrinks to the row, so a long title wraps (or ellipsizes)
+     instead of overflowing; the actions keep their width. */
   .uic-board-item-title__group {
     position: relative;
-    flex-shrink: 0;
+    flex-shrink: 1;
     min-width: 0;
   }
 
   .uic-board-item-title__end {
+    flex-shrink: 0;
     margin-inline-start: auto;
   }
 }

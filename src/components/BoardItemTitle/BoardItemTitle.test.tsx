@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
@@ -68,5 +70,40 @@ describe("BoardItemTitle", () => {
     expect(root).toHaveClass("uic-board-item-title", "extra");
     expect(root.style.paddingBlock).toBe("0px");
     expect(root).toHaveAttribute("data-testid", "row");
+  });
+
+  // jsdom drops `@layer`, so the flex rules are read from the stylesheet source.
+  describe("shrinking", () => {
+    const CSS = readFileSync(join(__dirname, "BoardItemTitle.css"), "utf8").replace(
+      /\/\*[\s\S]*?\*\//g,
+      "",
+    );
+
+    /** Declarations of every rule whose selector list includes `selector`. */
+    function declarationsFor(selector: string): string[] {
+      return [...CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+        .filter((m) =>
+          (m[1] ?? "")
+            .split(",")
+            .map((s) => s.trim())
+            .includes(selector),
+        )
+        .flatMap((m) =>
+          (m[2] ?? "")
+            .split(";")
+            .map((d) => d.trim().replace(/\s+/g, " "))
+            .filter(Boolean),
+        );
+    }
+
+    it("lets the title group shrink below its text, so a long title wraps", () => {
+      const group = declarationsFor(".uic-board-item-title__group");
+      expect(group).toContain("flex-shrink: 1");
+      expect(group).toContain("min-width: 0");
+    });
+
+    it("keeps the end-content group at its own width", () => {
+      expect(declarationsFor(".uic-board-item-title__end")).toContain("flex-shrink: 0");
+    });
   });
 });
