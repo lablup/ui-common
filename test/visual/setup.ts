@@ -11,6 +11,18 @@ vi.useFakeTimers({ now: new Date("2026-01-15T12:00:00Z"), toFake: ["Date"] });
 beforeAll(() => {
   document.body.style.height = "auto";
   document.body.style.minHeight = "100vh";
+
+  // Every transition and animation lands on its end state at once. Measured
+  // mid-transition, a fading background makes the painted area flicker
+  // between runs (ComplexSelector's Ghost did, about one run in five).
+  const still = document.createElement("style");
+  still.textContent = `*, *::before, *::after {
+    transition: none !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    caret-color: transparent !important;
+  }`;
+  document.head.append(still);
 });
 
 /**
@@ -54,20 +66,41 @@ const PAINTED_TAGS = new Set([
   "hr",
 ]);
 
+/**
+ * Whether a computed color shows at all. Alpha is the fourth comma-separated
+ * value (`rgba(0, 0, 0, 0)`) or follows a slash (`rgb(0 0 0 / 0)`).
+ */
+function isVisibleColor(color: string) {
+  if (color === "transparent") return false;
+  const alpha = /(?:\/|,[^,]*,[^,]*,)\s*([\d.]+)(%?)\s*\)$/.exec(color);
+  return !alpha || parseFloat(alpha[1] ?? "1") > 0;
+}
+
+/** Whether a line (border or outline) is drawn: a style, a width and a color. */
+function drawsLine(lineStyle: string, width: string, color: string) {
+  return (
+    lineStyle !== "none" &&
+    lineStyle !== "hidden" &&
+    parseFloat(width) > 0 &&
+    isVisibleColor(color)
+  );
+}
+
 /** Whether the element paints anything of its own, beyond its children. */
 function paintsItself(element: Element, style: CSSStyleDeclaration) {
   if (PAINTED_TAGS.has(element.localName)) return true;
-  if (
-    style.backgroundColor !== "rgba(0, 0, 0, 0)" ||
-    style.backgroundImage !== "none"
-  ) {
+  if (isVisibleColor(style.backgroundColor) || style.backgroundImage !== "none") {
     return true;
   }
-  if (style.boxShadow !== "none" || style.outlineStyle !== "none") return true;
-  return ["Top", "Right", "Bottom", "Left"].some(
-    (side) =>
-      style.getPropertyValue(`border-${side.toLowerCase()}-style`) !== "none" &&
-      parseFloat(style.getPropertyValue(`border-${side.toLowerCase()}-width`)) > 0,
+  if (style.boxShadow !== "none") return true;
+  if (drawsLine(style.outlineStyle, style.outlineWidth, style.outlineColor))
+    return true;
+  return ["top", "right", "bottom", "left"].some((side) =>
+    drawsLine(
+      style.getPropertyValue(`border-${side}-style`),
+      style.getPropertyValue(`border-${side}-width`),
+      style.getPropertyValue(`border-${side}-color`),
+    ),
   );
 }
 

@@ -86,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: visual-diffs
-          path: .vitest-attachments
+          path: .vitest/attachments
           include-hidden-files: true
           if-no-files-found: ignore
 

@@ -6,8 +6,8 @@ Ran the codemods over 13 files under `.`; searched 17 files under the project ro
 
 ## Action required
 
-- **Astryx moves from 0.6.2 to 0.7.7.** @lablup/ui-common 0.2.0 is built on Astryx 0.7.7. adopt ran Astryx's codemods for that span (`migrate-native-picker-to-presentation`, `migrate-deprecated-theme-surface`, `validate-data-token-ownership`, `migrate-field-input-styling`, `preserve-bottom-sheet-content-padding`, `rename-empty-search-results-text`, `migrate-list-edge-compensation-to-edge`, `migrate-codeblock-tokenizer-to-language`); review what they changed (the `astryx:` transforms under Changed files), and read Astryx's release notes for what no codemod covers.
-- `pnpm-workspace.yaml:4` patches @astryxdesign/core@0.6.2, but @lablup/ui-common 0.2.0 pins 0.7.7: pnpm stops the install on a patch for a version that is not installed. Re-cut the patch at 0.7.7, or drop it, before you install.
+- **Astryx moves from 0.6.2 to 0.7.11.** @lablup/ui-common 0.2.0 is built on Astryx 0.7.11. adopt ran Astryx's codemods for that span (`migrate-native-picker-to-presentation`, `migrate-deprecated-theme-surface`, `validate-data-token-ownership`, `migrate-field-input-styling`, `preserve-bottom-sheet-content-padding`, `rename-empty-search-results-text`, `migrate-list-edge-compensation-to-edge`, `migrate-codeblock-tokenizer-to-language`, `promote-tokenizer-presentation`); review what they changed (the `astryx:` transforms under Changed files), and read Astryx's release notes for what no codemod covers.
+- `pnpm-workspace.yaml:4` patches @astryxdesign/core@0.6.2, but @lablup/ui-common 0.2.0 pins 0.7.11: pnpm stops the install on a patch for a version that is not installed. Re-cut the patch at 0.7.11, or drop it, before you install.
 
 ## Summary
 
@@ -55,10 +55,10 @@ Ran the codemods over 13 files under `.`; searched 17 files under the project ro
 
 - added @lablup/ui-common 0.2.0 to dependencies: the one dependency that brings Astryx (core, theme-neutral) at the versions it pins.
 - added @lablup/ui-common-cli 0.2.0 to devDependencies: the `ui-common` bin (`ui-common doctor`, `ui-common agents`, the Astryx CLI in @lablup/ui-common terms), released at the same version as @lablup/ui-common.
-- dependencies["@astryxdesign/core"]: "^0.6.2" → "0.7.7", the version @lablup/ui-common 0.2.0 pins.
+- dependencies["@astryxdesign/core"]: "^0.6.2" → "0.7.11", the version @lablup/ui-common 0.2.0 pins.
 - removed @astryxdesign/theme-neutral from dependencies: @lablup/ui-common depends on it and mirrors it as @lablup/ui-common/theme/neutral.
-- dependencies["@astryxdesign/lab"]: "0.6.2-canary.c9fb1ad" → "0.7.7-canary.273ec43", the version @lablup/ui-common 0.2.0 pins.
-- devDependencies["@astryxdesign/cli"] is "0.6.2"; @lablup/ui-common-cli wraps @astryxdesign/cli 0.7.7. Use `ui-common <command>` and drop it, or keep it at 0.7.7.
+- dependencies["@astryxdesign/lab"]: "0.6.2-canary.c9fb1ad" → "0.7.11-canary.d810271", the version @lablup/ui-common 0.2.0 pins.
+- devDependencies["@astryxdesign/cli"] is "0.6.2"; @lablup/ui-common-cli wraps @astryxdesign/cli 0.7.11. Use `ui-common <command>` and drop it, or keep it at 0.7.11.
 - added allowBuilds declining @astryxdesign/core, @astryxdesign/cli to pnpm-workspace.yaml: their postinstall only prints an `astryx init` nudge, and pnpm 11 stops the install (ERR_PNPM_IGNORED_BUILDS) until each is allowed or declined.
 
 ## Manual review
@@ -90,7 +90,7 @@ A pnpm or patch-package patch on `@astryxdesign/*` applies only in this project,
 
 | Where | What | Detail |
 |---|---|---|
-| `pnpm-workspace.yaml:4` | `"@astryxdesign/core@0.6.2": patches/@astryxdesign__core@0.6.2.patch` | touches dist/ComplexSelector/ComplexSelector.js; ui-common ships its own ComplexSelector, so this patch does not reach it: drop it unless the rest still matters; keyed to 0.6.2, not the 0.7.7 ui-common pins |
+| `pnpm-workspace.yaml:4` | `"@astryxdesign/core@0.6.2": patches/@astryxdesign__core@0.6.2.patch` | touches dist/ComplexSelector/ComplexSelector.js; ui-common ships its own ComplexSelector, so this patch does not reach it: drop it unless the rest still matters; keyed to 0.6.2, not the 0.7.11 ui-common pins |
 
 ### Overlays rendered into document.body (1)
 
@@ -149,6 +149,6 @@ ui-common's built-in strings resolve through Astryx's `InternationalizationProvi
 
 ## Notes
 
-- pnpm-workspace.yaml sets `minimumReleaseAge`: a package younger than that will not install. @lablup/ui-common 0.2.0 brings `@lablup/ui-common@0.2.0`, `@lablup/ui-common-cli@0.2.0`, `@astryxdesign/core@0.7.7`, `@astryxdesign/theme-neutral@0.7.7`, `@astryxdesign/cli@0.7.7`, `@astryxdesign/lab@0.7.7-canary.273ec43`; list each one younger than your window under `minimumReleaseAgeExclude` until it ages out (a lab canary never ages out).
+- pnpm-workspace.yaml sets `minimumReleaseAge`: a package younger than that will not install. @lablup/ui-common 0.2.0 brings `@lablup/ui-common@0.2.0`, `@lablup/ui-common-cli@0.2.0`, `@astryxdesign/core@0.7.11`, `@astryxdesign/theme-neutral@0.7.11`, `@astryxdesign/cli@0.7.11`, `@astryxdesign/lab@0.7.11-canary.d810271`; list each one younger than your window under `minimumReleaseAgeExclude` until it ages out (a lab canary never ages out).
 - Astryx codemod "migrate-theme-catalog-to-descriptors" rewrites an Astryx integration package (Give each integration theme a typed descriptor instead of the manifest.json catalog); run `ui-common astryx upgrade` if this project is one.
 - Astryx codemod "migrate-copied-themes-to-descriptors" rewrites an Astryx integration package (Give copied app themes their local descriptors); run `ui-common astryx upgrade` if this project is one.

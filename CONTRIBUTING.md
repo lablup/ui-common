@@ -598,7 +598,9 @@ pnpm run test:visual:docker -u                       # rewrite the baselines
 pnpm run test:visual:docker src/components/Board -u  # put -u after the path
 ```
 
-A new story has no baseline and fails CI until you add one. When a visual change
+A new story has no baseline and fails CI until you add one. When a change
+moves the painted area, the sizes differ and there is no diff image; compare
+the actual screenshot with the reference instead. When a visual change
 is intended, update the baselines and commit them with the change, so the
 review shows the picture changing. Give a story that cannot be stable (it
 animates on a timer, for example) `tags: ["no-vrt"]`.

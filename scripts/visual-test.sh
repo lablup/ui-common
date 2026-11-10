@@ -36,6 +36,6 @@ exec docker run --rm --init --platform linux/amd64 \
     $pnpm install --frozen-lockfile --prefer-offline --store-dir /pnpm-store --reporter=append-only || exit
     status=0
     $pnpm run test:visual "$@" || status=$?
-    chown -R "$HOST_OWNER" test/visual/__screenshots__ .vitest-attachments 2>/dev/null
+    chown -R "$HOST_OWNER" test/visual/__screenshots__ .vitest 2>/dev/null
     exit $status
   ' "$pnpm_spec" "$@"

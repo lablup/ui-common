@@ -56,6 +56,10 @@ export default defineConfig({
   ],
   test: {
     name: "visual",
+    // addon-vitest turns API writes off unless they are allowed here, and
+    // Vitest writes screenshots through that API: without this, every new or
+    // failing screenshot errors with "Couldn't write file to fs".
+    api: { allowWrite: true },
     setupFiles: ["./test/visual/setup.ts"],
     browser: {
       enabled: true,
@@ -69,7 +73,7 @@ export default defineConfig({
       expect: {
         toMatchScreenshot: {
           // Vitest's defaults otherwise: pixelmatch, no mismatched pixels
-          // allowed, diffs under .vitest-attachments.
+          // allowed, diffs under .vitest/attachments.
           resolveScreenshotPath: shotPath,
         },
       },
