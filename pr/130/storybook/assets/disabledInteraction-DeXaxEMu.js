@@ -1,1 +1,0 @@
-import{n as e}from"./rolldown-runtime-DkW27tQK.js";function t(e){return{onClick:e=>{e.preventDefault(),e.stopPropagation()},onKeyDown:t=>{t.key===`Enter`||t.key===` `?t.preventDefault():e?.(t)}}}function n(){return(n=e((()=>{})))()}export{n,t};
