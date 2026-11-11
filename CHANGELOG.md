@@ -5,6 +5,21 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ## [Unreleased]
 
+### Added
+
+- **`MultiSelector`: `showTooltip` lists the selection on the trigger
+  (#159).** Selections past what the trigger shows collapse into `+N`, and
+  long labels are cut off, so the user had to open the listbox to see what is
+  selected. With `showTooltip`, hovering or focusing the trigger shows every
+  selected label, comma-separated, in a `Tooltip`. Labels come from
+  `options`, sections included, and a value with no option shows as itself;
+  controlled and uncontrolled values both work. The tooltip stays shut while
+  the listbox is open (`onOpenChange` is still called), and there is none
+  while nothing is selected, while the control is disabled (its
+  `disabledMessage` keeps the trigger) or with `renderTrigger`. A `ref` still
+  reaches the trigger. Off by default, so existing call sites render as
+  before.
+
 ### Fixed
 
 - **`BoardItemTitle`: a long title no longer overflows a narrow row.** The

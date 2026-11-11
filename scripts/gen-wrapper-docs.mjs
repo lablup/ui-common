@@ -162,6 +162,15 @@ const WRAPPERS = {
         note: "An option's disabled also takes { reason: string }: the option is disabled, hovering its row shows the reason in a tooltip, and the reason is part of the option's accessible name. renderOption still receives a boolean disabled.",
       },
     },
+    add: [
+      {
+        name: "showTooltip",
+        type: "boolean",
+        default: "false",
+        description:
+          "Lists every selected option's label, comma-separated, in a tooltip on the trigger, so the selections behind +N or an ellipsis can be read without opening the listbox. Held shut while the listbox is open; none while nothing is selected, while disabled (disabledMessage keeps the trigger), or with renderTrigger.",
+      },
+    ],
     example:
       '<Form.Item name="groups" label="Groups">\n  <MultiSelector\n    options={[\n      { value: "dev", label: "Developers" },\n      { value: "ops", label: "Operators" },\n    ]}\n  />\n</Form.Item>',
     standalone:
