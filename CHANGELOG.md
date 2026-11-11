@@ -25,6 +25,13 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   content's), so on a narrower screen it scrolls sideways inside the
   popover instead of being cut off. The popover stays as tall as the panel
   and never scrolls down.
+- **`DataGrid`'s bottom bar wraps in a narrow container** (#129). The range
+  text, the pager and the settings / export buttons sat on one row that never
+  wrapped, so in a narrow card that clips its content the page buttons and the
+  page-size selector were cut off. The bar now wraps, end-aligned as before:
+  the range text takes its own line first, and the pager's own row (page-size
+  selector, page buttons) wraps next. The pager gets the
+  `uic-data-grid__pagination` class, merged with a `pagination.className`.
 
 ## [0.2.0-alpha.21]
 
