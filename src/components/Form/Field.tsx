@@ -66,8 +66,17 @@ export interface FieldProps {
   isListField?: boolean;
   isList?: boolean;
   onReset?: () => void;
-  onMetaChange?: (meta: Meta & { destroy?: boolean }) => void;
+  onMetaChange?: (meta: FieldMetaEvent) => void;
 }
+
+/**
+ * What `onMetaChange` receives. `held` carries the lists a `dependencies`
+ * re-validation emptied, until it settles; `FormItem` shows them meanwhile.
+ */
+export type FieldMetaEvent = Meta & {
+  destroy?: boolean;
+  held?: Pick<Meta, "errors" | "warnings">;
+};
 
 interface InternalFieldProps extends Omit<FieldProps, "name"> {
   name?: InternalNamePath;
@@ -140,7 +149,9 @@ class Field
 
   private warnings: string[] = EMPTY_ERRORS;
 
-  private metaCache: (Meta & { destroy?: boolean }) | null = null;
+  private held: Pick<Meta, "errors" | "warnings"> | null = null;
+
+  private metaCache: FieldMetaEvent | null = null;
 
   constructor(props: InternalFieldProps) {
     super(props);
@@ -208,7 +219,8 @@ class Field
   private triggerMetaEvent = (destroy?: boolean) => {
     const { onMetaChange } = this.props;
     if (onMetaChange) {
-      const meta = { ...this.getMeta(), destroy };
+      const meta: FieldMetaEvent = { ...this.getMeta(), destroy };
+      if (this.held) meta.held = this.held;
       if (!isEqual(this.metaCache, meta)) {
         onMetaChange(meta);
       }
@@ -242,6 +254,7 @@ class Field
       this.touched = true;
       this.dirty = true;
       this.validatePromise = null;
+      this.held = null;
       this.errors = EMPTY_ERRORS;
       this.warnings = EMPTY_ERRORS;
       this.triggerMetaEvent();
@@ -253,6 +266,7 @@ class Field
           this.touched = false;
           this.dirty = false;
           this.validatePromise = undefined;
+          this.held = null;
           this.errors = EMPTY_ERRORS;
           this.warnings = EMPTY_ERRORS;
           this.triggerMetaEvent();
@@ -289,6 +303,7 @@ class Field
           if ("warnings" in data) {
             this.warnings = data.warnings || EMPTY_ERRORS;
           }
+          this.held = null;
           this.dirty = true;
           this.triggerMetaEvent();
           this.reRender();
@@ -390,6 +405,7 @@ class Field
           // Ignore a stale run: only the latest validation may publish.
           if (this.validatePromise === rootPromise) {
             this.validatePromise = null;
+            this.held = null;
             const nextErrors: string[] = [];
             const nextWarnings: string[] = [];
             ruleErrors.forEach?.(({ rule: { warningOnly }, errors = [] }) => {
@@ -413,6 +429,14 @@ class Field
       return rootPromise as Promise<RuleError[]>;
     }
 
+    // A dependency re-validation keeps the lists it is about to empty, so the
+    // item does not flicker; every other validation clears them as upstream.
+    this.held = showDelayFrame
+      ? (this.validatePromise && this.held) || {
+          errors: this.errors,
+          warnings: this.warnings,
+        }
+      : null;
     this.validatePromise = rootPromise;
     this.dirty = true;
     this.errors = EMPTY_ERRORS;

@@ -14,7 +14,7 @@
  *    own help does not report into an ancestor as well.
  * 4. `noStyle` is a pure passthrough: state only, no shell.
  */
-import Field, { type FieldProps } from "./Field";
+import Field, { type FieldMetaEvent, type FieldProps } from "./Field";
 import FormItemVisual from "./FormItemVisual";
 import {
   FieldContext,
@@ -151,7 +151,6 @@ type SubMetaMap = Record<
     errors?: React.ReactNode[];
     warnings?: React.ReactNode[];
     name?: InternalNamePath;
-    validating?: boolean;
   }
 >;
 
@@ -234,7 +233,9 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
   // path used to unpublish it has to be the one we published under.
   const fieldKeyPathRef = React.useRef<InternalNamePath | null>(null);
 
-  const onMetaChange = (nextMeta: Meta & { destroy?: boolean }) => {
+  const onMetaChange = ({ held, ...fieldMeta }: FieldMetaEvent) => {
+    // While a dependency re-validates the field, show what it showed before.
+    const nextMeta = held ? { ...fieldMeta, ...held } : fieldMeta;
     const keyInfo = listContext?.getKey(nextMeta.name);
     setMeta(nextMeta.destroy ? genEmptyMeta() : nextMeta);
 
@@ -273,24 +274,14 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
     });
   };
 
-  const mergedErrors = React.useMemo<React.ReactNode[]>(
-    () => [
-      ...meta.errors,
-      ...Object.values(subFieldErrors).flatMap((sub) => sub.errors ?? []),
-    ],
-    [meta.errors, subFieldErrors],
-  );
-  const mergedWarnings = React.useMemo<React.ReactNode[]>(
-    () => [
-      ...meta.warnings,
-      ...Object.values(subFieldErrors).flatMap((sub) => sub.warnings ?? []),
-    ],
-    [meta.warnings, subFieldErrors],
-  );
-  const validating =
-    meta.validating || Object.values(subFieldErrors).some((sub) => sub.validating);
-  const shownErrors = useHeldMessages(mergedErrors, validating);
-  const shownWarnings = useHeldMessages(mergedWarnings, validating);
+  const mergedErrors: React.ReactNode[] = [
+    ...meta.errors,
+    ...Object.values(subFieldErrors).flatMap((sub) => sub.errors ?? []),
+  ];
+  const mergedWarnings: React.ReactNode[] = [
+    ...meta.warnings,
+    ...Object.values(subFieldErrors).flatMap((sub) => sub.warnings ?? []),
+  ];
 
   const renderLayout = (
     baseChildren: React.ReactNode,
@@ -377,8 +368,8 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
           fieldId={fieldId}
           fieldHandle={fieldHandle}
           htmlFor={htmlFor}
-          errors={shownErrors}
-          warnings={shownWarnings}
+          errors={mergedErrors}
+          warnings={mergedWarnings}
         >
           <NoStyleItemContext.Provider value={onSubItemMetaChange}>
             {baseChildren}
@@ -496,21 +487,6 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
     </Field>
   );
 };
-
-/**
- * Validation start empties the field's lists, so while it validates the item
- * keeps showing the last list it had; otherwise a re-validation that ends with
- * the same message flickers.
- */
-function useHeldMessages(
-  messages: React.ReactNode[],
-  validating: boolean,
-): React.ReactNode[] {
-  const hold = validating && !messages.length;
-  const [held, setHeld] = React.useState(messages);
-  if (!hold && held !== messages) setHeld(messages);
-  return hold ? held : messages;
-}
 
 /** The text of a label node: strings and numbers, through elements' children. */
 function nodeText(node: React.ReactNode): string | undefined {

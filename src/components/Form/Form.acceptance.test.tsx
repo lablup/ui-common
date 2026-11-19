@@ -1391,6 +1391,7 @@ describe.each(IMPLEMENTATIONS)("form engine acceptance [%s]", (_name, Form) => {
       await user.type(input, digit);
       await settle();
     }
+    observer.takeRecords().forEach((record) => removed.push(...record.removedNodes));
     observer.disconnect();
 
     expect(removed.filter((node) => node.contains(warning))).toEqual([]);
@@ -1399,6 +1400,173 @@ describe.each(IMPLEMENTATIONS)("form engine acceptance [%s]", (_name, Form) => {
     // A re-validation that clears the warning still takes it off screen.
     await user.type(input, "0");
     await waitFor(() => expect(screen.queryByText("warn")).not.toBeInTheDocument());
+  });
+
+  // 26c. An item showing messages from several sources holds each one: a
+  //      noStyle child re-validating by a dependency keeps its warning while a
+  //      sibling's warning stays as it is.
+  it("26c. a re-validating noStyle child keeps its warning next to a sibling's", async () => {
+    let form!: FormInstance;
+    const captureForm = (instance: FormInstance) => {
+      form = instance;
+    };
+    const Demo = () => {
+      const instance = useTestForm(captureForm);
+      return (
+        <Form form={instance} initialValues={{ a: 1, b: 1, c: 1 }}>
+          <Form.Item name="a">
+            <Input aria-label="a" />
+          </Form.Item>
+          <Form.Item label="Pair">
+            <Form.Item
+              noStyle
+              name="b"
+              dependencies={["a"]}
+              rules={[
+                ({ getFieldValue }: FormInstance) => ({
+                  warningOnly: true,
+                  validator: () =>
+                    Number(getFieldValue("a")) < 10
+                      ? Promise.reject(new Error("warn b"))
+                      : Promise.resolve(),
+                }),
+              ]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              noStyle
+              name="c"
+              rules={[
+                {
+                  warningOnly: true,
+                  validator: () => Promise.reject(new Error("warn c")),
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Form.Item>
+        </Form>
+      );
+    };
+    render(<Demo />);
+
+    await act(async () => {
+      await form.validateFields(["b", "c"]);
+    });
+    await settle();
+    expect(screen.getByText("warn b")).toBeInTheDocument();
+
+    // A sibling's message can take over the same row, so watch the text, not
+    // the nodes: after every DOM change, is "warn b" still on screen?
+    let missing = 0;
+    const check = () => {
+      if (!document.body.textContent?.includes("warn b")) missing += 1;
+    };
+    const observer = new MutationObserver(check);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    const user = userEvent.setup();
+    const input = screen.getByRole("textbox", { name: "a" });
+    for (const digit of ["2", "3"]) {
+      await user.clear(input);
+      await user.type(input, digit);
+      await settle();
+    }
+    if (observer.takeRecords().length) check();
+    observer.disconnect();
+
+    expect(missing).toBe(0);
+    expect(screen.getByText("warn b")).toBeInTheDocument();
+    expect(screen.getByText("warn c")).toBeInTheDocument();
+  });
+
+  // 26d. Only a dependency re-validation holds the old message. Editing the
+  //      field itself clears it while its own async rule runs, as antd does.
+  it("26d. editing a field clears its error while its async rule runs", async () => {
+    let form!: FormInstance;
+    const captureForm = (instance: FormInstance) => {
+      form = instance;
+    };
+    let release!: () => void;
+    const Demo = () => {
+      const instance = useTestForm(captureForm);
+      return (
+        <Form form={instance} initialValues={{ name: "taken" }}>
+          <Form.Item
+            name="name"
+            rules={[
+              {
+                validator: (_: unknown, value: string) =>
+                  value === "taken"
+                    ? Promise.reject(new Error("Name taken"))
+                    : new Promise<void>((resolve) => {
+                        release = resolve;
+                      }),
+              },
+            ]}
+          >
+            <Input aria-label="name" />
+          </Form.Item>
+        </Form>
+      );
+    };
+    render(<Demo />);
+
+    await act(async () => {
+      await form.validateFields().catch(() => {});
+    });
+    await settle();
+    expect(screen.getByText("Name taken")).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.type(screen.getByRole("textbox", { name: "name" }), "2");
+    await settle();
+    expect(form.isFieldValidating("name")).toBe(true);
+    expect(screen.queryByText("Name taken")).not.toBeInTheDocument();
+
+    await act(async () => {
+      release();
+    });
+    await settle();
+    expect(form.getFieldError("name")).toEqual([]);
+  });
+
+  // 26e. `setFields` that clears the errors and marks the field validating
+  //      clears what is on screen too.
+  it("26e. `setFields` clearing errors while validating takes them off screen", async () => {
+    let form!: FormInstance;
+    const captureForm = (instance: FormInstance) => {
+      form = instance;
+    };
+    const Demo = () => {
+      const instance = useTestForm(captureForm);
+      return (
+        <Form form={instance}>
+          <Form.Item name="name">
+            <Input />
+          </Form.Item>
+        </Form>
+      );
+    };
+    render(<Demo />);
+
+    await act(async () => {
+      form.setFields([{ name: "name", errors: ["already exists"] }]);
+    });
+    await settle();
+    expect(screen.getByText("already exists")).toBeInTheDocument();
+
+    await act(async () => {
+      form.setFields([{ name: "name", errors: [], validating: true }]);
+    });
+    await settle();
+    expect(form.isFieldValidating("name")).toBe(true);
+    expect(screen.queryByText("already exists")).not.toBeInTheDocument();
   });
 
   // 27. The nine server-error injection sites: `setFields` writes errors that
