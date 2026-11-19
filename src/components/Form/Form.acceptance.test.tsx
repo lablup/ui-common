@@ -1338,6 +1338,69 @@ describe.each(IMPLEMENTATIONS)("form engine acceptance [%s]", (_name, Form) => {
     expect(form.getFieldsError().some(({ errors }) => errors.length)).toBe(false);
   });
 
+  // 26b. Validation start empties the item's lists before the validator runs
+  //      again, so a dependency change must not take the warning off screen
+  //      when the re-validation ends with the same message.
+  it("26b. a dependency re-validation keeps an unchanged warning on screen", async () => {
+    let form!: FormInstance;
+    const captureForm = (instance: FormInstance) => {
+      form = instance;
+    };
+    const Demo = () => {
+      const instance = useTestForm(captureForm);
+      return (
+        <Form form={instance} initialValues={{ a: 1, b: 1 }}>
+          <Form.Item name="a">
+            <Input aria-label="a" />
+          </Form.Item>
+          <Form.Item
+            name="b"
+            dependencies={["a"]}
+            rules={[
+              ({ getFieldValue }: FormInstance) => ({
+                warningOnly: true,
+                validator: () =>
+                  Number(getFieldValue("a")) < 10
+                    ? Promise.reject(new Error("warn"))
+                    : Promise.resolve(),
+              }),
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      );
+    };
+    render(<Demo />);
+
+    await act(async () => {
+      await form.validateFields(["b"]);
+    });
+    await settle();
+    const warning = screen.getByText("warn");
+
+    const removed: Node[] = [];
+    const observer = new MutationObserver((records) => {
+      records.forEach((record) => removed.push(...record.removedNodes));
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    const user = userEvent.setup();
+    const input = screen.getByRole("textbox", { name: "a" });
+    for (const digit of ["2", "3", "4"]) {
+      await user.clear(input);
+      await user.type(input, digit);
+      await settle();
+    }
+    observer.disconnect();
+
+    expect(removed.filter((node) => node.contains(warning))).toEqual([]);
+    expect(screen.getByText("warn")).toBe(warning);
+
+    // A re-validation that clears the warning still takes it off screen.
+    await user.type(input, "0");
+    await waitFor(() => expect(screen.queryByText("warn")).not.toBeInTheDocument());
+  });
+
   // 27. The nine server-error injection sites: `setFields` writes errors that
   //     survive until `resetFields()` clears them.
   it("27. `setFields` injects server errors and `resetFields()` clears them", async () => {

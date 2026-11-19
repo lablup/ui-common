@@ -190,6 +190,43 @@ function LabelExtraForm(props: FormProps) {
   );
 }
 
+/**
+ * A `warningOnly` rule on an item with `dependencies`: changing the dependency
+ * re-validates the item, and the warning stays on screen throughout.
+ */
+function DependentWarningForm(props: FormProps) {
+  return (
+    <Form
+      layout="vertical"
+      {...props}
+      initialValues={{ accelerators: 1, clusterSize: 1 }}
+      style={{ maxWidth: 480 }}
+    >
+      <FormItem name="accelerators" label="Accelerators">
+        <StepNumberInput label="Accelerators" isLabelHidden steps={[1, 2, 3, 4, 8]} />
+      </FormItem>
+      <FormItem
+        name="clusterSize"
+        label="Cluster size"
+        dependencies={["accelerators"]}
+        rules={[
+          {
+            warningOnly: true,
+            validator: (_, value) =>
+              value === 1
+                ? Promise.reject(
+                    new Error("A cluster of size 1 runs as a single-node session."),
+                  )
+                : Promise.resolve(),
+          },
+        ]}
+      >
+        <StepNumberInput label="Cluster size" isLabelHidden steps={[1, 2, 4]} />
+      </FormItem>
+    </Form>
+  );
+}
+
 const meta = {
   title: "Components/Form",
   // `Form` itself: its static members (`Form.Item`, ...) are not part of the props.
@@ -262,4 +299,8 @@ export const ItemVisual: Story = {
 
 export const LabelExtra: Story = {
   render: (args) => <LabelExtraForm {...args} />,
+};
+
+export const DependentWarning: Story = {
+  render: (args) => <DependentWarningForm {...args} />,
 };

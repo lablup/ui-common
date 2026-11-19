@@ -151,6 +151,7 @@ type SubMetaMap = Record<
     errors?: React.ReactNode[];
     warnings?: React.ReactNode[];
     name?: InternalNamePath;
+    validating?: boolean;
   }
 >;
 
@@ -272,14 +273,24 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
     });
   };
 
-  const mergedErrors: React.ReactNode[] = [
-    ...meta.errors,
-    ...Object.values(subFieldErrors).flatMap((sub) => sub.errors ?? []),
-  ];
-  const mergedWarnings: React.ReactNode[] = [
-    ...meta.warnings,
-    ...Object.values(subFieldErrors).flatMap((sub) => sub.warnings ?? []),
-  ];
+  const mergedErrors = React.useMemo<React.ReactNode[]>(
+    () => [
+      ...meta.errors,
+      ...Object.values(subFieldErrors).flatMap((sub) => sub.errors ?? []),
+    ],
+    [meta.errors, subFieldErrors],
+  );
+  const mergedWarnings = React.useMemo<React.ReactNode[]>(
+    () => [
+      ...meta.warnings,
+      ...Object.values(subFieldErrors).flatMap((sub) => sub.warnings ?? []),
+    ],
+    [meta.warnings, subFieldErrors],
+  );
+  const validating =
+    meta.validating || Object.values(subFieldErrors).some((sub) => sub.validating);
+  const shownErrors = useHeldMessages(mergedErrors, validating);
+  const shownWarnings = useHeldMessages(mergedWarnings, validating);
 
   const renderLayout = (
     baseChildren: React.ReactNode,
@@ -366,8 +377,8 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
           fieldId={fieldId}
           fieldHandle={fieldHandle}
           htmlFor={htmlFor}
-          errors={mergedErrors}
-          warnings={mergedWarnings}
+          errors={shownErrors}
+          warnings={shownWarnings}
         >
           <NoStyleItemContext.Provider value={onSubItemMetaChange}>
             {baseChildren}
@@ -485,6 +496,28 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
     </Field>
   );
 };
+
+/**
+ * The message list to display. Validation start empties the field's lists, so
+ * the previous list stays while validating, and an empty one shows only after
+ * 10ms (antd's `useDebounce`); a new list shows at once.
+ */
+function useHeldMessages(
+  messages: React.ReactNode[],
+  validating: boolean,
+): React.ReactNode[] {
+  const [held, setHeld] = React.useState(messages);
+  React.useEffect(() => {
+    if (messages.length) {
+      setHeld(messages);
+      return;
+    }
+    if (validating) return;
+    const timer = setTimeout(() => setHeld(messages), 10);
+    return () => clearTimeout(timer);
+  }, [messages, validating]);
+  return messages.length ? messages : held;
+}
 
 /** The text of a label node: strings and numbers, through elements' children. */
 function nodeText(node: React.ReactNode): string | undefined {

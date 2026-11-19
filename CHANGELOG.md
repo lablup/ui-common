@@ -22,6 +22,14 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
+- **`Form.Item`: a message no longer flickers while the item re-validates
+  (#164).** Validation start empties the field's errors and warnings, and a
+  `dependencies` re-validation runs a frame later, so a `warningOnly` message
+  disappeared and came back on every change of the field it depends on. The
+  item now keeps showing its previous messages while the field is validating,
+  and an emptied list shows only after 10ms (as antd's `Form.Item` does); a
+  new list shows at once. `getFieldError()` / `getFieldWarning()` and the
+  item's status are unchanged.
 - **`BoardItemTitle`: a long title no longer overflows a narrow row.** The
   title group did not shrink (`flex-shrink: 0`), so it stayed as wide as its
   text: a title wider than the item spilled past its edge and was clipped,
