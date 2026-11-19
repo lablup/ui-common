@@ -498,25 +498,18 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
 };
 
 /**
- * The message list to display. Validation start empties the field's lists, so
- * the previous list stays while validating, and an empty one shows only after
- * 10ms (antd's `useDebounce`); a new list shows at once.
+ * Validation start empties the field's lists, so while it validates the item
+ * keeps showing the last list it had; otherwise a re-validation that ends with
+ * the same message flickers.
  */
 function useHeldMessages(
   messages: React.ReactNode[],
   validating: boolean,
 ): React.ReactNode[] {
+  const hold = validating && !messages.length;
   const [held, setHeld] = React.useState(messages);
-  React.useEffect(() => {
-    if (messages.length) {
-      setHeld(messages);
-      return;
-    }
-    if (validating) return;
-    const timer = setTimeout(() => setHeld(messages), 10);
-    return () => clearTimeout(timer);
-  }, [messages, validating]);
-  return messages.length ? messages : held;
+  if (!hold && held !== messages) setHeld(messages);
+  return hold ? held : messages;
 }
 
 /** The text of a label node: strings and numbers, through elements' children. */
