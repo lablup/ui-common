@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 
@@ -190,40 +190,72 @@ function LabelExtraForm(props: FormProps) {
   );
 }
 
+const CLUSTER_WARNING = "A cluster of size 1 runs as a single-node session.";
+
 /**
- * A `warningOnly` rule on an item with `dependencies`: changing the dependency
- * re-validates the item, and the warning stays on screen throughout.
+ * A `warningOnly` rule on an item with `dependencies`. Step Accelerators: each
+ * change re-validates Cluster size, and the counter records every time the
+ * warning left the DOM, a flicker too short to see.
  */
 function DependentWarningForm(props: FormProps) {
+  const [form] = Form.useForm();
+  const [removals, setRemovals] = useState(0);
+  const [container, setContainer] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    form.validateFields(["clusterSize"]).catch(() => {});
+  }, [form]);
+
+  useEffect(() => {
+    if (!container) return;
+    const observer = new MutationObserver((records) => {
+      const count = records
+        .flatMap((record) => [...record.removedNodes])
+        .filter((node) => node.textContent?.includes(CLUSTER_WARNING)).length;
+      if (count) setRemovals((prev) => prev + count);
+    });
+    observer.observe(container, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [container]);
+
   return (
-    <Form
-      layout="vertical"
-      {...props}
-      initialValues={{ accelerators: 1, clusterSize: 1 }}
-      style={{ maxWidth: 480 }}
-    >
-      <FormItem name="accelerators" label="Accelerators">
-        <StepNumberInput label="Accelerators" isLabelHidden steps={[1, 2, 3, 4, 8]} />
-      </FormItem>
-      <FormItem
-        name="clusterSize"
-        label="Cluster size"
-        dependencies={["accelerators"]}
-        rules={[
-          {
-            warningOnly: true,
-            validator: (_, value) =>
-              value === 1
-                ? Promise.reject(
-                    new Error("A cluster of size 1 runs as a single-node session."),
-                  )
-                : Promise.resolve(),
-          },
-        ]}
+    <VStack ref={setContainer} gap={4} align="stretch" style={{ maxWidth: 480 }}>
+      <Form
+        layout="vertical"
+        {...props}
+        form={form}
+        initialValues={{ accelerators: 1, clusterSize: 1 }}
       >
-        <StepNumberInput label="Cluster size" isLabelHidden steps={[1, 2, 4]} />
-      </FormItem>
-    </Form>
+        <FormItem name="accelerators" label="Accelerators">
+          <StepNumberInput label="Accelerators" isLabelHidden steps={[1, 2, 3, 4, 8]} />
+        </FormItem>
+        <FormItem
+          name="clusterSize"
+          label="Cluster size"
+          dependencies={["accelerators"]}
+          rules={[
+            {
+              warningOnly: true,
+              validator: (_, value) =>
+                value === 1
+                  ? Promise.reject(new Error(CLUSTER_WARNING))
+                  : Promise.resolve(),
+            },
+          ]}
+        >
+          <StepNumberInput label="Cluster size" isLabelHidden steps={[1, 2, 4]} />
+        </FormItem>
+      </Form>
+      <HStack gap={2} align="center">
+        <Text>Warning removed from the DOM: {removals}</Text>
+        <Button
+          variant="secondary"
+          size="sm"
+          label="Reset count"
+          onClick={() => setRemovals(0)}
+        />
+      </HStack>
+    </VStack>
   );
 }
 
