@@ -195,11 +195,12 @@ const CLUSTER_WARNING = "A cluster of size 1 runs as a single-node session.";
 /**
  * A `warningOnly` rule on an item with `dependencies`. Step Accelerators: each
  * change re-validates Cluster size, and the counter records every time the
- * warning left the DOM, a flicker too short to see.
+ * warning left the DOM and came back within 100ms, a flicker too short to see.
+ * Clearing the warning by changing Cluster size is not counted.
  */
 function DependentWarningForm(props: FormProps) {
   const [form] = Form.useForm();
-  const [removals, setRemovals] = useState(0);
+  const [flickers, setFlickers] = useState(0);
   const [container, setContainer] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -208,11 +209,17 @@ function DependentWarningForm(props: FormProps) {
 
   useEffect(() => {
     if (!container) return;
+    const hasWarning = (nodes: NodeList) =>
+      [...nodes].some((node) => node.textContent?.includes(CLUSTER_WARNING));
+    let removedAt: number | null = null;
     const observer = new MutationObserver((records) => {
-      const count = records
-        .flatMap((record) => [...record.removedNodes])
-        .filter((node) => node.textContent?.includes(CLUSTER_WARNING)).length;
-      if (count) setRemovals((prev) => prev + count);
+      for (const record of records) {
+        if (hasWarning(record.removedNodes)) removedAt = performance.now();
+        if (hasWarning(record.addedNodes) && removedAt !== null) {
+          if (performance.now() - removedAt < 100) setFlickers((prev) => prev + 1);
+          removedAt = null;
+        }
+      }
     });
     observer.observe(container, { childList: true, subtree: true });
     return () => observer.disconnect();
@@ -247,12 +254,12 @@ function DependentWarningForm(props: FormProps) {
         </FormItem>
       </Form>
       <HStack gap={2} align="center">
-        <Text>Warning removed from the DOM: {removals}</Text>
+        <Text>Warning flickered (removed and back within 100ms): {flickers}</Text>
         <Button
           variant="secondary"
           size="sm"
           label="Reset count"
-          onClick={() => setRemovals(0)}
+          onClick={() => setFlickers(0)}
         />
       </HStack>
     </VStack>
