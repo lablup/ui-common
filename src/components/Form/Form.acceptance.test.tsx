@@ -1485,9 +1485,9 @@ describe.each(IMPLEMENTATIONS)("form engine acceptance [%s]", (_name, Form) => {
     expect(screen.getByText("warn c")).toBeInTheDocument();
   });
 
-  // 26d. Only a dependency re-validation holds the old message. Editing the
-  //      field itself clears it while its own async rule runs, as antd does.
-  it("26d. editing a field clears its error while its async rule runs", async () => {
+  // 26d. Editing the field itself holds its message too, until its own rule
+  //      settles; the store still reports the emptied list meanwhile.
+  it("26d. editing a field keeps its error on screen until its async rule settles", async () => {
     let form!: FormInstance;
     const captureForm = (instance: FormInstance) => {
       form = instance;
@@ -1527,13 +1527,74 @@ describe.each(IMPLEMENTATIONS)("form engine acceptance [%s]", (_name, Form) => {
     await user.type(screen.getByRole("textbox", { name: "name" }), "2");
     await settle();
     expect(form.isFieldValidating("name")).toBe(true);
-    expect(screen.queryByText("Name taken")).not.toBeInTheDocument();
+    expect(form.getFieldError("name")).toEqual([]);
+    expect(screen.getByText("Name taken")).toBeInTheDocument();
 
     await act(async () => {
       release();
     });
     await settle();
     expect(form.getFieldError("name")).toEqual([]);
+    expect(screen.queryByText("Name taken")).not.toBeInTheDocument();
+  });
+
+  // 26f. Editing the field that carries a warning, to a value that keeps it,
+  //      never takes the warning off screen.
+  it("26f. editing a warned field to a value that keeps the warning does not flicker", async () => {
+    let form!: FormInstance;
+    const captureForm = (instance: FormInstance) => {
+      form = instance;
+    };
+    const Demo = () => {
+      const instance = useTestForm(captureForm);
+      return (
+        <Form form={instance} initialValues={{ gpu: 1 }}>
+          <Form.Item
+            name="gpu"
+            rules={[
+              {
+                warningOnly: true,
+                validator: async (_: unknown, value: string) => {
+                  if (Number(value) < 10) throw new Error("too few GPUs");
+                },
+              },
+            ]}
+          >
+            <Input aria-label="gpu" />
+          </Form.Item>
+        </Form>
+      );
+    };
+    render(<Demo />);
+
+    await act(async () => {
+      await form.validateFields(["gpu"]);
+    });
+    await settle();
+    expect(screen.getByText("too few GPUs")).toBeInTheDocument();
+
+    let missing = 0;
+    const check = () => {
+      if (!document.body.textContent?.includes("too few GPUs")) missing += 1;
+    };
+    const observer = new MutationObserver(check);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    const user = userEvent.setup();
+    const input = screen.getByRole("textbox", { name: "gpu" });
+    for (const digit of ["2", "3", "4"]) {
+      await user.clear(input);
+      await user.type(input, digit);
+      await settle();
+    }
+    if (observer.takeRecords().length) check();
+    observer.disconnect();
+
+    expect(missing).toBe(0);
+    expect(screen.getByText("too few GPUs")).toBeInTheDocument();
   });
 
   // 26e. `setFields` that clears the errors and marks the field validating

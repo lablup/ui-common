@@ -22,16 +22,15 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Fixed
 
-- **`Form.Item`: a message no longer flickers while a dependency
-  re-validates the item (#164).** Validation start empties the field's errors
-  and warnings, and a `dependencies` re-validation runs a frame later, so a
-  `warningOnly` message disappeared and came back on every change of the
-  field it depends on. During a `dependencies` re-validation the item now
-  keeps showing the messages it had, each source on its own (a `noStyle`
-  child included), until the result arrives. Editing the field itself,
-  `validateFields()` and `setFields` clear the messages at once, as before.
-  `getFieldError()` / `getFieldWarning()` and the item's status are
-  unchanged.
+- **`Form.Item`: a message no longer flickers while the item re-validates
+  (#164).** Validation start empties the field's errors and warnings, and the
+  result arrives a frame or more later, so a `warningOnly` message
+  disappeared and came back on every change: of a field the item depends
+  on, or of the item's own value. The item now keeps showing the messages it
+  had, each source on its own (a `noStyle` child included), until the
+  validation settles. `setFields`, `resetFields` and `setFieldsValue` still
+  clear them at once. `getFieldError()` / `getFieldWarning()` and the item's
+  status are unchanged.
 - **`BoardItemTitle`: a long title no longer overflows a narrow row.** The
   title group did not shrink (`flex-shrink: 0`), so it stayed as wide as its
   text: a title wider than the item spilled past its edge and was clipped,

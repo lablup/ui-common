@@ -70,8 +70,8 @@ export interface FieldProps {
 }
 
 /**
- * What `onMetaChange` receives. `held` carries the lists a `dependencies`
- * re-validation emptied, until it settles; `FormItem` shows them meanwhile.
+ * What `onMetaChange` receives. `held` carries the lists a validation run
+ * emptied, until it settles; `FormItem` shows them meanwhile.
  */
 export type FieldMetaEvent = Meta & {
   destroy?: boolean;
@@ -429,14 +429,12 @@ class Field
       return rootPromise as Promise<RuleError[]>;
     }
 
-    // A dependency re-validation keeps the lists it is about to empty, so the
-    // item does not flicker; every other validation clears them as upstream.
-    this.held = showDelayFrame
-      ? (this.validatePromise && this.held) || {
-          errors: this.errors,
-          warnings: this.warnings,
-        }
-      : null;
+    // Keep the lists this run is about to empty until it settles, so the item
+    // does not flicker; `setFields` / reset / `setFieldsValue` still clear them.
+    this.held = (this.validatePromise && this.held) || {
+      errors: this.errors,
+      warnings: this.warnings,
+    };
     this.validatePromise = rootPromise;
     this.dirty = true;
     this.errors = EMPTY_ERRORS;

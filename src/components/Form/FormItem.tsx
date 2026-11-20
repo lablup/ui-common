@@ -234,7 +234,7 @@ const FormItem = <Values,>(props: FormItemProps<Values>) => {
   const fieldKeyPathRef = React.useRef<InternalNamePath | null>(null);
 
   const onMetaChange = ({ held, ...fieldMeta }: FieldMetaEvent) => {
-    // While a dependency re-validates the field, show what it showed before.
+    // While the field re-validates, show what it showed before.
     const nextMeta = held ? { ...fieldMeta, ...held } : fieldMeta;
     const keyInfo = listContext?.getKey(nextMeta.name);
     setMeta(nextMeta.destroy ? genEmptyMeta() : nextMeta);
