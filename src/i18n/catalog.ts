@@ -37,6 +37,7 @@ import { formMessages } from "../components/Form/Form.messages";
 import { notificationStackMessages } from "../components/NotificationStack/NotificationStack.messages";
 import { pageHeaderMessages } from "../components/PageHeader/PageHeader.messages";
 import { pagedSelectorMessages } from "../components/PagedSelector/PagedSelector.messages";
+import { passwordInputMessages } from "../components/PasswordInput/PasswordInput.messages";
 import { selectionLabelMessages } from "../components/SelectionLabel/SelectionLabel.messages";
 import { skeletonMessages } from "../components/Skeleton/Skeleton.messages";
 import { statisticMessages } from "../components/Statistic/Statistic.messages";
@@ -64,6 +65,7 @@ export const uiCommonCatalog: Catalog = {
   ...numberStepperMessages,
   ...pageHeaderMessages,
   ...pagedSelectorMessages,
+  ...passwordInputMessages,
   ...selectionLabelMessages,
   ...skeletonMessages,
   ...statisticMessages,

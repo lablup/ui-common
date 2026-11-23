@@ -18,6 +18,7 @@ import { beforeEach, describe, expect, expectTypeOf, it, vi } from "vitest";
 
 import { Form, type FormInstance } from "../components/Form";
 import { Modal } from "../components/Modal";
+import { PasswordInput } from "../components/PasswordInput";
 import { Popover } from "../components/Popover";
 import { CheckboxInput } from "./CheckboxInput";
 import { CheckboxList, CheckboxListItem } from "./CheckboxList";
@@ -67,6 +68,7 @@ const CASES: Array<[string, ReactElement, string]> = [
   ["Typeahead", <Typeahead searchSource={source} />, "input"],
   ["Tokenizer", <Tokenizer searchSource={source} />, "input"],
   ["TagsInput", <TagsInput />, "input"],
+  ["PasswordInput", <PasswordInput />, "input"],
   ["DateInput", <DateInput />, "#field"],
   ["TimeInput", <TimeInput />, "#field"],
   ["DateTimeInput", <DateTimeInput />, "#field"],
@@ -575,6 +577,7 @@ const NOT_FIT_CONTENT: Record<string, string | null> = {
   Typeahead: "100%",
   Tokenizer: "100%",
   TagsInput: "100%",
+  PasswordInput: "100%",
   Slider: null,
   SegmentedControl: null,
 };

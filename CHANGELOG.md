@@ -7,6 +7,23 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
+- **`PasswordInput`** (`@lablup/ui-common/PasswordInput`): a password
+  field with a show/hide toggle, for `Form.Item`.
+  It takes `TextInput`'s props, minus `type`, `hasSpellCheck`,
+  `hasAutoCorrect` and `autoCapitalize`, which it owns. A ghost icon button
+  sits inside the field's trailing edge, in the secondary text colour, and
+  the control reserves its room so a long password never runs under it.
+  Pressing it switches between masked and plain text without taking focus
+  from the field (the touch keyboard stays up), and Enter on it does not
+  reach the surrounding form. Its name is "Show password" / "Hide password"
+  (`uic.PasswordInput.showPassword` / `hidePassword`, translated in every
+  locale; `showPasswordLabel` / `hidePasswordLabel` override them).
+  Spellcheck, autocorrect and autocapitalize are off, and Edge's own reveal
+  button is hidden. The reveal state is uncontrolled (`defaultIsRevealed`)
+  or controlled (`isRevealed`, `onRevealedChange`). A disabled field is
+  masked and its toggle disabled, and an uncontrolled one stays masked once
+  enabled again, so a form that disables its fields while it submits hides
+  the password.
 - **`MultiSelector`: `showTooltip` lists the selection on the trigger
   (#159).** Selections past what the trigger shows collapse into `+N`, and
   long labels are cut off, so the user had to open the listbox to see what is

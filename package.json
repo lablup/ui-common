@@ -684,6 +684,10 @@
       "types": "./dist/formControls/NumberInput/index.d.ts",
       "import": "./dist/formControls/NumberInput/index.js"
     },
+    "./PasswordInput": {
+      "types": "./dist/components/PasswordInput/index.d.ts",
+      "import": "./dist/components/PasswordInput/index.js"
+    },
     "./Popover": {
       "types": "./dist/components/Popover/index.d.ts",
       "import": "./dist/components/Popover/index.js"

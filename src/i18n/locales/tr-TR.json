@@ -422,5 +422,13 @@
   "uic.TimeRangeInput.period": {
     "defaultMessage": "ÖÖ/ÖS",
     "description": "Accessible name of the column that picks AM or PM in a 12-hour time picker"
+  },
+  "uic.PasswordInput.showPassword": {
+    "defaultMessage": "Parolayı göster",
+    "description": "Accessible name of the button in a password field that shows the typed password as plain text"
+  },
+  "uic.PasswordInput.hidePassword": {
+    "defaultMessage": "Parolayı gizle",
+    "description": "Accessible name of the button in a password field that masks the shown password again"
   }
 }

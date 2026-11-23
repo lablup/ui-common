@@ -252,6 +252,7 @@ ui-common's own components keep importing Astryx's controls from
 | `OverlayScrollbar`                                             | `src/components/OverlayScrollbar/`   | plain CSS                                           |
 | `ConfirmPopover`                                               | `src/components/ConfirmPopover/`     | `Popover`, `Button`, `Stack`, `Text`                |
 | `PagedSelector`                                                | `src/components/PagedSelector/`      | `ComplexSelector` (fork), `SelectorOption`, `Token` |
+| `PasswordInput`                                                | `src/components/PasswordInput/`      | `TextInput`, `IconButton`, plain CSS                |
 | `SelectionLabel`                                               | `src/components/SelectionLabel/`     | `Text`, `IconButton`, `HStack`                      |
 | `UncontrolledInput`                                            | `src/components/UncontrolledInput/`  | `TextInput`, `NumberInput`                          |
 | `AlertModal`                                                   | `src/components/AlertModal/`         | `Modal`, `Heading`, `Text`, `Button`, `Layout`      |
