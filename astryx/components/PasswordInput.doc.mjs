@@ -20,7 +20,7 @@ export default {
     "login form",
   ],
   description:
-    "A password field with a show/hide toggle inside its trailing edge, built on Astryx's TextInput and taking ui-common's TextInput props. The toggle keeps focus in the field, Enter on it does not submit the form, and spellcheck, autocorrect and autocapitalize are off. A disabled field is masked and its toggle disabled. Like the other form controls it takes no label or status message: put it in a Form.Item, or name it with aria-label on its own.",
+    "A password field with a show/hide toggle inside its trailing edge, built on Astryx's TextInput and taking ui-common's TextInput props. The toggle keeps focus in the field, Enter on it does not submit the form, and spellcheck, autocorrect and autocapitalize are off; the password stays out of the input's value attribute. The password is masked again when the field is disabled, when its form submits and when the page comes back from the back/forward cache, and onRevealedChange(false) reports it. A field disabled when it mounts starts masked. Like the other form controls it takes no label or status message: put it in a Form.Item, or name it with aria-label on its own.",
   props: [
     {
       name: "value",
@@ -52,7 +52,8 @@ export default {
     {
       name: "onRevealedChange",
       type: "(isRevealed: boolean) => void",
-      description: "Called with the new state when the toggle is pressed.",
+      description:
+        "Called with the new state when the toggle is pressed, and with false when the field masks the password on its own (disabled, form submit, back/forward-cache restore).",
     },
     {
       name: "showPasswordLabel",

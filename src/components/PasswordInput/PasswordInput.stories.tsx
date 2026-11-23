@@ -2,6 +2,10 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { fn } from "storybook/test";
 
+import { InputGroup, InputGroupText } from "../../astryx/InputGroup";
+import { HStack, VStack } from "../../astryx/Stack";
+import { Text } from "../../astryx/Text";
+import { Form } from "../Form";
 import { PasswordInput } from "./index";
 import {
   FormItemDemo,
@@ -109,5 +113,69 @@ export const FormDisabled: Story = {
     <FormItemDemo label="Password" disabled initialValue="correct horse">
       <PasswordInput autoComplete="current-password" />
     </FormItemDemo>
+  ),
+};
+
+/**
+ * With `hasFeedback`: the item's status icon sits just before the toggle, and
+ * the text stops short of both.
+ */
+export const WithFeedback: Story = {
+  render: () => (
+    <Form layout="vertical">
+      <VStack gap={2} align="stretch">
+        {(["success", "warning", "error", "validating"] as const).map((status) => (
+          <Form.Item
+            key={status}
+            label={`Password (${status})`}
+            hasFeedback
+            validateStatus={status}
+          >
+            <PasswordInput
+              autoComplete="current-password"
+              defaultValue="a-very-long-passphrase-that-does-not-fit-the-field"
+              defaultIsRevealed
+            />
+          </Form.Item>
+        ))}
+      </VStack>
+    </Form>
+  ),
+};
+
+/** The three sizes: the toggle stays inside the border of the small field. */
+export const Sizes: Story = {
+  render: (args) => (
+    <VStack gap={2} align="stretch">
+      {(["sm", "md", "lg"] as const).map((size) => (
+        <PasswordInput
+          key={size}
+          {...args}
+          aria-label={`Password (${size})`}
+          size={size}
+          defaultValue="correct horse"
+        />
+      ))}
+    </VStack>
+  ),
+};
+
+/** In a flex row the field shrinks with the row instead of overflowing it. */
+export const InFlexRow: Story = {
+  render: (args) => (
+    <HStack gap={2} style={{ width: 240 }}>
+      <Text>Password</Text>
+      <PasswordInput {...args} defaultValue="correct horse" />
+    </HStack>
+  ),
+};
+
+/** As a member of an Astryx InputGroup, after an addon. */
+export const InInputGroup: Story = {
+  render: (args) => (
+    <InputGroup label="Password" isLabelHidden>
+      <InputGroupText>Key</InputGroupText>
+      <PasswordInput {...args} defaultValue="correct horse" />
+    </InputGroup>
   ),
 };

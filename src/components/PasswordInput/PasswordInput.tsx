@@ -6,11 +6,19 @@
  * - The toggle switches `type` between `password` and `text`. Its name comes
  *   from the catalog (`uic.PasswordInput.*`), and pressing it keeps focus,
  *   and the touch keyboard, in the field.
- * - Enter on the toggle does not reach the surrounding form.
+ * - Enter on the toggle (keydown, keypress, keyup) does not reach the
+ *   surrounding form.
  * - Spellcheck, autocorrect and autocapitalize are off, so a shown password
- *   never goes to a spellcheck service.
- * - A disabled field is masked, and its toggle disabled; an uncontrolled one
- *   stays masked once enabled again.
+ *   never goes to a spellcheck service, and the password is kept out of the
+ *   input's `value` attribute.
+ * - The password is masked again, with `onRevealedChange(false)`, when the
+ *   field is disabled, when its form submits, and when the page comes back
+ *   from the back/forward cache. A field disabled when it mounts starts
+ *   masked, and an uncontrolled one stays masked once enabled.
+ *
+ * Astryx's TextInput has no end slot, so the root is the positioning box: it
+ * takes the field's width, and the toggle sits inside the control's trailing
+ * padding. The control keeps its own border, focus and status styling.
  */
 import { IconButton } from "@astryxdesign/core/IconButton";
 import {
@@ -18,7 +26,14 @@ import {
   type TextInputProps as AstryxTextInputProps,
 } from "@astryxdesign/core/TextInput";
 import { Eye, EyeOff } from "lucide-react";
-import { useState, type KeyboardEvent, type MouseEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 
 import {
   FormControlScope,
@@ -55,7 +70,11 @@ export type PasswordInputProps = DistributiveOmit<
     isRevealed?: boolean;
     /** Whether the password starts shown when `isRevealed` is not set. */
     defaultIsRevealed?: boolean;
-    /** Called with the new state when the toggle is pressed. */
+    /**
+     * Called with the new state when the toggle is pressed, and with `false`
+     * when the field masks the password on its own (disabled, form submit,
+     * back/forward-cache restore).
+     */
     onRevealedChange?: (isRevealed: boolean) => void;
     /** Accessible name of the toggle while the password is masked. */
     showPasswordLabel?: string;
@@ -92,7 +111,8 @@ export function PasswordInput({
   const [mergedValue, handleChange] = useMergedValue(value, defaultValue, onChange, "");
   const isDisabled = field.isDisabled ?? false;
 
-  const [innerRevealed, setInnerRevealed] = useState(defaultIsRevealed);
+  // A field that mounts disabled starts masked, as one disabled later does.
+  const [innerRevealed, setInnerRevealed] = useState(defaultIsRevealed && !isDisabled);
   // Re-mask on the render that disables the field (a form disables it while it
   // submits), not in an effect.
   const [wasDisabled, setWasDisabled] = useState(isDisabled);
@@ -103,10 +123,76 @@ export function PasswordInput({
   const controlled = isRevealedProp !== undefined;
   const isRevealed = !isDisabled && (controlled ? isRevealedProp : innerRevealed);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  const latest = useRef({ isRevealed, controlled, onRevealedChange });
+  const lastRevealed = useRef(isRevealed);
+
+  const callerRef = useRef(rest.ref);
+  callerRef.current = rest.ref;
+  // React mirrors a controlled input's value into its `value` attribute, on a
+  // render and again after a change event, where the password would sit in
+  // the DOM; the property alone holds it.
+  const setInput = useCallback((node: HTMLInputElement | null) => {
+    inputRef.current = node;
+    const ref = callerRef.current;
+    const cleanup = typeof ref === "function" ? ref(node) : undefined;
+    if (ref && typeof ref === "object") ref.current = node;
+    if (!node) return;
+    node.removeAttribute("value");
+    const observer = new MutationObserver(() => {
+      if (node.hasAttribute("value")) node.removeAttribute("value");
+    });
+    observer.observe(node, { attributes: true, attributeFilter: ["value"] });
+    return () => {
+      observer.disconnect();
+      inputRef.current = null;
+      if (typeof cleanup === "function") cleanup();
+      else if (typeof ref === "function") ref(null);
+      else if (ref) ref.current = null;
+    };
+  }, []);
+
+  // Tell the caller about the re-mask the disabling render made, so a
+  // controlled caller drops its `true`. Runs before `lastRevealed` moves on.
+  useEffect(() => {
+    if (isDisabled && lastRevealed.current) latest.current.onRevealedChange?.(false);
+  }, [isDisabled]);
+  useEffect(() => {
+    lastRevealed.current = isRevealed;
+    latest.current = { isRevealed, controlled, onRevealedChange };
+  });
+
+  // Mask on the form's submit and on a back/forward-cache restore.
+  useEffect(() => {
+    const mask = () => {
+      const current = latest.current;
+      if (!current.isRevealed) return;
+      if (!current.controlled) setInnerRevealed(false);
+      current.onRevealedChange?.(false);
+    };
+    const onSubmit = (event: Event) => {
+      const form = inputRef.current?.form;
+      if (form && event.target === form) mask();
+    };
+    const onPageShow = (event: Event) => {
+      if ((event as PageTransitionEvent).persisted) mask();
+    };
+    document.addEventListener("submit", onSubmit, true);
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      document.removeEventListener("submit", onSubmit, true);
+      window.removeEventListener("pageshow", onPageShow);
+    };
+  }, []);
+
   const toggle = () => {
     const next = !isRevealed;
     if (!controlled) setInnerRevealed(next);
     onRevealedChange?.(next);
+  };
+  // Legacy forms submit on keyup or keypress as well as keydown.
+  const stopEnter = (event: KeyboardEvent) => {
+    if (event.key === "Enter") event.stopPropagation();
   };
   const toggleLabel = isRevealed
     ? (hidePasswordLabel ?? t("uic.PasswordInput.hidePassword"))
@@ -115,28 +201,28 @@ export function PasswordInput({
   const props = {
     ...rest,
     ...field,
+    ref: setInput,
     statusVariant: "detached",
-    width,
+    // The root takes the width, so the toggle sits at the field's end; the
+    // field repeats a length and fills the root for a percentage.
+    width: typeof width === "string" && width.includes("%") ? "100%" : width,
     value: mergedValue,
     onChange: handleChange,
     type: isRevealed ? "text" : "password",
     hasSpellCheck: false,
     hasAutoCorrect: false,
     autoCapitalize: "none",
-    containerClassName: [
-      "uic-password-input__field",
-      width === undefined && "uic-password-input__field--fluid",
-      containerClassName,
-    ]
-      .filter(Boolean)
-      .join(" "),
+    containerClassName,
     controlClassName: ["uic-password-input__control", controlClassName]
       .filter(Boolean)
       .join(" "),
   } as unknown as AstryxTextInputProps;
 
   return (
-    <div className="uic-password-input">
+    <div
+      className="uic-password-input"
+      style={width === undefined ? undefined : { width }}
+    >
       <FormControlScope required={required}>
         <AstryxTextInput {...props} />
       </FormControlScope>
@@ -154,9 +240,9 @@ export function PasswordInput({
         label={toggleLabel}
         isDisabled={isDisabled}
         onMouseDown={(event: MouseEvent) => event.preventDefault()}
-        onKeyDown={(event: KeyboardEvent) => {
-          if (event.key === "Enter") event.stopPropagation();
-        }}
+        onKeyDown={stopEnter}
+        onKeyUp={stopEnter}
+        onKeyPress={stopEnter}
         onClick={toggle}
       />
     </div>

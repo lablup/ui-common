@@ -441,7 +441,9 @@ const formRef = useRef<FormInstance>(null);
   Pressing it keeps focus in the field, and Enter on it does not reach the
   form. Spellcheck, autocorrect and autocapitalize are off. The reveal state
   is uncontrolled (`defaultIsRevealed`) or controlled (`isRevealed`,
-  `onRevealedChange`); a disabled field is masked and its toggle disabled.
+  `onRevealedChange`); a disabled field is masked and its toggle disabled,
+  and the password is masked again when its form submits or the page comes
+  back from the back/forward cache.
 - A custom control shows its item's validation state by reading
   `Form.Item.useStatus()` or `FormItemInputContext`.
 - `form.scrollToField` and `scrollToFirstError` find the control by

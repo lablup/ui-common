@@ -91,6 +91,34 @@ describe("PasswordInput", () => {
     expect(onKeyDown).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps Enter's keyup and keypress on the toggle from the surrounding form", async () => {
+    const onKeyUp = vi.fn();
+    const onKeyPress = vi.fn();
+    render(
+      <form onKeyUp={onKeyUp} onKeyPress={onKeyPress}>
+        <PasswordInput aria-label="Password" />
+      </form>,
+    );
+    act(() => screen.getByRole("button", { name: "Show password" }).focus());
+    await userEvent.keyboard("{Enter}");
+    expect(onKeyUp).not.toHaveBeenCalled();
+    expect(onKeyPress).not.toHaveBeenCalled();
+    // Enter in the field itself still reaches the form.
+    act(() => field().focus());
+    await userEvent.keyboard("{Enter}");
+    expect(onKeyUp).toHaveBeenCalledTimes(1);
+    expect(onKeyPress).toHaveBeenCalledTimes(1);
+  });
+
+  it("starts masked when it mounts disabled, and stays masked once enabled", () => {
+    const { rerender } = render(
+      <PasswordInput aria-label="Password" defaultIsRevealed disabled />,
+    );
+    expect(field()).toHaveAttribute("type", "password");
+    rerender(<PasswordInput aria-label="Password" defaultIsRevealed />);
+    expect(field()).toHaveAttribute("type", "password");
+  });
+
   it("masks a disabled field, disables the toggle, and stays masked once enabled", async () => {
     function Harness() {
       const [disabled, setDisabled] = useState(false);
@@ -112,6 +140,117 @@ describe("PasswordInput", () => {
     await userEvent.click(screen.getByRole("button", { name: "flip" }));
     expect(field()).toHaveAttribute("type", "password");
     expect(screen.getByRole("button", { name: "Show password" })).toBeEnabled();
+  });
+
+  it("keeps the password out of the input's value attribute", async () => {
+    render(<PasswordInput aria-label="Password" />);
+    await userEvent.type(field(), "hunter2");
+    const input = field() as HTMLInputElement;
+    expect(input.getAttribute("value")).toBeNull();
+    expect(input.value).toBe("hunter2");
+  });
+
+  it("reports the re-mask when it is disabled, uncontrolled", async () => {
+    const onRevealedChange = vi.fn();
+    const { rerender } = render(
+      <PasswordInput aria-label="Password" onRevealedChange={onRevealedChange} />,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Show password" }));
+    rerender(
+      <PasswordInput
+        aria-label="Password"
+        onRevealedChange={onRevealedChange}
+        disabled
+      />,
+    );
+    expect(field()).toHaveAttribute("type", "password");
+    expect(onRevealedChange.mock.calls).toEqual([[true], [false]]);
+  });
+
+  it("reports the re-mask when it is disabled, controlled", async () => {
+    function Harness() {
+      const [isRevealed, setIsRevealed] = useState(false);
+      const [disabled, setDisabled] = useState(false);
+      return (
+        <>
+          <PasswordInput
+            aria-label="Password"
+            isRevealed={isRevealed}
+            onRevealedChange={(next) => {
+              calls.push([next]);
+              setIsRevealed(next);
+            }}
+            disabled={disabled}
+          />
+          <output data-testid="revealed">{String(isRevealed)}</output>
+          <button type="button" onClick={() => setDisabled((d) => !d)}>
+            flip
+          </button>
+        </>
+      );
+    }
+    const calls: boolean[][] = [];
+    render(<Harness />);
+    await userEvent.click(screen.getByRole("button", { name: "Show password" }));
+    await userEvent.click(screen.getByRole("button", { name: "flip" }));
+    expect(calls).toEqual([[true], [false]]);
+    expect(screen.getByTestId("revealed")).toHaveTextContent("false");
+    // Enabled again, the caller's state keeps it masked.
+    await userEvent.click(screen.getByRole("button", { name: "flip" }));
+    expect(field()).toHaveAttribute("type", "password");
+  });
+
+  it("masks again when its form submits", async () => {
+    const onRevealedChange = vi.fn();
+    render(
+      <form onSubmit={(event) => event.preventDefault()}>
+        <PasswordInput aria-label="Password" onRevealedChange={onRevealedChange} />
+        <button type="submit">Sign in</button>
+      </form>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Show password" }));
+    expect(field()).toHaveAttribute("type", "text");
+    await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect(field()).toHaveAttribute("type", "password");
+    expect(onRevealedChange.mock.calls).toEqual([[true], [false]]);
+  });
+
+  it("ignores the submit of another form", async () => {
+    render(
+      <>
+        <form>
+          <PasswordInput aria-label="Password" defaultIsRevealed />
+        </form>
+        <form onSubmit={(event) => event.preventDefault()}>
+          <button type="submit">Other</button>
+        </form>
+      </>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Other" }));
+    expect(field()).toHaveAttribute("type", "text");
+  });
+
+  it("masks again when the page comes back from the back/forward cache", () => {
+    const onRevealedChange = vi.fn();
+    render(
+      <PasswordInput
+        aria-label="Password"
+        defaultIsRevealed
+        onRevealedChange={onRevealedChange}
+      />,
+    );
+    const pageShow = (persisted: boolean) => {
+      const event = new Event("pageshow");
+      Object.defineProperty(event, "persisted", { value: persisted });
+      act(() => {
+        window.dispatchEvent(event);
+      });
+    };
+    pageShow(false);
+    expect(field()).toHaveAttribute("type", "text");
+    pageShow(true);
+    expect(field()).toHaveAttribute("type", "password");
+    expect(onRevealedChange.mock.calls).toEqual([[false]]);
   });
 
   it("masks a controlled field while it is disabled", () => {
@@ -170,6 +309,15 @@ describe("PasswordInput", () => {
     expect(css).toMatch(/input::-ms-reveal\s*\{\s*display:\s*none;/);
     expect(css).toMatch(
       /\.uic-password-input__toggle\s*\{[^}]*color:\s*var\(--color-text-secondary\)/,
+    );
+    // Shrinks in a flex row instead of holding the native input's width.
+    expect(css).toMatch(/\.uic-password-input\s*\{[^}]*min-width:\s*0;/);
+    // Form.Item's feedback icon moves off the toggle, and its room is reserved.
+    expect(css).toMatch(
+      /\.uic-form-item__control-input:has\(\.uic-password-input\)\s+\.uic-form-item__feedback-icon\s*\{[^}]*inset-inline-end:\s*calc\(var\(--size-element-sm\)/,
+    );
+    expect(css).toMatch(
+      /:has\(\.uic-form-item__feedback-icon\)\s+\.uic-password-input__control\s*\{[^}]*padding-inline-end:[^;]*--font-size-base/,
     );
   });
 });
