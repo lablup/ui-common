@@ -29,6 +29,7 @@ import { Eye, EyeOff } from "lucide-react";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -124,33 +125,51 @@ export function PasswordInput({
   const isRevealed = !isDisabled && (controlled ? isRevealedProp : innerRevealed);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const latest = useRef({ isRevealed, controlled, onRevealedChange });
+  const latest = useRef({ isRevealed, controlled, onRevealedChange, mergedValue });
   const lastRevealed = useRef(isRevealed);
 
-  const callerRef = useRef(rest.ref);
-  callerRef.current = rest.ref;
+  // The caller's ref follows the caller: a new ref gets the input and the
+  // old one null.
+  const callerRef = rest.ref;
+  const setInput = useCallback(
+    (node: HTMLInputElement | null) => {
+      inputRef.current = node;
+      const cleanup = typeof callerRef === "function" ? callerRef(node) : undefined;
+      if (callerRef && typeof callerRef === "object") callerRef.current = node;
+      return () => {
+        inputRef.current = null;
+        if (typeof cleanup === "function") cleanup();
+        else if (typeof callerRef === "function") callerRef(null);
+        else if (callerRef) callerRef.current = null;
+      };
+    },
+    [callerRef],
+  );
+
   // React mirrors a controlled input's value into its `value` attribute, on a
   // render and again after a change event, where the password would sit in
-  // the DOM; the property alone holds it.
-  const setInput = useCallback((node: HTMLInputElement | null) => {
-    inputRef.current = node;
-    const ref = callerRef.current;
-    const cleanup = typeof ref === "function" ? ref(node) : undefined;
-    if (ref && typeof ref === "object") ref.current = node;
+  // the DOM; the property alone holds it. Watched once per input element.
+  const watched = useRef<{ node: HTMLInputElement; stop: () => void } | null>(null);
+  useLayoutEffect(() => {
+    const node = inputRef.current;
+    if (watched.current?.node === node) return;
+    watched.current?.stop();
+    watched.current = null;
     if (!node) return;
     node.removeAttribute("value");
     const observer = new MutationObserver(() => {
       if (node.hasAttribute("value")) node.removeAttribute("value");
     });
     observer.observe(node, { attributes: true, attributeFilter: ["value"] });
-    return () => {
-      observer.disconnect();
-      inputRef.current = null;
-      if (typeof cleanup === "function") cleanup();
-      else if (typeof ref === "function") ref(null);
-      else if (ref) ref.current = null;
-    };
-  }, []);
+    watched.current = { node, stop: () => observer.disconnect() };
+  });
+  useEffect(
+    () => () => {
+      watched.current?.stop();
+      watched.current = null;
+    },
+    [],
+  );
 
   // Tell the caller about the re-mask the disabling render made, so a
   // controlled caller drops its `true`. Runs before `lastRevealed` moves on.
@@ -159,10 +178,11 @@ export function PasswordInput({
   }, [isDisabled]);
   useEffect(() => {
     lastRevealed.current = isRevealed;
-    latest.current = { isRevealed, controlled, onRevealedChange };
+    latest.current = { isRevealed, controlled, onRevealedChange, mergedValue };
   });
 
-  // Mask on the form's submit and on a back/forward-cache restore.
+  // Mask on the form's submit and on a back/forward-cache restore; keep the
+  // value through a native reset.
   useEffect(() => {
     const mask = () => {
       const current = latest.current;
@@ -174,13 +194,30 @@ export function PasswordInput({
       const form = inputRef.current?.form;
       if (form && event.target === form) mask();
     };
+    // With no `value` attribute a native reset would blank the field without
+    // a change event; the field is controlled, so it keeps its value, as a
+    // React-controlled input does.
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+    const onReset = (event: Event) => {
+      const input = inputRef.current;
+      if (!input?.form || event.target !== input.form) return;
+      const timer = setTimeout(() => {
+        timers.delete(timer);
+        const current = String(latest.current.mergedValue ?? "");
+        if (input.value !== current) input.value = current;
+      }, 0);
+      timers.add(timer);
+    };
     const onPageShow = (event: Event) => {
       if ((event as PageTransitionEvent).persisted) mask();
     };
     document.addEventListener("submit", onSubmit, true);
+    document.addEventListener("reset", onReset, true);
     window.addEventListener("pageshow", onPageShow);
     return () => {
       document.removeEventListener("submit", onSubmit, true);
+      document.removeEventListener("reset", onReset, true);
+      timers.forEach(clearTimeout);
       window.removeEventListener("pageshow", onPageShow);
     };
   }, []);

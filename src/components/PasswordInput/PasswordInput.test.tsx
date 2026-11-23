@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { useState } from "react";
+import { createRef, useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { uiCommonMessages } from "../../i18n/messages";
@@ -148,6 +148,34 @@ describe("PasswordInput", () => {
     const input = field() as HTMLInputElement;
     expect(input.getAttribute("value")).toBeNull();
     expect(input.value).toBe("hunter2");
+  });
+
+  it("hands the input to the caller's current ref", () => {
+    const refA = createRef<HTMLInputElement>();
+    const refB = createRef<HTMLInputElement>();
+    const { rerender } = render(<PasswordInput aria-label="Password" ref={refA} />);
+    expect(refA.current).toBe(field());
+    rerender(<PasswordInput aria-label="Password" ref={refB} />);
+    expect(refA.current).toBeNull();
+    expect(refB.current).toBe(field());
+    rerender(<PasswordInput aria-label="Password" ref={refA} />);
+    expect(refA.current).toBe(field());
+    expect(refB.current).toBeNull();
+    // The value attribute is still kept out after the switch.
+    expect(field().getAttribute("value")).toBeNull();
+  });
+
+  it("keeps its value through a native form reset", async () => {
+    render(
+      <form>
+        <PasswordInput aria-label="Password" />
+        <button type="reset">Reset</button>
+      </form>,
+    );
+    await userEvent.type(field(), "hunter2");
+    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+    expect((field() as HTMLInputElement).value).toBe("hunter2");
   });
 
   it("reports the re-mask when it is disabled, uncontrolled", async () => {
