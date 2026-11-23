@@ -417,10 +417,13 @@ describe("MultiSelector showTooltip content", () => {
 
   it("is not called with nothing selected or when disabled", () => {
     const content = vi.fn(() => "never");
-    const { rerender } = render(
+    const { unmount } = render(
       <MultiSelector aria-label="Regions" options={TIERS} showTooltip={{ content }} />,
     );
-    rerender(
+    expect(tooltip()).toBeNull();
+    unmount();
+
+    render(
       <MultiSelector
         aria-label="Regions"
         options={TIERS}
@@ -431,5 +434,41 @@ describe("MultiSelector showTooltip content", () => {
     );
     expect(tooltip()).toBeNull();
     expect(content).not.toHaveBeenCalled();
+  });
+
+  it("is not called under a disabled InputGroup", () => {
+    const content = vi.fn(() => "never");
+    render(
+      <InputGroup label="Area" isDisabled>
+        <MultiSelector
+          aria-label="Regions"
+          options={TIERS}
+          defaultValue={["user:sessions"]}
+          showTooltip={{ content }}
+        />
+      </InputGroup>,
+    );
+    expect(tooltip()).toBeNull();
+    expect(content).not.toHaveBeenCalled();
+  });
+
+  it("takes the first label of a value listed twice, as formatValue does", () => {
+    const formatValue = vi.fn((items: { label: string }[]) =>
+      items.map((item) => item.label).join(", "),
+    );
+    render(
+      <MultiSelector
+        aria-label="Regions"
+        options={[
+          { value: "x", label: "First" },
+          { value: "x", label: "Second" },
+        ]}
+        defaultValue={["x"]}
+        formatValue={formatValue}
+        showTooltip={{ content: formatValue }}
+      />,
+    );
+    expect(tooltip()).toHaveTextContent("First");
+    expect(trigger()).toHaveTextContent("First");
   });
 });

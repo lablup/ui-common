@@ -18,15 +18,12 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   while nothing is selected, while the control is disabled (its
   `disabledMessage` keeps the trigger) or with `renderTrigger`. A `ref` still
   reaches the trigger. Off by default, so existing call sites render as
-  before.
-- **`MultiSelector`: `showTooltip` also takes `{ content }`.** The tooltip
-  joined the selected labels, so two options that share a label read the same
-  ("Sessions, Sessions") even where `formatValue` tells them apart on the
-  trigger. `showTooltip={{ content: (items) => … }}` renders `content(items)`
-  instead, where `items` is the selection as `formatValue` receives it
-  (`MultiSelectorSelectedItem[]`: `{ value, label }`, in selection order). The
-  tooltip shows under the same conditions as with `true`, which keeps the
-  joined labels.
+  before. `showTooltip={{ content: (items) => … }}` renders `content(items)`
+  instead of the joined labels, where `items` is the selection as
+  `formatValue` receives it (`MultiSelectorSelectedItem[]`: `{ value, label }`,
+  in selection order), so options that share a label ("Sessions" in two
+  sections) can read apart in the tooltip as they do on the trigger.
+  `content` is called only while the tooltip can show.
 
 ### Fixed
 

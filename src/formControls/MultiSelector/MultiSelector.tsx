@@ -86,10 +86,14 @@ function selectedItems(
   values: string[],
 ): MultiSelectorSelectedItem[] {
   const labels = new Map<string, string>();
+  // The first option of a value wins, as in the items Astryx hands formatValue.
+  const keep = (value: string, label: string) => {
+    if (!labels.has(value)) labels.set(value, label);
+  };
   const add = (option: MultiSelectorOptionType) => {
-    if (typeof option === "string") labels.set(option, option);
+    if (typeof option === "string") keep(option, option);
     else if ("type" in option && option.type === "section") option.options.forEach(add);
-    else if ("value" in option) labels.set(option.value, option.label ?? option.value);
+    else if ("value" in option) keep(option.value, option.label ?? option.value);
   };
   options.forEach(add);
   return values.map((value) => ({ value, label: labels.get(value) ?? value }));
@@ -167,10 +171,9 @@ export function MultiSelector<
       {hasTooltip && showTooltip && trigger ? (
         <SelectionTooltip
           trigger={trigger}
-          content={tooltipContent(
-            showTooltip,
-            selectedItems(options, mergedValue ?? []),
-          )}
+          renderContent={() =>
+            tooltipContent(showTooltip, selectedItems(options, mergedValue ?? []))
+          }
           onDescribedBy={setTooltipId}
         />
       ) : null}
@@ -201,11 +204,12 @@ const readTrigger = (trigger: HTMLElement) => ({
  */
 function SelectionTooltip({
   trigger,
-  content,
+  renderContent,
   onDescribedBy,
 }: {
   trigger: HTMLElement;
-  content: ReactNode;
+  /** Called only while the tooltip is enabled, so a disabled trigger never runs it. */
+  renderContent: () => ReactNode;
   onDescribedBy: (id: string | undefined) => void;
 }) {
   const [state, setState] = useState(() => readTrigger(trigger));
@@ -238,5 +242,5 @@ function SelectionTooltip({
     onDescribedBy(isEnabled ? describedBy : undefined);
     return () => onDescribedBy(undefined);
   }, [onDescribedBy, describedBy, isEnabled]);
-  return isEnabled ? tooltip.renderTooltip(content) : null;
+  return isEnabled ? tooltip.renderTooltip(renderContent()) : null;
 }
