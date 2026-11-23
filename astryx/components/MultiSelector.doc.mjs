@@ -495,7 +495,7 @@ export default {
             "The starting value when value is not set (uncontrolled), as in antd.",
         },
         {
-          name: "showTooltip",
+          name: "showSelectedOptionsTooltip",
           type: "boolean | { content: (items: MultiSelectorSelectedItem[]) => ReactNode }",
           default: "false",
           description:

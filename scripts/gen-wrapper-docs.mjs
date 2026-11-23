@@ -164,7 +164,7 @@ const WRAPPERS = {
     },
     add: [
       {
-        name: "showTooltip",
+        name: "showSelectedOptionsTooltip",
         type: "boolean | { content: (items: MultiSelectorSelectedItem[]) => ReactNode }",
         default: "false",
         description:

@@ -6,7 +6,7 @@
  * An option's `disabled` also takes `{ reason }`: the option is disabled and
  * hovering its row says why (../optionDisabledReason.tsx).
  *
- * `showTooltip` lists the selected labels in a tooltip on the trigger, or
+ * `showSelectedOptionsTooltip` lists the selected labels in a tooltip on the trigger, or
  * renders the caller's `content` for the selection.
  */
 import { useLayoutEffect, useState, type ReactNode } from "react";
@@ -72,7 +72,7 @@ export type MultiSelectorProps<
      * receives it.
      * @default false
      */
-    showTooltip?:
+    showSelectedOptionsTooltip?:
       | boolean
       | {
           /** The selected items, in selection order, as `formatValue` receives them. */
@@ -80,7 +80,10 @@ export type MultiSelectorProps<
         };
   };
 
-type TooltipOption = Exclude<NonNullable<MultiSelectorProps["showTooltip"]>, false>;
+type TooltipOption = Exclude<
+  NonNullable<MultiSelectorProps["showSelectedOptionsTooltip"]>,
+  false
+>;
 
 /** The selected items, in selection order; a value with no option stands for itself. */
 function selectedItems(
@@ -104,7 +107,7 @@ export function MultiSelector<
   status,
   disabled,
   options,
-  showTooltip = false,
+  showSelectedOptionsTooltip = false,
   ref,
   onOpenChange,
   ...rest
@@ -125,13 +128,16 @@ export function MultiSelector<
     onChange,
     EMPTY_ARRAY,
   );
-  // Only with showTooltip: the trigger element (state, so the tooltip follows a
+  // Only with showSelectedOptionsTooltip: the trigger element (state, so the tooltip follows a
   // replaced element) and the tooltip's id, which SelectionTooltip reports.
   const [trigger, setTrigger] = useState<HTMLElement | null>(null);
   const [tooltipId, setTooltipId] = useState<string>();
   const triggerRefs = useMergedRefs<HTMLElement>(ref, setTrigger);
   const hasTooltip =
-    !!showTooltip && !!mergedValue?.length && !field.isDisabled && !rest.renderTrigger;
+    !!showSelectedOptionsTooltip &&
+    !!mergedValue?.length &&
+    !field.isDisabled &&
+    !rest.renderTrigger;
   const reasoned = withOptionDisabledReason<T, AstryxMultiSelectorOptionData>({
     options,
     renderOption: rest.renderOption,
@@ -152,7 +158,7 @@ export function MultiSelector<
     value: mergedValue,
     onChange: handleChange,
     renderOption: reasoned.renderOption,
-    ref: showTooltip ? triggerRefs : ref,
+    ref: showSelectedOptionsTooltip ? triggerRefs : ref,
     onOpenChange,
     // React owns the attribute: the tooltip's id joins the caller's here.
     ...(tooltipId && {
@@ -164,11 +170,14 @@ export function MultiSelector<
   return (
     <FormControlScope required={required}>
       <AstryxMultiSelector {...props} />
-      {hasTooltip && showTooltip && trigger ? (
+      {hasTooltip && showSelectedOptionsTooltip && trigger ? (
         <SelectionTooltip
           trigger={trigger}
           renderContent={() =>
-            tooltipContent(showTooltip, selectedItems(options, mergedValue ?? []))
+            tooltipContent(
+              showSelectedOptionsTooltip,
+              selectedItems(options, mergedValue ?? []),
+            )
           }
           onDescribedBy={setTooltipId}
         />
@@ -178,11 +187,12 @@ export function MultiSelector<
 }
 
 function tooltipContent(
-  showTooltip: TooltipOption,
+  showSelectedOptionsTooltip: TooltipOption,
   items: MultiSelectorSelectedItem[],
 ): ReactNode {
-  if (showTooltip === true) return items.map((item) => item.label).join(", ");
-  return showTooltip.content(items);
+  if (showSelectedOptionsTooltip === true)
+    return items.map((item) => item.label).join(", ");
+  return showSelectedOptionsTooltip.content(items);
 }
 
 /** What the tooltip needs from the trigger: disabled, and the listbox open. */
@@ -194,7 +204,7 @@ const readTrigger = (trigger: HTMLElement) => ({
 });
 
 /**
- * The selection tooltip, mounted only with `showTooltip`. It follows the
+ * The selection tooltip, mounted only with `showSelectedOptionsTooltip`. It follows the
  * trigger's own attributes, so it is held shut while the listbox is open and
  * absent while the trigger is disabled, from the first commit on.
  */

@@ -7,10 +7,10 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
-- **`MultiSelector`: `showTooltip` lists the selection on the trigger
+- **`MultiSelector`: `showSelectedOptionsTooltip` lists the selection on the trigger
   (#159).** Selections past what the trigger shows collapse into `+N`, and
   long labels are cut off, so the user had to open the listbox to see what is
-  selected. With `showTooltip`, hovering or focusing the trigger shows every
+  selected. With `showSelectedOptionsTooltip`, hovering or focusing the trigger shows every
   selected label, comma-separated, in a `Tooltip`. Labels come from
   `options`, sections included, and a value with no option shows as itself;
   controlled and uncontrolled values both work. The tooltip stays shut while
@@ -18,7 +18,7 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   while nothing is selected, while the control is disabled (its
   `disabledMessage` keeps the trigger) or with `renderTrigger`. A `ref` still
   reaches the trigger. Off by default, so existing call sites render as
-  before. `showTooltip={{ content: (items) => … }}` renders `content(items)`
+  before. `showSelectedOptionsTooltip={{ content: (items) => … }}` renders `content(items)`
   instead of the joined labels, where `items` is the selection as
   `formatValue` receives it (`MultiSelectorSelectedItem[]`: `{ value, label }`,
   in selection order), so options that share a label ("Sessions" in two

@@ -1,5 +1,5 @@
 /**
- * `showTooltip`: the selected labels in a tooltip on the trigger, held shut
+ * `showSelectedOptionsTooltip`: the selected labels in a tooltip on the trigger, held shut
  * while the listbox is open, and absent when it has nothing to say.
  */
 import { createRef, useState } from "react";
@@ -50,7 +50,7 @@ const OPTIONS: MultiSelectorOptionType[] = [
 const trigger = () => screen.getByRole("combobox", { name: "Regions" });
 const tooltip = () => screen.queryByRole("tooltip", { hidden: true });
 
-describe("MultiSelector showTooltip", () => {
+describe("MultiSelector showSelectedOptionsTooltip", () => {
   it("lists the selected labels, resolved from options and sections", async () => {
     const user = userEvent.setup();
     render(
@@ -59,7 +59,7 @@ describe("MultiSelector showTooltip", () => {
         options={OPTIONS}
         defaultValue={["south", "plain", "bare", "gone"]}
         aria-describedby="hint"
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     expect(tooltip()).toHaveTextContent("South, plain, bare, gone");
@@ -81,7 +81,7 @@ describe("MultiSelector showTooltip", () => {
             aria-label="Regions"
             options={OPTIONS}
             value={value}
-            showTooltip
+            showSelectedOptionsTooltip
           />
           <button onClick={() => setValue(["north", "south"])}>Two</button>
           <button onClick={() => setValue(undefined)}>Clear</button>
@@ -105,7 +105,7 @@ describe("MultiSelector showTooltip", () => {
         options={OPTIONS}
         defaultValue={["north"]}
         onOpenChange={onOpenChange}
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     await user.hover(trigger());
@@ -134,7 +134,7 @@ describe("MultiSelector showTooltip", () => {
         aria-label="Regions"
         options={[{ value: "east", label: "East", disabled: { reason: "Busy" } }]}
         defaultValue={["east"]}
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     const id = trigger().getAttribute("aria-describedby");
@@ -149,7 +149,7 @@ describe("MultiSelector showTooltip", () => {
         options={OPTIONS}
         defaultValue={["north"]}
         ref={ref}
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     expect(ref.current).toBe(trigger());
@@ -158,7 +158,11 @@ describe("MultiSelector showTooltip", () => {
 
   it("renders no tooltip with nothing selected, when disabled, or when off", () => {
     const { rerender } = render(
-      <MultiSelector aria-label="Regions" options={OPTIONS} showTooltip />,
+      <MultiSelector
+        aria-label="Regions"
+        options={OPTIONS}
+        showSelectedOptionsTooltip
+      />,
     );
     expect(tooltip()).toBeNull();
 
@@ -168,7 +172,7 @@ describe("MultiSelector showTooltip", () => {
         options={OPTIONS}
         defaultValue={["north"]}
         disabled
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     expect(tooltip()).toBeNull();
@@ -188,7 +192,7 @@ describe("MultiSelector showTooltip", () => {
         defaultValue={["north"]}
         disabled
         disabledMessage="Pick a zone first"
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     const describedBy = trigger().getAttribute("aria-describedby") ?? "";
@@ -207,7 +211,7 @@ describe("MultiSelector showTooltip", () => {
         aria-label="Regions"
         options={OPTIONS}
         value={["north"]}
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     const ids = () => trigger().getAttribute("aria-describedby")?.split(" ") ?? [];
@@ -220,7 +224,7 @@ describe("MultiSelector showTooltip", () => {
         options={OPTIONS}
         value={["north"]}
         aria-describedby="err"
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     expect(ids()).toEqual(expect.arrayContaining(["err", tooltipId]));
@@ -231,7 +235,7 @@ describe("MultiSelector showTooltip", () => {
         options={OPTIONS}
         value={[]}
         aria-describedby="err"
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     expect(tooltip()).toBeNull();
@@ -246,7 +250,7 @@ describe("MultiSelector showTooltip", () => {
         options={OPTIONS}
         value={["north"]}
         ref={ref}
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     rerender(
@@ -255,7 +259,7 @@ describe("MultiSelector showTooltip", () => {
         options={OPTIONS}
         value={["north", "south"]}
         ref={ref}
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     expect(ref).toHaveBeenCalledTimes(1);
@@ -276,7 +280,7 @@ describe("MultiSelector showTooltip", () => {
           aria-label="Regions"
           options={OPTIONS}
           defaultValue={["north"]}
-          showTooltip
+          showSelectedOptionsTooltip
         />
       </InputGroup>,
     );
@@ -303,7 +307,7 @@ describe("MultiSelector showTooltip", () => {
     ).toBe(false);
   });
 
-  it("stays shut when showTooltip is turned on while the listbox is open", async () => {
+  it("stays shut when showSelectedOptionsTooltip is turned on while the listbox is open", async () => {
     const user = userEvent.setup();
     const { rerender } = render(
       <MultiSelector aria-label="Regions" options={OPTIONS} defaultValue={["north"]} />,
@@ -316,7 +320,7 @@ describe("MultiSelector showTooltip", () => {
         aria-label="Regions"
         options={OPTIONS}
         defaultValue={["north"]}
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     await user.unhover(trigger());
@@ -330,7 +334,7 @@ describe("MultiSelector showTooltip", () => {
       "aria-label": "Regions",
       options: OPTIONS,
       defaultValue: ["north"],
-      showTooltip: true,
+      showSelectedOptionsTooltip: true,
     };
     const { rerender } = render(
       <InputGroup label="Area" isDisabled>
@@ -360,7 +364,7 @@ describe("MultiSelector showTooltip", () => {
   });
 });
 
-describe("MultiSelector showTooltip content", () => {
+describe("MultiSelector showSelectedOptionsTooltip content", () => {
   const TIERS: MultiSelectorOptionType[] = [
     { value: "user:sessions", label: "Sessions" },
     { value: "admin:sessions", label: "Sessions" },
@@ -383,7 +387,7 @@ describe("MultiSelector showTooltip content", () => {
         options={[...TIERS, ...OPTIONS]}
         defaultValue={["admin:sessions", "user:sessions", "gone"]}
         aria-describedby="hint"
-        showTooltip={{ content }}
+        showSelectedOptionsTooltip={{ content }}
       />,
     );
     expect(content).toHaveBeenLastCalledWith([
@@ -407,10 +411,12 @@ describe("MultiSelector showTooltip content", () => {
       options: TIERS,
       defaultValue: ["user:sessions", "admin:sessions"],
     };
-    const { rerender } = render(<MultiSelector {...props} showTooltip />);
+    const { rerender } = render(
+      <MultiSelector {...props} showSelectedOptionsTooltip />,
+    );
     expect(tooltip()).toHaveTextContent("Sessions, Sessions");
 
-    rerender(<MultiSelector {...props} showTooltip={false} />);
+    rerender(<MultiSelector {...props} showSelectedOptionsTooltip={false} />);
     expect(tooltip()).toBeNull();
     expect(trigger()).not.toHaveAttribute("aria-describedby");
   });
@@ -418,7 +424,11 @@ describe("MultiSelector showTooltip content", () => {
   it("is not called with nothing selected or when disabled", () => {
     const content = vi.fn(() => "never");
     const { unmount } = render(
-      <MultiSelector aria-label="Regions" options={TIERS} showTooltip={{ content }} />,
+      <MultiSelector
+        aria-label="Regions"
+        options={TIERS}
+        showSelectedOptionsTooltip={{ content }}
+      />,
     );
     expect(tooltip()).toBeNull();
     unmount();
@@ -429,7 +439,7 @@ describe("MultiSelector showTooltip content", () => {
         options={TIERS}
         defaultValue={["user:sessions"]}
         disabled
-        showTooltip={{ content }}
+        showSelectedOptionsTooltip={{ content }}
       />,
     );
     expect(tooltip()).toBeNull();
@@ -444,7 +454,7 @@ describe("MultiSelector showTooltip content", () => {
           aria-label="Regions"
           options={TIERS}
           defaultValue={["user:sessions"]}
-          showTooltip={{ content }}
+          showSelectedOptionsTooltip={{ content }}
         />
       </InputGroup>,
     );
