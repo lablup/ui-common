@@ -359,3 +359,77 @@ describe("MultiSelector showTooltip", () => {
     await waitFor(() => expect(tooltip()).toHaveTextContent("North"));
   });
 });
+
+describe("MultiSelector showTooltip content", () => {
+  const TIERS: MultiSelectorOptionType[] = [
+    { value: "user:sessions", label: "Sessions" },
+    { value: "admin:sessions", label: "Sessions" },
+  ];
+
+  it("renders content(items) with the selection as formatValue receives it", async () => {
+    const user = userEvent.setup();
+    const content = vi.fn((items: { value: string; label: string }[]) => (
+      <strong>
+        {items
+          .map((item) =>
+            item.value.startsWith("admin:") ? `${item.label} (Admin)` : item.label,
+          )
+          .join(" / ")}
+      </strong>
+    ));
+    render(
+      <MultiSelector
+        aria-label="Regions"
+        options={[...TIERS, ...OPTIONS]}
+        defaultValue={["admin:sessions", "user:sessions", "gone"]}
+        aria-describedby="hint"
+        showTooltip={{ content }}
+      />,
+    );
+    expect(content).toHaveBeenLastCalledWith([
+      { value: "admin:sessions", label: "Sessions" },
+      { value: "user:sessions", label: "Sessions" },
+      { value: "gone", label: "gone" },
+    ]);
+    expect(tooltip()).toHaveTextContent("Sessions (Admin) / Sessions / gone");
+    expect(tooltip()!.querySelector("strong")).not.toBeNull();
+    expect(trigger().getAttribute("aria-describedby")?.split(" ")).toEqual(
+      expect.arrayContaining(["hint", tooltip()!.id]),
+    );
+
+    await user.hover(trigger());
+    await waitFor(() => expect(tooltip()).toHaveAttribute("popover-open"));
+  });
+
+  it("keeps the joined labels with true, and renders none with false", () => {
+    const props = {
+      "aria-label": "Regions",
+      options: TIERS,
+      defaultValue: ["user:sessions", "admin:sessions"],
+    };
+    const { rerender } = render(<MultiSelector {...props} showTooltip />);
+    expect(tooltip()).toHaveTextContent("Sessions, Sessions");
+
+    rerender(<MultiSelector {...props} showTooltip={false} />);
+    expect(tooltip()).toBeNull();
+    expect(trigger()).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("is not called with nothing selected or when disabled", () => {
+    const content = vi.fn(() => "never");
+    const { rerender } = render(
+      <MultiSelector aria-label="Regions" options={TIERS} showTooltip={{ content }} />,
+    );
+    rerender(
+      <MultiSelector
+        aria-label="Regions"
+        options={TIERS}
+        defaultValue={["user:sessions"]}
+        disabled
+        showTooltip={{ content }}
+      />,
+    );
+    expect(tooltip()).toBeNull();
+    expect(content).not.toHaveBeenCalled();
+  });
+});

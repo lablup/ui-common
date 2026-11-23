@@ -104,6 +104,32 @@ export const ShowTooltip: Story = {
   },
 };
 
+/**
+ * `showTooltip={{ content }}`: the tooltip renders the caller's content for
+ * the selection, here telling apart two options that share a label, as the
+ * trigger does through `formatValue`.
+ */
+export const ShowTooltipContent: Story = {
+  args: {
+    options: [
+      { value: "user:sessions", label: "Sessions" },
+      { value: "admin:sessions", label: "Sessions" },
+      { value: "user:data", label: "Data" },
+    ],
+    defaultValue: ["user:sessions", "admin:sessions"],
+    formatValue: (items) =>
+      items.map((item) => tierLabel(item.value, item.label)).join(", "),
+    showTooltip: {
+      content: (items) =>
+        items.map((item) => tierLabel(item.value, item.label)).join(", "),
+    },
+  },
+};
+
+function tierLabel(value: string, label: string) {
+  return value.startsWith("admin:") ? `${label} (Admin)` : label;
+}
+
 /** On its own, disabled. */
 export const Disabled: Story = {
   args: { disabled: true },
