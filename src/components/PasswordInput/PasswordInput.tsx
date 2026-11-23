@@ -19,6 +19,9 @@
  * Astryx's TextInput has no end slot, so the root is the positioning box: it
  * takes the field's width, and the toggle sits inside the control's trailing
  * padding. The control keeps its own border, focus and status styling.
+ * Not supported in a `horizontal-labels` FormLayout, whose Field cells
+ * (`display: contents`) the root breaks: use it standalone, in a `Form.Item`
+ * or in an InputGroup.
  */
 import { IconButton } from "@astryxdesign/core/IconButton";
 import {

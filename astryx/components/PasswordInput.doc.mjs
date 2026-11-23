@@ -82,7 +82,7 @@ export default {
   ],
   usage: {
     description:
-      "Use for a password the user types, such as on a login or change-password form. Pass autoComplete (current-password, new-password) so password managers fill it.",
+      "Use for a password the user types, such as on a login or change-password form. Pass autoComplete (current-password, new-password) so password managers fill it. Use it standalone, in a Form.Item or in an InputGroup; a horizontal-labels FormLayout is not supported, because its wrapper breaks the layout's grid cells.",
   },
   examples: [
     {
