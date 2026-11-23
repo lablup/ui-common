@@ -20,6 +20,8 @@ import {
   type MultiSelectorSelectedItem,
 } from "@astryxdesign/core/MultiSelector";
 import { useMergedRefs } from "@astryxdesign/core/hooks";
+import type { SelectorOptionType } from "@astryxdesign/core/Selector";
+import { getSelectableOptions } from "@astryxdesign/core/Selector/utils";
 import { useTooltip } from "@astryxdesign/core/Tooltip";
 
 import {
@@ -85,18 +87,12 @@ function selectedItems(
   options: readonly MultiSelectorOptionType[],
   values: string[],
 ): MultiSelectorSelectedItem[] {
-  const labels = new Map<string, string>();
-  // The first option of a value wins, as in the items Astryx hands formatValue.
-  const keep = (value: string, label: string) => {
-    if (!labels.has(value)) labels.set(value, label);
-  };
-  const add = (option: MultiSelectorOptionType) => {
-    if (typeof option === "string") keep(option, option);
-    else if ("type" in option && option.type === "section") option.options.forEach(add);
-    else if ("value" in option) keep(option.value, option.label ?? option.value);
-  };
-  options.forEach(add);
-  return values.map((value) => ({ value, label: labels.get(value) ?? value }));
+  // Astryx builds formatValue's items the same way, so the two never disagree.
+  const selectable = getSelectableOptions(options as SelectorOptionType[]);
+  return values.map((value) => ({
+    value,
+    label: selectable.find((item) => item.value === value)?.label ?? value,
+  }));
 }
 
 export function MultiSelector<

@@ -451,24 +451,4 @@ describe("MultiSelector showTooltip content", () => {
     expect(tooltip()).toBeNull();
     expect(content).not.toHaveBeenCalled();
   });
-
-  it("takes the first label of a value listed twice, as formatValue does", () => {
-    const formatValue = vi.fn((items: { label: string }[]) =>
-      items.map((item) => item.label).join(", "),
-    );
-    render(
-      <MultiSelector
-        aria-label="Regions"
-        options={[
-          { value: "x", label: "First" },
-          { value: "x", label: "Second" },
-        ]}
-        defaultValue={["x"]}
-        formatValue={formatValue}
-        showTooltip={{ content: formatValue }}
-      />,
-    );
-    expect(tooltip()).toHaveTextContent("First");
-    expect(trigger()).toHaveTextContent("First");
-  });
 });

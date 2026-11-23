@@ -23,7 +23,8 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   `formatValue` receives it (`MultiSelectorSelectedItem[]`: `{ value, label }`,
   in selection order), so options that share a label ("Sessions" in two
   sections) can read apart in the tooltip as they do on the trigger.
-  `content` is called only while the tooltip can show.
+  `content` is never called while nothing is selected or the trigger is
+  disabled.
 
 ### Fixed
 
