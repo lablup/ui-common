@@ -86,13 +86,13 @@ export const DisabledOptionReason: Story = {
 };
 
 /**
- * `showTooltip`: hover or focus the trigger to read every selected label,
+ * `showSelectedOptionsTooltip`: hover or focus the trigger to read every selected label,
  * including the ones behind `+N`. The tooltip stays shut while the listbox is
  * open, and there is none while nothing is selected or the control is disabled.
  */
 export const ShowTooltip: Story = {
   args: {
-    showTooltip: true,
+    showSelectedOptionsTooltip: true,
     options: [
       { value: "north", label: "North" },
       { value: "south", label: "South" },
@@ -103,6 +103,32 @@ export const ShowTooltip: Story = {
     defaultValue: ["north", "south", "east", "west", "central"],
   },
 };
+
+/**
+ * `showSelectedOptionsTooltip={{ content }}`: the tooltip renders the caller's content for
+ * the selection, here telling apart two options that share a label, as the
+ * trigger does through `formatValue`.
+ */
+export const ShowTooltipContent: Story = {
+  args: {
+    options: [
+      { value: "user:sessions", label: "Sessions" },
+      { value: "admin:sessions", label: "Sessions" },
+      { value: "user:data", label: "Data" },
+    ],
+    defaultValue: ["user:sessions", "admin:sessions"],
+    formatValue: (items) =>
+      items.map((item) => tierLabel(item.value, item.label)).join(", "),
+    showSelectedOptionsTooltip: {
+      content: (items) =>
+        items.map((item) => tierLabel(item.value, item.label)).join(", "),
+    },
+  },
+};
+
+function tierLabel(value: string, label: string) {
+  return value.startsWith("admin:") ? `${label} (Admin)` : label;
+}
 
 /** On its own, disabled. */
 export const Disabled: Story = {
