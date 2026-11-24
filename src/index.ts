@@ -1772,6 +1772,10 @@ export type {
   PagedSelectorSingleProps,
 } from "./components/PagedSelector";
 
+// PasswordInput
+export { PasswordInput } from "./components/PasswordInput";
+export type { PasswordInputProps } from "./components/PasswordInput";
+
 // Popover: ui-common's wrapper, same API, in place of Astryx's.
 export { Popover, usePopover } from "./components/Popover";
 export type {

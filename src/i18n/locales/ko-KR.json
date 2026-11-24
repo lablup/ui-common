@@ -442,5 +442,13 @@
   "uic.TimeRangeInput.period": {
     "defaultMessage": "오전/오후",
     "description": "Accessible name of the column that picks AM or PM in a 12-hour time picker"
+  },
+  "uic.PasswordInput.showPassword": {
+    "defaultMessage": "비밀번호 보기",
+    "description": "Accessible name of the button in a password field that shows the typed password as plain text"
+  },
+  "uic.PasswordInput.hidePassword": {
+    "defaultMessage": "비밀번호 숨기기",
+    "description": "Accessible name of the button in a password field that masks the shown password again"
   }
 }

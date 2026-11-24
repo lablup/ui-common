@@ -298,6 +298,7 @@ import { Modal } from "@lablup/ui-common/Modal";
 | `OverlayScrollbar`                                             | A persistent scroll thumb drawn over a scroll container     | `/components/OverlayScrollbar`   |
 | `ConfirmPopover`                                               | A one-click confirmation anchored to its trigger            | `/components/ConfirmPopover`     |
 | `PagedSelector`                                                | A searchable selector over options loaded a page at a time  | `/components/PagedSelector`      |
+| `PasswordInput`                                                | A password field with a show/hide toggle, for `Form.Item`   | `/PasswordInput`                 |
 | `SelectionLabel`                                               | "3 selected", with a button that clears the selection       | `/components/SelectionLabel`     |
 | `UncontrolledInput`                                            | A field that reports its value on Enter or blur             | `/components/UncontrolledInput`  |
 | `AlertModal`                                                   | An alert dialog, in place of Astryx `AlertDialog`           | `/AlertModal`                    |
@@ -421,8 +422,8 @@ const formRef = useRef<FormInstance>(null);
 - They behave as antd's do where Astryx's differ, so a host app needs no
   adapter: inside a `Form.Item` each control takes the width its antd
   counterpart renders there unless given a `width` (`TextInput`,
-  `TextArea`, `Selector`, `MultiSelector`, `Tokenizer`, `TagsInput` and
-  `Typeahead` fill the item, `NumberInput` is 90px, the date and time
+  `TextArea`, `Selector`, `MultiSelector`, `Tokenizer`, `TagsInput`,
+  `PasswordInput` and `Typeahead` fill the item, `NumberInput` is 90px, the date and time
   inputs, `FileInput`, `Switch`, `CheckboxInput`, `CheckboxList` and
   `RadioList` keep their content width, a `FileInput` dropzone fills;
   `IN_ITEM_WIDTH` in `src/formControls/formControl.tsx`), and elsewhere
@@ -435,6 +436,14 @@ const formRef = useRef<FormInstance>(null);
   `string[]`, deduplicated. `tokenSeparators` end a tag as they are typed
   and split a pasted entry; text left in the input when focus leaves
   becomes tags.
+- `PasswordInput` (`@lablup/ui-common/PasswordInput`) takes `TextInput`'s
+  props and adds a show/hide toggle inside the field's trailing edge.
+  Pressing it keeps focus in the field, and Enter on it does not reach the
+  form. Spellcheck, autocorrect and autocapitalize are off. The reveal state
+  is uncontrolled (`defaultIsRevealed`) or controlled (`isRevealed`,
+  `onRevealedChange`); a disabled field is masked and its toggle disabled,
+  and the password is masked again when its form submits or the page comes
+  back from the back/forward cache.
 - A custom control shows its item's validation state by reading
   `Form.Item.useStatus()` or `FormItemInputContext`.
 - `form.scrollToField` and `scrollToFirstError` find the control by

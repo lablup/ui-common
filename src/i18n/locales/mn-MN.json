@@ -418,5 +418,13 @@
   "uic.TimeRangeInput.period": {
     "defaultMessage": "ҮӨ/ҮХ",
     "description": "Accessible name of the column that picks AM or PM in a 12-hour time picker"
+  },
+  "uic.PasswordInput.showPassword": {
+    "defaultMessage": "Нууц үг харуулах",
+    "description": "Accessible name of the button in a password field that shows the typed password as plain text"
+  },
+  "uic.PasswordInput.hidePassword": {
+    "defaultMessage": "Нууц үг нуух",
+    "description": "Accessible name of the button in a password field that masks the shown password again"
   }
 }

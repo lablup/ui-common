@@ -7,6 +7,30 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
 
 ### Added
 
+- **`PasswordInput`** (`@lablup/ui-common/PasswordInput`): a password
+  field with a show/hide toggle, for `Form.Item`.
+  It takes `TextInput`'s props, minus `type`, `hasSpellCheck`,
+  `hasAutoCorrect` and `autoCapitalize`, which it owns. A ghost icon button
+  sits inside the field's trailing edge, in the secondary text colour, with
+  no seam: the field keeps Astryx's border, focus and status styling, and
+  reserves the toggle's room so a long password never runs under it. It
+  works on its own, in a `Form.Item` (a `hasFeedback` icon moves to the
+  toggle's start), in an Astryx `InputGroup`, at every size, and shrinks in a
+  flex row. Pressing it switches between masked and plain text without
+  taking focus from the field (the touch keyboard stays up), and Enter on it
+  (keydown, keypress or keyup) does not reach the surrounding form. Its name
+  is "Show password" / "Hide password"
+  (`uic.PasswordInput.showPassword` / `hidePassword`, translated in every
+  locale; `showPasswordLabel` / `hidePasswordLabel` override them).
+  Spellcheck, autocorrect and autocapitalize are off, Edge's own reveal
+  button is hidden, and the password is kept out of the input's `value`
+  attribute. The reveal state is uncontrolled (`defaultIsRevealed`) or
+  controlled (`isRevealed`, `onRevealedChange`). The password is masked
+  again, and `onRevealedChange(false)` reports it, when the field is
+  disabled (a form that disables its fields while it submits hides it),
+  when its form submits, and when the page comes back from the
+  back/forward cache. A field disabled when it mounts starts masked, and
+  an uncontrolled one stays masked once enabled again.
 - **`MultiSelector`: `showSelectedOptionsTooltip` lists the selection on the trigger
   (#159).** Selections past what the trigger shows collapse into `+N`, and
   long labels are cut off, so the user had to open the listbox to see what is
