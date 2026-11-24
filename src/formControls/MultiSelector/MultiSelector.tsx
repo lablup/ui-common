@@ -9,7 +9,7 @@
  * `showSelectedOptionsTooltip` lists the selected labels in a tooltip on the trigger, or
  * renders the caller's `content` for the selection.
  */
-import { useLayoutEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   MultiSelector as AstryxMultiSelector,
   type MultiSelectorDivider,
@@ -22,8 +22,8 @@ import {
 import { useMergedRefs } from "@astryxdesign/core/hooks";
 import type { SelectorOptionType } from "@astryxdesign/core/Selector";
 import { getSelectableOptions } from "@astryxdesign/core/Selector/utils";
-import { useTooltip } from "@astryxdesign/core/Tooltip";
 
+import { TriggerTooltip } from "../triggerTooltip";
 import {
   EMPTY_ARRAY,
   FormControlScope,
@@ -171,7 +171,7 @@ export function MultiSelector<
     <FormControlScope required={required}>
       <AstryxMultiSelector {...props} />
       {hasTooltip && showSelectedOptionsTooltip && trigger ? (
-        <SelectionTooltip
+        <TriggerTooltip
           trigger={trigger}
           renderContent={() =>
             tooltipContent(
@@ -193,60 +193,4 @@ function tooltipContent(
   if (showSelectedOptionsTooltip === true)
     return items.map((item) => item.label).join(", ");
   return showSelectedOptionsTooltip.content(items);
-}
-
-/** What the tooltip needs from the trigger: disabled, and the listbox open. */
-const readTrigger = (trigger: HTMLElement) => ({
-  // A disabled InputGroup disables the trigger through context Astryx does not
-  // export; the trigger's aria-disabled is where it shows.
-  isDisabled: trigger.getAttribute("aria-disabled") === "true",
-  isExpanded: trigger.getAttribute("aria-expanded") === "true",
-});
-
-/**
- * The selection tooltip, mounted only with `showSelectedOptionsTooltip`. It follows the
- * trigger's own attributes, so it is held shut while the listbox is open and
- * absent while the trigger is disabled, from the first commit on.
- */
-function SelectionTooltip({
-  trigger,
-  renderContent,
-  onDescribedBy,
-}: {
-  trigger: HTMLElement;
-  /** Called only while the tooltip is enabled, so a disabled trigger never runs it. */
-  renderContent: () => ReactNode;
-  onDescribedBy: (id: string | undefined) => void;
-}) {
-  const [state, setState] = useState(() => readTrigger(trigger));
-  useLayoutEffect(() => {
-    const sync = () =>
-      setState((prev) => {
-        const next = readTrigger(trigger);
-        return prev.isDisabled === next.isDisabled &&
-          prev.isExpanded === next.isExpanded
-          ? prev
-          : next;
-      });
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(trigger, { attributeFilter: ["aria-disabled", "aria-expanded"] });
-    return () => observer.disconnect();
-  }, [trigger]);
-  const isEnabled = !state.isDisabled;
-  const tooltip = useTooltip({
-    isEnabled,
-    isOpen: state.isExpanded ? false : undefined,
-  });
-  const attach = tooltip.ref;
-  useLayoutEffect(
-    () => (isEnabled ? attach(trigger) : undefined),
-    [attach, trigger, isEnabled],
-  );
-  const { describedBy } = tooltip;
-  useLayoutEffect(() => {
-    onDescribedBy(isEnabled ? describedBy : undefined);
-    return () => onDescribedBy(undefined);
-  }, [onDescribedBy, describedBy, isEnabled]);
-  return isEnabled ? tooltip.renderTooltip(renderContent()) : null;
 }
