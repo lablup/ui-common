@@ -1,1 +1,0 @@
-@layer ui-common{.uic-skeleton-shape{flex-shrink:0;display:block}.uic-skeleton-shape--text{transform:scaleY(.6)}.uic-skeleton-text{flex-direction:column;display:flex}.uic-skeleton-text--compact{gap:var(--spacing-1)}.uic-skeleton-text--normal{gap:var(--spacing-2)}.uic-skeleton-text--relaxed{gap:var(--spacing-4)}}
