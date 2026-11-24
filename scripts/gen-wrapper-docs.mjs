@@ -164,11 +164,11 @@ const WRAPPERS = {
     },
     add: [
       {
-        name: "showTooltip",
-        type: "boolean",
+        name: "showSelectedOptionsTooltip",
+        type: "boolean | { content: (items: MultiSelectorSelectedItem[]) => ReactNode }",
         default: "false",
         description:
-          "Lists every selected option's label, comma-separated, in a tooltip on the trigger, so the selections behind +N or an ellipsis can be read without opening the listbox. Held shut while the listbox is open; none while nothing is selected, while disabled (disabledMessage keeps the trigger), or with renderTrigger.",
+          "A tooltip on the trigger, so the selections behind +N or an ellipsis can be read without opening the listbox. true lists every selected option's label, comma-separated; { content } renders content(items) instead, where items is the selection as formatValue receives it ({ value, label }[], in selection order), for when labels alone are ambiguous. Held shut while the listbox is open; none while nothing is selected, while disabled (disabledMessage keeps the trigger), or with renderTrigger.",
       },
     ],
     example:

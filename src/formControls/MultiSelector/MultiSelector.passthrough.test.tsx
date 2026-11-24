@@ -1,5 +1,5 @@
 /**
- * With `showTooltip` off, the wrapper hands Astryx what it did before the prop
+ * With `showSelectedOptionsTooltip` off, the wrapper hands Astryx what it did before the prop
  * existed: the caller's `ref` and `onOpenChange` themselves, no tooltip hook,
  * no tooltip layer. Astryx's MultiSelector and useTooltip are spied on.
  */
@@ -53,7 +53,7 @@ const OPTIONS = [
   { value: "south", label: "South" },
 ];
 
-describe("MultiSelector without showTooltip", () => {
+describe("MultiSelector without showSelectedOptionsTooltip", () => {
   it("passes ref and onOpenChange through and runs no tooltip", async () => {
     const ref = createRef<HTMLElement>();
     const onOpenChange = vi.fn();
@@ -82,13 +82,13 @@ describe("MultiSelector without showTooltip", () => {
     expect(ref.current).toBe(trigger);
   });
 
-  it("runs the tooltip hook once showTooltip is set", () => {
+  it("runs the tooltip hook once showSelectedOptionsTooltip is set", () => {
     render(
       <MultiSelector
         aria-label="Regions"
         options={OPTIONS}
         defaultValue={["north"]}
-        showTooltip
+        showSelectedOptionsTooltip
       />,
     );
     expect(spies.useTooltip).toHaveBeenCalled();

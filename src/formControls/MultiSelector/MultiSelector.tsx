@@ -6,7 +6,8 @@
  * An option's `disabled` also takes `{ reason }`: the option is disabled and
  * hovering its row says why (../optionDisabledReason.tsx).
  *
- * `showTooltip` lists the selected labels in a tooltip on the trigger.
+ * `showSelectedOptionsTooltip` lists the selected labels in a tooltip on the trigger, or
+ * renders the caller's `content` for the selection.
  */
 import { useLayoutEffect, useState, type ReactNode } from "react";
 import {
@@ -16,8 +17,11 @@ import {
   type MultiSelectorOptionType as AstryxMultiSelectorOptionType,
   type MultiSelectorProps as AstryxMultiSelectorProps,
   type MultiSelectorSection as AstryxMultiSelectorSection,
+  type MultiSelectorSelectedItem,
 } from "@astryxdesign/core/MultiSelector";
 import { useMergedRefs } from "@astryxdesign/core/hooks";
+import type { SelectorOptionType } from "@astryxdesign/core/Selector";
+import { getSelectableOptions } from "@astryxdesign/core/Selector/utils";
 import { useTooltip } from "@astryxdesign/core/Tooltip";
 
 import {
@@ -61,23 +65,37 @@ export type MultiSelectorProps<
     defaultValue?: AstryxProps["value"];
     onChange?: AstryxProps["onChange"];
     /**
-     * Lists every selected option's label in a tooltip on the trigger, held
-     * shut while the listbox is open. None while disabled or with `renderTrigger`.
+     * A tooltip on the trigger, held shut while the listbox is open. None
+     * while nothing is selected, while disabled, or with `renderTrigger`.
+     * `true` lists every selected option's label, comma-separated; `{ content }`
+     * renders `content(items)` instead, with the selection as `formatValue`
+     * receives it.
      * @default false
      */
-    showTooltip?: boolean;
+    showSelectedOptionsTooltip?:
+      | boolean
+      | {
+          /** The selected items, in selection order, as `formatValue` receives them. */
+          content: (items: MultiSelectorSelectedItem[]) => ReactNode;
+        };
   };
 
-/** The selected options' labels, in selection order; a value with no option stands for itself. */
-function selectedLabels(options: readonly MultiSelectorOptionType[], values: string[]) {
-  const labels = new Map<string, string>();
-  const add = (option: MultiSelectorOptionType) => {
-    if (typeof option === "string") labels.set(option, option);
-    else if ("type" in option && option.type === "section") option.options.forEach(add);
-    else if ("value" in option) labels.set(option.value, option.label ?? option.value);
-  };
-  options.forEach(add);
-  return values.map((value) => labels.get(value) ?? value).join(", ");
+type TooltipOption = Exclude<
+  NonNullable<MultiSelectorProps["showSelectedOptionsTooltip"]>,
+  false
+>;
+
+/** The selected items, in selection order; a value with no option stands for itself. */
+function selectedItems(
+  options: readonly MultiSelectorOptionType[],
+  values: string[],
+): MultiSelectorSelectedItem[] {
+  // Astryx builds formatValue's items the same way, so the two never disagree.
+  const selectable = getSelectableOptions(options as SelectorOptionType[]);
+  return values.map((value) => ({
+    value,
+    label: selectable.find((item) => item.value === value)?.label ?? value,
+  }));
 }
 
 export function MultiSelector<
@@ -89,7 +107,7 @@ export function MultiSelector<
   status,
   disabled,
   options,
-  showTooltip = false,
+  showSelectedOptionsTooltip = false,
   ref,
   onOpenChange,
   ...rest
@@ -110,13 +128,16 @@ export function MultiSelector<
     onChange,
     EMPTY_ARRAY,
   );
-  // Only with showTooltip: the trigger element (state, so the tooltip follows a
+  // Only with showSelectedOptionsTooltip: the trigger element (state, so the tooltip follows a
   // replaced element) and the tooltip's id, which SelectionTooltip reports.
   const [trigger, setTrigger] = useState<HTMLElement | null>(null);
   const [tooltipId, setTooltipId] = useState<string>();
   const triggerRefs = useMergedRefs<HTMLElement>(ref, setTrigger);
   const hasTooltip =
-    showTooltip && !!mergedValue?.length && !field.isDisabled && !rest.renderTrigger;
+    !!showSelectedOptionsTooltip &&
+    !!mergedValue?.length &&
+    !field.isDisabled &&
+    !rest.renderTrigger;
   const reasoned = withOptionDisabledReason<T, AstryxMultiSelectorOptionData>({
     options,
     renderOption: rest.renderOption,
@@ -137,7 +158,7 @@ export function MultiSelector<
     value: mergedValue,
     onChange: handleChange,
     renderOption: reasoned.renderOption,
-    ref: showTooltip ? triggerRefs : ref,
+    ref: showSelectedOptionsTooltip ? triggerRefs : ref,
     onOpenChange,
     // React owns the attribute: the tooltip's id joins the caller's here.
     ...(tooltipId && {
@@ -149,15 +170,29 @@ export function MultiSelector<
   return (
     <FormControlScope required={required}>
       <AstryxMultiSelector {...props} />
-      {hasTooltip && trigger ? (
+      {hasTooltip && showSelectedOptionsTooltip && trigger ? (
         <SelectionTooltip
           trigger={trigger}
-          content={selectedLabels(options, mergedValue ?? [])}
+          renderContent={() =>
+            tooltipContent(
+              showSelectedOptionsTooltip,
+              selectedItems(options, mergedValue ?? []),
+            )
+          }
           onDescribedBy={setTooltipId}
         />
       ) : null}
     </FormControlScope>
   );
+}
+
+function tooltipContent(
+  showSelectedOptionsTooltip: TooltipOption,
+  items: MultiSelectorSelectedItem[],
+): ReactNode {
+  if (showSelectedOptionsTooltip === true)
+    return items.map((item) => item.label).join(", ");
+  return showSelectedOptionsTooltip.content(items);
 }
 
 /** What the tooltip needs from the trigger: disabled, and the listbox open. */
@@ -169,17 +204,18 @@ const readTrigger = (trigger: HTMLElement) => ({
 });
 
 /**
- * The selection tooltip, mounted only with `showTooltip`. It follows the
+ * The selection tooltip, mounted only with `showSelectedOptionsTooltip`. It follows the
  * trigger's own attributes, so it is held shut while the listbox is open and
  * absent while the trigger is disabled, from the first commit on.
  */
 function SelectionTooltip({
   trigger,
-  content,
+  renderContent,
   onDescribedBy,
 }: {
   trigger: HTMLElement;
-  content: ReactNode;
+  /** Called only while the tooltip is enabled, so a disabled trigger never runs it. */
+  renderContent: () => ReactNode;
   onDescribedBy: (id: string | undefined) => void;
 }) {
   const [state, setState] = useState(() => readTrigger(trigger));
@@ -212,5 +248,5 @@ function SelectionTooltip({
     onDescribedBy(isEnabled ? describedBy : undefined);
     return () => onDescribedBy(undefined);
   }, [onDescribedBy, describedBy, isEnabled]);
-  return isEnabled ? tooltip.renderTooltip(content) : null;
+  return isEnabled ? tooltip.renderTooltip(renderContent()) : null;
 }
