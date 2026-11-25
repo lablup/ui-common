@@ -67,6 +67,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   restoreSize("scrollWidth", originalScrollWidth);
   restoreSize("clientWidth", originalClientWidth);
 });
@@ -175,6 +176,46 @@ describe("Selector showSelectedOptionTooltip", () => {
     );
     await waitFor(() => expect(tooltip()).toBeNull());
     expect(trigger()).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("opens on a trigger that already has focus when its label starts to clip", async () => {
+    const { rerender } = render(
+      <Selector
+        aria-label="Region"
+        options={OPTIONS}
+        value="north"
+        showSelectedOptionTooltip
+      />,
+    );
+    act(() => trigger().focus());
+    expect(tooltip()).toBeNull();
+
+    clipped = { scrollWidth: 200, clientWidth: 100 };
+    rerender(
+      <Selector
+        aria-label="Region"
+        options={OPTIONS}
+        value="south"
+        showSelectedOptionTooltip
+      />,
+    );
+    await waitFor(() => expect(tooltip()).toHaveAttribute("popover-open"));
+  });
+
+  it("still measures without a ResizeObserver", async () => {
+    vi.stubGlobal("ResizeObserver", undefined);
+    clipped = { scrollWidth: 200, clientWidth: 100 };
+    render(
+      <Selector
+        aria-label="Region"
+        options={OPTIONS}
+        defaultValue="south"
+        showSelectedOptionTooltip
+      />,
+    );
+    await waitFor(() =>
+      expect(tooltip()).toHaveTextContent("A long southern region name"),
+    );
   });
 
   it("joins the caller's aria-describedby with the tooltip's id", async () => {

@@ -140,12 +140,12 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   // with no option has no trigger label and so no tooltip to show.
   const selectedOption = useMemo(
     () =>
-      mergedValue == null
+      !showSelectedOptionTooltip || mergedValue == null
         ? undefined
         : getSelectableOptions(options as AstryxSelectorOptionType[]).find(
             (option) => option.value === mergedValue,
           ),
-    [options, mergedValue],
+    [showSelectedOptionTooltip, options, mergedValue],
   );
   const hasTooltip =
     !!showSelectedOptionTooltip && !!selectedOption && !field.isDisabled;
