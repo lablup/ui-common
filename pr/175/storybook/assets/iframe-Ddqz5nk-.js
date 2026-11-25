@@ -1,1 +1,0 @@
-import{t as e}from"./iframe-BPLiP5_P.js";e();
