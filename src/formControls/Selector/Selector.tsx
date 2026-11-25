@@ -147,8 +147,7 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
           ),
     [showSelectedOptionTooltip, options, mergedValue],
   );
-  const hasTooltip =
-    !!showSelectedOptionTooltip && !!selectedOption && !field.isDisabled;
+  const hasTooltip = !!selectedOption && !field.isDisabled;
   const isClipped = useClippedContent(trigger, hasTooltip);
   const reasoned = withOptionDisabledReason<T, AstryxSelectorOptionData>({
     options,

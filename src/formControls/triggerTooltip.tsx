@@ -41,10 +41,11 @@ export function TriggerTooltip({
     return () => observer.disconnect();
   }, [trigger]);
   const isEnabled = !state.isDisabled;
-  // Mounted after the trigger already has keyboard focus or the pointer: the
-  // event that opens the tooltip has passed, so open it from the start.
+  // Mounted on a trigger that already has keyboard focus: the focus event that
+  // opens the tooltip has passed, so open it from the start. Hover is left to
+  // the pointer events, which keep the show delay and the touch rule.
   const [isDefaultOpen] = useState(
-    () => trigger.matches(":focus-visible") || trigger.matches(":hover"),
+    () => !state.isDisabled && !state.isExpanded && trigger.matches(":focus-visible"),
   );
   const tooltip = useTooltip({
     isEnabled,
