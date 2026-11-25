@@ -129,7 +129,7 @@ export function MultiSelector<
     EMPTY_ARRAY,
   );
   // Only with showSelectedOptionsTooltip: the trigger element (state, so the tooltip follows a
-  // replaced element) and the tooltip's id, which SelectionTooltip reports.
+  // replaced element) and the tooltip's id, which TriggerTooltip reports.
   const [trigger, setTrigger] = useState<HTMLElement | null>(null);
   const [tooltipId, setTooltipId] = useState<string>();
   const triggerRefs = useMergedRefs<HTMLElement>(ref, setTrigger);

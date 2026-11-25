@@ -41,8 +41,15 @@ export function TriggerTooltip({
     return () => observer.disconnect();
   }, [trigger]);
   const isEnabled = !state.isDisabled;
+  // Mounted on a trigger that already has keyboard focus: the focus event that
+  // opens the tooltip has passed, so open it from the start. Hover is left to
+  // the pointer events, which keep the show delay and the touch rule.
+  const [isDefaultOpen] = useState(
+    () => !state.isDisabled && !state.isExpanded && trigger.matches(":focus-visible"),
+  );
   const tooltip = useTooltip({
     isEnabled,
+    isDefaultOpen,
     isOpen: state.isExpanded ? false : undefined,
   });
   const attach = tooltip.ref;
@@ -87,8 +94,9 @@ export function useClippedContent(
     }
     const measure = () => setIsClipped(hasClippedContent(trigger));
     measure();
-    const resizeObserver = new ResizeObserver(measure);
-    resizeObserver.observe(trigger);
+    const resizeObserver =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    resizeObserver?.observe(trigger);
     const mutationObserver = new MutationObserver(measure);
     mutationObserver.observe(trigger, {
       childList: true,
@@ -96,7 +104,7 @@ export function useClippedContent(
       subtree: true,
     });
     return () => {
-      resizeObserver.disconnect();
+      resizeObserver?.disconnect();
       mutationObserver.disconnect();
     };
   }, [trigger, isEnabled]);
