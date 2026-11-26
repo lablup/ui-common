@@ -10,7 +10,7 @@
  * wrapper watches the trigger's `aria-expanded`, which follows the panel
  * however it opens or closes, and calls it on each change.
  *
- * `showSelectedOptionTooltip` reads the selected option's full label on the
+ * `showTooltipOnEllipsis` reads the selected option's full label on the
  * trigger when the trigger cuts it off with an ellipsis (../triggerTooltip).
  */
 import { useEffect, useMemo, useRef, useState, type Ref } from "react";
@@ -68,7 +68,7 @@ export type SelectorProps<T extends SelectorOptionType = SelectorOptionType> =
      * whose content the caller draws.
      * @default false
      */
-    showSelectedOptionTooltip?: boolean;
+    showTooltipOnEllipsis?: boolean;
   };
 
 /** Calls `onOpenChange` when the trigger's `aria-expanded` changes. */
@@ -106,12 +106,12 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   status,
   disabled,
   options,
-  showSelectedOptionTooltip = false,
+  showTooltipOnEllipsis = false,
   onOpenChange,
   ...rest
 }: SelectorProps<T>) {
   const openChangeRef = useOpenChange(onOpenChange);
-  // Only with showSelectedOptionTooltip: the trigger element (state, so the
+  // Only with showTooltipOnEllipsis: the trigger element (state, so the
   // tooltip follows a replaced element) and the tooltip's id, which
   // TriggerTooltip reports.
   const [trigger, setTrigger] = useState<HTMLButtonElement | null>(null);
@@ -119,7 +119,7 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   const triggerRef = useMergedRefs<HTMLButtonElement>(
     rest.ref as Ref<HTMLButtonElement> | undefined,
     openChangeRef,
-    showSelectedOptionTooltip ? setTrigger : undefined,
+    showTooltipOnEllipsis ? setTrigger : undefined,
   );
   const { required, field, width } = useFormControl({
     component: "Selector",
@@ -141,12 +141,12 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
   // with no option has no trigger label and so no tooltip to show.
   const selectedOption = useMemo(
     () =>
-      !showSelectedOptionTooltip || mergedValue == null
+      !showTooltipOnEllipsis || mergedValue == null
         ? undefined
         : getSelectableOptions(options as AstryxSelectorOptionType[]).find(
             (option) => option.value === mergedValue,
           ),
-    [showSelectedOptionTooltip, options, mergedValue],
+    [showTooltipOnEllipsis, options, mergedValue],
   );
   const hasTooltip = !!selectedOption && !field.isDisabled && !rest.renderValue;
   const isClipped = useClippedContent(trigger, hasTooltip);

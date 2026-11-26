@@ -1,5 +1,5 @@
 /**
- * `showSelectedOptionTooltip`: the selected option's full label on the trigger,
+ * `showTooltipOnEllipsis`: the selected option's full label on the trigger,
  * shown on hover or focus only while the trigger clips it with an ellipsis,
  * held shut while the listbox is open, and absent when it has nothing to say.
  */
@@ -92,7 +92,7 @@ const OPTIONS = [
 const trigger = () => screen.getByRole("combobox", { name: "Region" });
 const tooltip = () => screen.queryByRole("tooltip", { hidden: true });
 
-describe("Selector showSelectedOptionTooltip", () => {
+describe("Selector showTooltipOnEllipsis", () => {
   it("shows the selected label on hover when the trigger clips it", async () => {
     const user = userEvent.setup();
     clipped = { scrollWidth: 200, clientWidth: 100 };
@@ -101,7 +101,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         defaultValue="south"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() =>
@@ -119,7 +119,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         defaultValue="south"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() => expect(tooltip()).not.toBeNull());
@@ -134,7 +134,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         defaultValue="north"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     expect(tooltip()).toBeNull();
@@ -147,7 +147,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         value="north"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     expect(tooltip()).toBeNull();
@@ -158,7 +158,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         value="south"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() =>
@@ -171,7 +171,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         value="north"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() => expect(tooltip()).toBeNull());
@@ -184,7 +184,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         value="north"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     act(() => trigger().focus());
@@ -196,7 +196,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         value="south"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() => expect(tooltip()).toHaveAttribute("popover-open"));
@@ -210,7 +210,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         defaultValue="south"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() =>
@@ -226,7 +226,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         options={OPTIONS}
         defaultValue="south"
         renderValue={(option) => <strong>{option.label}</strong>}
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await act(async () => {});
@@ -242,7 +242,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         options={OPTIONS}
         defaultValue="south"
         aria-describedby="hint"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() => expect(tooltip()).not.toBeNull());
@@ -258,7 +258,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         placeholder="Pick a region"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     expect(tooltip()).toBeNull();
@@ -269,7 +269,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         options={OPTIONS}
         defaultValue="south"
         disabled
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     expect(tooltip()).toBeNull();
@@ -288,7 +288,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={OPTIONS}
         defaultValue="south"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() => expect(tooltip()).not.toBeNull());
@@ -310,7 +310,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         aria-label="Region"
         options={[{ type: "section", title: "All", options: [{ value: "bare" }] }]}
         defaultValue="bare"
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     await waitFor(() => expect(tooltip()).toHaveTextContent("bare"));
@@ -325,7 +325,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         options={OPTIONS}
         value="south"
         ref={ref}
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     rerender(
@@ -334,7 +334,7 @@ describe("Selector showSelectedOptionTooltip", () => {
         options={OPTIONS}
         value="north"
         ref={ref}
-        showSelectedOptionTooltip
+        showTooltipOnEllipsis
       />,
     );
     expect(ref).toHaveBeenCalledTimes(1);

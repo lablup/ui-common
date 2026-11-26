@@ -89,14 +89,14 @@ export const DisabledOptionReason: Story = {
 };
 
 /**
- * `showSelectedOptionTooltip`: hover or focus the trigger to read the selected
+ * `showTooltipOnEllipsis`: hover or focus the trigger to read the selected
  * option's whole label when the trigger cuts it short with an ellipsis. A label
  * that fits shows no tooltip, and neither does an empty or disabled control.
  */
 export const ShowTruncatedValueTooltip: Story = {
   decorators: [withMaxWidth(200)],
   args: {
-    showSelectedOptionTooltip: true,
+    showTooltipOnEllipsis: true,
     options: [
       { value: "north", label: "North" },
       { value: "south", label: "South" },
