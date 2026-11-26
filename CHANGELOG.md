@@ -49,6 +49,20 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   sections) can read apart in the tooltip as they do on the trigger.
   `content` is never called while nothing is selected or the trigger is
   disabled.
+- **`Selector`: `showTooltipOnEllipsis` reads a truncated value on the
+  trigger (#174).** The single-select trigger cuts a long label off with an
+  ellipsis, with no way to read it whole. With `showTooltipOnEllipsis`,
+  hovering or focusing the trigger shows the selected option's whole label in
+  a `Tooltip`, from `options` (sections included), and only while the trigger
+  actually clips it: a label that fits adds no tooltip. There is none while
+  nothing is selected, while the control is disabled (its `disabledMessage`
+  keeps the trigger), while the listbox is open, or with `renderValue`, whose
+  content the caller draws, as `MultiSelector` drops it under `renderTrigger`;
+  `onOpenChange` is still called. The tooltip's id joins the trigger's `aria-describedby` beside
+  the caller's. Off by default, so existing call sites render as before. The
+  tooltip follows the trigger's own disabled and open state exactly as
+  `MultiSelector`'s `showSelectedOptionsTooltip` does, through one shared
+  implementation.
 
 ### Fixed
 
