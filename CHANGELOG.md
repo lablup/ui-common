@@ -56,8 +56,9 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   a `Tooltip`, from `options` (sections included), and only while the trigger
   actually clips it: a label that fits adds no tooltip. There is none while
   nothing is selected, while the control is disabled (its `disabledMessage`
-  keeps the trigger), or while the listbox is open, and `onOpenChange` is
-  still called. The tooltip's id joins the trigger's `aria-describedby` beside
+  keeps the trigger), while the listbox is open, or with `renderValue`, whose
+  content the caller draws, as `MultiSelector` drops it under `renderTrigger`;
+  `onOpenChange` is still called. The tooltip's id joins the trigger's `aria-describedby` beside
   the caller's. Off by default, so existing call sites render as before. The
   tooltip follows the trigger's own disabled and open state exactly as
   `MultiSelector`'s `showSelectedOptionsTooltip` does, through one shared

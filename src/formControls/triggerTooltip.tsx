@@ -67,9 +67,8 @@ export function TriggerTooltip({
 
 /**
  * Whether anything inside `trigger` is clipped: an element whose content is
- * wider than the box it shows. The trigger's label ellipsizes and
- * `renderValue`'s wrapper clips, so a wider scroll box than client box is the
- * sign a value is cut off.
+ * wider than the box it shows. The trigger's label ellipsizes, so a wider
+ * scroll box than client box is the sign a value is cut off.
  */
 export function hasClippedContent(trigger: HTMLElement): boolean {
   return Array.from(trigger.querySelectorAll<HTMLElement>("*")).some(

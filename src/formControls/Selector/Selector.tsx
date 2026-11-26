@@ -64,7 +64,8 @@ export type SelectorProps<T extends SelectorOptionType = SelectorOptionType> =
      * A tooltip on the trigger with the selected option's full label, shown on
      * hover or on focus (the keyboard's included) while the trigger cuts the
      * label off with an ellipsis. None while nothing is selected, while the
-     * control is disabled, or while the listbox is open.
+     * control is disabled, while the listbox is open, or with `renderValue`,
+     * whose content the caller draws.
      * @default false
      */
     showSelectedOptionTooltip?: boolean;
@@ -147,7 +148,7 @@ export function Selector<T extends SelectorOptionType = SelectorOptionType>({
           ),
     [showSelectedOptionTooltip, options, mergedValue],
   );
-  const hasTooltip = !!selectedOption && !field.isDisabled;
+  const hasTooltip = !!selectedOption && !field.isDisabled && !rest.renderValue;
   const isClipped = useClippedContent(trigger, hasTooltip);
   const reasoned = withOptionDisabledReason<T, AstryxSelectorOptionData>({
     options,

@@ -218,6 +218,22 @@ describe("Selector showSelectedOptionTooltip", () => {
     );
   });
 
+  it("is absent with renderValue, whose content the caller draws", async () => {
+    clipped = { scrollWidth: 200, clientWidth: 100 };
+    render(
+      <Selector
+        aria-label="Region"
+        options={OPTIONS}
+        defaultValue="south"
+        renderValue={(option) => <strong>{option.label}</strong>}
+        showSelectedOptionTooltip
+      />,
+    );
+    await act(async () => {});
+    expect(tooltip()).toBeNull();
+    expect(trigger()).not.toHaveAttribute("aria-describedby");
+  });
+
   it("joins the caller's aria-describedby with the tooltip's id", async () => {
     clipped = { scrollWidth: 200, clientWidth: 100 };
     render(
