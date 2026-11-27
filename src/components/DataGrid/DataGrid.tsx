@@ -179,6 +179,11 @@ export interface DataGridSelection<T> {
   getRowLabel?: (item: T) => string;
   /** Select-all keeps keys of rows on other pages. Default: false */
   isPreservingOtherPages?: boolean;
+  /**
+   * Leaves the selection column's header cell empty, for a grid whose
+   * `onChange` caps the selection. Row checkboxes stay. Default: false
+   */
+  isSelectAllHidden?: boolean;
 }
 
 export interface DataGridExpansion<T> {
@@ -886,7 +891,11 @@ export function DataGrid<T extends object = AnyRow>({
     transformColumns: (cols) =>
       cols.map((column) =>
         column.key === SELECTION_COLUMN_KEY
-          ? { ...column, width: pixel(SELECTION_COLUMN_WIDTH) }
+          ? {
+              ...column,
+              width: pixel(SELECTION_COLUMN_WIDTH),
+              ...(selection?.isSelectAllHidden ? { header: "" } : null),
+            }
           : column,
       ),
   };

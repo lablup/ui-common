@@ -477,6 +477,28 @@ describe("DataGrid selection", () => {
     await userEvent.click(screen.getByRole("checkbox", { name: "Select all rows" }));
     expect(onChange.mock.lastCall?.[0]).toEqual(["elsewhere", "1", "2"]);
   });
+
+  it("renders the select-all checkbox unless isSelectAllHidden is set", () => {
+    const selection = { selectedKeys: [], getRowLabel: (row: Row) => row.name };
+    const shown = renderGrid({ data: makeRows(2), selection });
+    expect(
+      screen.getByRole("checkbox", { name: "Select all rows" }),
+    ).toBeInTheDocument();
+    shown.unmount();
+
+    const { container } = renderGrid({
+      data: makeRows(2),
+      selection: { ...selection, isSelectAllHidden: true },
+    });
+    expect(
+      screen.queryByRole("checkbox", { name: "Select all rows" }),
+    ).not.toBeInTheDocument();
+    const selectionHeader = container.querySelector<HTMLTableCellElement>("thead th")!;
+    expect(selectionHeader).toHaveTextContent("");
+    expect(selectionHeader.style.width).toBe("52px");
+    expect(screen.getByRole("checkbox", { name: "Select row-1" })).toBeEnabled();
+    expect(screen.getByRole("checkbox", { name: "Select row-2" })).toBeEnabled();
+  });
 });
 
 describe("DataGrid expansion", () => {

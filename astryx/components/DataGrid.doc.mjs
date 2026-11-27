@@ -69,7 +69,7 @@ export default {
       name: "selection",
       type: "DataGridSelection<T>",
       description:
-        "selectedKeys (controlled), onChange(keys, items), getIsItemEnabled (select-all leaves a disabled row as it is), getRowLabel, isPreservingOtherPages.",
+        "selectedKeys (controlled), onChange(keys, items), getIsItemEnabled (select-all leaves a disabled row as it is), getRowLabel, isPreservingOtherPages, isSelectAllHidden (empty selection header, for a grid that caps the selection).",
     },
     {
       name: "columnSettings",
