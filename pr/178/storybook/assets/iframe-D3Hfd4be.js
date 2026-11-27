@@ -1,1 +1,0 @@
-import{t as e}from"./iframe-BnU-QV4t.js";e();
