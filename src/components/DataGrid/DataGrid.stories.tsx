@@ -174,6 +174,23 @@ export const Selection: Story = {
   },
 };
 
+export const SelectAllHidden: Story = {
+  render: function Render(args) {
+    const [selectedKeys, setSelectedKeys] = useState<DataGridKey[]>(["res-001"]);
+    return (
+      <DataGrid<Resource>
+        {...args}
+        selection={{
+          selectedKeys,
+          onChange: setSelectedKeys,
+          getRowLabel: (r) => r.name,
+          isSelectAllHidden: true,
+        }}
+      />
+    );
+  },
+};
+
 export const ColumnResizing: Story = {
   args: {
     isResizable: true,

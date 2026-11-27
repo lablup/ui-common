@@ -69,7 +69,7 @@ export default {
       name: "selection",
       type: "DataGridSelection<T>",
       description:
-        "selectedKeys (controlled), onChange(keys, items), getIsItemEnabled (select-all leaves a disabled row as it is), getRowLabel, isPreservingOtherPages.",
+        "selectedKeys (controlled), onChange(keys, items), getIsItemEnabled (select-all leaves a disabled row as it is), getRowLabel, isPreservingOtherPages, isSelectAllHidden (hides the header select-all checkbox; the header keeps a hidden name, selectionColumnLabel).",
     },
     {
       name: "columnSettings",
@@ -150,7 +150,7 @@ export default {
       default: "the catalog's uic.DataGrid.range",
     },
     {
-      name: "expandRowLabel, invalidPageText, goToFirstPageLabel, paginationLabel, settingsLabel, exportLabel",
+      name: "expandRowLabel, selectionColumnLabel, invalidPageText, goToFirstPageLabel, paginationLabel, settingsLabel, exportLabel",
       type: "string",
       description: "Strings of the grid's chrome.",
       default: "the catalog's uic.DataGrid.* keys",

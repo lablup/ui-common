@@ -62,6 +62,7 @@ import {
   type TableSortState,
 } from "@astryxdesign/core/Table";
 import { Text } from "@astryxdesign/core/Text";
+import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden";
 import { ChevronDown, ChevronRight, FileDown, Inbox, Settings } from "lucide-react";
 
 import { useUicTranslator } from "../../i18n/useUicTranslator";
@@ -179,6 +180,11 @@ export interface DataGridSelection<T> {
   getRowLabel?: (item: T) => string;
   /** Select-all keeps keys of rows on other pages. Default: false */
   isPreservingOtherPages?: boolean;
+  /**
+   * Hides the header select-all checkbox. The header cell keeps a visually
+   * hidden name (`selectionColumnLabel`); row checkboxes stay. Default: false
+   */
+  isSelectAllHidden?: boolean;
 }
 
 export interface DataGridExpansion<T> {
@@ -286,6 +292,11 @@ export interface DataGridProps<T extends object = AnyRow> extends Omit<
   isHeaderHidden?: boolean;
   /** Accessible name of the expand buttons. Default: the catalog's `uic.DataGrid.expandRow` */
   expandRowLabel?: string;
+  /**
+   * Accessible name of the selection column's header when `selection.isSelectAllHidden`
+   * is set. Default: the catalog's `uic.DataGrid.selectionColumn`
+   */
+  selectionColumnLabel?: string;
   /** Shown when the page lies past the last one. Default: the catalog's `uic.DataGrid.invalidPage` */
   invalidPageText?: string;
   /** Default: the catalog's `uic.DataGrid.goToFirstPage` */
@@ -456,6 +467,7 @@ export function DataGrid<T extends object = AnyRow>({
   maxHeight,
   isHeaderHidden = false,
   expandRowLabel,
+  selectionColumnLabel,
   invalidPageText,
   goToFirstPageLabel,
   paginationLabel,
@@ -886,7 +898,17 @@ export function DataGrid<T extends object = AnyRow>({
     transformColumns: (cols) =>
       cols.map((column) =>
         column.key === SELECTION_COLUMN_KEY
-          ? { ...column, width: pixel(SELECTION_COLUMN_WIDTH) }
+          ? {
+              ...column,
+              width: pixel(SELECTION_COLUMN_WIDTH),
+              header: selection?.isSelectAllHidden ? (
+                <VisuallyHidden>
+                  {selectionColumnLabel ?? t("uic.DataGrid.selectionColumn")}
+                </VisuallyHidden>
+              ) : (
+                column.header
+              ),
+            }
           : column,
       ),
   };

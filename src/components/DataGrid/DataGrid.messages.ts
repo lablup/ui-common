@@ -18,6 +18,11 @@ export const dataGridMessages = defineMessages({
     defaultMessage: "Expand row",
     description: "Accessible name of the button that shows or hides a row's details",
   },
+  "uic.DataGrid.selectionColumn": {
+    defaultMessage: "Selection",
+    description:
+      "Visually hidden header of the column of row checkboxes in a data grid, read by screen readers when the select-all checkbox is hidden",
+  },
   "uic.DataGrid.pagination": {
     defaultMessage: "Pagination",
     description: "Accessible name of a data grid's page navigation",

@@ -63,6 +63,13 @@ Versioning follows the policy in [CONTRIBUTING.md](CONTRIBUTING.md#versioning).
   tooltip follows the trigger's own disabled and open state exactly as
   `MultiSelector`'s `showSelectedOptionsTooltip` does, through one shared
   implementation.
+- **`DataGrid`: `selection.isSelectAllHidden` hides the header select-all
+  checkbox.** The selection column's header cell then has no checkbox but
+  keeps a visually hidden accessible name ("Selection",
+  `uic.DataGrid.selectionColumn`, overridable with `selectionColumnLabel`);
+  the column keeps its width, so the rows stay aligned, and the row
+  checkboxes are unchanged. Off by default, so existing call sites render as
+  before.
 
 ### Fixed
 
