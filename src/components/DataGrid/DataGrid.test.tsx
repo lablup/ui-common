@@ -493,8 +493,9 @@ describe("DataGrid selection", () => {
     expect(
       screen.queryByRole("checkbox", { name: "Select all rows" }),
     ).not.toBeInTheDocument();
-    const selectionHeader = container.querySelector<HTMLTableCellElement>("thead th")!;
-    expect(selectionHeader).toHaveTextContent("");
+    const selectionHeader = screen.getByRole("columnheader", { name: "Selection" });
+    expect(selectionHeader).toBe(container.querySelector("thead th"));
+    expect(within(selectionHeader).queryByRole("checkbox")).not.toBeInTheDocument();
     expect(selectionHeader.style.width).toBe("52px");
     expect(screen.getByRole("checkbox", { name: "Select row-1" })).toBeEnabled();
     expect(screen.getByRole("checkbox", { name: "Select row-2" })).toBeEnabled();

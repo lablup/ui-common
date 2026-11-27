@@ -182,8 +182,7 @@ export const SelectAllHidden: Story = {
         {...args}
         selection={{
           selectedKeys,
-          // At most two rows: the newest pick replaces the oldest.
-          onChange: (keys) => setSelectedKeys(keys.slice(-2)),
+          onChange: setSelectedKeys,
           getRowLabel: (r) => r.name,
           isSelectAllHidden: true,
         }}
